@@ -6,6 +6,7 @@ import {
   Search, MapPin, Droplets, AlertTriangle, Building2, Users, FlaskConical,
   ChevronRight, Loader2, ShieldAlert, ShieldCheck, ArrowRight, Sparkles,
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -15,6 +16,7 @@ import { useToast } from '@/hooks/use-toast'
 import { api } from '@/lib/api'
 import type { Utility, Stats, UtilityWithStats } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
+import { LiveTicker } from '@/components/site/live-ticker'
 
 const POPULAR_ZIPS = ['60614', '10003', '90026', '77007', '85016', '98103']
 
@@ -85,6 +87,9 @@ export function HomeSection() {
         onSearch={() => doSearch(q)}
         stats={stats}
       />
+
+      {/* Live ticker - animated stats marquee */}
+      <LiveTicker />
 
       {/* Stats bar */}
       <StatsBar stats={stats} />
@@ -206,10 +211,74 @@ function Hero({
 }) {
   return (
     <section className="relative overflow-hidden bg-water-hero">
-      {/* Decorative water droplets */}
-      <div className="pointer-events-none absolute inset-0 opacity-30">
-        <div className="absolute -top-12 right-[10%] h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute bottom-0 left-[5%] h-60 w-60 rounded-full bg-accent/40 blur-3xl" />
+      {/* Animated gradient orbs */}
+      <div className="pointer-events-none absolute inset-0 opacity-40">
+        <motion.div
+          className="absolute -top-12 right-[10%] h-72 w-72 rounded-full bg-primary/30 blur-3xl"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute bottom-0 left-[5%] h-60 w-60 rounded-full bg-accent/50 blur-3xl"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.6, 0.4] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+        />
+        <motion.div
+          className="absolute top-[40%] left-[60%] h-40 w-40 rounded-full bg-cyan-300/30 blur-3xl"
+          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+        />
+      </div>
+
+      {/* Falling water droplets animation */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {DROPLET_POSITIONS.map((pos, i) => (
+          <motion.div
+            key={i}
+            className="absolute"
+            style={{ left: pos.left, top: '-20px' }}
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: ['calc(-20px)', 'calc(100vh)'], opacity: [0, 0.6, 0.6, 0] }}
+            transition={{
+              duration: pos.duration,
+              repeat: Infinity,
+              delay: pos.delay,
+              ease: 'easeIn',
+            }}
+          >
+            <svg width={pos.size} height={pos.size * 1.4} viewBox="0 0 12 16" fill="none">
+              <path
+                d="M6 0 C6 4, 12 8, 12 11 A6 6 0 0 1 0 11 C0 8, 6 4, 6 0 Z"
+                fill="oklch(0.7 0.13 195)"
+                opacity="0.5"
+              />
+            </svg>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Wave decoration at bottom of hero */}
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0">
+        <svg
+          viewBox="0 0 1440 80"
+          className="w-full h-[40px] sm:h-[60px]"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <motion.path
+            d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"
+            fill="oklch(0.99 0.005 200)"
+            className="dark:fill-[oklch(0.16_0.02_200)]"
+            animate={{
+              d: [
+                'M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z',
+                'M0,40 C240,0 480,80 720,40 C960,0 1200,80 1440,40 L1440,80 L0,80 Z',
+                'M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z',
+              ],
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </svg>
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
@@ -223,16 +292,32 @@ function Hero({
               variant="secondary"
               className="mb-5 gap-1.5 border-primary/20 bg-primary/10 text-primary"
             >
-              <Sparkles className="h-3 w-3" />
+              <motion.span
+                animate={{ rotate: [0, 15, -15, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                className="inline-flex"
+              >
+                <Sparkles className="h-3 w-3" />
+              </motion.span>
               2026 Water Project · Community Database
             </Badge>
             <h1 className="text-balance text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               Know what&apos;s in your{' '}
-              <span className="bg-gradient-to-r from-primary to-cyan-500 bg-clip-text text-transparent">
-                tap water
+              <span className="relative inline-block">
+                <span className="bg-gradient-to-r from-primary via-cyan-500 to-primary bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_ease_infinite]">
+                  tap water
+                </span>
+                <motion.span
+                  className="absolute -right-3 -top-2 text-primary"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 0.8] }}
+                  transition={{ duration: 1, delay: 0.8, repeat: Infinity, repeatDelay: 4 }}
+                >
+                  <Droplets className="h-5 w-5 fill-primary" />
+                </motion.span>
               </span>
             </h1>
-            <p className="mt-5 text-pretty text-base text-muted-foreground sm:text-lg">
+            <p className="mt-5 text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
               Search any US ZIP code to see contaminants measured in your
               drinking water — including microplastics, lead, PFAS, and
               disinfection byproducts. Compare against health guidelines, not
@@ -256,14 +341,14 @@ function Hero({
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Enter ZIP code, city, state, or utility name"
-                className="h-12 rounded-xl border-border/80 bg-card pl-10 pr-4 text-base shadow-sm focus-visible:ring-primary"
+                className="h-12 rounded-xl border-border/80 bg-card pl-10 pr-4 text-base shadow-sm focus-visible:ring-primary focus-visible:ring-2"
                 aria-label="Search by ZIP code, city, state, or utility name"
               />
             </div>
             <Button
               type="submit"
               size="lg"
-              className="h-12 rounded-xl px-6 text-base shadow-md shadow-primary/30"
+              className="h-12 rounded-xl px-6 text-base shadow-md shadow-primary/30 transition-transform hover:scale-[1.02] active:scale-[0.98]"
               disabled={!q.trim()}
             >
               <Droplets className="h-4 w-4" />
@@ -302,6 +387,20 @@ function Hero({
   )
 }
 
+// Pre-computed droplet positions for the hero animation
+const DROPLET_POSITIONS = [
+  { left: '5%', size: 10, duration: 6, delay: 0 },
+  { left: '15%', size: 14, duration: 8, delay: 1.5 },
+  { left: '28%', size: 8, duration: 7, delay: 3 },
+  { left: '42%', size: 12, duration: 9, delay: 0.5 },
+  { left: '55%', size: 16, duration: 7.5, delay: 2 },
+  { left: '68%', size: 10, duration: 8.5, delay: 4 },
+  { left: '80%', size: 13, duration: 6.5, delay: 1 },
+  { left: '90%', size: 9, duration: 7.8, delay: 2.8 },
+  { left: '35%', size: 11, duration: 9.2, delay: 5 },
+  { left: '72%', size: 15, duration: 8.2, delay: 3.5 },
+]
+
 function StatsBar({ stats }: { stats: Stats | null }) {
   if (!stats) return null
   const items = [
@@ -332,30 +431,52 @@ function StatsBar({ stats }: { stats: Stats | null }) {
     },
   ]
   return (
-    <div className="border-y border-border/60 bg-card/50">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-border/60 sm:grid-cols-4">
-        {items.map(({ icon: Icon, label, value, hint, tone }) => (
-          <div key={label} className="px-4 py-5 sm:px-6 sm:py-6">
-            <div className="flex items-center gap-2">
-              <Icon
-                className={
-                  tone === 'warning'
-                    ? 'h-4 w-4 text-rose-500'
-                    : 'h-4 w-4 text-primary'
-                }
-              />
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {label}
-              </span>
-            </div>
-            <div
-              className={`mt-1.5 text-2xl font-bold tabular-nums sm:text-3xl ${
-                tone === 'warning' ? 'text-rose-600' : 'text-foreground'
-              }`}
+    <div className="border-b border-border/60 bg-card/50">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 sm:grid-cols-4">
+        {items.map(({ icon: Icon, label, value, hint, tone }, i) => (
+          <div
+            key={label}
+            className={cn(
+              'px-4 py-5 sm:px-6 sm:py-6',
+              // Vertical dividers between columns on desktop
+              'sm:border-l sm:border-border/60 first:sm:border-l-0',
+              // Horizontal divider between rows on mobile (rows 1 and 2)
+              i >= 2 && 'border-t border-border/60 sm:border-t-0',
+              // Vertical divider between left and right columns on mobile
+              i % 2 === 1 && 'border-l border-border/60 sm:border-l-0'
+            )}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08 }}
             >
-              {value}
-            </div>
-            <div className="text-[11px] text-muted-foreground">{hint}</div>
+              <div className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    'inline-flex h-7 w-7 items-center justify-center rounded-md',
+                    tone === 'warning'
+                      ? 'bg-rose-100 text-rose-600'
+                      : 'bg-primary/10 text-primary'
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                </div>
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {label}
+                </span>
+              </div>
+              <div
+                className={cn(
+                  'mt-2 text-2xl font-bold tabular-nums sm:text-3xl',
+                  tone === 'warning' ? 'text-rose-600' : 'text-foreground'
+                )}
+              >
+                {value}
+              </div>
+              <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>
+            </motion.div>
           </div>
         ))}
       </div>

@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X, Building2, MapPin, Users, Globe, AlertTriangle, ShieldCheck,
-  TrendingUp, FlaskConical, Info,
+  TrendingUp, FlaskConical, Info, Download, Share2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -42,18 +42,48 @@ export function UtilityDetailDialog({
           >
             {/* Header */}
             <div className="relative shrink-0 overflow-hidden bg-water-surface px-5 py-6 text-primary-foreground sm:px-7">
-              <button
-                onClick={onClose}
-                aria-label="Close"
-                className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <div className="absolute right-4 top-4 flex gap-1.5">
+                <button
+                  onClick={() => {
+                    const text = `${utility.name} — ${utility.city}, ${utility.state}\n${utility.contaminantSummaries.length} contaminants tracked · ${utility.healthExceedances} above health guideline · ${utility.exceedances} above legal limit\nvia AquaGuard water database`
+                    if (navigator.share) {
+                      navigator.share({ title: utility.name, text }).catch(() => {})
+                    } else {
+                      navigator.clipboard?.writeText(text)
+                    }
+                  }}
+                  aria-label="Share"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
+                  title="Share summary"
+                >
+                  <Share2 className="h-4 w-4" />
+                </button>
+                <a
+                  href={`/api/export?format=csv&table=samples`}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    // Download just this utility's samples via the samples API filtered
+                    window.open(`/api/samples?utilityId=${utility.id}&limit=5000`, '_blank')
+                  }}
+                  aria-label="Download samples"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
+                  title="Download samples (JSON)"
+                >
+                  <Download className="h-4 w-4" />
+                </a>
+                <button
+                  onClick={onClose}
+                  aria-label="Close"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
               <div className="flex items-center gap-1.5 text-xs font-medium text-white/80">
                 <MapPin className="h-3 w-3" />
                 {utility.city}, {utility.state} · PWSID {utility.pwsid}
               </div>
-              <h2 className="mt-1.5 pr-10 text-xl font-bold leading-tight sm:text-2xl">
+              <h2 className="mt-1.5 pr-32 sm:pr-36 text-xl font-bold leading-tight sm:text-2xl">
                 {utility.name}
               </h2>
               <div className="mt-3 flex flex-wrap gap-1.5">

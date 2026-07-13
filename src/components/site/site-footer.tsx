@@ -40,6 +40,11 @@ export function SiteFooter() {
                 </a>
               </li>
               <li>
+                <a href="#map" className="text-muted-foreground hover:text-primary transition-colors">
+                  National map view
+                </a>
+              </li>
+              <li>
                 <a href="#contaminants" className="text-muted-foreground hover:text-primary transition-colors">
                   Contaminant catalog
                 </a>
@@ -52,6 +57,11 @@ export function SiteFooter() {
               <li>
                 <a href="#reports" className="text-muted-foreground hover:text-primary transition-colors">
                   Community reports
+                </a>
+              </li>
+              <li>
+                <a href="#volunteer" className="text-muted-foreground hover:text-primary transition-colors">
+                  Get involved
                 </a>
               </li>
             </ul>

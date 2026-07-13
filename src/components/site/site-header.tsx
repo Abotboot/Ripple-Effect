@@ -1,22 +1,27 @@
 'use client'
 
-import { Droplets, Menu, X, Shield, Github, Database, BarChart3, FlaskConical, Megaphone, Lock } from 'lucide-react'
+import { Droplets, Menu, X, Github, BarChart3, FlaskConical, Megaphone, Lock, Map, Heart } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { ThemeToggle } from '@/components/site/theme-toggle'
 
 export type Section =
   | 'home'
   | 'explorer'
   | 'microplastics'
   | 'reports'
+  | 'map'
+  | 'volunteer'
   | 'admin'
 
 const NAV: Array<{ id: Section; label: string; icon: React.ElementType }> = [
   { id: 'home', label: 'Home', icon: Droplets },
+  { id: 'map', label: 'Map', icon: Map },
   { id: 'explorer', label: 'Contaminants', icon: FlaskConical },
   { id: 'microplastics', label: 'Microplastics', icon: BarChart3 },
   { id: 'reports', label: 'Community', icon: Megaphone },
+  { id: 'volunteer', label: 'Get Involved', icon: Heart },
   { id: 'admin', label: 'Admin', icon: Lock },
 ]
 
@@ -58,13 +63,13 @@ export function SiteHeader({
         </button>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-0.5">
           {NAV.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => go(id)}
               className={cn(
-                'group inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'group inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
                 current === id
                   ? 'bg-primary/10 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -76,7 +81,8 @@ export function SiteHeader({
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <ThemeToggle />
           <a
             href="https://github.com"
             target="_blank"
@@ -91,7 +97,7 @@ export function SiteHeader({
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden h-9 w-9"
+            className="lg:hidden h-9 w-9"
             onClick={() => setOpen((o) => !o)}
             aria-label="Toggle menu"
             aria-expanded={open}
@@ -103,7 +109,7 @@ export function SiteHeader({
 
       {/* Mobile nav */}
       {open && (
-        <nav className="md:hidden border-t border-border/60 bg-background px-4 py-3">
+        <nav className="lg:hidden border-t border-border/60 bg-background px-4 py-3">
           <div className="grid gap-1">
             {NAV.map(({ id, label, icon: Icon }) => (
               <button

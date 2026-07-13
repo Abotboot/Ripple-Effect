@@ -104,11 +104,24 @@ export type Stats = {
   contaminantsCount: number
   samplesCount: number
   reportsCount: number
+  volunteersCount: number
   statesCovered: number
   populationServed: number
   microplasticsAvg: number
   healthExceedances: number
   legalExceedances: number
+  mapUtilities: Array<{
+    id: string
+    name: string
+    city: string
+    state: string
+    pwsid: string
+    latitude: number
+    longitude: number
+    population: number
+    healthExceedances: number
+    legalExceedances: number
+  }>
 }
 
 export type AdminUser = {
@@ -116,4 +129,20 @@ export type AdminUser = {
   email: string
   name: string
   role: string
+}
+
+export type Volunteer = {
+  id: string
+  name: string
+  email: string
+  zipCode: string | null
+  city: string | null
+  state: string | null
+  role: string
+  skills: string | null
+  availability: string | null
+  message: string | null
+  status: string
+  createdAt: string
+  updatedAt: string
 }

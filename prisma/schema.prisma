@@ -117,3 +117,24 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// Volunteer signups from the "Get Involved" section.
+// Public submission - anyone can sign up to join the crew.
+model Volunteer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  zipCode   String?
+  city      String?
+  state     String?
+  role      String   @default("General") // Engineering / Coding / Social Media / PR / General
+  skills    String?  // free text
+  availability String? // e.g. "weeknights", "weekends", "flexible"
+  message   String?  // why they want to join
+  status    String   @default("pending") // pending / contacted / onboarded / declined
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([role])
+}

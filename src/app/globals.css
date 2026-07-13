@@ -216,3 +216,39 @@
 .animate-drop {
   animation: dropFall 0.8s ease-out forwards;
 }
+
+/* Shimmer text effect for hero gradient text */
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+  100% { background-position: 0% center; }
+}
+
+/* Smooth focus ring transition */
+*:focus-visible {
+  transition: box-shadow 0.15s ease;
+}
+
+/* Card hover lift effect */
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Skeleton shimmer enhancement */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    oklch(0.93 0.01 200) 25%,
+    oklch(0.96 0.015 200) 50%,
+    oklch(0.93 0.01 200) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+}
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

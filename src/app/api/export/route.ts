@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams
   const format = sp.get('format') === 'csv' ? 'csv' : 'json'
   const table = sp.get('table') ?? 'utilities'
-  const validTables = ['utilities', 'contaminants', 'samples', 'reports']
+  const validTables = ['utilities', 'contaminants', 'samples', 'reports', 'volunteers']
   if (!validTables.includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 })
   }
@@ -49,6 +49,14 @@ export async function GET(req: NextRequest) {
       break
     case 'reports':
       rows = await db.report.findMany({ orderBy: { createdAt: 'desc' } })
+      rows = rows.map((r) => ({
+        ...r,
+        createdAt: (r.createdAt as Date).toISOString(),
+        updatedAt: (r.updatedAt as Date).toISOString(),
+      }))
+      break
+    case 'volunteers':
+      rows = await db.volunteer.findMany({ orderBy: { createdAt: 'desc' } })
       rows = rows.map((r) => ({
         ...r,
         createdAt: (r.createdAt as Date).toISOString(),

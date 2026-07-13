@@ -7,6 +7,7 @@ import type {
   Report,
   Stats,
   AdminUser,
+  Volunteer,
 } from './types'
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
@@ -46,6 +47,17 @@ export const api = {
 
   submitReport: (data: Partial<Report>) =>
     req<Report>(`/api/reports`, { method: 'POST', body: JSON.stringify(data) }),
+
+  submitVolunteer: (data: Partial<Volunteer>) =>
+    req<Volunteer>(`/api/volunteers`, { method: 'POST', body: JSON.stringify(data) }),
+
+  listVolunteers: () => req<Volunteer[]>(`/api/volunteers`),
+
+  updateVolunteerStatus: (id: string, status: string) =>
+    req<Volunteer>(`/api/volunteers/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
 
   getStats: () => req<Stats>(`/api/stats`),
 

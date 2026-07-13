@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import {
   Lock, LogOut, Loader2, Download, Upload, Plus, Pencil, Trash2,
   ShieldCheck, Database, FileJson, FileSpreadsheet, CheckCircle2,
-  AlertCircle, Building2, Megaphone,
+  AlertCircle, Building2, Megaphone, Heart, Mail, Calendar,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
 import { api } from '@/lib/api'
-import type { Utility, Contaminant, Report, AdminUser } from '@/lib/types'
+import type { Utility, Contaminant, Report, AdminUser, Volunteer } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 export function AdminSection() {
@@ -76,7 +76,7 @@ export function AdminSection() {
         </div>
 
         <Tabs defaultValue="reports" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
             <TabsTrigger value="reports" className="gap-1.5">
               <Megaphone className="h-3.5 w-3.5" />
               Reports
@@ -88,6 +88,10 @@ export function AdminSection() {
             <TabsTrigger value="contaminants" className="gap-1.5">
               <Database className="h-3.5 w-3.5" />
               Contaminants
+            </TabsTrigger>
+            <TabsTrigger value="volunteers" className="gap-1.5">
+              <Heart className="h-3.5 w-3.5" />
+              Volunteers
             </TabsTrigger>
             <TabsTrigger value="data" className="gap-1.5">
               <FileJson className="h-3.5 w-3.5" />
@@ -103,6 +107,9 @@ export function AdminSection() {
           </TabsContent>
           <TabsContent value="contaminants" className="mt-4">
             <ContaminantsAdmin />
+          </TabsContent>
+          <TabsContent value="volunteers" className="mt-4">
+            <VolunteersAdmin />
           </TabsContent>
           <TabsContent value="data" className="mt-4">
             <DataAdmin />
@@ -529,7 +536,7 @@ function ContaminantsAdmin() {
 
 // ── Import / Export ────────────────────────────────────────────────────
 function DataAdmin() {
-  const [table, setTable] = useState<'utilities' | 'contaminants' | 'samples' | 'reports'>('utilities')
+  const [table, setTable] = useState<'utilities' | 'contaminants' | 'samples' | 'reports' | 'volunteers'>('utilities')
   const [importFormat, setImportFormat] = useState<'csv' | 'json'>('json')
   const [importText, setImportText] = useState('')
   const [importing, setImporting] = useState(false)
@@ -591,6 +598,7 @@ function DataAdmin() {
                   <SelectItem value="contaminants">Contaminants</SelectItem>
                   <SelectItem value="samples">Samples</SelectItem>
                   <SelectItem value="reports">Reports</SelectItem>
+                  <SelectItem value="volunteers">Volunteers</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -628,6 +636,7 @@ function DataAdmin() {
                   <SelectItem value="contaminants">Contaminants</SelectItem>
                   <SelectItem value="samples">Samples</SelectItem>
                   <SelectItem value="reports">Reports</SelectItem>
+                  <SelectItem value="volunteers">Volunteers</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -701,5 +710,109 @@ function DataAdmin() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+// ── Volunteers Admin ───────────────────────────────────────────────────
+function VolunteersAdmin() {
+  const [volunteers, setVolunteers] = useState<Volunteer[] | null>(null)
+  const { toast } = useToast()
+
+  const load = () => api.listVolunteers().then(setVolunteers)
+  useEffect(() => { load() }, [])
+
+  const setStatus = async (id: string, status: string) => {
+    try {
+      await api.updateVolunteerStatus(id, status)
+      toast({ title: `Marked as ${status}` })
+      load()
+    } catch (e) {
+      toast({
+        title: 'Update failed',
+        description: e instanceof Error ? e.message : 'Unknown error',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  if (!volunteers) {
+    return <Skeleton className="h-64 w-full" />
+  }
+
+  const roleColors: Record<string, string> = {
+    Engineering: 'bg-amber-100 text-amber-700',
+    Coding: 'bg-teal-100 text-teal-700',
+    'Social Media': 'bg-pink-100 text-pink-700',
+    'Public Relations': 'bg-cyan-100 text-cyan-700',
+    General: 'bg-slate-100 text-slate-700',
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Heart className="h-4 w-4 text-primary" />
+          Volunteer signups ({volunteers.length})
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {volunteers.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No volunteer signups yet. Share the &quot;Get Involved&quot; page to start recruiting!
+          </p>
+        ) : volunteers.map((v) => (
+          <div key={v.id} className="rounded-lg border border-border/60 bg-card p-3">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="font-medium text-foreground">{v.name}</span>
+                  <span className={cn('rounded-md px-1.5 py-0.5 text-[10px] font-medium', roleColors[v.role] ?? roleColors.General)}>
+                    {v.role}
+                  </span>
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                  <span className="inline-flex items-center gap-1">
+                    <Mail className="h-3 w-3" />
+                    {v.email}
+                  </span>
+                  {v.zipCode && (
+                    <span className="inline-flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {v.zipCode}{v.state ? `, ${v.state}` : ''} · {v.availability}
+                    </span>
+                  )}
+                </div>
+                {v.message && (
+                  <p className="mt-1.5 text-xs italic text-muted-foreground line-clamp-2">
+                    &ldquo;{v.message}&rdquo;
+                  </p>
+                )}
+                {v.skills && (
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    <span className="font-medium text-foreground">Skills:</span> {v.skills}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <Select value={v.status} onValueChange={(s) => setStatus(v.id, s)}>
+                  <SelectTrigger className="h-8 w-32 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="contacted">Contacted</SelectItem>
+                    <SelectItem value="onboarded">Onboarded</SelectItem>
+                    <SelectItem value="declined">Declined</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-[10px] text-muted-foreground">
+                  {new Date(v.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   )
 }
