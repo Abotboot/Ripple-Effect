@@ -1,0 +1,119 @@
+// AquaGuard - Tap Water & Microplastics Database Schema
+// Inspired by EWG Tap Water Database + 2026 Water Project microplastics mission
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// A public water utility / system (PWS). One utility serves one or more ZIP codes.
+model Utility {
+  id              String   @id @default(cuid())
+  pwsid           String   @unique // EPA Public Water System ID (e.g. "IL0316040")
+  name            String
+  city            String
+  state           String
+  zipCodes        String   // comma separated list, e.g. "60601,60602"
+  county          String?
+  population      Int      @default(0)
+  systemType      String   @default("Community") // Community / Non-Community / etc.
+  sourceType      String   @default("Surface")   // Surface / Ground / Mixed
+  treatmentStatus String   @default("Treated")   // Treated / Untreated / Mixed
+  latitude        Float?
+  longitude       Float?
+  website         String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  samples         Sample[]
+  reports         Report[]
+
+  @@index([state])
+  @@index([city])
+}
+
+// Master catalog of contaminants measured in drinking water.
+// Includes both regulated contaminants and emerging ones like microplastics.
+model Contaminant {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String
+  chemicalName    String?
+  category        String   // Microplastic / Disinfection Byproduct / Metal / Pesticide / PFAS / Microbial / Other
+  legalLimit      Float?   // EPA MCL in same unit as measurement; null = unregulated
+  legalLimitUnit  String?  // e.g. "ppb", "ppm", "particles/L"
+  healthGuideline Float?   // EWG / WHO health guideline (often stricter than legal limit)
+  healthGuidelineUnit String?
+  ewgHealthLimit  Float?   // EWG's own health reference
+  description     String?
+  healthEffects   String?  // long form
+  sources         String?  // where it comes from
+  regulated       Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  samples         Sample[]
+}
+
+// A single measurement of one contaminant at one utility on one date.
+// Multiple samples over time let us draw trend charts.
+model Sample {
+  id            String   @id @default(cuid())
+  utilityId     String
+  contaminantId String
+  level         Float    // measured value
+  unit          String   // particles/L, ppb, ppm
+  sampleDate    DateTime
+  source        String   @default("Utility CCR") // Utility CCR / Citizen Test / Research Lab / EWG
+  treatmentStatus String @default("Treated") // Treated / Untreated (lets us compare)
+  location      String?  // tap, stream, reservoir, treatment plant outflow...
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  utility       Utility     @relation(fields: [utilityId], references: [id], onDelete: Cascade)
+  contaminant   Contaminant @relation(fields: [contaminantId], references: [id], onDelete: Cascade)
+
+  @@index([utilityId])
+  @@index([contaminantId])
+  @@index([sampleDate])
+}
+
+// Community-submitted water observations. Anyone can submit one (no login required).
+model Report {
+  id          String   @id @default(cuid())
+  utilityId   String?
+  reporterName String?
+  reporterEmail String?
+  zipCode     String
+  city        String?
+  state       String?
+  title       String
+  description String
+  contaminant String?  // free text - what they noticed
+  appearance  String?  // cloudy / discolored / odor / taste / normal
+  severity    String   @default("info") // info / warning / critical
+  status      String   @default("pending") // pending / reviewed / resolved
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  utility     Utility? @relation(fields: [utilityId], references: [id], onDelete: SetNull)
+
+  @@index([zipCode])
+  @@index([status])
+}
+
+// Admin / staff accounts for managing data. Lightweight (no NextAuth full setup needed).
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String   // hashed
+  role      String   @default("admin") // admin / editor / viewer
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
