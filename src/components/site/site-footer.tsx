@@ -1,6 +1,6 @@
 'use client'
 
-import { Droplets, Heart, Github, Mail, MapPin } from 'lucide-react'
+import { Droplets, Heart, Github, Mail, MapPin, Instagram, Tiktok } from 'lucide-react'
 
 export function SiteFooter() {
   return (
@@ -75,10 +75,30 @@ export function SiteFooter() {
             <ul className="mt-3 space-y-2 text-sm">
               <li>
                 <a
-                  href="mailto:hello@rippleeffect.org"
+                  href="mailto:rippleeffectoffice@gmail.com"
                   className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
                 >
-                  <Mail className="h-3.5 w-3.5" /> hello@rippleeffect.org
+                  <Mail className="h-3.5 w-3.5" /> rippleeffectoffice@gmail.com
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.instagram.com/rippleeffectoffice"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Instagram className="h-3.5 w-3.5" /> @rippleeffectoffice
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.tiktok.com/@ripple.effect82"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Tiktok className="h-3.5 w-3.5" /> @ripple.effect82
                 </a>
               </li>
               <li>

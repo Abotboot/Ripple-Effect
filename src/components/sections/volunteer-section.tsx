@@ -381,8 +381,8 @@ export function VolunteerSection() {
                     <Mail className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                     <div>
                       <div className="font-medium text-foreground">Questions?</div>
-                      <a href="mailto:hello@rippleeffect.org" className="text-primary hover:underline">
-                        hello@rippleeffect.org
+                      <a href="mailto:rippleeffectoffice@gmail.com" className="text-primary hover:underline">
+                        rippleeffectoffice@gmail.com
                       </a>
                     </div>
                   </div>
