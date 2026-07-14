@@ -15,36 +15,40 @@ export function hashPassword(s: string): string {
 const SESSION_COOKIE = 'ag_session'
 const SESSION_TTL_HOURS = 12
 
-// In-memory session store (resets on server restart, which is fine for a demo).
-// Key = random token, value = userId
-const sessions = new Map<string, { userId: string; expires: number }>()
+// Sessions are stored in the database (see the Session model in schema.prisma)
+// rather than in-memory. On serverless hosts like Netlify, each request can be
+// handled by a different, short-lived function instance with its own empty
+// memory, so an in-memory Map would randomly "forget" logged-in admins.
 
-export function createSession(userId: string): string {
+export async function createSession(userId: string): Promise<string> {
   const token =
     Math.random().toString(36).slice(2) + Date.now().toString(36) + Math.random().toString(36).slice(2)
-  sessions.set(token, { userId, expires: Date.now() + SESSION_TTL_HOURS * 3600_000 })
+  await db.session.create({
+    data: { token, userId, expiresAt: new Date(Date.now() + SESSION_TTL_HOURS * 3600_000) },
+  })
   return token
 }
 
-export function getSession(token?: string) {
+export async function getSession(token?: string) {
   if (!token) return null
-  const s = sessions.get(token)
-  if (!s) return null
-  if (s.expires < Date.now()) {
-    sessions.delete(token)
+  const session = await db.session.findUnique({ where: { token } })
+  if (!session) return null
+  if (session.expiresAt < new Date()) {
+    await db.session.delete({ where: { token } }).catch(() => {})
     return null
   }
-  return s
+  return session
 }
 
-export function destroySession(token?: string) {
-  if (token) sessions.delete(token)
+export async function destroySession(token?: string) {
+  if (!token) return
+  await db.session.delete({ where: { token } }).catch(() => {})
 }
 
 export async function requireAdmin(): Promise<{ id: string; email: string; name: string; role: string } | null> {
   const store = await cookies()
   const token = store.get(SESSION_COOKIE)?.value
-  const session = getSession(token)
+  const session = await getSession(token)
   if (!session) return null
   const user = await db.user.findUnique({ where: { id: session.userId } })
   if (!user) return null

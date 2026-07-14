@@ -1,0 +1,7 @@
+[build]
+  command = "npm install && npx prisma generate && npx next build"
+  publish = ".next"
+
+# Netlify's Next.js Runtime (OpenNext-based adapter) auto-detects Next.js and
+# turns this build output into the right serverless/edge functions — no
+# further config needed beyond the command and publish dir above.

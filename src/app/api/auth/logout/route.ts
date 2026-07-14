@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
 export async function POST() {
   const store = await cookies()
   const token = store.get(SESSION_COOKIE_NAME)?.value
-  destroySession(token)
+  await destroySession(token)
   const res = NextResponse.json({ ok: true })
   res.cookies.delete(SESSION_COOKIE_NAME)
   return res

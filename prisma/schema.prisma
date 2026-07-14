@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // pooled connection string, used at runtime
+  directUrl = env("DIRECT_URL")   // direct/unpooled connection, used for db push & migrations
 }
 
 // A public water utility / system (PWS). One utility serves one or more ZIP codes.
@@ -116,6 +117,24 @@ model User {
   role      String   @default("admin") // admin / editor / viewer
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  sessions  Session[]
+}
+
+// Admin login sessions. Stored in the database (instead of in-memory) so that
+// login survives across serverless function instances on hosts like Netlify,
+// where each request can be handled by a different, short-lived instance.
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([expiresAt])
 }
 
 // Volunteer signups from the "Get Involved" section.
