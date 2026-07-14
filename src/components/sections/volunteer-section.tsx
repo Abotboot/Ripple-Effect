@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   Heart, Loader2, Send, Wrench, Code, Megaphone, Handshake,
-  CheckCircle2, Users, Calendar, Sparkles, Mail, MapPin,
+  CheckCircle2, Users, Calendar, Gift, Mail, MapPin,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -335,7 +335,7 @@ export function VolunteerSection() {
           <div className="space-y-4">
             <Card className="bg-water-surface text-primary-foreground">
               <CardContent className="p-5">
-                <Sparkles className="h-6 w-6 text-white/90" />
+                <Gift className="h-6 w-6 text-white/90" />
                 <h3 className="mt-2 text-base font-semibold">What you get</h3>
                 <ul className="mt-2 space-y-1.5 text-sm text-white/90">
                   <li className="flex items-start gap-2">
