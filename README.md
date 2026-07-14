@@ -1,8 +1,8 @@
-# AquaGuard — Tap Water & Microplastics Database
+# RippleEffect — Tap Water & Microplastics Database
 
 A community-built tap water and microplastics database inspired by [EWG's Tap Water Database](https://www.ewg.org/tapwater/). Built for the **2026 Water Project** — a volunteer non-profit crew mapping microplastics and drinking water contaminants in their city (and eventually the world).
 
-![AquaGuard](https://img.shields.io/badge/Next.js-16-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Prisma](https://img.shields.io/badge/Prisma-6-indigo) ![Tailwind](https://img.shields.io/badge/Tailwind-4-cyan)
+![RippleEffect](https://img.shields.io/badge/Next.js-16-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Prisma](https://img.shields.io/badge/Prisma-6-indigo) ![Tailwind](https://img.shields.io/badge/Tailwind-4-cyan)
 
 ## What this is
 
@@ -46,8 +46,8 @@ bun run lint
 ## Default admin credentials
 
 ```
-Email:    admin@aquaguard.org
-Password: aquaguard2026
+Email:    admin@rippleeffect.org
+Password: rippleeffect2026
 ```
 
 **Change these immediately in a real deployment** by editing `prisma/seed.ts` and re-running `bun run db:seed`, or by importing a new user via the admin Import tab.
@@ -83,7 +83,7 @@ HF Spaces supports Docker-based Next.js apps. The free CPU tier works for low-tr
 2. Click **New Space** → SDK: **Docker** → visibility: **Public** (or Private).
 3. Push this repo's files to the Space's git repo:
    ```bash
-   git remote add space https://huggingface.co/spaces/YOUR_USERNAME/aquaguard
+   git remote add space https://huggingface.co/spaces/YOUR_USERNAME/rippleeffect
    git push space main
    ```
 4. Add a `Dockerfile` at the repo root (create one — example below):
@@ -103,7 +103,7 @@ HF Spaces supports Docker-based Next.js apps. The free CPU tier works for low-tr
    EXPOSE 7860
    CMD ["bun", "run", "start"]
    ```
-5. HF will build and deploy. Your app will be at `https://YOUR_USERNAME-aquaguard.hf.space`.
+5. HF will build and deploy. Your app will be at `https://YOUR_USERNAME-rippleeffect.hf.space`.
 
 > **Note**: HF Spaces free tier sleeps after inactivity. The SQLite file persists in the container's writable `/data` layer, but a cold restart re-seeds the DB unless you configure a persistent volume.
 
@@ -116,9 +116,9 @@ This is the most portable option. Once the code is on GitHub, you can deploy to 
    cd /path/to/this/project
    git init
    git add .
-   git commit -m "Initial commit: AquaGuard water database"
+   git commit -m "Initial commit: RippleEffect water database"
    git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/aquaguard.git
+   git remote add origin https://github.com/YOUR_USERNAME/rippleeffect.git
    git push -u origin main
    ```
 
@@ -135,7 +135,7 @@ This is the most portable option. Once the code is on GitHub, you can deploy to 
 
 4. **Deploy to your VPS** (example for Railway):
    - Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**
-   - Select your `aquaguard` repo
+   - Select your `rippleeffect` repo
    - Add a `DATABASE_URL` env var (Railway will give you a persistent volume path)
    - Railway auto-detects Next.js and runs `bun install && bun run build && bun run start`
 

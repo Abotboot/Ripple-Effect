@@ -122,7 +122,7 @@ export function AdminSection() {
 
 // ── Login ──────────────────────────────────────────────────────────────
 function LoginScreen({ onLogin }: { onLogin: (u: AdminUser) => void }) {
-  const [email, setEmail] = useState('admin@aquaguard.org')
+  const [email, setEmail] = useState('admin@rippleeffect.org')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
@@ -197,8 +197,8 @@ function LoginScreen({ onLogin }: { onLogin: (u: AdminUser) => void }) {
             </form>
             <div className="mt-4 rounded-lg border border-dashed border-border bg-muted/30 p-3 text-xs text-muted-foreground">
               <p className="font-medium text-foreground">Demo credentials</p>
-              <p className="mt-1">Email: <code className="rounded bg-muted px-1">admin@aquaguard.org</code></p>
-              <p>Password: <code className="rounded bg-muted px-1">aquaguard2026</code></p>
+              <p className="mt-1">Email: <code className="rounded bg-muted px-1">admin@rippleeffect.org</code></p>
+              <p>Password: <code className="rounded bg-muted px-1">rippleeffect2026</code></p>
               <p className="mt-2 italic">Change this after first login in a real deployment.</p>
             </div>
           </CardContent>

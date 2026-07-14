@@ -31,12 +31,12 @@ async function runSeed(): Promise<void> {
 
   // Admin user
   await db.user.upsert({
-    where: { email: 'admin@aquaguard.org' },
+    where: { email: 'admin@rippleeffect.org' },
     update: {},
     create: {
-      email: 'admin@aquaguard.org',
-      name: 'AquaGuard Admin',
-      password: hashPassword('aquaguard2026'),
+      email: 'admin@rippleeffect.org',
+      name: 'RippleEffect Admin',
+      password: hashPassword('rippleeffect2026'),
       role: 'admin',
     },
   })

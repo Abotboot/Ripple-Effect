@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AquaGuard — Tap Water & Microplastics Database",
+  title: "RippleEffect — Tap Water & Microplastics Database",
   description:
     "A community-built tap water and microplastics database. Search your ZIP code, see contaminants in your drinking water, and contribute reports for your community.",
   keywords: [
@@ -29,17 +29,17 @@ export const metadata: Metadata = {
     "lead in water",
     "community water database",
   ],
-  authors: [{ name: "AquaGuard Volunteer Crew" }],
+  authors: [{ name: "RippleEffect Volunteer Crew" }],
   openGraph: {
-    title: "AquaGuard — Tap Water & Microplastics Database",
+    title: "RippleEffect — Tap Water & Microplastics Database",
     description:
       "A community-built tap water and microplastics database. Know what's in your water.",
-    siteName: "AquaGuard",
+    siteName: "RippleEffect",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AquaGuard — Tap Water & Microplastics Database",
+    title: "RippleEffect — Tap Water & Microplastics Database",
     description:
       "A community-built tap water and microplastics database. Know what's in your water.",
   },

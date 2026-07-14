@@ -14,7 +14,7 @@ export function SiteFooter() {
                 <Droplets className="h-5 w-5 text-primary-foreground" />
               </span>
               <span className="text-lg font-extrabold tracking-tight">
-                Aqua<span className="text-primary">Guard</span>
+                Ripple<span className="text-primary">Effect</span>
               </span>
             </div>
             <p className="mt-3 max-w-md text-sm text-muted-foreground">
@@ -75,10 +75,10 @@ export function SiteFooter() {
             <ul className="mt-3 space-y-2 text-sm">
               <li>
                 <a
-                  href="mailto:hello@aquaguard.org"
+                  href="mailto:hello@rippleeffect.org"
                   className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
                 >
-                  <Mail className="h-3.5 w-3.5" /> hello@aquaguard.org
+                  <Mail className="h-3.5 w-3.5" /> hello@rippleeffect.org
                 </a>
               </li>
               <li>
@@ -105,7 +105,7 @@ export function SiteFooter() {
 
         <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row">
           <p className="flex items-center gap-1.5">
-            © {new Date().getFullYear()} AquaGuard · Built with
+            © {new Date().getFullYear()} RippleEffect · Built with
             <Heart className="h-3 w-3 text-rose-500" /> by the 2026 Water Project crew
           </p>
           <p>

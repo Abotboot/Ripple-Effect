@@ -328,7 +328,7 @@ export function MicroplasticsSection() {
                 <Button
                   variant="secondary"
                   className="mt-4 bg-white text-primary hover:bg-white/90"
-                  onClick={() => (window.location.href = 'mailto:hello@aquaguard.org?subject=Joining%20the%202026%20Water%20Project')}
+                  onClick={() => (window.location.href = 'mailto:hello@rippleeffect.org?subject=Joining%20the%202026%20Water%20Project')}
                 >
                   Join the crew
                   <ArrowRight className="ml-1 h-4 w-4" />

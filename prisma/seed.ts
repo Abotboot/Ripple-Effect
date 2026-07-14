@@ -1,9 +1,9 @@
-// Database seed script for AquaGuard
+// Database seed script for RippleEffect
 // Run with: bun run prisma/seed.ts
 import { db } from '../src/lib/db'
 
 // Simple synchronous-style hash for demo admin password.
-// Default password is "aquaguard2026" - change after first login.
+// Default password is "rippleeffect2026" - change after first login.
 function simpleHash(s: string): string {
   let h = 0
   for (let i = 0; i < s.length; i++) {
@@ -14,16 +14,16 @@ function simpleHash(s: string): string {
 }
 
 async function main() {
-  console.log('🌱 Seeding AquaGuard database...')
+  console.log('🌱 Seeding RippleEffect database...')
 
   // ── Admin user ────────────────────────────────────────────────────────
   await db.user.upsert({
-    where: { email: 'admin@aquaguard.org' },
+    where: { email: 'admin@rippleeffect.org' },
     update: {},
     create: {
-      email: 'admin@aquaguard.org',
-      name: 'AquaGuard Admin',
-      password: simpleHash('aquaguard2026'),
+      email: 'admin@rippleeffect.org',
+      name: 'RippleEffect Admin',
+      password: simpleHash('rippleeffect2026'),
       role: 'admin',
     },
   })
@@ -620,7 +620,7 @@ async function main() {
   console.log(`✓ Seeded ${reports.length} community reports`)
 
   console.log('\n✅ Seed complete.')
-  console.log('   Admin login: admin@aquaguard.org / aquaguard2026')
+  console.log('   Admin login: admin@rippleeffect.org / rippleeffect2026')
 }
 
 main()

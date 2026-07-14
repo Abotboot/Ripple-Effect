@@ -292,13 +292,6 @@ function Hero({
               variant="secondary"
               className="mb-5 gap-1.5 border-primary/20 bg-primary/10 text-primary"
             >
-              <motion.span
-                animate={{ rotate: [0, 15, -15, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                className="inline-flex"
-              >
-                <Sparkles className="h-3 w-3" />
-              </motion.span>
               2026 Water Project · Community Database
             </Badge>
             <h1 className="text-balance text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
