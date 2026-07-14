@@ -10,9 +10,11 @@ export function SiteFooter() {
           {/* Brand + mission */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-water-surface">
-                <Droplets className="h-5 w-5 text-primary-foreground" />
-              </span>
+              <img
+                src="/logo.png"
+                alt="RippleEffect logo"
+                className="h-10 w-10 rounded-full object-cover"
+              />
               <span className="text-lg font-extrabold tracking-tight">
                 Ripple<span className="text-primary">Effect</span>
               </span>

@@ -49,15 +49,17 @@ export function SiteHeader({
           className="group flex items-center gap-2.5 transition-transform hover:scale-[1.02]"
           aria-label="RippleEffect home"
         >
-          <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-water-surface shadow-md shadow-primary/30">
-            <Droplets className="h-5 w-5 text-primary-foreground" />
-          </span>
+          <img
+            src="/logo.png"
+            alt="RippleEffect logo"
+            className="h-10 w-10 rounded-full object-cover shadow-md shadow-primary/20"
+          />
           <span className="hidden sm:flex flex-col items-start leading-none">
             <span className="text-lg font-extrabold tracking-tight text-foreground">
               Ripple<span className="text-primary">Effect</span>
             </span>
             <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Water Database
+              One Act. Endless Impact.
             </span>
           </span>
         </button>
