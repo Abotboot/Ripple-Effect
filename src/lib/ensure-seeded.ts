@@ -147,6 +147,7 @@ async function runSeed(): Promise<void> {
     { pwsid: 'OH1800312', name: 'City of Columbus Division of Water', city: 'Columbus', state: 'OH', zipCodes: '43201,43202,43203,43204,43205,43206,43207,43209,43210,43211,43212,43213,43214,43215,43219,43220,43221,43222,43223,43224', county: 'Franklin', population: 898000, systemType: 'Community', sourceType: 'Surface', treatmentStatus: 'Treated', latitude: 39.9612, longitude: -82.9988, website: 'https://www.columbus.gov/utilities', notes: 'Sources: Scioto River and Big Walnut Creek.' },
     { pwsid: 'CA3610008', name: 'San Diego Water Department', city: 'San Diego', state: 'CA', zipCodes: '92101,92102,92103,92104,92105,92106,92107,92108,92109,92110,92111,92113,92114,92115,92116,92117,92119,92120,92121,92122', county: 'San Diego', population: 1386000, systemType: 'Community', sourceType: 'Mixed', treatmentStatus: 'Treated', latitude: 32.7157, longitude: -117.1611, website: 'https://www.sandiego.gov/public-utilities', notes: 'Sources: Imported (Colorado River, Northern CA) and local surface water.' },
     { pwsid: 'WA5376550', name: 'Seattle Public Utilities', city: 'Seattle', state: 'WA', zipCodes: '98101,98102,98103,98104,98105,98106,98107,98108,98109,98112,98115,98116,98117,98118,98119,98121,98122,98125,98126,98133', county: 'King', population: 753000, systemType: 'Community', sourceType: 'Surface', treatmentStatus: 'Treated', latitude: 47.6062, longitude: -122.3321, website: 'https://www.seattle.gov/utilities', notes: 'Sources: Cedar River and Tolt River watersheds.' },
+    { pwsid: 'TX2200012', name: 'Fort Worth Water Department', city: 'Fort Worth', state: 'TX', zipCodes: '76137,76101,76102,76103,76104,76105,76106,76107,76108,76109,76110,76111,76112,76114,76115,76116,76117,76118,76119,76120', county: 'Tarrant', population: 950000, systemType: 'Community', sourceType: 'Surface', treatmentStatus: 'Treated', latitude: 32.7555, longitude: -97.3308, website: 'https://www.fortworthtexas.gov/departments/water', notes: 'Draws from Lake Worth, Eagle Mountain Lake, Lake Bridgeport, and Cedar Creek Reservoir.' },
   ]
 
   const utilityIds: Record<string, string> = {}
@@ -169,6 +170,7 @@ async function runSeed(): Promise<void> {
   const cityMod: Record<string, number> = {
     IL0316040: 1.0, NY7003493: 0.85, CA1910052: 1.2, TX1010337: 1.4, AZ0413027: 1.6,
     PA1510001: 1.1, FL6020055: 1.3, OH1800312: 1.15, CA3610008: 1.25, WA5376550: 0.7,
+    TX2200012: 1.1,
   }
 
   const samples: Array<{

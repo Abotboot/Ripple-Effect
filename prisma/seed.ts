@@ -405,6 +405,22 @@ async function main() {
       website: 'https://www.seattle.gov/utilities',
       notes: 'Sources: Cedar River and Tolt River watersheds.',
     },
+    {
+      pwsid: 'TX2200012',
+      name: 'Fort Worth Water Department',
+      city: 'Fort Worth',
+      state: 'TX',
+      zipCodes: '76137,76101,76102,76103,76104,76105,76106,76107,76108,76109,76110,76111,76112,76114,76115,76116,76117,76118,76119,76120',
+      county: 'Tarrant',
+      population: 950000,
+      systemType: 'Community',
+      sourceType: 'Surface',
+      treatmentStatus: 'Treated',
+      latitude: 32.7555,
+      longitude: -97.3308,
+      website: 'https://www.fortworthtexas.gov/departments/water',
+      notes: 'Draws from Lake Worth, Eagle Mountain Lake, Lake Bridgeport, and Cedar Creek Reservoir.',
+    },
   ]
 
   // Fix any stray typos in zip codes
@@ -484,6 +500,7 @@ async function main() {
         OH1800312: 1.15, // Columbus - river source
         CA3610008: 1.25, // San Diego - imported
         WA5376550: 0.7, // Seattle - pristine mountain source - lowest
+        TX2200012: 1.1, // Fort Worth
       }[pwsid] ?? 1
     const [lo, hi] = r
     return +(lo + rand() * (hi - lo) * mod).toFixed(3)
