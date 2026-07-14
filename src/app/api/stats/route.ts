@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { ensureSeeded } from '@/lib/ensure-seeded'
 
 // GET /api/stats - aggregated dashboard statistics
 export async function GET() {
+  // Auto-seed if DB is empty (prevents "search returns nothing" bug)
+  await ensureSeeded()
+
   const [
     utilitiesCount,
     contaminantsCount,

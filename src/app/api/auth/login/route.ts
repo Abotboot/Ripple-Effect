@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { hashPassword, createSession, SESSION_COOKIE_NAME, SESSION_COOKIE_MAX_AGE } from '@/lib/auth'
+import { ensureSeeded } from '@/lib/ensure-seeded'
 
 // POST /api/auth/login { email, password }
 export async function POST(req: NextRequest) {
+  // Auto-seed if DB is empty (prevents "admin login fails" bug on fresh deploy)
+  await ensureSeeded()
+
   const body = await req.json()
   const email = String(body?.email ?? '').toLowerCase().trim()
   const password = String(body?.password ?? '')

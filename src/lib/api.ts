@@ -41,6 +41,16 @@ export const api = {
 
   listUtilities: () => req<Utility[]>(`/api/utilities`),
 
+  // Geospatial search — find utilities within `radius` miles of a point.
+  // PostGIS alternative (haversine in the app layer).
+  nearbyUtilities: (lat: number, lng: number, radius = 100) =>
+    req<{
+      center: { lat: number; lng: number }
+      radiusMiles: number
+      count: number
+      utilities: Array<Utility & { distanceMiles: number }>
+    }>(`/api/utilities/near?lat=${lat}&lng=${lng}&radius=${radius}`),
+
   listContaminants: () => req<Contaminant[]>(`/api/contaminants`),
 
   listReports: () => req<Report[]>(`/api/reports`),

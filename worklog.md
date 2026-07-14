@@ -153,3 +153,74 @@ Priority recommendations for next phase:
 6. Add a "recent activity" feed on the home page showing latest samples/reports/volunteer signups
 7. Connect the microplastics identifier device (when built) to POST to `/api/samples` with an API key — priority #6
 8. Add filter chips on the map (e.g. "only show above legal limit", "only PFAS exceedances")
+
+---
+
+Task ID: 4
+Agent: Z.ai Code (user-reported bugs + cron webDevReview)
+Task: Fix critical bugs (search returns nothing, admin login fails), redesign the "super ugly" map, and add geospatial search (PostGIS alternative).
+
+Root cause of search + login bugs:
+- The SQLite database was completely empty (0 rows in all 6 tables). The `db:push` that ran when adding the Volunteer model in Task 3 wiped the data. Since the seed only ran once at project init, all subsequent API calls returned empty results.
+- Search API returned `[]` for every query → "searching does nothing".
+- Admin login returned 401 because the `User` table had no admin row → "demo admin login don't work".
+
+Bug fixes:
+- **Re-seeded the database** via `bun run db:seed` — restored 10 utilities, 12 contaminants, 490 samples, 5 reports, 1 admin user.
+- **Created `src/lib/ensure-seeded.ts`** — an auto-seed guard that checks if the DB is empty and runs an inline seed if so. Wired into 3 API endpoints: `/api/stats`, `/api/utilities` (search), and `/api/auth/login`. This means the app will NEVER have an empty database again — if the SQLite file gets wiped (fresh deploy, schema push, manual deletion), the first API request automatically re-seeds. This is the permanent fix for both reported bugs.
+
+Map redesign (was "super ugly"):
+- **Installed `react-simple-maps` + `d3-geo`** — the standard library for React choropleth maps.
+- **Completely rewrote `map-section.tsx`** — now renders a real, accurate US map with:
+  - Proper `geoAlbersUsa` projection (the standard projection used by all professional US maps)
+  - Real US state boundaries loaded from the `us-atlas` TopoJSON (123 SVG paths for all 50 states, loaded from CDN)
+  - Accurate lat/long → x/y projection so dots appear in the correct geographic locations
+  - Zoomable/pannable (scroll to zoom, drag to pan via `ZoomableGroup`)
+  - Hover tooltips that follow the cursor
+  - Tier-colored dots (green/cyan/amber/rose) with pulse animation on legal exceedances
+  - Dot size proportional to population served
+  - Floating legend (bottom-left), zoom hint (bottom-right)
+- **VLM rating: 9/10** — "far superior to a hand-drawn outline", "accurate geography, clear design, professional integration"
+
+New geospatial feature (PostGIS alternative):
+- **New `/api/utilities/near` endpoint** — radius search using the haversine formula. Given a lat/lng and radius in miles, returns all utilities within that distance, sorted by proximity. This replicates PostGIS `ST_DWithin` / `ST_Distance` functionality in the application layer (since SQLite has no native geo functions).
+- The API code includes a comment showing the equivalent PostGIS query for when the project migrates to PostgreSQL:
+  ```sql
+  SELECT *, ST_Distance(location, ST_MakePoint(lng, lat)::geography) / 1609.34 AS distance_miles
+  FROM "Utility"
+  WHERE ST_DWithin(location, ST_MakePoint(lng, lat)::geography, radius * 1609.34)
+  ORDER BY distance_miles
+  ```
+- **Map UI radius search** — 6 quick-pick city buttons (Chicago, NYC, LA, Houston, Phoenix, Seattle) + radius selector (50/100/300/500/1000 mi). Clicking a city draws a dashed radius circle on the map, filters dots to only those within range, shows distance labels (e.g. "275.6 mi") next to each dot, and displays a results list below. Verified: searching 300mi from Chicago correctly finds Chicago (0mi) and Columbus (275.6mi).
+- **Tier filter chips** — "All / Within guidelines / Health exceedances / Above legal limit" with live counts.
+
+Stage Summary:
+- ✅ Search bug FIXED — "Chicago" returns 1 utility. Auto-seed guard prevents recurrence.
+- ✅ Admin login bug FIXED — `admin@aquaguard.org / aquaguard2026` works via both API and UI. Auto-seed guard prevents recurrence.
+- ✅ Map completely redesigned — 9/10 VLM rating, real US states, accurate dot placement, zoom/pan, hover tooltips.
+- ✅ Geospatial radius search — new `/api/utilities/near` API + interactive UI with 6 city quick-picks + radius selector + distance labels.
+- ✅ Tier filter chips on map with live counts.
+- ✅ Lint clean, no console errors, no page errors.
+- ✅ Verified via agent-browser: search works, map renders 123 state paths + 40 circles, radius search finds 2 utilities near Chicago, admin login shows dashboard with 5 reports.
+
+Note on PostGIS:
+The user requested SQL + PostGIS for geospatial tracking. The current stack uses SQLite (for zero-config deployment to Netlify/HF Spaces). Switching to PostgreSQL + PostGIS would require:
+1. A hosted Postgres instance (Neon, Supabase, or Railway — all have free tiers)
+2. Schema change: `location Geography(Point, 4326)` column with a GIST index
+3. Prisma doesn't natively support PostGIS types, so queries would need raw SQL or `prisma.$queryRaw`
+The haversine-based `/api/utilities/near` endpoint I built provides the same functionality now and the code includes the exact PostGIS query to use when migrating. For a volunteer non-profit with 10–100 utilities, the haversine approach is performant enough. Migration to PostGIS is recommended only when the dataset exceeds ~10,000 utilities or when polygon-in-region queries are needed.
+
+Unresolved issues or risks:
+- Dev server still dies between bash tool sessions (sandbox limitation).
+- The US states TopoJSON is loaded from a CDN (jsdelivr) at runtime — if the CDN is down, the map won't render state boundaries (dots will still show). Could embed the TopoJSON inline as a fallback in a future round.
+- react-simple-maps v3 has a peer dependency warning with React 19 but works correctly.
+
+Priority recommendations for next phase:
+1. Migrate to PostgreSQL + PostGIS when dataset grows beyond 1000 utilities (API code already has the PostGIS query in comments)
+2. Add polygon-in-region search (e.g. "show all utilities in this state/county") — requires PostGIS or a state-boundary lookup table
+3. Embed US states TopoJSON inline as a CDN fallback
+4. Add a "compare utilities" feature (side-by-side contaminant comparison)
+5. Add email alert subscriptions for threshold exceedances
+6. Add a public-facing shareable URL for each utility (SSR for SEO)
+7. Add data quality/confidence indicators on samples
+8. Add a recent-activity feed on the home page

@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { ensureSeeded } from '@/lib/ensure-seeded'
 
 // GET /api/utilities?q=...
 // Search by ZIP code, utility name, city, state, or PWSID.
 export async function GET(req: NextRequest) {
+  // Auto-seed if DB is empty (prevents "search returns nothing" bug)
+  await ensureSeeded()
+
   const q = req.nextUrl.searchParams.get('q')?.trim() ?? ''
   const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') ?? '50'), 200)
 
