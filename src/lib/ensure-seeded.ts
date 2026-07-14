@@ -36,7 +36,7 @@ async function runSeed(): Promise<void> {
     create: {
       email: 'admin@rippleeffect.org',
       name: 'RippleEffect Admin',
-      password: hashPassword('rippleeffect2026'),
+      password: hashPassword('rippleeffect'),
       role: 'admin',
     },
   })

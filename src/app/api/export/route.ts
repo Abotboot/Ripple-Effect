@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(JSON.stringify(rows, null, 2), {
       headers: {
         'Content-Type': 'application/json',
-        'Content-Disposition': `attachment; filename="aquaguard-${table}.json"`,
+        'Content-Disposition': `attachment; filename="rippleeffect-${table}.json"`,
       },
     })
   }
@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
   return new NextResponse(csv, {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="aquaguard-${table}.csv"`,
+      'Content-Disposition': `attachment; filename="rippleeffect-${table}.csv"`,
     },
   })
 }

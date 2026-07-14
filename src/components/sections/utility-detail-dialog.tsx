@@ -45,7 +45,7 @@ export function UtilityDetailDialog({
               <div className="absolute right-4 top-4 flex gap-1.5">
                 <button
                   onClick={() => {
-                    const text = `${utility.name} — ${utility.city}, ${utility.state}\n${utility.contaminantSummaries.length} contaminants tracked · ${utility.healthExceedances} above health guideline · ${utility.exceedances} above legal limit\nvia AquaGuard water database`
+                    const text = `${utility.name} — ${utility.city}, ${utility.state}\n${utility.contaminantSummaries.length} contaminants tracked · ${utility.healthExceedances} above health guideline · ${utility.exceedances} above legal limit\nvia RippleEffect water database`
                     if (navigator.share) {
                       navigator.share({ title: utility.name, text }).catch(() => {})
                     } else {

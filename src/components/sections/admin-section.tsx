@@ -198,7 +198,7 @@ function LoginScreen({ onLogin }: { onLogin: (u: AdminUser) => void }) {
             <div className="mt-4 rounded-lg border border-dashed border-border bg-muted/30 p-3 text-xs text-muted-foreground">
               <p className="font-medium text-foreground">Demo credentials</p>
               <p className="mt-1">Email: <code className="rounded bg-muted px-1">admin@rippleeffect.org</code></p>
-              <p>Password: <code className="rounded bg-muted px-1">rippleeffect2026</code></p>
+              <p>Password: <code className="rounded bg-muted px-1">rippleeffect</code></p>
               <p className="mt-2 italic">Change this after first login in a real deployment.</p>
             </div>
           </CardContent>

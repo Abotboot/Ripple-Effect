@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     const msg = e instanceof Error ? e.message : 'Unknown error'
     if (msg.includes('Unique constraint')) {
       return NextResponse.json(
-        { error: 'Someone has already signed up with that email. Want to update your info? Contact hello@aquaguard.org.' },
+        { error: 'Someone has already signed up with that email. Want to update your info? Contact rippleeffectoffice@gmail.com.' },
         { status: 409 }
       )
     }

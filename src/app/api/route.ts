@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 // API health/info endpoint
 export async function GET() {
   return NextResponse.json({
-    name: 'AquaGuard API',
+    name: 'RippleEffect API',
     version: '1.0.0',
     description: 'Tap water & microplastics database API',
     endpoints: [

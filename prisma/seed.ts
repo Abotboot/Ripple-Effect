@@ -3,7 +3,7 @@
 import { db } from '../src/lib/db'
 
 // Simple synchronous-style hash for demo admin password.
-// Default password is "rippleeffect2026" - change after first login.
+// Default password is "rippleeffect" - change after first login.
 function simpleHash(s: string): string {
   let h = 0
   for (let i = 0; i < s.length; i++) {
@@ -23,7 +23,7 @@ async function main() {
     create: {
       email: 'admin@rippleeffect.org',
       name: 'RippleEffect Admin',
-      password: simpleHash('rippleeffect2026'),
+      password: simpleHash('rippleeffect'),
       role: 'admin',
     },
   })
