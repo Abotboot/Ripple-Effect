@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 import { buildContaminantSummary } from '@/lib/aggregate'
+import { computeSafetyScore } from '@/lib/safety-score'
 import type { UtilityWithStats } from '@/lib/types'
 import type { Sample, Contaminant } from '@prisma/client'
 
@@ -54,12 +55,27 @@ export async function GET(
     (s) => s.exceedsHealthGuideline
   ).length
 
+  // Compute water safety score
+  const verifiedSamples = samples.filter((s) => (s.quality ?? 'verified') === 'verified').length
+  const provisionalSamples = samples.filter((s) => s.quality === 'provisional').length
+  const citizenSamples = samples.filter((s) => s.quality === 'citizen').length
+  const safetyScore = computeSafetyScore({
+    legalExceedances: exceedances,
+    healthExceedances,
+    totalContaminants: contaminantSummaries.length,
+    totalSamples: samples.length,
+    verifiedSamples,
+    provisionalSamples,
+    citizenSamples,
+  })
+
   const result: UtilityWithStats = {
     ...utility,
     contaminantSummaries,
     totalSamples: samples.length,
     exceedances,
     healthExceedances,
+    safetyScore,
   }
 
   return NextResponse.json(result)

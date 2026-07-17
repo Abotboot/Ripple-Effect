@@ -52,10 +52,3 @@ prompt
 server.log
 # Skills directory
 /skills/
-
-# Database (each environment keeps its own SQLite file)
-db/custom.db
-db/custom.db-journal
-
-# Unrelated file found sitting in /upload — not referenced by the app
-/upload/

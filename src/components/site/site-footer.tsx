@@ -1,8 +1,16 @@
 'use client'
 
-import { Droplets, Heart, Github, Mail, MapPin, Instagram } from 'lucide-react'
+import { Droplets, Heart, Github, Mail, MapPin, Instagram, HandHeart } from 'lucide-react'
+import type { Section } from '@/components/site/site-header'
 
-export function SiteFooter() {
+const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
+
+export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }) {
+  const go = (s: Section) => {
+    onNavigate?.(s)
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <footer className="mt-auto border-t border-border/60 bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -12,21 +20,22 @@ export function SiteFooter() {
             <div className="flex items-center gap-2.5">
               <img
                 src="/logo.png"
-                alt="RippleEffect logo"
-                className="h-10 w-10 rounded-full object-cover"
+                alt="A Ripples Effect logo"
+                className="h-10 w-10 rounded-full object-cover ring-1 ring-primary/30"
               />
               <span className="text-lg font-extrabold tracking-tight">
-                Ripple<span className="text-primary">Effect</span>
+                A Ripples<span className="text-primary"> Effect</span>
               </span>
             </div>
             <p className="mt-3 max-w-md text-sm text-muted-foreground">
               A community-built tap water and microplastics database. Built by
               volunteers for our 2026 Water Project — making local water data
-              open, searchable, and actionable.
+              open, searchable, and actionable. Almost no public water database
+              tracks microplastics — we do.
             </p>
             <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
               <MapPin className="h-3.5 w-3.5" />
-              <span>Community-sourced · Open data · Volunteer-run</span>
+              <span>Community-sourced · Open data · Volunteer-run · Open source</span>
             </div>
           </div>
 
@@ -37,34 +46,39 @@ export function SiteFooter() {
             </h4>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <a href="#search" className="text-muted-foreground hover:text-primary transition-colors">
+                <button onClick={() => go('home')} className="text-muted-foreground hover:text-primary transition-colors">
                   Search by ZIP
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#map" className="text-muted-foreground hover:text-primary transition-colors">
+                <button onClick={() => go('map')} className="text-muted-foreground hover:text-primary transition-colors">
                   National map view
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#contaminants" className="text-muted-foreground hover:text-primary transition-colors">
+                <button onClick={() => go('explorer')} className="text-muted-foreground hover:text-primary transition-colors">
                   Contaminant catalog
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#microplastics" className="text-muted-foreground hover:text-primary transition-colors">
+                <button onClick={() => go('microplastics')} className="text-muted-foreground hover:text-primary transition-colors">
                   Microplastics spotlight
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#reports" className="text-muted-foreground hover:text-primary transition-colors">
-                  Community reports
-                </a>
+                <button onClick={() => go('plastics')} className="text-muted-foreground hover:text-primary transition-colors">
+                  Plastics &amp; other contaminants
+                </button>
               </li>
               <li>
-                <a href="#volunteer" className="text-muted-foreground hover:text-primary transition-colors">
-                  Get involved
-                </a>
+                <button onClick={() => go('sources')} className="text-muted-foreground hover:text-primary transition-colors">
+                  Integrated data sources
+                </button>
+              </li>
+              <li>
+                <button onClick={() => go('about')} className="text-muted-foreground hover:text-primary transition-colors">
+                  About us
+                </button>
               </li>
             </ul>
           </div>
@@ -75,6 +89,22 @@ export function SiteFooter() {
               Connect
             </h4>
             <ul className="mt-3 space-y-2 text-sm">
+              <li>
+                <button
+                  onClick={() => go('donate')}
+                  className="inline-flex items-center gap-1.5 font-medium text-rose-600 hover:text-rose-700 dark:text-rose-400 transition-colors"
+                >
+                  <HandHeart className="h-3.5 w-3.5" /> Donate / Support
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => go('chapter')}
+                  className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Heart className="h-3.5 w-3.5" /> Start a chapter
+                </button>
+              </li>
               <li>
                 <a
                   href="mailto:rippleeffectoffice@gmail.com"
@@ -117,7 +147,7 @@ export function SiteFooter() {
               </li>
               <li>
                 <a
-                  href="https://github.com"
+                  href={REPO_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
@@ -139,7 +169,7 @@ export function SiteFooter() {
 
         <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row">
           <p className="flex items-center gap-1.5">
-            © {new Date().getFullYear()} RippleEffect · Built with
+            © {new Date().getFullYear()} A Ripples Effect · Built with
             <Heart className="h-3 w-3 text-rose-500" /> by the 2026 Water Project crew
           </p>
           <p>

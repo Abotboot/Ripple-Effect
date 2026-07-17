@@ -1,0 +1,630 @@
+     1→'use client'
+     2→
+     3→import { useEffect, useState, useMemo, useCallback } from 'react'
+     4→import { motion, AnimatePresence } from 'framer-motion'
+     5→import {
+     6→  ComposableMap,
+     7→  Geographies,
+     8→  Geography,
+     9→  Marker,
+    10→  ZoomableGroup,
+    11→} from 'react-simple-maps'
+    12→import {
+    13→  Map as MapIcon, MapPin, Loader2, AlertTriangle, ShieldCheck, Building2,
+    14→  Users, Navigation, Search, X,
+    15→} from 'lucide-react'
+    16→import { Badge } from '@/components/ui/badge'
+    17→import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+    18→import { Skeleton } from '@/components/ui/skeleton'
+    19→import { Button } from '@/components/ui/button'
+    20→import { Input } from '@/components/ui/input'
+    21→import { Label } from '@/components/ui/label'
+    22→import { api } from '@/lib/api'
+    23→import type { Stats, UtilityWithStats, Utility } from '@/lib/types'
+    24→import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
+    25→import { cn } from '@/lib/utils'
+    26→
+    27→type MapUtility = Stats['mapUtilities'][number]
+    28→
+    29→// US states TopoJSON from CDN (loaded once, cached by the browser).
+    30→// This is the standard us-atlas simplified states-10m dataset (~100KB).
+    31→const US_STATES_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json'
+    32→
+    33→// Major US cities for the "search near me" quick-pick
+    34→const QUICK_CITIES = [
+    35→  { name: 'Chicago, IL', lat: 41.8781, lng: -87.6298 },
+    36→  { name: 'New York, NY', lat: 40.7128, lng: -74.006 },
+    37→  { name: 'Los Angeles, CA', lat: 34.0522, lng: -118.2437 },
+    38→  { name: 'Houston, TX', lat: 29.7604, lng: -95.3698 },
+    39→  { name: 'Phoenix, AZ', lat: 33.4484, lng: -112.074 },
+    40→  { name: 'Seattle, WA', lat: 47.6062, lng: -122.3321 },
+    41→]
+    42→
+    43→function tierFor(u: MapUtility): { label: string; color: string; ring: string } {
+    44→  if (u.legalExceedances > 0) {
+    45→    return { label: 'Above legal limit', color: '#e11d48', ring: '#fecdd3' }
+    46→  }
+    47→  if (u.healthExceedances >= 5) {
+    48→    return { label: 'Many health exceedances', color: '#f59e0b', ring: '#fde68a' }
+    49→  }
+    50→  if (u.healthExceedances > 0) {
+    51→    return { label: 'Some health exceedances', color: '#06b6d4', ring: '#a5f3fc' }
+    52→  }
+    53→  return { label: 'Within guidelines', color: '#10b981', ring: '#a7f3d0' }
+    54→}
+    55→
+    56→export function MapSection() {
+    57→  const [stats, setStats] = useState<Stats | null>(null)
+    58→  const [loading, setLoading] = useState(true)
+    59→  const [selected, setSelected] = useState<UtilityWithStats | null>(null)
+    60→  const [loadingDetail, setLoadingDetail] = useState<string | null>(null)
+    61→  const [hovered, setHovered] = useState<MapUtility | null>(null)
+    62→  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
+    63→  const [filterTier, setFilterTier] = useState<'all' | 'legal' | 'health' | 'clean'>('all')
+    64→  // Radius search state
+    65→  const [radiusMode, setRadiusMode] = useState(false)
+    66→  const [radiusCenter, setRadiusCenter] = useState<{ lat: number; lng: number; name?: string } | null>(null)
+    67→  const [radiusMiles, setRadiusMiles] = useState(300)
+    68→  const [nearby, setNearby] = useState<Array<Utility & { distanceMiles: number }> | null>(null)
+    69→  const [radiusLoading, setRadiusLoading] = useState(false)
+    70→
+    71→  useEffect(() => {
+    72→    api.getStats().then((s) => {
+    73→      setStats(s)
+    74→      setLoading(false)
+    75→    }).catch(() => setLoading(false))
+    76→  }, [])
+    77→
+    78→  const runRadiusSearch = useCallback(async (lat: number, lng: number, radius: number) => {
+    79→    setRadiusLoading(true)
+    80→    try {
+    81→      const res = await api.nearbyUtilities(lat, lng, radius)
+    82→      setNearby(res.utilities)
+    83→    } catch (e) {
+    84→      console.error('Radius search failed', e)
+    85→      setNearby([])
+    86→    } finally {
+    87→      setRadiusLoading(false)
+    88→    }
+    89→  }, [])
+    90→
+    91→  const setCenterAndSearch = useCallback((lat: number, lng: number, name?: string) => {
+    92→    setRadiusCenter({ lat, lng, name })
+    93→    setRadiusMode(true)
+    94→    runRadiusSearch(lat, lng, radiusMiles)
+    95→  }, [radiusMiles, runRadiusSearch])
+    96→
+    97→  const openUtility = async (u: MapUtility | (Utility & { distanceMiles?: number })) => {
+    98→    setLoadingDetail(u.id)
+    99→    try {
+   100→      const detail = await api.getUtility(u.id)
+   101→      setSelected(detail)
+   102→    } catch (e) {
+   103→      console.error('Failed to load utility', e)
+   104→    } finally {
+   105→      setLoadingDetail(null)
+   106→    }
+   107→  }
+   108→
+   109→  // Apply tier filter
+   110→  const visibleUtilities = useMemo(() => {
+   111→    if (!stats) return []
+   112→    return stats.mapUtilities.filter((u) => {
+   113→      if (filterTier === 'all') return true
+   114→      if (filterTier === 'legal') return u.legalExceedances > 0
+   115→      if (filterTier === 'health') return u.legalExceedances === 0 && u.healthExceedances > 0
+   116→      if (filterTier === 'clean') return u.healthExceedances === 0 && u.legalExceedances === 0
+   117→      return true
+   118→    })
+   119→  }, [stats, filterTier])
+   120→
+   121→  // If radius mode is active, further filter to nearby utilities
+   122→  const displayedUtilities = useMemo(() => {
+   123→    if (!radiusMode || !nearby) return visibleUtilities
+   124→    const nearbyIds = new Set(nearby.map((u) => u.id))
+   125→    return visibleUtilities.filter((u) => nearbyIds.has(u.id))
+   126→  }, [visibleUtilities, radiusMode, nearby])
+   127→
+   128→  const tierCounts = useMemo(() => {
+   129→    if (!stats) return { legal: 0, health: 0, clean: 0 }
+   130→    return {
+   131→      legal: stats.mapUtilities.filter((u) => u.legalExceedances > 0).length,
+   132→      health: stats.mapUtilities.filter((u) => u.legalExceedances === 0 && u.healthExceedances > 0).length,
+   133→      clean: stats.mapUtilities.filter((u) => u.healthExceedances === 0 && u.legalExceedances === 0).length,
+   134→    }
+   135→  }, [stats])
+   136→
+   137→  return (
+   138→    <div className="min-h-screen bg-water-hero">
+   139→      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+   140→        <div className="mb-6 text-center">
+   141→          <Badge variant="secondary" className="mb-3 border-primary/20 bg-primary/10 text-primary">
+   142→            <MapIcon className="mr-1 h-3 w-3" />
+   143→            National Map View
+   144→          </Badge>
+   145→          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+   146→            Water utilities across America
+   147→          </h1>
+   148→          <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+   149→            Every dot is a water utility in our database. Color shows how its
+   150→            measured contaminants compare to health and legal limits. Click any
+   151→            dot for the full breakdown, or search for utilities near you.
+   152→          </p>
+   153→        </div>
+   154→
+   155→        {/* Tier filter chips + radius toggle */}
+   156→        <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
+   157→          {([
+   158→            { id: 'all', label: 'All', count: stats?.mapUtilities.length ?? 0, color: '#64748b' },
+   159→            { id: 'clean', label: 'Within guidelines', count: tierCounts.clean, color: '#10b981' },
+   160→            { id: 'health', label: 'Health exceedances', count: tierCounts.health, color: '#06b6d4' },
+   161→            { id: 'legal', label: 'Above legal limit', count: tierCounts.legal, color: '#e11d48' },
+   162→          ] as const).map((t) => (
+   163→            <button
+   164→              key={t.id}
+   165→              onClick={() => setFilterTier(t.id)}
+   166→              className={cn(
+   167→                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all',
+   168→                filterTier === t.id
+   169→                  ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+   170→                  : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
+   171→              )}
+   172→            >
+   173→              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: t.color }} />
+   174→              {t.label}
+   175→              <span className={cn('ml-0.5 rounded-full px-1.5 text-[10px]', filterTier === t.id ? 'bg-white/20' : 'bg-muted')}>
+   176→                {t.count}
+   177→              </span>
+   178→            </button>
+   179→          ))}
+   180→        </div>
+   181→
+   182→        {/* Radius search bar */}
+   183→        <Card className="mb-5 overflow-hidden border-primary/20">
+   184→          <CardContent className="p-4">
+   185→            <div className="flex flex-wrap items-center gap-3">
+   186→              <div className="flex items-center gap-2">
+   187→                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+   188→                  <Navigation className="h-4 w-4" />
+   189→                </div>
+   190→                <div>
+   191→                  <div className="text-sm font-semibold text-foreground">Find utilities near you</div>
+   192→                  <div className="text-[11px] text-muted-foreground">
+   193→                    Geospatial radius search (haversine — PostGIS-ready)
+   194→                  </div>
+   195→                </div>
+   196→              </div>
+   197→              <div className="flex flex-1 flex-wrap items-center gap-2">
+   198→                {QUICK_CITIES.map((c) => (
+   199→                  <button
+   200→                    key={c.name}
+   201→                    onClick={() => setCenterAndSearch(c.lat, c.lng, c.name)}
+   202→                    className={cn(
+   203→                      'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+   204→                      radiusCenter?.name === c.name
+   205→                        ? 'border-primary bg-primary/10 text-primary'
+   206→                        : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
+   207→                    )}
+   208→                  >
+   209→                    <MapPin className="h-3 w-3" />
+   210→                    {c.name}
+   211→                  </button>
+   212→                ))}
+   213→              </div>
+   214→              <div className="flex items-center gap-2">
+   215→                <Label className="text-xs text-muted-foreground">Radius</Label>
+   216→                <select
+   217→                  value={radiusMiles}
+   218→                  onChange={(e) => {
+   219→                    const r = Number(e.target.value)
+   220→                    setRadiusMiles(r)
+   221→                    if (radiusCenter) runRadiusSearch(radiusCenter.lat, radiusCenter.lng, r)
+   222→                  }}
+   223→                  className="h-8 rounded-md border border-border bg-card px-2 text-xs"
+   224→                >
+   225→                  <option value={50}>50 mi</option>
+   226→                  <option value={100}>100 mi</option>
+   227→                  <option value={300}>300 mi</option>
+   228→                  <option value={500}>500 mi</option>
+   229→                  <option value={1000}>1000 mi</option>
+   230→                </select>
+   231→                {radiusMode && (
+   232→                  <Button
+   233→                    variant="ghost"
+   234→                    size="sm"
+   235→                    className="h-8"
+   236→                    onClick={() => {
+   237→                      setRadiusMode(false)
+   238→                      setRadiusCenter(null)
+   239→                      setNearby(null)
+   240→                    }}
+   241→                  >
+   242→                    <X className="h-3.5 w-3.5" />
+   243→                    Clear
+   244→                  </Button>
+   245→                )}
+   246→              </div>
+   247→            </div>
+   248→            {radiusMode && nearby && (
+   249→              <div className="mt-3 flex items-center gap-2 rounded-md bg-primary/5 px-3 py-2 text-sm">
+   250→                {radiusLoading ? (
+   251→                  <><Loader2 className="h-3.5 w-3.5 animate-spin text-primary" /> Searching...</>
+   252→                ) : (
+   253→                  <>
+   254→                    <Search className="h-3.5 w-3.5 text-primary" />
+   255→                    <span className="font-medium text-foreground">{nearby.length}</span>
+   256→                    <span className="text-muted-foreground">
+   257→                      utilities within {radiusMiles} miles of {radiusCenter?.name ?? `${radiusCenter?.lat.toFixed(2)}, ${radiusCenter?.lng.toFixed(2)}`}
+   258→                    </span>
+   259→                  </>
+   260→                )}
+   261→              </div>
+   262→            )}
+   263→          </CardContent>
+   264→        </Card>
+   265→
+   266→        {/* The Map */}
+   267→        <Card className="overflow-hidden shadow-lg">
+   268→          <CardContent className="p-0">
+   269→            {loading ? (
+   270→              <Skeleton className="h-[500px] sm:h-[600px] w-full rounded-none" />
+   271→            ) : (
+   272→              <div
+   273→                className="relative h-[500px] sm:h-[600px] w-full bg-gradient-to-b from-sky-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800"
+   274→                onMouseMove={(e) => {
+   275→                  if (hovered) setTooltipPos({ x: e.clientX, y: e.clientY })
+   276→                }}
+   277→              >
+   278→                <ComposableMap
+   279→                  projection="geoAlbersUsa"
+   280→                  projectionConfig={{ scale: 1000 }}
+   281→                  width={980}
+   282→                  height={580}
+   283→                  style={{ width: '100%', height: '100%' }}
+   284→                >
+   285→                  <ZoomableGroup zoom={1} minZoom={0.8} maxZoom={4}>
+   286→                    <Geographies geography={US_STATES_URL}>
+   287→                      {({ geographies }: { geographies: Array<{ rsmKey: string; properties: { name: string } }> }) =>
+   288→                        geographies.map((geo) => (
+   289→                          <Geography
+   290→                            key={geo.rsmKey}
+   291→                            geography={geo}
+   292→                            fill="oklch(0.93 0.02 200)"
+   293→                            stroke="oklch(0.7 0.05 195)"
+   294→                            strokeWidth={0.5}
+   295→                            style={{
+   296→                              default: { outline: 'none', transition: 'fill 0.15s' },
+   297→                              hover: {
+   298→                                fill: 'oklch(0.85 0.05 195)',
+   299→                                outline: 'none',
+   300→                                cursor: 'pointer',
+   301→                              },
+   302→                              pressed: { outline: 'none' },
+   303→                            }}
+   304→                          />
+   305→                        ))
+   306→                      }
+   307→                    </Geographies>
+   308→
+   309→                    {/* Radius circle (visual indicator) */}
+   310→                    {radiusMode && radiusCenter && (
+   311→                      <Marker
+   312→                        coordinates={[radiusCenter.lng, radiusCenter.lat]}
+   313→                        key={`radius-${radiusCenter.lat}-${radiusCenter.lng}`}
+   314→                      >
+   315→                        <circle
+   316→                          r={Math.min(radiusMiles * 0.8, 120)}
+   317→                          fill="oklch(0.55 0.13 195 / 0.08)"
+   318→                          stroke="oklch(0.55 0.13 195 / 0.5)"
+   319→                          strokeWidth={1.5}
+   320→                          strokeDasharray="4 3"
+   321→                        />
+   322→                        <circle r={4} fill="oklch(0.55 0.13 195)" />
+   323→                      </Marker>
+   324→                    )}
+   325→
+   326→                    {/* Utility markers */}
+   327→                    {displayedUtilities.map((u, i) => {
+   328→                      const tier = tierFor(u)
+   329→                      const isHovered = hovered?.id === u.id
+   330→                      const isLoading = loadingDetail === u.id
+   331→                      const radius = Math.max(5, Math.min(13, 5 + Math.log2(Math.max(u.population, 100000) / 100000) * 1.4))
+   332→                      const isNearby = nearby?.find((n) => n.id === u.id)
+   333→                      return (
+   334→                        <Marker
+   335→                          key={u.id}
+   336→                          coordinates={[u.longitude, u.latitude]}
+   337→                          onMouseEnter={() => setHovered(u)}
+   338→                          onMouseLeave={() => { setHovered(null); setTooltipPos(null) }}
+   339→                          onClick={() => openUtility(u)}
+   340→                          style={{ cursor: 'pointer' }}
+   341→                        >
+   342→                          {/* Pulse ring for legal exceedances */}
+   343→                          {u.legalExceedances > 0 && (
+   344→                            <circle
+   345→                              r={radius + 3}
+   346→                              fill="none"
+   347→                              stroke={tier.color}
+   348→                              strokeWidth={1.5}
+   349→                              opacity={0.6}
+   350→                            >
+   351→                              <animate
+   352→                                attributeName="r"
+   353→                                values={`${radius + 3};${radius + 10};${radius + 3}`}
+   354→                                dur="2.5s"
+   355→                                repeatCount="indefinite"
+   356→                              />
+   357→                              <animate
+   358→                                attributeName="opacity"
+   359→                                values="0.6;0;0.6"
+   360→                                dur="2.5s"
+   361→                                repeatCount="indefinite"
+   362→                              />
+   363→                            </circle>
+   364→                          )}
+   365→                          {/* Outer ring */}
+   366→                          <circle
+   367→                            r={radius + 2}
+   368→                            fill={tier.ring}
+   369→                            opacity={isHovered ? 1 : 0.7}
+   370→                          />
+   371→                          {/* Main dot */}
+   372→                          <motion.circle
+   373→                            r={radius}
+   374→                            fill={tier.color}
+   375→                            stroke="white"
+   376→                            strokeWidth={1.5}
+   377→                            initial={{ scale: 0, opacity: 0 }}
+   378→                            animate={{ scale: 1, opacity: 1 }}
+   379→                            transition={{ delay: i * 0.04, type: 'spring', stiffness: 200 }}
+   380→                            style={{ transformOrigin: 'center', filter: isHovered ? 'brightness(1.15)' : 'none' }}
+   381→                          />
+   382→                          {/* Loading spinner */}
+   383→                          {isLoading && (
+   384→                            <circle
+   385→                              r={radius + 6}
+   386→                              fill="none"
+   387→                              stroke="oklch(0.55 0.13 195)"
+   388→                              strokeWidth={2}
+   389→                              strokeDasharray="20 10"
+   390→                            >
+   391→                              <animateTransform
+   392→                                attributeName="transform"
+   393→                                type="rotate"
+   394→                                from="0"
+   395→                                to="360"
+   396→                                dur="1s"
+   397→                                repeatCount="indefinite"
+   398→                              />
+   399→                            </circle>
+   400→                          )}
+   401→                          {/* Distance label in radius mode */}
+   402→                          {isNearby && (
+   403→                            <text
+   404→                              y={radius + 14}
+   405→                              textAnchor="middle"
+   406→                              fontSize={9}
+   407→                              fontWeight={600}
+   408→                              fill="oklch(0.3 0.05 195)"
+   409→                              style={{ pointerEvents: 'none', paintOrder: 'stroke' }}
+   410→                              stroke="white"
+   411→                              strokeWidth={2}
+   412→                            >
+   413→                              {isNearby.distanceMiles} mi
+   414→                            </text>
+   415→                          )}
+   416→                        </Marker>
+   417→                      )
+   418→                    })}
+   419→                  </ZoomableGroup>
+   420→                </ComposableMap>
+   421→
+   422→                {/* Floating tooltip */}
+   423→                {hovered && tooltipPos && (
+   424→                  <div
+   425→                    className="pointer-events-none fixed z-50 max-w-[260px] rounded-lg border border-border bg-card/95 p-3 shadow-xl backdrop-blur"
+   426→                    style={{
+   427→                      left: Math.min(tooltipPos.x + 14, (typeof window !== 'undefined' ? window.innerWidth : 9999) - 280),
+   428→                      top: tooltipPos.y + 14,
+   429→                    }}
+   430→                  >
+   431→                    <div className="text-sm font-semibold text-foreground">{hovered.name}</div>
+   432→                    <div className="mt-0.5 text-xs text-muted-foreground">
+   433→                      {hovered.city}, {hovered.state} · pop. {hovered.population.toLocaleString()}
+   434→                    </div>
+   435→                    <div className="mt-1.5 flex flex-wrap gap-1.5 text-[10px]">
+   436→                      {hovered.healthExceedances > 0 && (
+   437→                        <span className="rounded bg-amber-100 px-1.5 py-0.5 font-medium text-amber-700">
+   438→                          {hovered.healthExceedances} health
+   439→                        </span>
+   440→                      )}
+   441→                      {hovered.legalExceedances > 0 && (
+   442→                        <span className="rounded bg-rose-100 px-1.5 py-0.5 font-medium text-rose-700">
+   443→                          {hovered.legalExceedances} legal
+   444→                        </span>
+   445→                      )}
+   446→                      {hovered.healthExceedances === 0 && hovered.legalExceedances === 0 && (
+   447→                        <span className="rounded bg-emerald-100 px-1.5 py-0.5 font-medium text-emerald-700">
+   448→                          Within guidelines
+   449→                        </span>
+   450→                      )}
+   451→                    </div>
+   452→                    <div className="mt-1.5 text-[10px] text-primary">Click to view details →</div>
+   453→                  </div>
+   454→                )}
+   455→
+   456→                {/* Legend (bottom-left) */}
+   457→                <div className="absolute bottom-3 left-3 rounded-lg border border-border/60 bg-card/90 p-3 backdrop-blur">
+   458→                  <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+   459→                    Contamination tier
+   460→                  </div>
+   461→                  <div className="space-y-1">
+   462→                    {[
+   463→                      { label: 'Within guidelines', color: '#10b981' },
+   464→                      { label: 'Health exceedances', color: '#06b6d4' },
+   465→                      { label: 'Many exceedances', color: '#f59e0b' },
+   466→                      { label: 'Above legal limit', color: '#e11d48' },
+   467→                    ].map((l) => (
+   468→                      <div key={l.label} className="flex items-center gap-2 text-[11px]">
+   469→                        <span className="h-2.5 w-2.5 rounded-full ring-2 ring-white" style={{ backgroundColor: l.color }} />
+   470→                        <span className="text-foreground">{l.label}</span>
+   471→                      </div>
+   472→                    ))}
+   473→                  </div>
+   474→                </div>
+   475→
+   476→                {/* Zoom hint (bottom-right) */}
+   477→                <div className="absolute bottom-3 right-3 rounded-md border border-border/60 bg-card/90 px-2.5 py-1 text-[10px] text-muted-foreground backdrop-blur">
+   478→                  Scroll to zoom · Click dot for details
+   479→                </div>
+   480→              </div>
+   481→            )}
+   482→          </CardContent>
+   483→        </Card>
+   484→
+   485→        {/* Quick stats */}
+   486→        {!loading && stats && (
+   487→          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+   488→            <MiniStat icon={Building2} label="Utilities mapped" value={stats.mapUtilities.length.toString()} />
+   489→            <MiniStat icon={Users} label="People represented" value={`${(stats.populationServed / 1_000_000).toFixed(1)}M`} />
+   490→            <MiniStat icon={AlertTriangle} label="Above legal limit" value={tierCounts.legal.toString()} tone="warning" />
+   491→            <MiniStat icon={ShieldCheck} label="Within guidelines" value={tierCounts.clean.toString()} tone="ok" />
+   492→          </div>
+   493→        )}
+   494→
+   495→        {/* Nearby results list (radius mode) */}
+   496→        {radiusMode && nearby && nearby.length > 0 && (
+   497→          <Card className="mt-5 border-primary/30">
+   498→            <CardHeader>
+   499→              <CardTitle className="flex items-center gap-2 text-base">
+   500→                <Navigation className="h-4 w-4 text-primary" />
+   501→                Utilities near {radiusCenter?.name ?? 'selected point'}
+   502→                <Badge variant="secondary" className="ml-1 bg-primary/10 text-primary">{nearby.length}</Badge>
+   503→              </CardTitle>
+   504→            </CardHeader>
+   505→            <CardContent>
+   506→              <div className="grid gap-2 sm:grid-cols-2">
+   507→                {nearby.map((u) => (
+   508→                  <button
+   509→                    key={u.id}
+   510→                    onClick={() => openUtility(u)}
+   511→                    className="group flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card p-3 text-left transition-all hover:border-primary/40 hover:shadow-sm"
+   512→                  >
+   513→                    <div className="min-w-0 flex-1">
+   514→                      <div className="truncate text-sm font-medium text-foreground">{u.name}</div>
+   515→                      <div className="text-xs text-muted-foreground">
+   516→                        {u.city}, {u.state} · pop. {u.population.toLocaleString()}
+   517→                      </div>
+   518→                    </div>
+   519→                    <div className="flex shrink-0 items-center gap-2">
+   520→                      <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+   521→                        {u.distanceMiles} mi
+   522→                      </span>
+   523→                    </div>
+   524→                  </button>
+   525→                ))}
+   526→              </div>
+   527→            </CardContent>
+   528→          </Card>
+   529→        )}
+   530→
+   531→        {/* Full utility list (fallback) */}
+   532→        {!loading && stats && !radiusMode && (
+   533→          <Card className="mt-5">
+   534→            <CardHeader>
+   535→              <CardTitle className="flex items-center gap-2 text-base">
+   536→                <MapPin className="h-4 w-4 text-primary" />
+   537→                All utilities ({displayedUtilities.length})
+   538→              </CardTitle>
+   539→            </CardHeader>
+   540→            <CardContent>
+   541→              <div className="grid gap-2 sm:grid-cols-2">
+   542→                {displayedUtilities
+   543→                  .slice()
+   544→                  .sort((a, b) => b.legalExceedances - a.legalExceedances || b.healthExceedances - a.healthExceedances)
+   545→                  .map((u) => {
+   546→                    const tier = tierFor(u)
+   547→                    return (
+   548→                      <button
+   549→                        key={u.id}
+   550→                        onClick={() => openUtility(u)}
+   551→                        className="group flex items-center gap-3 rounded-lg border border-border/60 bg-card p-3 text-left transition-all hover:border-primary/40 hover:shadow-sm"
+   552→                      >
+   553→                        <span
+   554→                          className="h-3 w-3 shrink-0 rounded-full ring-2"
+   555→                          style={{ backgroundColor: tier.color, '--tw-ring-color': tier.ring } as React.CSSProperties}
+   556→                        />
+   557→                        <div className="min-w-0 flex-1">
+   558→                          <div className="truncate text-sm font-medium text-foreground">{u.name}</div>
+   559→                          <div className="text-xs text-muted-foreground">
+   560→                            {u.city}, {u.state} · {u.population.toLocaleString()} served
+   561→                          </div>
+   562→                        </div>
+   563→                        <div className="flex shrink-0 gap-1.5 text-[10px]">
+   564→                          {u.healthExceedances > 0 && (
+   565→                            <span className="rounded bg-amber-50 px-1.5 py-0.5 font-medium text-amber-700">
+   566→                              {u.healthExceedances}H
+   567→                            </span>
+   568→                          )}
+   569→                          {u.legalExceedances > 0 && (
+   570→                            <span className="rounded bg-rose-50 px-1.5 py-0.5 font-medium text-rose-700">
+   571→                              {u.legalExceedances}L
+   572→                            </span>
+   573→                          )}
+   574→                        </div>
+   575→                      </button>
+   576→                    )
+   577→                  })}
+   578→              </div>
+   579→            </CardContent>
+   580→          </Card>
+   581→        )}
+   582→      </section>
+   583→
+   584→      <UtilityDetailDialog utility={selected} onClose={() => setSelected(null)} />
+   585→    </div>
+   586→  )
+   587→}
+   588→
+   589→function MiniStat({
+   590→  icon: Icon,
+   591→  label,
+   592→  value,
+   593→  tone = 'default',
+   594→}: {
+   595→  icon: React.ElementType
+   596→  label: string
+   597→  value: string
+   598→  tone?: 'default' | 'ok' | 'warning'
+   599→}) {
+   600→  const valueCls =
+   601→    tone === 'ok'
+   602→      ? 'text-emerald-600'
+   603→      : tone === 'warning'
+   604→      ? 'text-rose-600'
+   605→      : 'text-foreground'
+   606→  const iconCls =
+   607→    tone === 'ok'
+   608→      ? 'bg-emerald-100 text-emerald-600'
+   609→      : tone === 'warning'
+   610→      ? 'bg-rose-100 text-rose-600'
+   611→      : 'bg-primary/10 text-primary'
+   612→  return (
+   613→    <Card>
+   614→      <CardContent className="p-3">
+   615→        <div className="flex items-center gap-2">
+   616→          <div className={cn('inline-flex h-7 w-7 items-center justify-center rounded-md', iconCls)}>
+   617→            <Icon className="h-3.5 w-3.5" />
+   618→          </div>
+   619→          <div className="min-w-0">
+   620→            <div className={cn('text-lg font-bold tabular-nums leading-tight', valueCls)}>{value}</div>
+   621→            <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground leading-tight">
+   622→              {label}
+   623→            </div>
+   624→          </div>
+   625→        </div>
+   626→      </CardContent>
+   627→    </Card>
+   628→  )
+   629→}
+   630→

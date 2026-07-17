@@ -25,32 +25,44 @@ export async function ensureSeeded(): Promise<void> {
 async function runSeed(): Promise<void> {
   console.log('[ensureSeeded] Database is empty — running inline seed...')
 
-  // Inline minimal seed (mirrors prisma/seed.ts). We don't import the seed
-  // file directly because it uses bun-specific top-level await.
   const { hashPassword } = await import('./auth')
 
-  // Admin user
+  // Admin user — strong default password (change immediately after first login).
+  // Credentials documented in README.md and worklog.md, NOT in the UI.
   await db.user.upsert({
-    where: { email: 'admin@rippleeffect.org' },
+    where: { email: 'admin@arippleseffect.org' },
     update: {},
     create: {
-      email: 'admin@rippleeffect.org',
-      name: 'RippleEffect Admin',
-      password: hashPassword('rippleeffect'),
+      email: 'admin@arippleseffect.org',
+      name: 'A Ripples Effect Admin',
+      password: hashPassword('Ripples#2026!Secure'),
       role: 'admin',
     },
   })
 
-  // Contaminants (full catalog)
+  // Contaminants (full catalog). Each entry clearly sourced.
+  // Microplastics is FIRST and flagged trackedByUs=true with a rarity note.
   const contaminants = [
     {
-      slug: 'microplastics', name: 'Microplastics', chemicalName: 'Polymer fragments < 5mm',
-      category: 'Microplastic', legalLimit: null, legalLimitUnit: null,
-      healthGuideline: 0, healthGuidelineUnit: 'particles/L', ewgHealthLimit: 0,
-      description: 'Tiny plastic particles less than 5 millimeters in size. Found in drinking water worldwide. Currently unregulated in the United States despite growing health concerns.',
-      healthEffects: 'Emerging research links microplastic ingestion to inflammation, endocrine disruption, and cellular damage. Particle size determines whether they cross the gut and lung barriers.',
-      sources: 'Plastic packaging, synthetic textiles, tire wear, breakdown of larger plastic debris, water treatment processes that cannot filter sub-micron particles.',
+      slug: 'microplastics',
+      name: 'Microplastics',
+      chemicalName: 'Polymer fragments < 5mm',
+      category: 'Microplastic',
+      legalLimit: null,
+      legalLimitUnit: null,
+      healthGuideline: 0,
+      healthGuidelineUnit: 'particles/L',
+      ewgHealthLimit: 0,
+      description:
+        'Tiny plastic particles less than 5 millimeters in size. Found in drinking water worldwide. Currently unregulated in the United States despite growing health concerns.',
+      healthEffects:
+        'Emerging research links microplastic ingestion to inflammation, endocrine disruption, and cellular damage. Particle size determines whether they cross the gut and lung barriers.',
+      sources:
+        'Plastic packaging, synthetic textiles, tire wear, breakdown of larger plastic debris, water treatment processes that cannot filter sub-micron particles.',
       regulated: false,
+      trackedByUs: true,
+      rarityNote:
+        'Almost no public drinking-water databases track microplastics — the EWG Tap Water Database, EPA SDWIS, and most state portals omit it entirely because there is no federal limit and no routine monitoring requirement. A Ripples Effect tracks it anyway.',
     },
     {
       slug: 'lead', name: 'Lead', chemicalName: 'Pb', category: 'Metal',
@@ -58,13 +70,15 @@ async function runSeed(): Promise<void> {
       description: 'A neurotoxic heavy metal that enters drinking water primarily through corrosion of plumbing materials.',
       healthEffects: 'Especially harmful to children — causes irreversible neurological damage, lowered IQ, behavioral problems, and anemia. No safe level of exposure exists.',
       sources: 'Lead service lines, brass fixtures, lead solder in plumbing, galvanized pipes.', regulated: true,
+      trackedByUs: true, rarityNote: 'Tracked by EWG and EPA, but service-line inventory data is still incomplete nationwide.',
     },
     {
       slug: 'arsenic', name: 'Arsenic', chemicalName: 'As', category: 'Metal',
       legalLimit: 10, legalLimitUnit: 'ppb', healthGuideline: 0.004, healthGuidelineUnit: 'ppb', ewgHealthLimit: 0.004,
-      description: "A naturally occurring element widely distributed in the Earth's crust. The EPA-classified human carcinogen.",
+      description: "A naturally occurring element widely distributed in the Earth's crust. An EPA-classified human carcinogen.",
       healthEffects: 'Long-term exposure causes skin, bladder, and lung cancer. Also linked to cardiovascular disease, diabetes, and reduced cognitive function in children.',
       sources: 'Natural deposits in bedrock, industrial runoff, agricultural pesticides, smelting.', regulated: true,
+      trackedByUs: true, rarityNote: 'Tracked by EWG and EPA.',
     },
     {
       slug: 'pfoa', name: 'PFOA (Perfluorooctanoic acid)', chemicalName: 'C8HF15O2', category: 'PFAS',
@@ -72,6 +86,7 @@ async function runSeed(): Promise<void> {
       description: 'A "forever chemical" in the PFAS family. Does not break down in the environment or human body.',
       healthEffects: 'Linked to kidney and testicular cancer, thyroid disease, immune suppression, pregnancy-induced hypertension, and low birth weight.',
       sources: 'Industrial discharges, firefighting foam (AFFF), stain-resistant carpets, non-stick cookware manufacturing, waterproof textiles.', regulated: true,
+      trackedByUs: true, rarityNote: 'Only regulated as of 2024 (EPA MCL of 4 ppt). EWG tracks; many state portals still do not.',
     },
     {
       slug: 'pfos', name: 'PFOS (Perfluorooctane sulfonate)', chemicalName: 'C8HF17SO3', category: 'PFAS',
@@ -79,6 +94,7 @@ async function runSeed(): Promise<void> {
       description: 'A persistent PFAS compound used in fire-fighting foams and stain repellents.',
       healthEffects: 'Associated with liver damage, immune effects, thyroid disruption, and decreased fertility.',
       sources: 'Aqueous film-forming foams (AFFF), textile treatments, paper coatings, chrome plating.', regulated: true,
+      trackedByUs: true, rarityNote: 'Newly regulated in 2024. Limited historical data exists.',
     },
     {
       slug: 'thm', name: 'Total Trihalomethanes (TTHM)', chemicalName: 'CHCl3 + CHBrCl2 + CHBr2Cl + CHBr3', category: 'Disinfection Byproduct',
@@ -86,6 +102,7 @@ async function runSeed(): Promise<void> {
       description: 'Formed when chlorine disinfectant reacts with natural organic matter in source water.',
       healthEffects: 'Increased cancer risk (especially bladder cancer), potential reproductive and developmental issues.',
       sources: 'Chlorination of water containing organic matter; levels rise during warm seasons.', regulated: true,
+      trackedByUs: false, rarityNote: null,
     },
     {
       slug: 'hAA5', name: 'Haloacetic Acids (HAA5)', chemicalName: '5 haloacetic acid species', category: 'Disinfection Byproduct',
@@ -93,6 +110,7 @@ async function runSeed(): Promise<void> {
       description: 'A group of five haloacetic acid compounds formed as disinfection byproducts.',
       healthEffects: 'Linked to cancer and potential developmental harm during pregnancy.',
       sources: 'Chlorination and chloramination disinfection processes.', regulated: true,
+      trackedByUs: false, rarityNote: null,
     },
     {
       slug: 'chromium6', name: 'Chromium-6 (Hexavalent Chromium)', chemicalName: 'Cr(VI)', category: 'Metal',
@@ -100,6 +118,7 @@ async function runSeed(): Promise<void> {
       description: 'The cancer-causing chemical made famous by the film "Erin Brockovich." Regulated only as total chromium.',
       healthEffects: 'Known human carcinogen when inhaled; linked to stomach and intestinal cancer when ingested.',
       sources: 'Industrial discharge from steel and pulp mills, electroplating, leather tanning, natural erosion.', regulated: true,
+      trackedByUs: false, rarityNote: null,
     },
     {
       slug: 'nitrate', name: 'Nitrate', chemicalName: 'NO3-', category: 'Agricultural',
@@ -107,6 +126,7 @@ async function runSeed(): Promise<void> {
       description: 'A nitrogen compound that enters water from fertilizer runoff and septic systems.',
       healthEffects: 'Infants under 6 months can develop methemoglobinemia ("blue baby syndrome"), which can be fatal.',
       sources: 'Synthetic fertilizer, manure, septic systems, sewage, atmospheric deposition.', regulated: true,
+      trackedByUs: false, rarityNote: null,
     },
     {
       slug: 'atrazine', name: 'Atrazine', chemicalName: 'C8H14ClN5', category: 'Pesticide',
@@ -114,6 +134,7 @@ async function runSeed(): Promise<void> {
       description: 'One of the most widely used agricultural herbicides in the United States, banned in the EU.',
       healthEffects: 'Endocrine disruptor that alters hormone levels; linked to reproductive harm and birth defects.',
       sources: 'Corn and sugarcane herbicide runoff.', regulated: true,
+      trackedByUs: false, rarityNote: null,
     },
     {
       slug: 'uranium', name: 'Uranium', chemicalName: 'U', category: 'Radioactive',
@@ -121,6 +142,7 @@ async function runSeed(): Promise<void> {
       description: 'A naturally occurring radioactive element found in some groundwater.',
       healthEffects: 'Kidney toxicity and elevated cancer risk from long-term alpha radiation exposure.',
       sources: 'Natural uranium-bearing rocks and minerals; mining and milling wastes.', regulated: true,
+      trackedByUs: false, rarityNote: null,
     },
     {
       slug: 'chlorine', name: 'Chlorine (Free)', chemicalName: 'Cl2', category: 'Disinfectant',
@@ -128,6 +150,7 @@ async function runSeed(): Promise<void> {
       description: 'Most common drinking water disinfectant in the United States.',
       healthEffects: 'Can react with organic matter to form disinfection byproducts; some people are sensitive to chlorine taste and odor.',
       sources: 'Added at water treatment plants for pathogen control.', regulated: true,
+      trackedByUs: false, rarityNote: null,
     },
   ]
 
@@ -135,7 +158,7 @@ async function runSeed(): Promise<void> {
     await db.contaminant.upsert({ where: { slug: c.slug }, update: c, create: c })
   }
 
-  // Utilities (10 real US systems)
+  // Utilities (real US systems with real EPA PWSIDs)
   const utilities = [
     { pwsid: 'IL0316040', name: 'City of Chicago Department of Water Management', city: 'Chicago', state: 'IL', zipCodes: '60601,60602,60603,60604,60605,60606,60607,60608,60609,60610,60611,60612,60613,60614,60615,60616,60617,60618,60619,60620', county: 'Cook', population: 2716000, systemType: 'Community', sourceType: 'Surface', treatmentStatus: 'Treated', latitude: 41.8781, longitude: -87.6298, website: 'https://www.chicago.gov/city/en/depts/water.html', notes: 'Draws from Lake Michigan, one of the largest surface water systems in the US.' },
     { pwsid: 'NY7003493', name: 'New York City Department of Environmental Protection', city: 'New York', state: 'NY', zipCodes: '10001,10002,10003,10004,10005,10011,10012,10013,10021,10024,10025,10036', county: 'New York', population: 8336000, systemType: 'Community', sourceType: 'Surface', treatmentStatus: 'Treated', latitude: 40.7128, longitude: -74.006, website: 'https://www.nyc.gov/site/dep/index.page', notes: 'Sources: Catskill/Delaware and Croton watersheds. Mostly unfiltered, UV + chlorine disinfection.' },
@@ -156,14 +179,22 @@ async function runSeed(): Promise<void> {
     utilityIds[u.pwsid] = created.id
   }
 
-  // Generate samples (deterministic pseudo-random)
+  // Generate samples. Levels are SIMULATED within ranges consistent with
+  // published data (EWG Tap Water Database; EPA UCMR; Orb Media 2017
+  // microplastics survey; WHO 2019 microplastics report). They are NOT real
+  // measurements and are clearly labeled as illustrative in the UI.
   const contaminantsDb = await db.contaminant.findMany()
   const cBySlug = Object.fromEntries(contaminantsDb.map((c) => [c.slug, c]))
   let s = 42
   const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280 }
 
+  // Ranges chosen from published literature:
+  //  - Microplastics in tap water: Orb Media (2017) found ~0-60 particles/L
+  //    across 14 countries; US tap averaged ~4.8 p/500mL in that study.
+  //  - Untreated/source-water microplastics are higher (WHO 2019).
+  //  - Regulated contaminants: EWG Tap Water Database typical detected ranges.
   const baseRanges: Record<string, [number, number]> = {
-    microplastics: [0.5, 12], lead: [0.1, 12], arsenic: [0.1, 4], pfoa: [0.2, 8],
+    microplastics: [1.2, 9.5], lead: [0.1, 12], arsenic: [0.1, 4], pfoa: [0.2, 8],
     pfos: [0.1, 6], thm: [5, 65], hAA5: [2, 35], chromium6: [0.03, 1.2],
     nitrate: [0.1, 4.5], atrazine: [0.02, 0.9], uranium: [0.1, 6], chlorine: [0.5, 2.5],
   }
@@ -175,9 +206,13 @@ async function runSeed(): Promise<void> {
 
   const samples: Array<{
     utilityId: string; contaminantId: string; level: number; unit: string;
-    sampleDate: Date; source: string; treatmentStatus: string; location: string;
+    sampleDate: Date; source: string; treatmentStatus: string; location: string; quality: string;
   }> = []
   const sourceOptions = ['Utility CCR', 'Research Lab', 'Citizen Test', 'EPA UCMR']
+  const qualityForSource = (src: string): string =>
+    src === 'Utility CCR' || src === 'EPA UCMR' ? 'verified'
+    : src === 'Research Lab' ? 'provisional'
+    : 'citizen'
 
   for (const u of utilities) {
     for (const c of contaminantsDb) {
@@ -187,18 +222,21 @@ async function runSeed(): Promise<void> {
         const r = baseRanges[c.slug] ?? [0.1, 1]
         const mod = cityMod[u.pwsid] ?? 1
         const level = +(r[0] + rand() * (r[1] - r[0]) * mod).toFixed(3)
+        const source = sourceOptions[Math.floor(rand() * sourceOptions.length)]
         samples.push({
           utilityId: utilityIds[u.pwsid], contaminantId: c.id, level,
           unit: c.legalLimitUnit || c.healthGuidelineUnit || 'ppb',
-          sampleDate: date, source: sourceOptions[Math.floor(rand() * sourceOptions.length)],
+          sampleDate: date, source,
           treatmentStatus: u.treatmentStatus,
           location: rand() < 0.5 ? 'Treatment Plant Outflow' : 'Distribution Tap',
+          quality: qualityForSource(source),
         })
       }
     }
   }
 
-  // Untreated microplastics samples
+  // Untreated microplastics samples (source water intake). Published source-water
+  // measurements range widely (~5-40+ particles/L depending on the water body).
   const mp = cBySlug['microplastics']
   for (const u of utilities) {
     const date = new Date()
@@ -208,6 +246,7 @@ async function runSeed(): Promise<void> {
       level: +(8 + rand() * 30).toFixed(2), unit: 'particles/L',
       sampleDate: date, source: 'Research Lab',
       treatmentStatus: 'Untreated', location: 'Source Water Intake',
+      quality: 'provisional',
     })
   }
 
@@ -224,6 +263,23 @@ async function runSeed(): Promise<void> {
     { utilityId: utilityIds['WA5376550'], reporterName: 'Anonymous', zipCode: '98103', city: 'Seattle', state: 'WA', title: 'Water tastes great', description: 'Seattle tap water has always tasted clean to me. Sharing a positive report!', contaminant: null, appearance: 'normal', severity: 'info', status: 'reviewed' },
   ]
   await db.report.createMany({ data: reports })
+
+  // Chapter signups (Start a Chapter program)
+  const chapters = [
+    { name: 'Dev Sharma', email: 'dev.sharma@example.edu', chapterName: 'A Ripples Effect — UIC Chapter', city: 'Chicago', state: 'IL', zipCode: '60607', waterBody: 'Chicago River / Lake Michigan tap', organization: 'University of Illinois Chicago', identifier: true, message: 'Want to set up a chapter with my environmental science club.', status: 'onboarded' },
+    { name: 'Aisha Khan', email: 'aisha.khan@example.org', chapterName: 'A Ripples Effect — Houston Chapter', city: 'Houston', state: 'TX', zipCode: '77004', waterBody: 'Buffalo Bayou', organization: 'Houston Climate Alliance', identifier: false, message: 'Already have a microscope setup, need protocols.', status: 'contacted' },
+    { name: 'Marco Reyes', email: 'marco.reyes@example.edu', chapterName: null, city: 'Phoenix', state: 'AZ', zipCode: '85016', waterBody: 'Salt River tap', organization: null, identifier: true, message: 'Independent — want to test my home tap water.', status: 'pending' },
+  ]
+  await db.chapter.createMany({ data: chapters })
+
+  // Donations (pledges — links out to GoFundMe for actual payment)
+  const donations = [
+    { name: 'Anonymous', email: null, amount: 25, tier: 'Supporter', message: null, anonymous: true, status: 'completed' },
+    { name: 'Jordan Lee', email: 'jordan@example.com', amount: 50, tier: 'Friend', message: 'Love what you all are building for clean water!', anonymous: false, status: 'completed' },
+    { name: 'Anonymous', email: null, amount: 250, tier: 'Champion', message: 'In memory of my grandfather who fought for our local river.', anonymous: true, status: 'completed' },
+    { name: 'Green Earth Co.', email: 'hello@greenearth.example', amount: 1000, tier: 'Founding', message: 'Proud founding sponsor of the microplastics identifier project.', anonymous: false, status: 'completed' },
+  ]
+  await db.donation.createMany({ data: donations })
 
   console.log('[ensureSeeded] Seed complete.')
 }

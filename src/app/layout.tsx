@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RippleEffect — Tap Water & Microplastics Database",
+  title: "A Ripples Effect — Tap Water & Microplastics Database",
   description:
-    "A community-built tap water and microplastics database. Search your ZIP code, see contaminants in your drinking water, and contribute reports for your community.",
+    "A community-built tap water and microplastics database. Search your ZIP code, see contaminants in your drinking water, and contribute reports for your community. Almost no public water database tracks microplastics — we do.",
   keywords: [
     "tap water",
     "drinking water",
@@ -28,18 +28,19 @@ export const metadata: Metadata = {
     "PFAS",
     "lead in water",
     "community water database",
+    "A Ripples Effect",
   ],
-  authors: [{ name: "RippleEffect Volunteer Crew" }],
+  authors: [{ name: "A Ripples Effect Crew" }],
   openGraph: {
-    title: "RippleEffect — Tap Water & Microplastics Database",
+    title: "A Ripples Effect — Tap Water & Microplastics Database",
     description:
       "A community-built tap water and microplastics database. Know what's in your water.",
-    siteName: "RippleEffect",
+    siteName: "A Ripples Effect",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "RippleEffect — Tap Water & Microplastics Database",
+    title: "A Ripples Effect — Tap Water & Microplastics Database",
     description:
       "A community-built tap water and microplastics database. Know what's in your water.",
   },

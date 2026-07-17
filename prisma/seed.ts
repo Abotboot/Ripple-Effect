@@ -1,29 +1,21 @@
-// Database seed script for RippleEffect
-// Run with: bun run prisma/seed.ts
+// Database seed script for A Ripples Effect
+// Run with: bun run db:seed
 import { db } from '../src/lib/db'
-
-// Simple synchronous-style hash for demo admin password.
-// Default password is "rippleeffect" - change after first login.
-function simpleHash(s: string): string {
-  let h = 0
-  for (let i = 0; i < s.length; i++) {
-    h = (h << 5) - h + s.charCodeAt(i)
-    h |= 0
-  }
-  return 'h' + Math.abs(h).toString(16)
-}
+import { hashPassword } from '../src/lib/auth'
 
 async function main() {
-  console.log('🌱 Seeding RippleEffect database...')
+  console.log('🌱 Seeding A Ripples Effect database...')
 
   // ── Admin user ────────────────────────────────────────────────────────
+  // Strong default password — change immediately after first login.
+  // Credentials: admin@arippleseffect.org / Ripples#2026!Secure
   await db.user.upsert({
-    where: { email: 'admin@rippleeffect.org' },
+    where: { email: 'admin@arippleseffect.org' },
     update: {},
     create: {
-      email: 'admin@rippleeffect.org',
-      name: 'RippleEffect Admin',
-      password: simpleHash('rippleeffect'),
+      email: 'admin@arippleseffect.org',
+      name: 'A Ripples Effect Admin',
+      password: hashPassword('Ripples#2026!Secure'),
       role: 'admin',
     },
   })
@@ -637,7 +629,8 @@ async function main() {
   console.log(`✓ Seeded ${reports.length} community reports`)
 
   console.log('\n✅ Seed complete.')
-  console.log('   Admin login: admin@rippleeffect.org / rippleeffect2026')
+  console.log('   Admin login: admin@arippleseffect.org / Ripples#2026!Secure')
+  console.log('   ⚠️  Change this password immediately after first login.')
 }
 
 main()

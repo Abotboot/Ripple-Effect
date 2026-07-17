@@ -11,7 +11,8 @@ import {
 } from 'react-simple-maps'
 import {
   Map as MapIcon, MapPin, Loader2, AlertTriangle, ShieldCheck, Building2,
-  Users, Navigation, Search, X,
+  Users, Navigation, Search, X, RotateCcw,
+  Microscope, FlaskConical, Droplets, Beaker,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -55,12 +56,15 @@ function tierFor(u: MapUtility): { label: string; color: string; ring: string } 
 
 export function MapSection() {
   const [stats, setStats] = useState<Stats | null>(null)
+  const [scores, setScores] = useState<Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> | null>(null)
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<UtilityWithStats | null>(null)
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null)
   const [hovered, setHovered] = useState<MapUtility | null>(null)
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
   const [filterTier, setFilterTier] = useState<'all' | 'legal' | 'health' | 'clean'>('all')
+  // Contaminant filter chips (separate from tier filter; ANDed together)
+  const [contaminantFilter, setContaminantFilter] = useState<'all' | 'microplastics' | 'pfas' | 'lead' | 'dbp'>('all')
   // Radius search state
   const [radiusMode, setRadiusMode] = useState(false)
   const [radiusCenter, setRadiusCenter] = useState<{ lat: number; lng: number; name?: string } | null>(null)
@@ -73,6 +77,16 @@ export function MapSection() {
       setStats(s)
       setLoading(false)
     }).catch(() => setLoading(false))
+    // Fetch safety scores for tooltips (non-blocking)
+    api.getUtilityScores()
+      .then((r) => {
+        const map: Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> = {}
+        for (const s of r.scores) {
+          map[s.id] = { score: s.score, grade: s.grade, label: s.label, color: s.color, bgColor: s.bgColor }
+        }
+        setScores(map)
+      })
+      .catch(() => {})
   }, [])
 
   const runRadiusSearch = useCallback(async (lat: number, lng: number, radius: number) => {
@@ -106,17 +120,19 @@ export function MapSection() {
     }
   }
 
-  // Apply tier filter
+  // Apply tier filter AND contaminant filter (both conditions must pass)
   const visibleUtilities = useMemo(() => {
     if (!stats) return []
     return stats.mapUtilities.filter((u) => {
-      if (filterTier === 'all') return true
-      if (filterTier === 'legal') return u.legalExceedances > 0
-      if (filterTier === 'health') return u.legalExceedances === 0 && u.healthExceedances > 0
-      if (filterTier === 'clean') return u.healthExceedances === 0 && u.legalExceedances === 0
+      // Tier filter
+      if (filterTier === 'legal' && !(u.legalExceedances > 0)) return false
+      if (filterTier === 'health' && !(u.legalExceedances === 0 && u.healthExceedances > 0)) return false
+      if (filterTier === 'clean' && !(u.healthExceedances === 0 && u.legalExceedances === 0)) return false
+      // Contaminant filter (ANDed with tier)
+      if (contaminantFilter !== 'all' && !u.contaminantExceedances?.[contaminantFilter]) return false
       return true
     })
-  }, [stats, filterTier])
+  }, [stats, filterTier, contaminantFilter])
 
   // If radius mode is active, further filter to nearby utilities
   const displayedUtilities = useMemo(() => {
@@ -133,6 +149,29 @@ export function MapSection() {
       clean: stats.mapUtilities.filter((u) => u.healthExceedances === 0 && u.legalExceedances === 0).length,
     }
   }, [stats])
+
+  // Per-contaminant counts (utilities with that contaminant flagged).
+  // Computed against the full mapUtilities list so the chip counts reflect
+  // total availability, independent of the current tier selection.
+  const contaminantCounts = useMemo(() => {
+    if (!stats) return { microplastics: 0, pfas: 0, lead: 0, dbp: 0 }
+    const acc = { microplastics: 0, pfas: 0, lead: 0, dbp: 0 }
+    for (const u of stats.mapUtilities) {
+      const ce = u.contaminantExceedances
+      if (ce?.microplastics) acc.microplastics++
+      if (ce?.pfas) acc.pfas++
+      if (ce?.lead) acc.lead++
+      if (ce?.dbp) acc.dbp++
+    }
+    return acc
+  }, [stats])
+
+  const anyFilterActive = filterTier !== 'all' || contaminantFilter !== 'all'
+
+  const clearFilters = () => {
+    setFilterTier('all')
+    setContaminantFilter('all')
+  }
 
   return (
     <div className="min-h-screen bg-water-hero">
@@ -152,8 +191,9 @@ export function MapSection() {
           </p>
         </div>
 
-        {/* Tier filter chips + radius toggle */}
-        <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
+        {/* Tier filter chips + clear-filters button */}
+        <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
+          <span className="sr-only">Filter utilities by contamination tier</span>
           {([
             { id: 'all', label: 'All', count: stats?.mapUtilities.length ?? 0, color: '#64748b' },
             { id: 'clean', label: 'Within guidelines', count: tierCounts.clean, color: '#10b981' },
@@ -163,11 +203,12 @@ export function MapSection() {
             <button
               key={t.id}
               onClick={() => setFilterTier(t.id)}
+              aria-pressed={filterTier === t.id}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all',
                 filterTier === t.id
-                  ? 'border-primary bg-primary text-primary-foreground shadow-sm'
-                  : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
+                  ? 'border-primary bg-primary text-primary-foreground shadow-sm dark:border-primary dark:bg-primary dark:text-primary-foreground'
+                  : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
               )}
             >
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: t.color }} />
@@ -177,6 +218,55 @@ export function MapSection() {
               </span>
             </button>
           ))}
+
+          {anyFilterActive && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="h-7 gap-1 rounded-full px-2.5 text-xs text-muted-foreground hover:text-foreground"
+              aria-label="Clear all filters"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Clear filters
+            </Button>
+          )}
+        </div>
+
+        {/* Contaminant filter chips (ANDed with tier filter) */}
+        <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
+          <span className="mr-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <FlaskConical className="h-3 w-3" />
+            By contaminant
+          </span>
+          {([
+            { id: 'all', label: 'All', count: stats?.mapUtilities.length ?? 0, Icon: null as null | typeof Microscope },
+            { id: 'microplastics', label: 'Microplastics only', count: contaminantCounts.microplastics, Icon: Microscope },
+            { id: 'pfas', label: 'PFAS only', count: contaminantCounts.pfas, Icon: FlaskConical },
+            { id: 'lead', label: 'Lead only', count: contaminantCounts.lead, Icon: Droplets },
+            { id: 'dbp', label: 'Disinfection byproducts', count: contaminantCounts.dbp, Icon: Beaker },
+          ] as const).map((c) => {
+            const selected = contaminantFilter === c.id
+            return (
+              <button
+                key={c.id}
+                onClick={() => setContaminantFilter(c.id)}
+                aria-pressed={selected}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all',
+                  selected
+                    ? 'border-primary bg-primary text-primary-foreground shadow-sm dark:border-primary dark:bg-primary dark:text-primary-foreground'
+                    : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                )}
+              >
+                {c.Icon && <c.Icon className="h-3 w-3" />}
+                {c.label}
+                <span className={cn('ml-0.5 rounded-full px-1.5 text-[10px]', selected ? 'bg-white/20' : 'bg-muted')}>
+                  {c.count}
+                </span>
+              </button>
+            )
+          })}
         </div>
 
         {/* Radius search bar */}
@@ -428,23 +518,39 @@ export function MapSection() {
                       top: tooltipPos.y + 14,
                     }}
                   >
+                    <div className="flex items-start justify-between gap-2">
                     <div className="text-sm font-semibold text-foreground">{hovered.name}</div>
+                    {scores?.[hovered.id] && (
+                      <div
+                        className={`flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-lg ${scores[hovered.id].bgColor}`}
+                        title={`Safety score: ${scores[hovered.id].score}/100`}
+                      >
+                        <span className={`text-sm font-extrabold tabular-nums leading-none ${scores[hovered.id].color}`}>{scores[hovered.id].score}</span>
+                        <span className={`text-[8px] font-bold leading-none ${scores[hovered.id].color}`}>{scores[hovered.id].grade}</span>
+                      </div>
+                    )}
+                  </div>
                     <div className="mt-0.5 text-xs text-muted-foreground">
                       {hovered.city}, {hovered.state} · pop. {hovered.population.toLocaleString()}
                     </div>
+                    {scores?.[hovered.id] && (
+                      <div className="mt-1 text-[10px] font-medium text-muted-foreground">
+                        Safety: <span className={scores[hovered.id].color}>{scores[hovered.id].label}</span>
+                      </div>
+                    )}
                     <div className="mt-1.5 flex flex-wrap gap-1.5 text-[10px]">
                       {hovered.healthExceedances > 0 && (
-                        <span className="rounded bg-amber-100 px-1.5 py-0.5 font-medium text-amber-700">
+                        <span className="rounded bg-amber-100 px-1.5 py-0.5 font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
                           {hovered.healthExceedances} health
                         </span>
                       )}
                       {hovered.legalExceedances > 0 && (
-                        <span className="rounded bg-rose-100 px-1.5 py-0.5 font-medium text-rose-700">
+                        <span className="rounded bg-rose-100 px-1.5 py-0.5 font-medium text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
                           {hovered.legalExceedances} legal
                         </span>
                       )}
                       {hovered.healthExceedances === 0 && hovered.legalExceedances === 0 && (
-                        <span className="rounded bg-emerald-100 px-1.5 py-0.5 font-medium text-emerald-700">
+                        <span className="rounded bg-emerald-100 px-1.5 py-0.5 font-medium text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
                           Within guidelines
                         </span>
                       )}

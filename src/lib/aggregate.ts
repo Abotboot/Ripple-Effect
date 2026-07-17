@@ -8,6 +8,9 @@ export type ContaminantSummaryT = {
   avgLevel: number
   maxLevel: number
   unit: string
+  source: string
+  quality: string
+  sampleCount: number
   exceedsHealthGuideline: boolean
   exceedsLegalLimit: boolean
   healthRatio: number | null
@@ -55,6 +58,9 @@ export function buildContaminantSummary(
     avgLevel,
     maxLevel,
     unit,
+    source: latest?.source ?? 'Utility CCR',
+    quality: latest?.quality ?? 'verified',
+    sampleCount: sorted.length,
     exceedsHealthGuideline,
     exceedsLegalLimit,
     healthRatio,

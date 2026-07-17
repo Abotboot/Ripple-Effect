@@ -5,7 +5,8 @@ import { motion } from 'framer-motion'
 import {
   Lock, LogOut, Loader2, Download, Upload, Plus, Pencil, Trash2,
   ShieldCheck, Database, FileJson, FileSpreadsheet, CheckCircle2,
-  AlertCircle, Building2, Megaphone, Heart, Mail, Calendar,
+  AlertCircle, Building2, Megaphone, Heart, Mail, Calendar, HandHeart,
+  MapPin, Droplets, Users, Beaker, FlaskConical, ArrowUpCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,7 +24,8 @@ import {
 } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
 import { api } from '@/lib/api'
-import type { Utility, Contaminant, Report, AdminUser, Volunteer } from '@/lib/types'
+import type { Utility, Contaminant, Report, AdminUser, Volunteer, Chapter, Donation } from '@/lib/types'
+import { QualityBadge } from '@/components/quality-badge'
 import { cn } from '@/lib/utils'
 
 export function AdminSection() {
@@ -76,7 +78,7 @@ export function AdminSection() {
         </div>
 
         <Tabs defaultValue="reports" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8">
             <TabsTrigger value="reports" className="gap-1.5">
               <Megaphone className="h-3.5 w-3.5" />
               Reports
@@ -89,9 +91,21 @@ export function AdminSection() {
               <Database className="h-3.5 w-3.5" />
               Contaminants
             </TabsTrigger>
-            <TabsTrigger value="volunteers" className="gap-1.5">
+            <TabsTrigger value="readings" className="gap-1.5">
+              <Beaker className="h-3.5 w-3.5" />
+              Readings
+            </TabsTrigger>
+            <TabsTrigger value="chapters" className="gap-1.5">
               <Heart className="h-3.5 w-3.5" />
-              Volunteers
+              Chapters
+            </TabsTrigger>
+            <TabsTrigger value="donations" className="gap-1.5">
+              <HandHeart className="h-3.5 w-3.5" />
+              Donations
+            </TabsTrigger>
+            <TabsTrigger value="volunteers" className="gap-1.5">
+              <Users className="h-3.5 w-3.5" />
+              Legacy
             </TabsTrigger>
             <TabsTrigger value="data" className="gap-1.5">
               <FileJson className="h-3.5 w-3.5" />
@@ -108,6 +122,15 @@ export function AdminSection() {
           <TabsContent value="contaminants" className="mt-4">
             <ContaminantsAdmin />
           </TabsContent>
+          <TabsContent value="readings" className="mt-4">
+            <CitizenReadingsAdmin />
+          </TabsContent>
+          <TabsContent value="chapters" className="mt-4">
+            <ChaptersAdmin />
+          </TabsContent>
+          <TabsContent value="donations" className="mt-4">
+            <DonationsAdmin />
+          </TabsContent>
           <TabsContent value="volunteers" className="mt-4">
             <VolunteersAdmin />
           </TabsContent>
@@ -122,7 +145,7 @@ export function AdminSection() {
 
 // ── Login ──────────────────────────────────────────────────────────────
 function LoginScreen({ onLogin }: { onLogin: (u: AdminUser) => void }) {
-  const [email, setEmail] = useState('admin@rippleeffect.org')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
@@ -195,11 +218,16 @@ function LoginScreen({ onLogin }: { onLogin: (u: AdminUser) => void }) {
                 )}
               </Button>
             </form>
-            <div className="mt-4 rounded-lg border border-dashed border-border bg-muted/30 p-3 text-xs text-muted-foreground">
-              <p className="font-medium text-foreground">Demo credentials</p>
-              <p className="mt-1">Email: <code className="rounded bg-muted px-1">admin@rippleeffect.org</code></p>
-              <p>Password: <code className="rounded bg-muted px-1">rippleeffect</code></p>
-              <p className="mt-2 italic">Change this after first login in a real deployment.</p>
+            <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+              <p className="flex items-center gap-1.5 font-medium text-foreground">
+                <Lock className="h-3 w-3" />
+                Restricted access
+              </p>
+              <p className="mt-1.5">
+                Admin credentials are set by the site administrator and are not
+                publicly shared. If you are a crew member who needs access,
+                contact the project lead.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -536,7 +564,7 @@ function ContaminantsAdmin() {
 
 // ── Import / Export ────────────────────────────────────────────────────
 function DataAdmin() {
-  const [table, setTable] = useState<'utilities' | 'contaminants' | 'samples' | 'reports' | 'volunteers'>('utilities')
+  const [table, setTable] = useState<'utilities' | 'contaminants' | 'samples' | 'reports' | 'volunteers' | 'chapters' | 'donations'>('utilities')
   const [importFormat, setImportFormat] = useState<'csv' | 'json'>('json')
   const [importText, setImportText] = useState('')
   const [importing, setImporting] = useState(false)
@@ -599,6 +627,8 @@ function DataAdmin() {
                   <SelectItem value="samples">Samples</SelectItem>
                   <SelectItem value="reports">Reports</SelectItem>
                   <SelectItem value="volunteers">Volunteers</SelectItem>
+                  <SelectItem value="chapters">Chapters</SelectItem>
+                  <SelectItem value="donations">Donations</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -812,6 +842,440 @@ function VolunteersAdmin() {
             </div>
           </div>
         ))}
+      </CardContent>
+    </Card>
+  )
+}
+
+// ── Chapters Admin (Start a Chapter signups) ─────────────────────────
+function ChaptersAdmin() {
+  const [chapters, setChapters] = useState<Chapter[] | null>(null)
+  const { toast } = useToast()
+
+  const load = () => api.listChapters().then(setChapters).catch(() => setChapters([]))
+  useEffect(() => { load() }, [])
+
+  const setStatus = async (id: string, status: string) => {
+    try {
+      await api.updateChapterStatus(id, status)
+      toast({ title: `Marked as ${status}` })
+      load()
+    } catch (e) {
+      toast({
+        title: 'Update failed',
+        description: e instanceof Error ? e.message : 'Unknown error',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const statusColors: Record<string, string> = {
+    pending: 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
+    contacted: 'bg-sky-100 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300',
+    onboarded: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300',
+    active: 'bg-teal-100 text-teal-700 dark:bg-teal-950/50 dark:text-teal-300',
+    declined: 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300',
+  }
+
+  if (!chapters) {
+    return <Skeleton className="h-64 w-full" />
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Heart className="h-4 w-4 text-primary" />
+          Chapter signups ({chapters.length})
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {chapters.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No chapter signups yet. Share the &quot;Start a Chapter&quot; page to recruit chapters!
+          </p>
+        ) : chapters.map((c) => (
+          <div key={c.id} className="rounded-lg border border-border/60 bg-card p-3">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="font-medium text-foreground">{c.name}</span>
+                  {c.chapterName && (
+                    <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                      {c.chapterName}
+                    </span>
+                  )}
+                  {c.identifier && (
+                    <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
+                      Needs kit
+                    </span>
+                  )}
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                  <span className="inline-flex items-center gap-1">
+                    <Mail className="h-3 w-3" />
+                    {c.email}
+                  </span>
+                  {(c.city || c.state) && (
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {[c.city, c.state].filter(Boolean).join(', ')}
+                      {c.zipCode ? ` · ${c.zipCode}` : ''}
+                    </span>
+                  )}
+                </div>
+                {c.waterBody && (
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    <span className="font-medium text-foreground">Water body:</span> {c.waterBody}
+                  </p>
+                )}
+                {c.organization && (
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    <span className="font-medium text-foreground">Org:</span> {c.organization}
+                  </p>
+                )}
+                {c.message && (
+                  <p className="mt-1.5 text-xs italic text-muted-foreground line-clamp-2">
+                    &ldquo;{c.message}&rdquo;
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <Select value={c.status} onValueChange={(s) => setStatus(c.id, s)}>
+                  <SelectTrigger className="h-8 w-32 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="contacted">Contacted</SelectItem>
+                    <SelectItem value="onboarded">Onboarded</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="declined">Declined</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className={cn('rounded px-1.5 py-0.5 text-[10px] font-medium', statusColors[c.status] ?? statusColors.pending)}>
+                  {c.status}
+                </span>
+                <span className="text-[10px] text-muted-foreground">
+                  {new Date(c.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  )
+}
+
+// ── Donations Admin (pledge tracking) ────────────────────────────────
+function DonationsAdmin() {
+  const [donations, setDonations] = useState<Donation[] | null>(null)
+  const { toast } = useToast()
+
+  const load = () => api.listDonations().then(setDonations).catch(() => setDonations([]))
+  useEffect(() => { load() }, [])
+
+  const setStatus = async (id: string, status: string) => {
+    try {
+      await api.updateDonationStatus(id, status)
+      toast({ title: `Marked as ${status}` })
+      load()
+    } catch (e) {
+      toast({
+        title: 'Update failed',
+        description: e instanceof Error ? e.message : 'Unknown error',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  if (!donations) {
+    return <Skeleton className="h-64 w-full" />
+  }
+
+  const total = donations
+    .filter((d) => d.status === 'completed')
+    .reduce((s, d) => s + d.amount, 0)
+
+  const tierColors: Record<string, string> = {
+    Supporter: 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300',
+    Friend: 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
+    Champion: 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-950/50 dark:text-fuchsia-300',
+    Founding: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300',
+  }
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <HandHeart className="h-4 w-4 text-primary" />
+            Donations ({donations.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Total raised</div>
+              <div className="mt-1 text-xl font-bold tabular-nums text-foreground">${total.toLocaleString()}</div>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Completed</div>
+              <div className="mt-1 text-xl font-bold tabular-nums text-foreground">
+                {donations.filter((d) => d.status === 'completed').length}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Pledged</div>
+              <div className="mt-1 text-xl font-bold tabular-nums text-foreground">
+                {donations.filter((d) => d.status === 'pledged').length}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Avg gift</div>
+              <div className="mt-1 text-xl font-bold tabular-nums text-foreground">
+                ${donations.length ? Math.round(total / donations.filter((d) => d.status === 'completed').length || 0) : 0}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="space-y-2 p-4">
+          {donations.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No donations yet. Share the Donate page to start fundraising!
+            </p>
+          ) : donations.map((d) => (
+            <div key={d.id} className="rounded-lg border border-border/60 bg-card p-3">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="font-medium text-foreground">
+                      {d.anonymous ? 'Anonymous' : d.name}
+                    </span>
+                    <span className={cn('rounded-md px-1.5 py-0.5 text-[10px] font-medium', tierColors[d.tier] ?? tierColors.Supporter)}>
+                      {d.tier}
+                    </span>
+                    <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                      ${d.amount.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                    {d.email && (
+                      <span className="inline-flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        {d.email}
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {new Date(d.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  {d.message && (
+                    <p className="mt-1.5 text-xs italic text-muted-foreground line-clamp-2">
+                      &ldquo;{d.message}&rdquo;
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <Select value={d.status} onValueChange={(s) => setStatus(d.id, s)}>
+                    <SelectTrigger className="h-8 w-32 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pledged">Pledged</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+// ── Citizen Readings Admin (moderation) ──────────────────────────────
+function CitizenReadingsAdmin() {
+  const [readings, setReadings] = useState<Array<{
+    id: string
+    level: number
+    unit: string
+    location: string | null
+    treatmentStatus: string
+    sampleDate: string
+    createdAt: string
+    quality: string
+    reporterEmail: string
+    reporterName: string
+    userNotes: string
+    contaminant: { id: string; name: string; slug: string; healthGuideline: number | null; legalLimit: number | null }
+    utility: { id: string; name: string; city: string; state: string } | null
+  }> | null>(null)
+  const { toast } = useToast()
+
+  const load = () => api.getPendingReadings().then((r) => setReadings(r.items)).catch(() => setReadings([]))
+  useEffect(() => { load() }, [])
+
+  const updateQuality = async (id: string, quality: 'citizen' | 'provisional' | 'verified') => {
+    try {
+      await api.updateReadingQuality(id, quality)
+      toast({ title: `Marked as ${quality}` })
+      load()
+    } catch (e) {
+      toast({
+        title: 'Update failed',
+        description: e instanceof Error ? e.message : 'Unknown error',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const remove = async (id: string) => {
+    try {
+      await api.deleteReading(id)
+      toast({ title: 'Reading deleted' })
+      load()
+    } catch (e) {
+      toast({
+        title: 'Delete failed',
+        description: e instanceof Error ? e.message : 'Unknown error',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  if (!readings) {
+    return <Skeleton className="h-64 w-full" />
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Beaker className="h-4 w-4 text-primary" />
+              Citizen readings ({readings.length})
+            </CardTitle>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Review community-submitted readings. Promote verified readings to
+              &quot;provisional&quot; or &quot;verified&quot;, or delete spam/inaccurate ones.
+            </p>
+          </div>
+          {readings.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 gap-1.5"
+              onClick={() => {
+                window.open('/api/readings/export?format=csv', '_blank')
+              }}
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Export CSV</span>
+            </Button>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {readings.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No citizen readings to review. Share the &quot;Submit Reading&quot; page to start collecting!
+          </p>
+        ) : readings.map((r) => {
+          const exceedsHealth = r.contaminant.healthGuideline != null && r.contaminant.healthGuideline > 0 && r.level > r.contaminant.healthGuideline
+          const exceedsLegal = r.contaminant.legalLimit != null && r.contaminant.legalLimit > 0 && r.level > r.contaminant.legalLimit
+          return (
+            <div key={r.id} className="rounded-lg border border-border/60 bg-card p-3">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="font-semibold tabular-nums text-foreground">
+                      {r.level.toFixed(2)} {r.unit}
+                    </span>
+                    <span className="text-sm font-medium text-foreground">{r.contaminant.name}</span>
+                    <QualityBadge quality={r.quality} size="xs" />
+                    {(exceedsHealth || exceedsLegal) && (
+                      <span className="inline-flex items-center gap-0.5 rounded-md bg-rose-100 px-1.5 py-0.5 text-[10px] font-medium text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
+                        <AlertCircle className="h-2.5 w-2.5" />
+                        {exceedsLegal ? 'Above legal limit' : 'Above health guideline'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                    {r.utility && (
+                      <span className="inline-flex items-center gap-1">
+                        <Building2 className="h-3 w-3" />
+                        {r.utility.name} ({r.utility.city}, {r.utility.state})
+                      </span>
+                    )}
+                    {r.location && (
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {r.location}
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {new Date(r.sampleDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      {r.reporterName} ({r.reporterEmail})
+                    </span>
+                  </div>
+                  {r.userNotes && (
+                    <p className="mt-1.5 text-xs italic text-muted-foreground line-clamp-2">
+                      &ldquo;{r.userNotes}&rdquo;
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col items-end gap-1.5">
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 gap-1 px-2 text-[11px] text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40"
+                      onClick={() => updateQuality(r.id, 'provisional')}
+                    >
+                      <FlaskConical className="h-3 w-3" />
+                      Provisional
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 gap-1 px-2 text-[11px] text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+                      onClick={() => updateQuality(r.id, 'verified')}
+                    >
+                      <ArrowUpCircle className="h-3 w-3" />
+                      Verify
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 gap-1 px-2 text-[11px] text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40"
+                      onClick={() => remove(r.id)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">
+                    submitted {new Date(r.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )
+        })}
       </CardContent>
     </Card>
   )

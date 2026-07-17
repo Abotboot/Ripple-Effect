@@ -4,17 +4,19 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   BarChart3, FlaskConical, AlertTriangle, Droplets, Microscope,
-  TrendingDown, ArrowRight, Loader2,
+  TrendingDown, ArrowRight, Heart, Info, ExternalLink, BookOpen,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Cell, Legend,
+  Cell,
 } from 'recharts'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
+import type { Section } from '@/components/site/site-header'
+import { MicroplasticsTrendSection } from '@/components/sections/microplastics-trend-section'
 
 type ContaminantDetail = {
   contaminant: {
@@ -48,7 +50,21 @@ type ContaminantDetail = {
   }
 }
 
-export function MicroplasticsSection() {
+// Theme-aware chart colors (use CSS variables so they adapt to dark mode).
+const AXIS_TICK = 'var(--muted-foreground)'
+const AXIS_LINE = 'var(--border)'
+const GRID_LINE = 'var(--border)'
+
+const tooltipStyle = {
+  borderRadius: 10,
+  border: '1px solid var(--border)',
+  background: 'var(--popover)',
+  color: 'var(--popover-foreground)',
+  fontSize: 12,
+  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+}
+
+export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section) => void }) {
   const [data, setData] = useState<ContaminantDetail | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -68,8 +84,8 @@ export function MicroplasticsSection() {
 
   const treatmentComparison = data
     ? [
-        { name: 'Untreated source', value: +data.totals.avgUntreated.toFixed(2), color: '#94a3b8' },
-        { name: 'After treatment', value: +data.totals.avgTreated.toFixed(2), color: '#0d9488' },
+        { name: 'Untreated source', value: +data.totals.avgUntreated.toFixed(2), color: 'var(--chart-5)' },
+        { name: 'After treatment', value: +data.totals.avgTreated.toFixed(2), color: 'var(--chart-1)' },
       ]
     : []
 
@@ -123,6 +139,28 @@ export function MicroplasticsSection() {
         </div>
       </section>
 
+      {/* Distinction banner: we track it, almost no one else does */}
+      <section className="border-b border-amber-300/50 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 dark:border-amber-500/30 dark:from-amber-950/40 dark:via-orange-950/30 dark:to-amber-950/40">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/30">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-base font-bold text-foreground sm:text-lg">
+                Almost no public drinking-water database tracks microplastics. We do.
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                The EWG Tap Water Database, EPA SDWIS, and nearly every state
+                water portal omit microplastics entirely &mdash; there is no federal
+                limit and no routine monitoring requirement. A Ripples Effect
+                tracks it anyway, because what you can&apos;t see can still hurt you.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Quick stats */}
       <section className="border-b border-border/60 bg-card/50">
         <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-border/60 sm:grid-cols-4">
@@ -153,6 +191,26 @@ export function MicroplasticsSection() {
 
       {/* Treated vs untreated comparison */}
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        {/* Data provenance callout */}
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-border bg-card p-4 text-sm">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <div className="text-muted-foreground">
+            <span className="font-medium text-foreground">About this data: </span>
+            Sample ranges are calibrated to published research &mdash; the WHO 2019
+            report <em>&ldquo;Microplastics in drinking-water&rdquo;</em> and the Orb Media 2017
+            tap-water survey of 14 countries. Specific city measurements shown
+            here are illustrative simulations within those published ranges, not
+            lab-verified results. We replace them with real readings as chapters
+            collect data.{' '}
+            <button
+              onClick={() => onNavigate?.('sources')}
+              className="font-medium text-primary hover:underline"
+            >
+              See all data sources &rarr;
+            </button>
+          </div>
+        </div>
+
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
@@ -172,21 +230,21 @@ export function MicroplasticsSection() {
                 <div className="h-[260px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={treatmentComparison} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.92 0.01 200)" vertical={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={GRID_LINE} vertical={false} />
                       <XAxis
                         dataKey="name"
-                        tick={{ fontSize: 12, fill: 'oklch(0.3 0.03 200)' }}
-                        stroke="oklch(0.85 0.01 200)"
+                        tick={{ fontSize: 12, fill: AXIS_TICK }}
+                        stroke={AXIS_LINE}
                       />
                       <YAxis
-                        tick={{ fontSize: 11, fill: 'oklch(0.5 0.02 200)' }}
-                        stroke="oklch(0.85 0.01 200)"
-                        width={36}
-                        label={{ value: 'particles/L', angle: -90, position: 'insideLeft', fontSize: 10, fill: 'oklch(0.5 0.02 200)' }}
+                        tick={{ fontSize: 11, fill: AXIS_TICK }}
+                        stroke={AXIS_LINE}
+                        width={40}
+                        label={{ value: 'particles/L', angle: -90, position: 'insideLeft', fontSize: 10, fill: AXIS_TICK }}
                       />
                       <Tooltip
-                        cursor={{ fill: 'oklch(0.96 0.01 200)' }}
-                        contentStyle={{ borderRadius: 8, border: '1px solid oklch(0.9 0.01 200)', fontSize: 12 }}
+                        cursor={{ fill: 'var(--muted)' }}
+                        contentStyle={tooltipStyle}
                         formatter={(v: number) => [`${v} particles/L`, 'Avg level']}
                       />
                       <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={80}>
@@ -200,7 +258,7 @@ export function MicroplasticsSection() {
               )}
               {reductionPct > 0 && (
                 <p className="mt-2 text-xs text-muted-foreground">
-                  On average, treatment removes <strong className="text-emerald-600">{reductionPct}%</strong> of
+                  On average, treatment removes <strong className="text-emerald-600 dark:text-emerald-400">{reductionPct}%</strong> of
                   microplastics — but a significant fraction still reaches the tap.
                 </p>
               )}
@@ -221,7 +279,7 @@ export function MicroplasticsSection() {
               {loading || !data ? (
                 <Skeleton className="h-[260px] w-full" />
               ) : (
-                <div className="h-[260px]">
+                <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={data.utilityStats
@@ -232,35 +290,42 @@ export function MicroplasticsSection() {
                           level: +u.latestLevel.toFixed(2),
                         }))}
                       layout="vertical"
-                      margin={{ top: 4, right: 16, bottom: 4, left: 8 }}
+                      margin={{ top: 4, right: 20, bottom: 4, left: 8 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.92 0.01 200)" horizontal={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={GRID_LINE} horizontal={false} />
                       <XAxis
                         type="number"
-                        tick={{ fontSize: 10, fill: 'oklch(0.5 0.02 200)' }}
-                        stroke="oklch(0.85 0.01 200)"
+                        tick={{ fontSize: 11, fill: AXIS_TICK }}
+                        stroke={AXIS_LINE}
                       />
                       <YAxis
                         type="category"
                         dataKey="city"
-                        width={108}
-                        tick={{ fontSize: 10, fill: 'oklch(0.3 0.03 200)' }}
-                        stroke="oklch(0.85 0.01 200)"
+                        width={120}
+                        tick={{ fontSize: 11, fill: AXIS_TICK }}
+                        stroke={AXIS_LINE}
                       />
                       <Tooltip
-                        cursor={{ fill: 'oklch(0.96 0.01 200)' }}
-                        contentStyle={{ borderRadius: 8, border: '1px solid oklch(0.9 0.01 200)', fontSize: 11 }}
+                        cursor={{ fill: 'var(--muted)' }}
+                        contentStyle={tooltipStyle}
                         formatter={(v: number) => [`${v} particles/L`, 'Latest level']}
                       />
-                      <Bar dataKey="level" radius={[0, 4, 4, 0]} barSize={14} fill="#0d9488" />
+                      <Bar dataKey="level" radius={[0, 4, 4, 0]} barSize={16} fill="var(--chart-1)" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               )}
+              <p className="mt-2 text-xs text-muted-foreground">
+                Units: particles per liter (p/L). No EPA legal limit exists; the
+                WHO advises more research but has not set a health guideline.
+              </p>
             </CardContent>
           </Card>
         </div>
       </section>
+
+      {/* Trend over time */}
+      <MicroplasticsTrendSection />
 
       {/* What are microplastics / why it matters */}
       <section className="bg-water-hero">
@@ -284,7 +349,7 @@ export function MicroplasticsSection() {
             />
           </div>
 
-          {/* The plan */}
+          {/* The plan + Start a Chapter */}
           <Card className="mt-8 overflow-hidden border-primary/30">
             <CardContent className="grid gap-6 p-6 sm:p-8 lg:grid-cols-2 lg:items-center">
               <div>
@@ -312,27 +377,45 @@ export function MicroplasticsSection() {
                     <span><strong className="text-foreground">Water streams</strong> — measure industrial runoff and pre-treatment microplastics</span>
                   </li>
                 </ul>
+                <div className="mt-4 flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
+                  <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span>
+                    Companion mobile app in the works &mdash; chapters will be able
+                    to read microplastics counts off the identifier and push
+                    readings straight into this database from the field.
+                  </span>
+                </div>
               </div>
               <div className="rounded-xl bg-water-surface p-6 text-primary-foreground">
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-white/80">
                   Get involved
                 </h4>
                 <p className="mt-2 text-lg font-semibold">
-                  Are you a student, engineer, or coder who wants to help?
+                  Start a chapter in your city
                 </p>
                 <p className="mt-2 text-sm text-white/85">
-                  We meet Mondays at 6:30 PM (virtual). Roles open: engineers,
-                  coders, social media, and public relations. Reach out and join
-                  the crew.
+                  Take our microplastics identifier, dip it into your own local
+                  water streams and tap, and push the data here. We&apos;ll send
+                  you the kit and the protocol. No coding required.
                 </p>
                 <Button
                   variant="secondary"
                   className="mt-4 bg-white text-primary hover:bg-white/90"
-                  onClick={() => (window.location.href = 'mailto:rippleeffectoffice@gmail.com?subject=Joining%20the%202026%20Water%20Project')}
+                  onClick={() => onNavigate?.('chapter')}
                 >
-                  Join the crew
+                  <Heart className="h-4 w-4" />
+                  Start a chapter
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
+                <a
+                  href="https://github.com/Abotboot/Ripple-Effect"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-white/80 hover:text-white hover:underline"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  View the open-source repo
+                </a>
               </div>
             </CardContent>
           </Card>
@@ -355,15 +438,15 @@ function Stat({
 }) {
   const valueCls =
     tone === 'ok'
-      ? 'text-emerald-600'
+      ? 'text-emerald-600 dark:text-emerald-400'
       : tone === 'warning'
-      ? 'text-amber-600'
+      ? 'text-amber-600 dark:text-amber-400'
       : 'text-foreground'
   const iconCls =
     tone === 'ok'
-      ? 'bg-emerald-100 text-emerald-600'
+      ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400'
       : tone === 'warning'
-      ? 'bg-amber-100 text-amber-600'
+      ? 'bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400'
       : 'bg-primary/10 text-primary'
   return (
     <div className="px-4 py-5 sm:px-6 sm:py-6">
@@ -390,7 +473,9 @@ function InfoCard({
   tone?: 'default' | 'warning'
 }) {
   const iconCls =
-    tone === 'warning' ? 'bg-amber-100 text-amber-600' : 'bg-primary/10 text-primary'
+    tone === 'warning'
+      ? 'bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400'
+      : 'bg-primary/10 text-primary'
   return (
     <Card>
       <CardContent className="p-5">

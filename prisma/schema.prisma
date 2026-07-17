@@ -1,4 +1,4 @@
-// AquaGuard - Tap Water & Microplastics Database Schema
+// A Ripples Effect — Tap Water & Microplastics Database Schema
 // Inspired by EWG Tap Water Database + 2026 Water Project microplastics mission
 
 generator client {
@@ -6,9 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL") // pooled connection string, used at runtime
-  directUrl = env("DIRECT_URL")   // direct/unpooled connection, used for db push & migrations
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 // A public water utility / system (PWS). One utility serves one or more ZIP codes.
@@ -33,6 +32,7 @@ model Utility {
 
   samples         Sample[]
   reports         Report[]
+  alertSubs       AlertSubscription[]
 
   @@index([state])
   @@index([city])
@@ -55,14 +55,16 @@ model Contaminant {
   healthEffects   String?  // long form
   sources         String?  // where it comes from
   regulated       Boolean  @default(true)
+  trackedByUs     Boolean  @default(false) // true = A Ripples Effect actively tracks this (most sites don't)
+  rarityNote      String?  // short note on how rare tracking this is
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   samples         Sample[]
+  alertSubs       AlertSubscription[]
 }
 
 // A single measurement of one contaminant at one utility on one date.
-// Multiple samples over time let us draw trend charts.
 model Sample {
   id            String   @id @default(cuid())
   utilityId     String
@@ -73,6 +75,7 @@ model Sample {
   source        String   @default("Utility CCR") // Utility CCR / Citizen Test / Research Lab / EWG
   treatmentStatus String @default("Treated") // Treated / Untreated (lets us compare)
   location      String?  // tap, stream, reservoir, treatment plant outflow...
+  quality       String   @default("verified") // verified / provisional / citizen
   notes         String?
   createdAt     DateTime @default(now())
 
@@ -82,6 +85,7 @@ model Sample {
   @@index([utilityId])
   @@index([contaminantId])
   @@index([sampleDate])
+  @@index([quality])
 }
 
 // Community-submitted water observations. Anyone can submit one (no login required).
@@ -108,7 +112,7 @@ model Report {
   @@index([status])
 }
 
-// Admin / staff accounts for managing data. Lightweight (no NextAuth full setup needed).
+// Admin / staff accounts for managing data.
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -121,9 +125,7 @@ model User {
   sessions  Session[]
 }
 
-// Admin login sessions. Stored in the database (instead of in-memory) so that
-// login survives across serverless function instances on hosts like Netlify,
-// where each request can be handled by a different, short-lived instance.
+// Admin login sessions.
 model Session {
   id        String   @id @default(cuid())
   token     String   @unique
@@ -137,8 +139,28 @@ model Session {
   @@index([expiresAt])
 }
 
-// Volunteer signups from the "Get Involved" section.
-// Public submission - anyone can sign up to join the crew.
+// Chapter signups — people who take the microplastics identifier and test
+// their own local water streams, then push data into this database.
+model Chapter {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  chapterName String?  // name they want for their local chapter
+  city        String?
+  state       String?
+  zipCode     String?
+  waterBody   String?  // the stream/river/lake/tap they plan to test
+  organization String? // school, club, or community org (optional)
+  identifier  Boolean  @default(false) // do they need us to ship an identifier?
+  message     String?
+  status      String   @default("pending") // pending / contacted / onboarded / active / declined
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+}
+
+// Keep legacy Volunteer table for backwards compat with existing API code
 model Volunteer {
   id        String   @id @default(cuid())
   name      String
@@ -146,14 +168,53 @@ model Volunteer {
   zipCode   String?
   city      String?
   state     String?
-  role      String   @default("General") // Engineering / Coding / Social Media / PR / General
-  skills    String?  // free text
-  availability String? // e.g. "weeknights", "weekends", "flexible"
-  message   String?  // why they want to join
-  status    String   @default("pending") // pending / contacted / onboarded / declined
+  role      String   @default("Chapter Lead")
+  skills    String?
+  availability String?
+  message   String?
+  status    String   @default("pending")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([status])
   @@index([role])
+}
+
+// Email alert subscriptions. Users sign up to be notified when a specific
+// utility's contaminant levels exceed a health guideline threshold.
+model AlertSubscription {
+  id          String   @id @default(cuid())
+  email       String
+  utilityId   String?
+  zipCode     String?
+  contaminantId String? // null = all contaminants
+  threshold   Float?   // custom threshold; null = use health guideline
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  utility     Utility?     @relation(fields: [utilityId], references: [id], onDelete: Cascade)
+  contaminant Contaminant? @relation(fields: [contaminantId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([utilityId])
+  @@index([active])
+}
+
+// Donations — crowdfunding-style. Public submission (no payment processing yet;
+// links to external GoFundMe). We record intent + optional message so the crew
+// can thank donors and track momentum.
+model Donation {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  amount    Float    // pledged amount in USD
+  tier      String   @default("Supporter") // Supporter / Friend / Champion / Founding
+  message   String?
+  anonymous Boolean  @default(false)
+  status    String   @default("pledged") // pledged / completed
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([tier])
 }

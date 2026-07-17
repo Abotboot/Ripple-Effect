@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, MapPin, Droplets, AlertTriangle, Building2, Users, FlaskConical,
@@ -17,20 +17,37 @@ import { api } from '@/lib/api'
 import type { Utility, Stats, UtilityWithStats } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
 import { LiveTicker } from '@/components/site/live-ticker'
+import type { Section } from '@/components/site/site-header'
+import { Microscope, HandHeart, Database, Github } from 'lucide-react'
+import { useCountUp, formatCount } from '@/hooks/use-count-up'
+import { Bell, Activity as ActivityIcon, Beaker, Heart, HandHeart as DonationIcon, Clock } from 'lucide-react'
+import { QualityBadge } from '@/components/quality-badge'
+
+const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
 
 const POPULAR_ZIPS = ['60614', '10003', '90026', '77007', '85016', '98103']
 
-export function HomeSection() {
+export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void }) {
   const [q, setQ] = useState('')
   const [results, setResults] = useState<Utility[] | null>(null)
   const [loading, setLoading] = useState(false)
   const [stats, setStats] = useState<Stats | null>(null)
+  const [scores, setScores] = useState<Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> | null>(null)
   const [selected, setSelected] = useState<UtilityWithStats | null>(null)
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
     api.getStats().then(setStats).catch(() => {})
+    api.getUtilityScores()
+      .then((r) => {
+        const map: Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> = {}
+        for (const s of r.scores) {
+          map[s.id] = { score: s.score, grade: s.grade, label: s.label, color: s.color, bgColor: s.bgColor }
+        }
+        setScores(map)
+      })
+      .catch(() => setScores({}))
   }, [])
 
   const doSearch = useCallback(
@@ -78,6 +95,17 @@ export function HomeSection() {
     },
     [toast]
   )
+
+  // Pick up a pending search from the command palette (sessionStorage)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const pending = sessionStorage.getItem('pendingSearch')
+    if (pending) {
+      sessionStorage.removeItem('pendingSearch')
+      setQ(pending)
+      setTimeout(() => doSearch(pending), 50)
+    }
+  }, [doSearch])
 
   return (
     <div>
@@ -177,6 +205,7 @@ export function HomeSection() {
                 >
                   <UtilityCard
                     utility={u}
+                    score={scores?.[u.id]}
                     onOpen={() => openUtility(u)}
                     loading={loadingDetail === u.id}
                   />
@@ -186,6 +215,124 @@ export function HomeSection() {
           ) : !results ? (
             <EmptyBrowse onSearch={doSearch} />
           ) : null}
+        </div>
+      </section>
+
+      {/* Recent activity + Alert subscription */}
+      <RecentActivityAndAlerts />
+
+      {/* Recently added utilities + Data quality callout */}
+      <RecentlyAddedAndQuality onNavigate={onNavigate} />
+
+      {/* Citizen readings feed */}
+      <CitizenReadingsFeed onNavigate={onNavigate} />
+
+      {/* Microplastics distinction banner */}
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <button
+          onClick={() => onNavigate?.('microplastics')}
+          className="group relative w-full overflow-hidden rounded-2xl border border-amber-300/60 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 p-6 text-left transition-all hover:shadow-lg hover:shadow-amber-500/10 dark:border-amber-500/30 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-amber-950/30"
+        >
+
+          <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-amber-400/20 blur-3xl" />
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/30">
+                <Microscope className="h-6 w-6" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-lg font-bold text-foreground sm:text-xl">
+                    Almost no public water database tracks microplastics.
+                  </h3>
+                  <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                    We do
+                  </span>
+                </div>
+                <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
+                  The EPA has no legal limit for microplastics. EWG, most state
+                  portals, and your utility&apos;s report don&apos;t include it.
+                  A Ripples Effect tracks microplastics anyway — see the data.
+                </p>
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-1.5 self-end text-sm font-semibold text-amber-700 dark:text-amber-400 sm:self-center">
+              Explore microplastics
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </div>
+          </div>
+        </button>
+      </section>
+
+      {/* Donate pop banner */}
+      <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+        <div className="relative overflow-hidden rounded-2xl border border-rose-300/60 bg-gradient-to-br from-rose-500 via-rose-600 to-pink-600 p-6 shadow-xl shadow-rose-500/20 sm:p-8">
+          <div className="pointer-events-none absolute inset-0 opacity-30">
+            <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/20 blur-3xl" />
+            <div className="absolute -bottom-12 left-1/4 h-40 w-40 rounded-full bg-pink-300/30 blur-3xl" />
+          </div>
+          <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-white backdrop-blur-sm">
+                <HandHeart className="h-7 w-7" />
+              </div>
+              <div className="text-white">
+                <h3 className="text-xl font-extrabold tracking-tight sm:text-2xl">
+                  Help us ship the microplastics identifier
+                </h3>
+                <p className="mt-1 max-w-xl text-sm text-white/90">
+                  We&apos;re crowdfunding a low-cost identifier that chapters
+                  dip into local water. Every dollar buys parts, kits, and
+                  testing supplies. Join the founding crew of supporters.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => onNavigate?.('donate')}
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-6 py-3 text-base font-bold text-rose-600 shadow-lg transition-transform hover:scale-105 active:scale-95"
+            >
+              <HandHeart className="h-5 w-5" />
+              Donate now
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Open source + data sources strip */}
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <button
+            onClick={() => onNavigate?.('sources')}
+            className="group flex items-center gap-4 rounded-xl border border-border bg-card p-5 text-left transition-all hover:border-primary/40 hover:shadow-md"
+          >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Database className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h4 className="font-semibold text-foreground">Integrated data sources</h4>
+              <p className="text-sm text-muted-foreground">
+                EWG, EPA SDWIS, USGS, WHO &mdash; see every database we pull from.
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+          </button>
+          <a
+            href={REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-4 rounded-xl border border-border bg-card p-5 text-left transition-all hover:border-primary/40 hover:shadow-md"
+          >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-foreground/10 text-foreground">
+              <Github className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h4 className="font-semibold text-foreground">Open source on GitHub</h4>
+              <p className="text-sm text-muted-foreground">
+                Fork it, file issues, or contribute. The whole project is open.
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+          </a>
         </div>
       </section>
 
@@ -400,25 +547,25 @@ function StatsBar({ stats }: { stats: Stats | null }) {
     {
       icon: Building2,
       label: 'Utilities',
-      value: stats.utilitiesCount.toLocaleString(),
+      value: stats.utilitiesCount,
       hint: `across ${stats.statesCovered} states`,
     },
     {
       icon: FlaskConical,
       label: 'Contaminants',
-      value: stats.contaminantsCount.toLocaleString(),
+      value: stats.contaminantsCount,
       hint: 'incl. microplastics',
     },
     {
       icon: Droplets,
       label: 'Samples',
-      value: stats.samplesCount.toLocaleString(),
+      value: stats.samplesCount,
       hint: 'community + lab',
     },
     {
       icon: AlertTriangle,
       label: 'Health exceedances',
-      value: stats.healthExceedances.toLocaleString(),
+      value: stats.healthExceedances,
       hint: 'above EWG guideline',
       tone: 'warning' as const,
     },
@@ -431,11 +578,8 @@ function StatsBar({ stats }: { stats: Stats | null }) {
             key={label}
             className={cn(
               'px-4 py-5 sm:px-6 sm:py-6',
-              // Vertical dividers between columns on desktop
               'sm:border-l sm:border-border/60 first:sm:border-l-0',
-              // Horizontal divider between rows on mobile (rows 1 and 2)
               i >= 2 && 'border-t border-border/60 sm:border-t-0',
-              // Vertical divider between left and right columns on mobile
               i % 2 === 1 && 'border-l border-border/60 sm:border-l-0'
             )}
           >
@@ -450,7 +594,7 @@ function StatsBar({ stats }: { stats: Stats | null }) {
                   className={cn(
                     'inline-flex h-7 w-7 items-center justify-center rounded-md',
                     tone === 'warning'
-                      ? 'bg-rose-100 text-rose-600'
+                      ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400'
                       : 'bg-primary/10 text-primary'
                   )}
                 >
@@ -460,14 +604,13 @@ function StatsBar({ stats }: { stats: Stats | null }) {
                   {label}
                 </span>
               </div>
-              <div
+              <AnimatedCounter
+                value={value}
                 className={cn(
                   'mt-2 text-2xl font-bold tabular-nums sm:text-3xl',
-                  tone === 'warning' ? 'text-rose-600' : 'text-foreground'
+                  tone === 'warning' ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'
                 )}
-              >
-                {value}
-              </div>
+              />
               <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>
             </motion.div>
           </div>
@@ -477,12 +620,58 @@ function StatsBar({ stats }: { stats: Stats | null }) {
   )
 }
 
+function AnimatedCounter({ value, className }: { value: number; className?: string }) {
+  const [display, setDisplay] = useState(0)
+  const elRef = useRef<HTMLDivElement | null>(null)
+  const started = useRef(false)
+
+  useEffect(() => {
+    if (!value || !Number.isFinite(value)) return
+
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+    const start = () => {
+      if (started.current) return
+      started.current = true
+
+      if (prefersReduced) {
+        requestAnimationFrame(() => setDisplay(value))
+        return
+      }
+
+      const duration = 1400
+      const startTime = performance.now()
+      const tick = (now: number) => {
+        const progress = Math.min((now - startTime) / duration, 1)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        setDisplay(Math.round(value * eased))
+        if (progress < 1) requestAnimationFrame(tick)
+        else setDisplay(value)
+      }
+      requestAnimationFrame(tick)
+    }
+
+    // Start immediately (stats are above the fold on load).
+    start()
+  }, [value])
+
+  return (
+    <div ref={elRef} className={className}>
+      {formatCount(display)}
+    </div>
+  )
+}
+
 function UtilityCard({
   utility,
+  score,
   onOpen,
   loading,
 }: {
   utility: Utility
+  score?: { score: number; grade: string; label: string; color: string; bgColor: string }
   onOpen: () => void
   loading: boolean
 }) {
@@ -501,12 +690,27 @@ function UtilityCard({
               {utility.name}
             </h3>
           </div>
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Building2 className="h-5 w-5" />
-          </div>
+          {score ? (
+            <div
+              className={`flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl ${score.bgColor}`}
+              title={`Safety score: ${score.score}/100 (${score.label})`}
+            >
+              <span className={`text-lg font-extrabold tabular-nums leading-none ${score.color}`}>{score.score}</span>
+              <span className={`text-[9px] font-bold leading-none ${score.color}`}>{score.grade}</span>
+            </div>
+          ) : (
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Building2 className="h-5 w-5" />
+            </div>
+          )}
         </div>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
+          {score && (
+            <span className={`inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-medium ${score.bgColor} ${score.color}`}>
+              {score.label}
+            </span>
+          )}
           <Badge variant="outline" className="bg-secondary/40 text-[10px] font-medium">
             {utility.sourceType}
           </Badge>
@@ -573,5 +777,532 @@ function EmptyBrowse({ onSearch }: { onSearch: (q: string) => void }) {
         </button>
       ))}
     </div>
+  )
+}
+
+// ── Recent Activity feed + Alert subscription CTA ────────────────────
+type ActivityItem = {
+  id: string
+  type: string
+  date: string
+  title: string
+  subtitle: string
+  meta?: string
+  tone: string
+}
+
+const ACTIVITY_ICONS: Record<string, React.ElementType> = {
+  sample: Beaker,
+  report: FlaskConical,
+  chapter: Heart,
+  donation: DonationIcon,
+}
+
+const ACTIVITY_TONE: Record<string, string> = {
+  warning: 'border-l-rose-400 bg-rose-50/50 dark:bg-rose-950/20',
+  ok: 'border-l-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20',
+  info: 'border-l-sky-400 bg-sky-50/50 dark:bg-sky-950/20',
+  default: 'border-l-border bg-card',
+}
+
+function timeAgo(dateStr: string): string {
+  const d = new Date(dateStr).getTime()
+  const now = Date.now()
+  const diff = Math.floor((now - d) / 1000)
+  if (diff < 60) return 'just now'
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`
+  return new Date(dateStr).toLocaleDateString()
+}
+
+function RecentActivityAndAlerts() {
+  const [items, setItems] = useState<ActivityItem[] | null>(null)
+  const [alertEmail, setAlertEmail] = useState('')
+  const [alertZip, setAlertZip] = useState('')
+  const [subscribing, setSubscribing] = useState(false)
+  const [subscribed, setSubscribed] = useState(false)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    api.getActivity()
+      .then((r) => setItems(r.items))
+      .catch(() => setItems([]))
+  }, [])
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!alertEmail.trim() || !alertZip.trim()) {
+      toast({ title: 'Missing fields', description: 'Email and ZIP code are required.', variant: 'destructive' })
+      return
+    }
+    setSubscribing(true)
+    try {
+      await api.subscribeAlert({ email: alertEmail, zipCode: alertZip })
+      toast({ title: 'You\'re subscribed! 🔔', description: 'We\'ll email you when new water data is available for your area.' })
+      setSubscribed(true)
+      setAlertEmail('')
+      setAlertZip('')
+    } catch (e) {
+      toast({ title: 'Subscription failed', description: e instanceof Error ? e.message : 'Unknown error', variant: 'destructive' })
+    } finally {
+      setSubscribing(false)
+    }
+  }
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Recent activity feed */}
+        <div className="lg:col-span-2">
+          <div className="mb-4 flex items-center gap-2">
+            <ActivityIcon className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Recent activity</h2>
+            <Badge variant="outline" className="ml-auto bg-secondary/40 text-[10px]">
+              {items ? `${items.length} recent` : 'loading…'}
+            </Badge>
+          </div>
+          <Card>
+            <CardContent className="p-0">
+              {items === null ? (
+                <div className="space-y-2 p-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-14 w-full" />
+                  ))}
+                </div>
+              ) : items.length === 0 ? (
+                <div className="p-8 text-center text-sm text-muted-foreground">
+                  No recent activity yet. Be the first to contribute!
+                </div>
+              ) : (
+                <div className="max-h-[420px] overflow-y-auto scroll-area">
+                  {items.map((item, i) => {
+                    const Icon = ACTIVITY_ICONS[item.type] ?? ActivityIcon
+                    const toneCls = ACTIVITY_TONE[item.tone] ?? ACTIVITY_TONE.default
+                    return (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, x: -8 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: Math.min(i * 0.04, 0.3) }}
+                        className={cn(
+                          'flex items-start gap-3 border-l-2 px-4 py-3 transition-colors hover:bg-muted/30',
+                          toneCls,
+                          i > 0 && 'border-t border-border/40'
+                        )}
+                      >
+                        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-background/60 text-primary">
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="truncate text-sm font-medium text-foreground">{item.title}</p>
+                            <span className="inline-flex shrink-0 items-center gap-0.5 text-[10px] text-muted-foreground">
+                              <Clock className="h-2.5 w-2.5" />
+                              {timeAgo(item.date)}
+                            </span>
+                          </div>
+                          <p className="truncate text-xs text-muted-foreground">{item.subtitle}</p>
+                          {item.meta && (
+                            <p className="mt-0.5 truncate text-[11px] text-muted-foreground/80">{item.meta}</p>
+                          )}
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Alert subscription CTA */}
+        <div>
+          <Card className="overflow-hidden border-primary/30">
+            <CardContent className="p-5">
+              <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Bell className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">Get water alerts</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Enter your ZIP and email. We&apos;ll notify you when new
+                contaminant data is published for your area — especially if
+                levels exceed health guidelines.
+              </p>
+              {subscribed ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center dark:border-emerald-800 dark:bg-emerald-950/30"
+                >
+                  <p className="text-sm font-medium text-emerald-900 dark:text-emerald-300">🔔 You&apos;re subscribed!</p>
+                  <p className="mt-1 text-xs text-emerald-800 dark:text-emerald-400">
+                    Watch your inbox for water quality updates.
+                  </p>
+                  <Button variant="ghost" size="sm" className="mt-2 h-7 text-xs" onClick={() => setSubscribed(false)}>
+                    Subscribe another ZIP
+                  </Button>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubscribe} className="mt-4 space-y-2.5">
+                  <div>
+                    <Input
+                      type="email"
+                      value={alertEmail}
+                      onChange={(e) => setAlertEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="h-9 text-sm"
+                      required
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      value={alertZip}
+                      onChange={(e) => setAlertZip(e.target.value)}
+                      placeholder="ZIP code"
+                      className="h-9 text-sm"
+                      required
+                    />
+                    <Button type="submit" size="sm" disabled={subscribing} className="h-9 shrink-0">
+                      {subscribing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />}
+                      {subscribing ? '…' : 'Subscribe'}
+                    </Button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Free. No spam. Unsubscribe anytime.
+                  </p>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ── Recently added utilities + Data quality callout ──────────────────
+type RecentUtility = {
+  id: string
+  name: string
+  city: string
+  state: string
+  pwsid: string
+  population: number
+  sourceType: string
+  treatmentStatus: string
+  createdAt: string
+  sampleCount: number
+}
+
+function RecentlyAddedAndQuality({ onNavigate }: { onNavigate?: (s: Section) => void }) {
+  const [recent, setRecent] = useState<RecentUtility[] | null>(null)
+  const [stats, setStats] = useState<Stats | null>(null)
+
+  useEffect(() => {
+    api.getRecentUtilities().then((r) => setRecent(r.utilities)).catch(() => setRecent([]))
+    api.getStats().then(setStats).catch(() => {})
+  }, [])
+
+  const qualityCounts = stats?.qualityCounts
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Recently added utilities */}
+        <div className="lg:col-span-2">
+          <div className="mb-4 flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Recently added utilities</h2>
+          </div>
+          {!recent ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-24 w-full" />
+              ))}
+            </div>
+          ) : recent.length === 0 ? (
+            <Card className="border-dashed">
+              <CardContent className="p-8 text-center text-sm text-muted-foreground">
+                No utilities added yet.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {recent.map((u, i) => (
+                <motion.div
+                  key={u.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: Math.min(i * 0.06, 0.3) }}
+                >
+                  <Card className="group h-full cursor-pointer transition-all hover:border-primary/40 hover:shadow-md" >
+                    <CardContent className="p-4" >
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                          <Building2 className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="line-clamp-1 text-sm font-semibold text-foreground">{u.name}</h3>
+                          <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                            <MapPin className="h-3 w-3" />
+                            {u.city}, {u.state}
+                          </div>
+                          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                            <span className="inline-flex items-center gap-0.5">
+                              <Users className="h-2.5 w-2.5" />
+                              {u.population.toLocaleString()}
+                            </span>
+                            <span className="inline-flex items-center gap-0.5">
+                              <Beaker className="h-2.5 w-2.5" />
+                              {u.sampleCount} samples
+                            </span>
+                            <span className="inline-flex items-center gap-0.5">
+                              <Clock className="h-2.5 w-2.5" />
+                              {timeAgo(u.createdAt)}
+                            </span>
+                          </div>
+                        </div>
+                        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Data quality callout */}
+        <div>
+          <Card className="overflow-hidden border-primary/20">
+            <CardContent className="p-5">
+              <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">Data you can trust</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Every measurement is tagged with a quality level so you know
+                exactly how much confidence to place in it.
+              </p>
+
+              {qualityCounts && (
+                <div className="mt-4 space-y-2">
+                  <QualityRow
+                    icon={ShieldCheck}
+                    label="Verified"
+                    count={qualityCounts.verified}
+                    total={stats?.samplesCount ?? 0}
+                    color="bg-emerald-500"
+                    colorLight="bg-emerald-100 dark:bg-emerald-950/40"
+                    textColor="text-emerald-700 dark:text-emerald-300"
+                    desc="Utility / EPA / certified lab"
+                  />
+                  <QualityRow
+                    icon={FlaskConical}
+                    label="Provisional"
+                    count={qualityCounts.provisional}
+                    total={stats?.samplesCount ?? 0}
+                    color="bg-amber-500"
+                    colorLight="bg-amber-100 dark:bg-amber-950/40"
+                    textColor="text-amber-700 dark:text-amber-300"
+                    desc="Research lab, pending verification"
+                  />
+                  <QualityRow
+                    icon={Users}
+                    label="Citizen"
+                    count={qualityCounts.citizen}
+                    total={stats?.samplesCount ?? 0}
+                    color="bg-sky-500"
+                    colorLight="bg-sky-100 dark:bg-sky-950/40"
+                    textColor="text-sky-700 dark:text-sky-300"
+                    desc="Community / chapter submitted"
+                  />
+                </div>
+              )}
+
+              <p className="mt-4 text-[11px] text-muted-foreground">
+                We never present unverified data as fact. Citizen readings are
+                clearly labeled and help identify areas that need official
+                follow-up testing.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function QualityRow({
+  icon: Icon,
+  label,
+  count,
+  total,
+  color,
+  colorLight,
+  textColor,
+  desc,
+}: {
+  icon: React.ElementType
+  label: string
+  count: number
+  total: number
+  color: string
+  colorLight: string
+  textColor: string
+  desc: string
+}) {
+  const pct = total > 0 ? Math.round((count / total) * 100) : 0
+  return (
+    <div className={`rounded-lg border border-border p-2.5 ${colorLight}`}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <Icon className={`h-3.5 w-3.5 ${textColor}`} />
+          <span className="text-xs font-semibold text-foreground">{label}</span>
+        </div>
+        <span className={`text-xs font-bold tabular-nums ${textColor}`}>{count}</span>
+      </div>
+      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-background/50">
+        <motion.div
+          className={`h-full ${color}`}
+          initial={{ width: 0 }}
+          whileInView={{ width: `${pct}%` }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+        />
+      </div>
+      <p className="mt-1 text-[10px] text-muted-foreground">{desc} · {pct}%</p>
+    </div>
+  )
+}
+
+// ── Citizen readings feed (showcase community contributions) ─────────
+type CitizenReading = {
+  id: string
+  level: number
+  unit: string
+  location: string | null
+  treatmentStatus: string
+  sampleDate: string
+  createdAt: string
+  reporterName: string
+  contaminant: { name: string; slug: string }
+  utility: { name: string; city: string; state: string } | null
+  exceedsHealth: boolean
+  exceedsLegal: boolean
+}
+
+function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void }) {
+  const [readings, setReadings] = useState<CitizenReading[] | null>(null)
+
+  useEffect(() => {
+    api.getRecentReadings()
+      .then((r) => setReadings(r.items))
+      .catch(() => setReadings([]))
+  }, [])
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mb-4 flex items-center gap-2">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400">
+          <Beaker className="h-4 w-4" />
+        </div>
+        <div className="flex-1">
+          <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Citizen readings</h2>
+          <p className="text-sm text-muted-foreground">
+            Community-submitted measurements from chapters and individuals using the microplastics identifier.
+          </p>
+        </div>
+        {readings && readings.length > 0 && (
+          <Button variant="outline" size="sm" onClick={() => onNavigate?.('submit')} className="hidden sm:inline-flex">
+            <Beaker className="h-3.5 w-3.5" />
+            Submit your own
+          </Button>
+        )}
+      </div>
+
+      {!readings ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 w-full" />
+          ))}
+        </div>
+      ) : readings.length === 0 ? (
+        <Card className="border-dashed border-sky-300/40 dark:border-sky-700/30">
+          <CardContent className="flex flex-col items-center p-8 text-center">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-sky-100 dark:bg-sky-950/50">
+              <Beaker className="h-6 w-6 text-sky-600 dark:text-sky-400" />
+            </div>
+            <h3 className="text-base font-semibold text-foreground">No citizen readings yet</h3>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Be the first to submit a reading from your tap, stream, or local water body using the microplastics identifier.
+            </p>
+            <Button className="mt-4" size="sm" onClick={() => onNavigate?.('submit')}>
+              <Beaker className="h-3.5 w-3.5" />
+              Submit a reading
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {readings.slice(0, 6).map((r, i) => (
+            <motion.div
+              key={r.id}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: Math.min(i * 0.06, 0.3) }}
+            >
+              <Card className="h-full border-sky-200/60 dark:border-sky-800/40">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-lg font-bold tabular-nums text-foreground">
+                          {r.level.toFixed(2)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{r.unit}</span>
+                      </div>
+                      <p className="mt-0.5 text-sm font-medium text-foreground">{r.contaminant.name}</p>
+                    </div>
+                    <QualityBadge quality="citizen" size="xs" />
+                  </div>
+
+                  <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                    {r.utility ? (
+                      <p className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{r.utility.city}, {r.utility.state}</span>
+                      </p>
+                    ) : r.location ? (
+                      <p className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{r.location}</span>
+                      </p>
+                    ) : null}
+                    <p className="flex items-center gap-1">
+                      <Users className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{r.reporterName}</span>
+                      <span className="text-muted-foreground/60">·</span>
+                      <span>{timeAgo(r.createdAt)}</span>
+                    </p>
+                  </div>
+
+                  {(r.exceedsHealth || r.exceedsLegal) && (
+                    <div className="mt-2 inline-flex items-center gap-1 rounded-md bg-rose-100 px-1.5 py-0.5 text-[10px] font-medium text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
+                      <AlertTriangle className="h-2.5 w-2.5" />
+                      {r.exceedsLegal ? 'Exceeds legal limit' : 'Exceeds health guideline'}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </section>
   )
 }
