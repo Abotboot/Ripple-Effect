@@ -47,6 +47,10 @@ const NAV: Array<{ id: Section; label: string; icon: React.ElementType }> = [
   { id: 'admin', label: 'Admin', icon: Lock },
 ]
 
+const DESKTOP_NAV = NAV.filter(({ id }) =>
+  ['home', 'map', 'explorer', 'microplastics', 'compare', 'submit', 'donate'].includes(id)
+)
+
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
 
 export function SiteHeader({
@@ -70,7 +74,7 @@ export function SiteHeader({
         {/* Brand — logo zoomed in (bigger) */}
         <button
           onClick={() => go('home')}
-          className="group flex items-center gap-3 transition-transform hover:scale-[1.02]"
+          className="group flex shrink-0 items-center gap-3 transition-transform hover:scale-[1.02]"
           aria-label="A Ripples Effect home"
         >
           <div className="relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-primary/30 shadow-lg shadow-primary/20 transition-all group-hover:ring-primary/60 group-hover:shadow-primary/40">
@@ -84,7 +88,7 @@ export function SiteHeader({
             <span className="text-lg font-extrabold tracking-tight text-foreground">
               A Ripples<span className="text-primary"> Effect</span>
             </span>
-            <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <span className="mt-0.5 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
               One Act. Endless Impact.
             </span>
           </span>
@@ -92,7 +96,7 @@ export function SiteHeader({
 
         {/* Desktop nav */}
         <nav className="hidden xl:flex items-center gap-0.5">
-          {NAV.map(({ id, label, icon: Icon }) => (
+          {DESKTOP_NAV.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => go(id)}
@@ -130,7 +134,7 @@ export function SiteHeader({
           <Button
             variant="ghost"
             size="icon"
-            className="xl:hidden h-9 w-9"
+            className="h-9 w-9"
             onClick={() => setOpen((o) => !o)}
             aria-label="Toggle menu"
             aria-expanded={open}
@@ -142,8 +146,8 @@ export function SiteHeader({
 
       {/* Mobile nav */}
       {open && (
-        <nav className="xl:hidden border-t border-border/60 bg-background px-4 py-3">
-          <div className="grid gap-1 sm:grid-cols-2">
+        <nav className="border-t border-border/60 bg-background px-4 py-3">
+          <div className="mx-auto grid max-w-7xl gap-1 sm:grid-cols-2 lg:grid-cols-3">
             {NAV.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
