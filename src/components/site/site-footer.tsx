@@ -20,18 +20,19 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
             <div className="flex items-center gap-2.5">
               <img
                 src="/logo.png"
-                alt="A Ripples Effect logo"
+                alt="A Ripple Effect Initiative logo"
                 className="h-10 w-10 rounded-full object-cover ring-1 ring-primary/30"
               />
               <span className="text-lg font-extrabold tracking-tight">
-                A Ripples<span className="text-primary"> Effect</span>
+                A Ripple<span className="text-primary"> Effect</span>
+                <span className="ml-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Initiative</span>
               </span>
             </div>
             <p className="mt-3 max-w-md text-sm text-muted-foreground">
-              A community-built tap water and microplastics database. Built by
-              volunteers for our 2026 Water Project — making local water data
-              open, searchable, and actionable. Almost no public water database
-              tracks microplastics — we do.
+              A community-built freshwater and microplastics database. Built by
+              volunteers for our 2026 Water Project — making data about our
+              rivers, lakes, and streams open, searchable, and actionable.
+              Almost no public water database tracks microplastics — we do.
             </p>
             <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
               <MapPin className="h-3.5 w-3.5" />
@@ -56,18 +57,13 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
                 </button>
               </li>
               <li>
-                <button onClick={() => go('explorer')} className="text-muted-foreground hover:text-primary transition-colors">
-                  Contaminant catalog
-                </button>
-              </li>
-              <li>
                 <button onClick={() => go('microplastics')} className="text-muted-foreground hover:text-primary transition-colors">
-                  Microplastics spotlight
+                  Microplastics, plastics &amp; filters
                 </button>
               </li>
               <li>
-                <button onClick={() => go('plastics')} className="text-muted-foreground hover:text-primary transition-colors">
-                  Plastics &amp; other contaminants
+                <button onClick={() => go('submit')} className="text-muted-foreground hover:text-primary transition-colors">
+                  Submit a reading
                 </button>
               </li>
               <li>
@@ -78,6 +74,11 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
               <li>
                 <button onClick={() => go('about')} className="text-muted-foreground hover:text-primary transition-colors">
                   About us
+                </button>
+              </li>
+              <li>
+                <button onClick={() => go('faq')} className="text-muted-foreground hover:text-primary transition-colors">
+                  FAQ
                 </button>
               </li>
             </ul>
@@ -95,14 +96,6 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
                   className="inline-flex items-center gap-1.5 font-medium text-rose-600 hover:text-rose-700 dark:text-rose-400 transition-colors"
                 >
                   <HandHeart className="h-3.5 w-3.5" /> Donate / Support
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => go('chapter')}
-                  className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Heart className="h-3.5 w-3.5" /> Start a chapter
                 </button>
               </li>
               <li>
@@ -169,7 +162,7 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
 
         <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row">
           <p className="flex items-center gap-1.5">
-            © {new Date().getFullYear()} A Ripples Effect · Built with
+            © {new Date().getFullYear()} A Ripple Effect Initiative · Built with
             <Heart className="h-3 w-3 text-rose-500" /> by the 2026 Water Project crew
           </p>
           <p>

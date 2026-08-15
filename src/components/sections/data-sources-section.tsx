@@ -133,7 +133,7 @@ export function DataSourcesSection() {
             <div className="flex-1">
               <h2 className="text-base font-bold text-foreground sm:text-lg">
                 Every database above tracks regulated contaminants. Almost none
-                track microplastics &mdash; that&apos;s the gap A Ripples Effect fills.
+                track microplastics &mdash; that&apos;s the gap A Ripple Effect Initiative fills.
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 The EPA, EWG, and most state portals don&apos;t include

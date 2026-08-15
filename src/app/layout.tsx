@@ -15,12 +15,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "A Ripples Effect — Tap Water & Microplastics Database",
+  title: "A Ripple Effect Initiative — Freshwater & Microplastics Database",
   description:
-    "A community-built tap water and microplastics database. Search your ZIP code, see contaminants in your drinking water, and contribute reports for your community. Almost no public water database tracks microplastics — we do.",
+    "A community-built freshwater and microplastics database. See what's in the rivers, lakes, and streams near you, and contribute readings for your community. Almost no public water database tracks microplastics — we do.",
   keywords: [
-    "tap water",
-    "drinking water",
+    "freshwater",
+    "untreated water",
+    "rivers and lakes",
     "microplastics",
     "water quality",
     "water contamination",
@@ -28,21 +29,21 @@ export const metadata: Metadata = {
     "PFAS",
     "lead in water",
     "community water database",
-    "A Ripples Effect",
+    "A Ripple Effect Initiative",
   ],
-  authors: [{ name: "A Ripples Effect Crew" }],
+  authors: [{ name: "A Ripple Effect Initiative Crew" }],
   openGraph: {
-    title: "A Ripples Effect — Tap Water & Microplastics Database",
+    title: "A Ripple Effect Initiative — Freshwater & Microplastics Database",
     description:
-      "A community-built tap water and microplastics database. Know what's in your water.",
-    siteName: "A Ripples Effect",
+      "A community-built freshwater and microplastics database. What's in your water?",
+    siteName: "A Ripple Effect Initiative",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "A Ripples Effect — Tap Water & Microplastics Database",
+    title: "A Ripple Effect Initiative — Freshwater & Microplastics Database",
     description:
-      "A community-built tap water and microplastics database. Know what's in your water.",
+      "A community-built freshwater and microplastics database. What's in your water?",
   },
 };
 

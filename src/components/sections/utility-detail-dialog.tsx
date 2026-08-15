@@ -46,7 +46,7 @@ export function UtilityDetailDialog({
               <div className="absolute right-4 top-4 flex gap-1.5">
                 <button
                   onClick={() => {
-                    const text = `${utility.name} — ${utility.city}, ${utility.state}\n${utility.contaminantSummaries.length} contaminants tracked · ${utility.healthExceedances} above health guideline · ${utility.exceedances} above legal limit\nvia A Ripples Effect water database`
+                    const text = `${utility.name} — ${utility.city}, ${utility.state}\n${utility.contaminantSummaries.length} contaminants tracked · ${utility.healthExceedances} above health guideline · ${utility.exceedances} above legal limit\nvia A Ripple Effect Initiative freshwater database`
                     if (navigator.share) {
                       navigator.share({ title: utility.name, text }).catch(() => {})
                     } else {
@@ -109,9 +109,9 @@ ${utility.contaminantSummaries.map((s) => {
 }).join('')}
 </table>
 <div class="footer">
-Report generated from A Ripples Effect water database on ${new Date().toLocaleDateString()}.<br>
+Report generated from A Ripple Effect Initiative freshwater database on ${new Date().toLocaleDateString()}.<br>
 Data is illustrative and community-submitted. Always verify with your utility's Consumer Confidence Report (CCR).<br>
-Learn more at ${typeof window !== 'undefined' ? window.location.origin : 'https://arippleseffect.org'}
+Learn more at ${typeof window !== 'undefined' ? window.location.origin : 'https://arippleeffectinitiative.org'}
 </div>
 </body></html>`
                     w.document.write(html)

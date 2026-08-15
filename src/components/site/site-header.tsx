@@ -1,6 +1,6 @@
 'use client'
 
-import { Droplets, Menu, X, Github, BarChart3, FlaskConical, Megaphone, Lock, Map, Heart, Info, HandHeart, Database, Recycle, GitCompare, Trophy, Beaker, BookOpen, PieChart, HelpCircle, Filter } from 'lucide-react'
+import { Droplets, Menu, X, Github, BarChart3, Megaphone, Lock, Map, Info, HandHeart, Database, Beaker, HelpCircle } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -9,46 +9,30 @@ import { ThemeToggle } from '@/components/site/theme-toggle'
 export type Section =
   | 'home'
   | 'map'
-  | 'explorer'
   | 'microplastics'
-  | 'plastics'
   | 'reports'
   | 'sources'
-  | 'compare'
   | 'submit'
-  | 'chapter'
-  | 'leaderboard'
-  | 'dashboard'
   | 'about'
-  | 'glossary'
   | 'faq'
-  | 'treatment'
   | 'donate'
   | 'admin'
 
 const NAV: Array<{ id: Section; label: string; icon: React.ElementType }> = [
   { id: 'home', label: 'Home', icon: Droplets },
+  { id: 'about', label: 'About Us', icon: Info },
   { id: 'map', label: 'Map', icon: Map },
-  { id: 'explorer', label: 'Contaminants', icon: FlaskConical },
   { id: 'microplastics', label: 'Microplastics', icon: BarChart3 },
-  { id: 'plastics', label: 'Plastics', icon: Recycle },
-  { id: 'compare', label: 'Compare', icon: GitCompare },
   { id: 'submit', label: 'Submit Reading', icon: Beaker },
   { id: 'sources', label: 'Data Sources', icon: Database },
   { id: 'reports', label: 'Community', icon: Megaphone },
-  { id: 'chapter', label: 'Start a Chapter', icon: Heart },
-  { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
-  { id: 'dashboard', label: 'Dashboard', icon: PieChart },
-  { id: 'about', label: 'About', icon: Info },
-  { id: 'glossary', label: 'Glossary', icon: BookOpen },
   { id: 'faq', label: 'FAQ', icon: HelpCircle },
-  { id: 'treatment', label: 'Treatment', icon: Filter },
   { id: 'donate', label: 'Donate', icon: HandHeart },
   { id: 'admin', label: 'Admin', icon: Lock },
 ]
 
 const DESKTOP_NAV = NAV.filter(({ id }) =>
-  ['home', 'map', 'explorer', 'microplastics', 'compare', 'submit', 'donate'].includes(id)
+  ['home', 'about', 'map', 'microplastics', 'submit', 'donate'].includes(id)
 )
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
@@ -75,21 +59,21 @@ export function SiteHeader({
         <button
           onClick={() => go('home')}
           className="group flex shrink-0 items-center gap-3 transition-transform hover:scale-[1.02]"
-          aria-label="A Ripples Effect home"
+          aria-label="A Ripple Effect Initiative home"
         >
           <div className="relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-primary/30 shadow-lg shadow-primary/20 transition-all group-hover:ring-primary/60 group-hover:shadow-primary/40">
             <img
               src="/logo.png"
-              alt="A Ripples Effect logo"
+              alt="A Ripple Effect Initiative logo"
               className="h-full w-full scale-110 object-cover transition-transform duration-300 group-hover:scale-125"
             />
           </div>
           <span className="hidden sm:flex flex-col items-start leading-none">
             <span className="text-lg font-extrabold tracking-tight text-foreground">
-              A Ripples<span className="text-primary"> Effect</span>
+              A Ripple<span className="text-primary"> Effect</span>
             </span>
             <span className="mt-0.5 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              One Act. Endless Impact.
+              Initiative · One Act. Endless Impact.
             </span>
           </span>
         </button>
@@ -124,7 +108,7 @@ export function SiteHeader({
             target="_blank"
             rel="noopener noreferrer"
             className="hidden sm:inline-flex"
-            aria-label="A Ripples Effect GitHub repository"
+            aria-label="A Ripple Effect Initiative GitHub repository"
             title="Open source on GitHub"
           >
             <Button variant="ghost" size="icon" className="h-9 w-9">

@@ -34,7 +34,7 @@ async function runSeed(): Promise<void> {
     update: {},
     create: {
       email: 'admin@arippleseffect.org',
-      name: 'A Ripples Effect Admin',
+      name: 'A Ripple Effect Initiative Admin',
       password: hashPassword('Ripples#2026!Secure'),
       role: 'admin',
     },
@@ -62,7 +62,7 @@ async function runSeed(): Promise<void> {
       regulated: false,
       trackedByUs: true,
       rarityNote:
-        'Almost no public drinking-water databases track microplastics — the EWG Tap Water Database, EPA SDWIS, and most state portals omit it entirely because there is no federal limit and no routine monitoring requirement. A Ripples Effect tracks it anyway.',
+        'Almost no public drinking-water databases track microplastics — the EWG Tap Water Database, EPA SDWIS, and most state portals omit it entirely because there is no federal limit and no routine monitoring requirement. A Ripple Effect Initiative tracks it anyway.',
     },
     {
       slug: 'lead', name: 'Lead', chemicalName: 'Pb', category: 'Metal',
@@ -266,9 +266,9 @@ async function runSeed(): Promise<void> {
 
   // Chapter signups (Start a Chapter program)
   const chapters = [
-    { name: 'Dev Sharma', email: 'dev.sharma@example.edu', chapterName: 'A Ripples Effect — UIC Chapter', city: 'Chicago', state: 'IL', zipCode: '60607', waterBody: 'Chicago River / Lake Michigan tap', organization: 'University of Illinois Chicago', identifier: true, message: 'Want to set up a chapter with my environmental science club.', status: 'onboarded' },
-    { name: 'Aisha Khan', email: 'aisha.khan@example.org', chapterName: 'A Ripples Effect — Houston Chapter', city: 'Houston', state: 'TX', zipCode: '77004', waterBody: 'Buffalo Bayou', organization: 'Houston Climate Alliance', identifier: false, message: 'Already have a microscope setup, need protocols.', status: 'contacted' },
-    { name: 'Marco Reyes', email: 'marco.reyes@example.edu', chapterName: null, city: 'Phoenix', state: 'AZ', zipCode: '85016', waterBody: 'Salt River tap', organization: null, identifier: true, message: 'Independent — want to test my home tap water.', status: 'pending' },
+    { name: 'Dev Sharma', email: 'dev.sharma@example.edu', chapterName: 'A Ripple Effect Initiative — UIC Chapter', city: 'Chicago', state: 'IL', zipCode: '60607', waterBody: 'Chicago River / Lake Michigan', organization: 'University of Illinois Chicago', identifier: true, message: 'Want to set up a chapter with my environmental science club.', status: 'onboarded' },
+    { name: 'Aisha Khan', email: 'aisha.khan@example.org', chapterName: 'A Ripple Effect Initiative — Houston Chapter', city: 'Houston', state: 'TX', zipCode: '77004', waterBody: 'Buffalo Bayou', organization: 'Houston Climate Alliance', identifier: false, message: 'Already have a microscope setup, need protocols.', status: 'contacted' },
+    { name: 'Marco Reyes', email: 'marco.reyes@example.edu', chapterName: null, city: 'Phoenix', state: 'AZ', zipCode: '85016', waterBody: 'Salt River', organization: null, identifier: true, message: 'Independent — want to test my local river water.', status: 'pending' },
   ]
   await db.chapter.createMany({ data: chapters })
 

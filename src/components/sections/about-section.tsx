@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Droplets, Heart, Users, FlaskConical, Github, Mail, Instagram,
+  Droplets, Beaker, Users, FlaskConical, Github, Mail, Instagram,
   ArrowRight, Calendar, ShieldCheck, BookOpen, Wrench, Megaphone,
   Building2, Code2, Sparkles, Info,
 } from 'lucide-react'
@@ -46,7 +46,7 @@ const VALUES = [
     icon: Users,
     title: 'Community-powered',
     description:
-      'We are built by chapters, volunteers, and citizen scientists. Anyone can start a chapter, take our identifier, and test the water in their own community.',
+      'We are built by volunteers and citizen scientists. Anyone can take our identifier and test the freshwater in their own community.',
     accent: 'bg-teal-100 text-teal-700 dark:bg-teal-950/50 dark:text-teal-300',
   },
   {
@@ -63,7 +63,7 @@ const CREW = [
     icon: Wrench,
     role: 'Engineering crew',
     blurb:
-      'Builds and maintains the low-cost microplastics identifier hardware and the sampling protocol chapters use in the field.',
+      'Builds and maintains the low-cost microplastics identifier hardware and the sampling protocol volunteers use in the field.',
   },
   {
     icon: Code2,
@@ -75,7 +75,7 @@ const CREW = [
     icon: Megaphone,
     role: 'PR & social crew',
     blurb:
-      'Runs outreach, onboards new chapters, and turns our data into stories people can act on.',
+      'Runs outreach, onboards new volunteers, and turns our data into stories people can act on.',
   },
 ]
 
@@ -113,7 +113,7 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
               About us
             </Badge>
             <h1 className="text-balance text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-              A Ripples Effect
+              A Ripple Effect Initiative
             </h1>
             <p className="mt-4 text-pretty text-lg text-white/90 sm:text-xl">
               One act. Endless impact.
@@ -167,26 +167,26 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
               <p>
                 A crew of students and volunteers noticed something strange:
                 microplastics &mdash; tiny plastic particles that have been
-                found in drinking water around the world &mdash; weren&apos;t
+                found in freshwater around the world &mdash; weren&apos;t
                 in any public water database. Not the EPA. Not the EWG. Not
                 state portals. There was no federal limit, no routine
                 monitoring requirement, and no easy way for a community to
-                see what was in their own tap water.
+                see what was in their local rivers and lakes.
               </p>
               <p>
                 So they started building. First, a low-cost microplastics
-                identifier that a chapter could build and operate. Then, an
+                identifier that anyone could build and operate. Then, an
                 open database to publish what they measured &mdash; alongside
                 the regulated-contaminant data already collected by federal
                 and nonprofit databases, so the full picture sits in one
                 place.
               </p>
               <p>
-                Today, any chapter can take the identifier, test their own
-                water, and add their readings to this database. The result
-                is a growing, community-powered map of what&apos;s actually in
-                our water &mdash; including the things almost no one else is
-                tracking.
+                Today, any volunteer can take the identifier, test their own
+                local freshwater, and add their readings to this database. The
+                result is a growing, community-powered map of what&apos;s
+                actually in our water &mdash; including the things almost no
+                one else is tracking.
               </p>
             </div>
           </motion.div>
@@ -333,13 +333,13 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
               Help us map what&apos;s in the water
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
-              Start a chapter in your town, dig into the data we&apos;ve already
+              Test your local freshwater, dig into the data we&apos;ve already
               collected, or support the project. Every ripple counts.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Button onClick={() => onNavigate?.('chapter')} size="lg">
-                <Heart className="mr-2 h-4 w-4" />
-                Start a chapter
+              <Button onClick={() => onNavigate?.('submit')} size="lg">
+                <Beaker className="mr-2 h-4 w-4" />
+                Submit a reading
               </Button>
               <Button
                 onClick={() => onNavigate?.('microplastics')}

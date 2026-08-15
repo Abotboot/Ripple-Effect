@@ -17,8 +17,9 @@ import { api } from '@/lib/api'
 import type { Utility, Stats, UtilityWithStats } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
 import { LiveTicker } from '@/components/site/live-ticker'
+import { Ripple } from '@/components/canvas-ui/Ripple'
 import type { Section } from '@/components/site/site-header'
-import { Microscope, HandHeart, Database, Github } from 'lucide-react'
+import { Microscope, HandHeart, Database, Github, Info } from 'lucide-react'
 import { useCountUp, formatCount } from '@/hooks/use-count-up'
 import { Bell, Activity as ActivityIcon, Beaker, Heart, HandHeart as DonationIcon, Clock } from 'lucide-react'
 import { QualityBadge } from '@/components/quality-badge'
@@ -114,6 +115,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
         setQ={setQ}
         onSearch={() => doSearch(q)}
         stats={stats}
+        onNavigate={onNavigate}
       />
 
       {/* Live ticker - animated stats marquee */}
@@ -252,7 +254,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                 <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
                   The EPA has no legal limit for microplastics. EWG, most state
                   portals, and your utility&apos;s report don&apos;t include it.
-                  A Ripples Effect tracks microplastics anyway — see the data.
+                  A Ripple Effect Initiative tracks microplastics anyway — see the data.
                 </p>
               </div>
             </div>
@@ -281,9 +283,10 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                   Help us ship the microplastics identifier
                 </h3>
                 <p className="mt-1 max-w-xl text-sm text-white/90">
-                  We&apos;re crowdfunding a low-cost identifier that chapters
-                  dip into local water. Every dollar buys parts, kits, and
-                  testing supplies. Join the founding crew of supporters.
+                  We&apos;re crowdfunding a low-cost identifier that volunteers
+                  dip into local rivers, lakes, and streams. Every dollar buys
+                  parts, kits, and testing supplies. Join the founding crew of
+                  supporters.
                 </p>
               </div>
             </div>
@@ -350,13 +353,24 @@ function Hero({
   setQ,
   onSearch,
   stats,
+  onNavigate,
 }: {
   q: string
   setQ: (s: string) => void
   onSearch: () => void
   stats: Stats | null
+  onNavigate?: (s: Section) => void
 }) {
   return (
+    <Ripple
+      trigger="click"
+      interval={5}
+      amplitude={0.6}
+      speed={0.7}
+      wavelength={70}
+      refraction={60}
+      shine={0.7}
+    >
     <section className="relative overflow-hidden bg-water-hero">
       {/* Animated gradient orbs */}
       <div className="pointer-events-none absolute inset-0 opacity-40">
@@ -439,13 +453,13 @@ function Hero({
               variant="secondary"
               className="mb-5 gap-1.5 border-primary/20 bg-primary/10 text-primary"
             >
-              2026 Water Project · Community Database
+              2026 Water Project · Freshwater Database
             </Badge>
             <h1 className="text-balance text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Know what&apos;s in your{' '}
+              What&apos;s in your{' '}
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-primary via-cyan-500 to-primary bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_ease_infinite]">
-                  tap water
+                  water
                 </span>
                 <motion.span
                   className="absolute -right-3 -top-2 text-primary"
@@ -456,12 +470,13 @@ function Hero({
                   <Droplets className="h-5 w-5 fill-primary" />
                 </motion.span>
               </span>
+              ?
             </h1>
             <p className="mt-5 text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Search any US ZIP code to see contaminants measured in your
-              drinking water — including microplastics, lead, PFAS, and
-              disinfection byproducts. Compare against health guidelines, not
-              just legal limits.
+              We track what&apos;s in the freshwater around you — rivers,
+              lakes, and streams, before it ever reaches a treatment plant.
+              Search your area to see microplastics, lead, PFAS, and other
+              contaminants measured in untreated water near you.
             </p>
           </motion.div>
 
@@ -496,6 +511,32 @@ function Hero({
             </Button>
           </motion.form>
 
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.22 }}
+            className="mt-5 flex flex-wrap items-center justify-center gap-3"
+          >
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => onNavigate?.('about')}
+              className="h-11 rounded-xl px-6 text-base shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Info className="h-4 w-4" />
+              Learn about us
+            </Button>
+            <Button
+              variant="ghost"
+              size="lg"
+              onClick={() => onNavigate?.('microplastics')}
+              className="h-11 rounded-xl px-6 text-base text-primary hover:bg-primary/10 hover:text-primary"
+            >
+              Explore microplastics data
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </motion.div>
+
           {stats && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -524,6 +565,7 @@ function Hero({
         </div>
       </div>
     </section>
+    </Ripple>
   )
 }
 
@@ -1118,7 +1160,7 @@ function RecentlyAddedAndQuality({ onNavigate }: { onNavigate?: (s: Section) => 
                     color="bg-sky-500"
                     colorLight="bg-sky-100 dark:bg-sky-950/40"
                     textColor="text-sky-700 dark:text-sky-300"
-                    desc="Community / chapter submitted"
+                    desc="Community submitted"
                   />
                 </div>
               )}
@@ -1213,7 +1255,7 @@ function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void
         <div className="flex-1">
           <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Citizen readings</h2>
           <p className="text-sm text-muted-foreground">
-            Community-submitted measurements from chapters and individuals using the microplastics identifier.
+            Community-submitted measurements from volunteers using the microplastics identifier.
           </p>
         </div>
         {readings && readings.length > 0 && (
@@ -1238,7 +1280,7 @@ function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void
             </div>
             <h3 className="text-base font-semibold text-foreground">No citizen readings yet</h3>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Be the first to submit a reading from your tap, stream, or local water body using the microplastics identifier.
+              Be the first to submit a reading from a stream, river, or lake near you using the microplastics identifier.
             </p>
             <Button className="mt-4" size="sm" onClick={() => onNavigate?.('submit')}>
               <Beaker className="h-3.5 w-3.5" />

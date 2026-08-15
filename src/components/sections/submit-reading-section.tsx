@@ -128,8 +128,8 @@ export function SubmitReadingSection() {
               Submit a reading
             </h1>
             <p className="mt-4 text-pretty text-base text-white/90 sm:text-lg">
-              Took a microplastics identifier reading from your tap, stream, or
-              local water body? Submit it here. Your reading joins the public
+              Took a microplastics identifier reading from a stream, river, or
+              lake near you? Submit it here. Your reading joins the public
               database and helps your community see what&apos;s in the water.
             </p>
           </div>

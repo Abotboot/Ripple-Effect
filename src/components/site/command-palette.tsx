@@ -2,36 +2,29 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import {
-  Search, Droplets, Map, FlaskConical, BarChart3, Recycle, GitCompare,
-  Beaker, Database, Megaphone, Heart, Trophy, Info, HandHeart, Lock,
-  Building2, MapPin, ArrowRight, Command as CommandIcon, BookOpen, PieChart, HelpCircle, Filter,
+  Search, Droplets, Map, BarChart3,
+  Beaker, Database, Megaphone, Info, HandHeart, Lock,
+  Building2, MapPin, ArrowRight, Command as CommandIcon, HelpCircle,
 } from 'lucide-react'
 import {
   CommandDialog, CommandEmpty, CommandGroup, CommandInput,
   CommandItem, CommandList, CommandSeparator, CommandShortcut,
 } from '@/components/ui/command'
 import { api } from '@/lib/api'
-import type { Utility, Section } from '@/lib/types'
+import type { Utility } from '@/lib/types'
+import type { Section } from '@/components/site/site-header'
 
 type NavItem = { id: Section; label: string; icon: React.ElementType; keywords?: string[] }
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'home', label: 'Home', icon: Droplets, keywords: ['search', 'water', 'zip'] },
+  { id: 'about', label: 'About us', icon: Info, keywords: ['mission', 'story', 'crew'] },
   { id: 'map', label: 'Map view', icon: Map, keywords: ['us', 'utilities', 'geography'] },
-  { id: 'explorer', label: 'Contaminant catalog', icon: FlaskConical, keywords: ['lead', 'pfas', 'arsenic', 'microplastics'] },
-  { id: 'microplastics', label: 'Microplastics spotlight', icon: BarChart3, keywords: ['plastic', 'particles', 'unregulated'] },
-  { id: 'plastics', label: 'Plastics & emerging contaminants', icon: Recycle, keywords: ['nanoplastic', 'tire', 'pfas', 'forever chemicals'] },
-  { id: 'compare', label: 'Compare utilities', icon: GitCompare, keywords: ['side by side', 'versus'] },
+  { id: 'microplastics', label: 'Microplastics, plastics & filters', icon: BarChart3, keywords: ['plastic', 'particles', 'unregulated', 'nanoplastic', 'tire', 'pfas', 'filter', 'filtration', 'nsf', 'reverse osmosis'] },
   { id: 'submit', label: 'Submit a reading', icon: Beaker, keywords: ['citizen', 'report', 'identifier'] },
   { id: 'sources', label: 'Data sources', icon: Database, keywords: ['ewg', 'epa', 'usgs', 'who'] },
   { id: 'reports', label: 'Community reports', icon: Megaphone, keywords: ['file', 'observation'] },
-  { id: 'chapter', label: 'Start a chapter', icon: Heart, keywords: ['volunteer', 'kit', 'identifier'] },
-  { id: 'leaderboard', label: 'Chapter leaderboard', icon: Trophy, keywords: ['rank', 'score', 'top'] },
-  { id: 'dashboard', label: 'National dashboard', icon: PieChart, keywords: ['stats', 'charts', 'rankings', 'distribution'] },
-  { id: 'about', label: 'About us', icon: Info, keywords: ['mission', 'story', 'crew'] },
-  { id: 'glossary', label: 'Glossary', icon: BookOpen, keywords: ['terms', 'definitions', 'mcl', 'ppb', 'pfas', 'jargon'] },
   { id: 'faq', label: 'FAQ & Help', icon: HelpCircle, keywords: ['questions', 'help', 'support', 'how', 'why', 'what'] },
-  { id: 'treatment', label: 'Water treatment guide', icon: Filter, keywords: ['filter', 'filtration', 'nsf', 'reverse osmosis', 'carbon', 'pitcher', 'distillation'] },
   { id: 'donate', label: 'Donate', icon: HandHeart, keywords: ['support', 'fund', 'goFundMe', 'crowdfund'] },
   { id: 'admin', label: 'Admin', icon: Lock, keywords: ['login', 'dashboard'] },
 ]

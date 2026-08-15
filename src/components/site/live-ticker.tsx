@@ -20,7 +20,7 @@ export function LiveTicker() {
     { icon: FlaskConical, text: `${stats.contaminantsCount} contaminants catalogued including microplastics` },
     { icon: Users, text: `${(stats.populationServed / 1_000_000).toFixed(1)}M people served by tracked utilities` },
     { icon: AlertTriangle, text: `${stats.healthExceedances} measurements above EWG health guidelines` },
-    { icon: Droplets, text: `Microplastics avg: ${stats.microplasticsAvg} particles/L in treated tap water` },
+    { icon: Droplets, text: `Microplastics avg: ${stats.microplasticsAvg} particles/L in untreated freshwater` },
     { icon: MapPin, text: `${stats.reportsCount} community reports filed` },
     { icon: AlertTriangle, text: `${stats.legalExceedances} measurements above EPA legal limits` },
   ]

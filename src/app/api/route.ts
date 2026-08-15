@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server'
 // API health/info endpoint
 export async function GET() {
   return NextResponse.json({
-    name: 'A Ripples Effect API',
+    name: 'A Ripple Effect Initiative API',
     version: '1.0.0',
-    description: 'Tap water & microplastics database API',
+    description: 'Freshwater & microplastics database API',
     endpoints: [
       'GET  /api/utilities?q=',
       'GET  /api/utilities/:id',

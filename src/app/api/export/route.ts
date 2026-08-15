@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(JSON.stringify(rows, null, 2), {
       headers: {
         'Content-Type': 'application/json',
-        'Content-Disposition': `attachment; filename="arippleseffect-${table}.json"`,
+        'Content-Disposition': `attachment; filename="arippleeffectinitiative-${table}.json"`,
       },
     })
   }
@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
   return new NextResponse(csv, {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="arippleseffect-${table}.csv"`,
+      'Content-Disposition': `attachment; filename="arippleeffectinitiative-${table}.csv"`,
     },
   })
 }

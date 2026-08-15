@@ -71,7 +71,7 @@ const TIERS: Tier[] = [
     id: 'founding',
     name: 'Founding Sponsor',
     min: 1000,
-    blurb: 'All above + credited as a founding sponsor on the site + a chapter kit sponsored in your name.',
+    blurb: 'All above + credited as a founding sponsor on the site + an identifier kit sponsored in your name.',
     accent: 'border-emerald-300 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/30',
     ring: 'ring-emerald-400/40',
     iconBg: 'bg-emerald-100 dark:bg-emerald-900/50',
@@ -90,7 +90,7 @@ const ALLOCATIONS = [
   },
   {
     icon: Microscope,
-    title: 'Chapter kits (microscope + reagents)',
+    title: 'Field kits (microscope + reagents)',
     pct: 30,
     color: 'text-amber-600 dark:text-amber-300',
     bg: 'bg-amber-100 dark:bg-amber-900/40',
@@ -282,9 +282,10 @@ export function DonateSection() {
               </h1>
               <p className="mx-auto mt-4 max-w-2xl text-pretty text-base text-white/90 sm:text-lg">
                 We&apos;re crowdfunding a low-cost, open-source microplastics
-                identifier that chapters can dip directly into local water.
-                Every dollar moves us closer to citizen-science kits in the
-                field — and a free, open database anyone can use.
+                identifier that volunteers can dip directly into local rivers,
+                lakes, and streams. Every dollar moves us closer to
+                citizen-science kits in the field — and a free, open database
+                anyone can use.
               </p>
             </motion.div>
 
