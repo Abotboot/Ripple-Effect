@@ -68,7 +68,7 @@ model Contaminant {
 // A single measurement of one contaminant at one utility on one date.
 model Sample {
   id            String   @id @default(cuid())
-  utilityId     String
+  utilityId     String?
   contaminantId String
   level         Float    // measured value
   unit          String   // particles/L, ppb, ppm
@@ -80,7 +80,7 @@ model Sample {
   notes         String?
   createdAt     DateTime @default(now())
 
-  utility       Utility     @relation(fields: [utilityId], references: [id], onDelete: Cascade)
+  utility       Utility?     @relation(fields: [utilityId], references: [id], onDelete: Cascade)
   contaminant   Contaminant @relation(fields: [contaminantId], references: [id], onDelete: Cascade)
 
   @@index([utilityId])
