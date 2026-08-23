@@ -21,6 +21,9 @@ import type { Donation } from '@/lib/types'
 
 const GOAL = 25000
 
+// Official donation page (HCB / Hack Club fiscal sponsorship).
+const HCB_DONATE_URL = 'https://hcb.hackclub.com/donations/start/a-ripple-effect-initiative-arei'
+
 type Tier = {
   id: string
   name: string
@@ -275,7 +278,7 @@ export function DonateSection() {
             >
               <Badge className="mb-4 border-white/40 bg-white/15 text-white hover:bg-white/20">
                 <Sparkles className="mr-1 h-3 w-3" />
-                Crowdfunding · GoFundMe-style
+                Crowdfunding · Tax-deductible via HCB
               </Badge>
               <h1 className="text-balance text-3xl font-extrabold tracking-tight drop-shadow-sm sm:text-5xl">
                 Fund the microplastics identifier
@@ -358,13 +361,13 @@ export function DonateSection() {
                 className="w-full bg-white text-rose-600 shadow-lg hover:bg-white/90 sm:w-auto"
               >
                 <a
-                  href="https://www.gofundme.com"
+                  href={HCB_DONATE_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2"
                 >
                   <ExternalLink className="h-4 w-4" />
-                  Donate on GoFundMe
+                  Donate securely via HCB
                 </a>
               </Button>
               <a
@@ -376,7 +379,8 @@ export function DonateSection() {
               </a>
             </motion.div>
             <p className="mt-3 text-xs text-white/75">
-              Prefer GoFundMe? We&apos;re setting up our campaign there too.
+              Donations are processed by HCB (Hack Club)&apos;s fiscal sponsor platform —
+              tax-deductible in the US.
             </p>
           </div>
         </div>
@@ -610,8 +614,9 @@ export function DonateSection() {
                     )}
                   </Button>
                   <p className="text-[11px] text-muted-foreground">
-                    This records a pledge (intent to donate). We&apos;ll follow up
-                    with payment options — GoFundMe, check, or direct transfer.
+                    This records a pledge (intent to donate). To give for real, use
+                    the &ldquo;Donate securely via HCB&rdquo; button above — then we&apos;ll
+                    match it to your pledge.
                   </p>
                 </form>
               )}
@@ -726,7 +731,7 @@ export function DonateSection() {
           )}
         </div>
 
-        {/* GoFundMe secondary callout */}
+        {/* HCB secondary callout */}
         <Card className="mt-12 overflow-hidden border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50 dark:border-rose-900/50 dark:from-rose-950/30 dark:to-pink-950/30">
           <CardContent className="flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3">
@@ -735,12 +740,13 @@ export function DonateSection() {
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground">
-                  Prefer to donate on GoFundMe?
+                  Prefer to donate directly?
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  We&apos;re setting up our official GoFundMe campaign. The
-                  pledge form above records your intent immediately — your
-                  GoFundMe contribution will be matched to your pledge by email.
+                  Donations run through HCB (Hack Club)&apos;s fiscal sponsorship —
+                  secure, tax-deductible in the US, and every dollar goes to the
+                  microplastics identifier. The pledge form above records your
+                  intent; use this button to give for real.
                 </p>
               </div>
             </div>
@@ -750,13 +756,13 @@ export function DonateSection() {
               className="shrink-0 border-rose-300 text-rose-700 hover:bg-rose-100 dark:border-rose-800 dark:text-rose-200 dark:hover:bg-rose-950/40"
             >
               <a
-                href="https://www.gofundme.com"
+                href={HCB_DONATE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2"
               >
                 <ExternalLink className="h-4 w-4" />
-                GoFundMe
+                Donate via HCB
               </a>
             </Button>
           </CardContent>

@@ -87,12 +87,12 @@ export function MicroplasticsTrendSection() {
           </div>
         </CardHeader>
         <CardContent>
-          {!data ? (
-            <Skeleton className="h-[320px] w-full" />
-          ) : error ? (
+          {error ? (
             <div className="flex h-[320px] items-center justify-center text-sm text-muted-foreground">
               Could not load trend data.
             </div>
+          ) : !data ? (
+            <Skeleton className="h-[320px] w-full" />
           ) : data.trend.length === 0 ? (
             <div className="flex h-[320px] items-center justify-center text-sm text-muted-foreground">
               No trend data available yet.

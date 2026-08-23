@@ -25,7 +25,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'sources', label: 'Data sources', icon: Database, keywords: ['ewg', 'epa', 'usgs', 'who'] },
   { id: 'reports', label: 'Community reports', icon: Megaphone, keywords: ['file', 'observation'] },
   { id: 'faq', label: 'FAQ & Help', icon: HelpCircle, keywords: ['questions', 'help', 'support', 'how', 'why', 'what'] },
-  { id: 'donate', label: 'Donate', icon: HandHeart, keywords: ['support', 'fund', 'goFundMe', 'crowdfund'] },
+  { id: 'donate', label: 'Donate', icon: HandHeart, keywords: ['support', 'fund', 'hcb', 'hack club', 'crowdfund'] },
   { id: 'admin', label: 'Admin', icon: Lock, keywords: ['login', 'dashboard'] },
 ]
 
@@ -177,10 +177,11 @@ export function CommandPalette({
         </CommandList>
       </CommandDialog>
 
-      {/* Floating trigger button (subtle, bottom-right) */}
+      {/* Floating trigger button (subtle, bottom-right; sits above the
+          scroll-to-top button so the two never overlap) */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-2 text-xs font-medium text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:border-primary hover:text-primary sm:bottom-8 sm:right-8"
+        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-2 text-xs font-medium text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:border-primary hover:text-primary sm:bottom-6 sm:right-6"
         aria-label="Open search (Cmd+K)"
       >
         <Search className="h-3.5 w-3.5" />

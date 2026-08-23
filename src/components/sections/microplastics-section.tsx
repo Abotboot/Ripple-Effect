@@ -265,20 +265,45 @@ const EFFECTIVENESS_CONFIG: Record<string, { label: string; color: string; icon:
 export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section) => void }) {
   const [data, setData] = useState<ContaminantDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [errored, setErrored] = useState(false)
 
   useEffect(() => {
-    api.listContaminants().then(async (contaminants) => {
-      const mp = contaminants.find((c) => c.slug === 'microplastics')
-      if (!mp) {
-        setLoading(false)
-        return
-      }
-      const res = await fetch(`/api/contaminants/${mp.id}`)
-      const json = await res.json()
-      setData(json)
-      setLoading(false)
-    })
+    let cancelled = false
+    api.listContaminants()
+      .then(async (contaminants) => {
+        const mp = contaminants.find((c) => c.slug === 'microplastics')
+        if (!mp) {
+          setLoading(false)
+          return
+        }
+        const res = await fetch(`/api/contaminants/${mp.id}`)
+        if (!res.ok) throw new Error(`API ${res.status}`)
+        const json: ContaminantDetail = await res.json()
+        if (!cancelled) {
+          setData(json)
+          setLoading(false)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setErrored(true)
+          setLoading(false)
+        }
+      })
+    return () => {
+      cancelled = true
+    }
   }, [])
+
+  // Shown instead of a chart if the API failed or returned no usable data,
+  // so cards never render as a permanently blank box.
+  const chartError = !loading && (!data || errored) && (
+    <div className="flex h-[220px] items-center justify-center rounded-lg border border-dashed border-border px-6 text-center text-sm text-muted-foreground">
+      {errored
+        ? 'Live data is temporarily unavailable — please refresh in a moment.'
+        : 'No microplastics measurements recorded yet.'}
+    </div>
+  )
 
   const treatmentComparison = data
     ? [
@@ -446,6 +471,8 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                 <CardContent>
                   {loading ? (
                     <Skeleton className="h-[260px] w-full" />
+                  ) : chartError ? (
+                    <div className="flex h-[260px] items-center justify-center">{chartError}</div>
                   ) : (
                     <div className="h-[260px]">
                       <ResponsiveContainer width="100%" height="100%">
@@ -496,8 +523,12 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                   </p>
                 </CardHeader>
                 <CardContent>
-                  {loading || !data ? (
-                    <Skeleton className="h-[260px] w-full" />
+                  {loading ? (
+                    <Skeleton className="h-[300px] w-full" />
+                  ) : !data || data.utilityStats.length === 0 ? (
+                    <div className="flex h-[300px] items-center justify-center rounded-lg border border-dashed border-border px-6 text-center text-sm text-muted-foreground">
+                      No microplastics measurements recorded yet.
+                    </div>
                   ) : (
                     <div className="h-[300px]">
                       <ResponsiveContainer width="100%" height="100%">

@@ -7,6 +7,15 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
+  try {
+    return await getContaminantDetail(id)
+  } catch (err) {
+    console.error('[api/contaminants/[id]] failed:', err)
+    return NextResponse.json({ error: 'Failed to load contaminant detail' }, { status: 500 })
+  }
+}
+
+async function getContaminantDetail(id: string) {
   const contaminant = await db.contaminant.findUnique({ where: { id } })
   if (!contaminant) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -18,9 +27,11 @@ export async function GET(
     orderBy: { sampleDate: 'asc' },
   })
 
-  // Aggregate by utility
+  // Aggregate by utility (skip citizen readings not tied to a utility —
+  // e.g. lake/bay samples — their utility relation is intentionally null).
   const byUtility = new Map<string, typeof samples>()
   for (const s of samples) {
+    if (!s.utilityId || !s.utility) continue
     const arr = byUtility.get(s.utilityId) ?? []
     arr.push(s)
     byUtility.set(s.utilityId, arr)
@@ -30,12 +41,13 @@ export async function GET(
     const treated = ss.filter((s) => s.treatmentStatus === 'Treated')
     const pool = treated.length > 0 ? treated : ss
     const latest = pool[pool.length - 1]
+    const u = ss[0].utility
     return {
       utilityId,
-      utilityName: ss[0].utility.name,
-      city: ss[0].utility.city,
-      state: ss[0].utility.state,
-      pwsid: ss[0].utility.pwsid,
+      utilityName: u.name,
+      city: u.city,
+      state: u.state,
+      pwsid: u.pwsid,
       latestLevel: latest?.level ?? 0,
       avgLevel: pool.reduce((sum, s) => sum + s.level, 0) / (pool.length || 1),
       maxLevel: Math.max(...pool.map((s) => s.level)),
