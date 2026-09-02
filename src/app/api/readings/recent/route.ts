@@ -4,7 +4,7 @@ import { ensureSeeded } from '@/lib/ensure-seeded'
 
 // GET /api/readings/recent
 // Returns recent citizen-submitted readings for the public home feed.
-// Only returns quality='citizen' samples (not lab/utility data — those are
+// Only returns quality='citizen' samples (not lab/utility data - those are
 // already shown in other feeds). Includes the contaminant + utility info
 // for display, and parses the reporter name out of the notes field.
 export async function GET() {

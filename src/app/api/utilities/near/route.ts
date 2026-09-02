@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 
 // GET /api/utilities/near?lat=41.88&lng=-87.63&radius=500
 // Returns utilities within `radius` miles of the given point, sorted by distance.
-// Uses the haversine formula to compute great-circle distance — a PostGIS
+// Uses the haversine formula to compute great-circle distance - a PostGIS
 // alternative that works with SQLite (which has no native geo functions).
 //
 // In a production deployment with PostgreSQL + PostGIS, this query would be:
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
   })
 }
 
-// Haversine formula — great-circle distance between two lat/lng points, in miles.
+// Haversine formula - great-circle distance between two lat/lng points, in miles.
 function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 3958.8 // Earth radius in miles
   const toRad = (d: number) => (d * Math.PI) / 180

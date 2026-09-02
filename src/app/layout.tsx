@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "A Ripple Effect Initiative — Freshwater & Microplastics Database",
+  title: "A Ripple Effect Initiative | Freshwater & Microplastics Database",
   description:
-    "A community-built freshwater and microplastics database. See what's in the rivers, lakes, and streams near you, and contribute readings for your community. Almost no public water database tracks microplastics — we do.",
+    "A community-built freshwater and microplastics database. See what's in the rivers, lakes, and streams near you, and contribute readings for your community. Almost no public water database tracks microplastics, but we do.",
   keywords: [
     "freshwater",
     "untreated water",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "A Ripple Effect Initiative Crew" }],
   openGraph: {
-    title: "A Ripple Effect Initiative — Freshwater & Microplastics Database",
+    title: "A Ripple Effect Initiative | Freshwater & Microplastics Database",
     description:
       "A community-built freshwater and microplastics database. What's in your water?",
     siteName: "A Ripple Effect Initiative",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "A Ripple Effect Initiative — Freshwater & Microplastics Database",
+    title: "A Ripple Effect Initiative | Freshwater & Microplastics Database",
     description:
       "A community-built freshwater and microplastics database. What's in your water?",
   },

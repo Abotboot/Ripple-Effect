@@ -27,8 +27,8 @@ async function getContaminantDetail(id: string) {
     orderBy: { sampleDate: 'asc' },
   })
 
-  // Aggregate by utility (skip citizen readings not tied to a utility —
-  // e.g. lake/bay samples — their utility relation is intentionally null).
+  // Aggregate by utility (skip citizen readings not tied to a utility,
+    // e.g. lake/bay samples. Their utility relation is intentionally null).
   const byUtility = new Map<string, typeof samples>()
   for (const s of samples) {
     if (!s.utilityId || !s.utility) continue

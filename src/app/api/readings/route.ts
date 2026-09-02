@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { ensureSeeded } from '@/lib/ensure-seeded'
 
-// POST /api/readings — public citizen-science reading submission.
+// POST /api/readings - public citizen-science reading submission.
 // Creates a Sample with quality='citizen'. This is the public entry point
 // for chapters and community members to push microplastics identifier
 // readings (and other field measurements) into the database.
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Build the notes field to store reporter metadata (since the Sample model
-  // doesn't have dedicated reporter fields — this keeps the schema simple
+  // doesn't have dedicated reporter fields - this keeps the schema simple
   // while still recording who submitted it for verification follow-up).
   const notesParts = [
     `reporter:${email}`,
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
 
   const created = await db.sample.create({
     data: {
-      utilityId: utilityId ?? '', // empty string if no utility — TODO: consider nullable later
+      utilityId: utilityId ?? '', // empty string if no utility - TODO: consider nullable later
       contaminantId: contaminant.id,
       level,
       unit: body.unit ?? contaminant.legalLimitUnit ?? contaminant.healthGuidelineUnit ?? 'ppb',

@@ -6,7 +6,7 @@ import { db } from './db'
 // a schema push that wipes data).
 //
 // Idempotent: if data already exists, returns immediately.
-// Safe to call on every API request — it only queries a count first.
+// Safe to call on every API request - it only queries a count first.
 
 let seedPromise: Promise<void> | null = null
 
@@ -36,7 +36,7 @@ export async function ensureSeeded(): Promise<void> {
     })
   }
 
-  // Quick check — does the DB have any utilities?
+  // Quick check - does the DB have any utilities?
   const count = await db.utility.count()
   if (count > 0) return
 
@@ -48,12 +48,12 @@ export async function ensureSeeded(): Promise<void> {
 }
 
 async function runSeed(): Promise<void> {
-  console.log('[ensureSeeded] Database is empty — running inline seed...')
+  console.log('[ensureSeeded] Database is empty - running inline seed...')
 
   const { hashPassword } = await import('./auth')
 
-  // Admin user — strong default password (change immediately after first login).
-  // Credentials documented in README.md and worklog.md, NOT in the UI.
+  // Admin user - strong default password (change immediately after first login).
+    // Credentials documented in README.md, NOT in the UI.
   await db.user.upsert({
     where: { email: 'admin@arippleseffect.org' },
     update: {},
@@ -87,13 +87,13 @@ async function runSeed(): Promise<void> {
       regulated: false,
       trackedByUs: true,
       rarityNote:
-        'Almost no public drinking-water databases track microplastics — the EWG Tap Water Database, EPA SDWIS, and most state portals omit it entirely because there is no federal limit and no routine monitoring requirement. A Ripple Effect Initiative tracks it anyway.',
+        'Almost no public drinking-water databases track microplastics - the EWG Tap Water Database, EPA SDWIS, and most state portals omit it entirely because there is no federal limit and no routine monitoring requirement. A Ripple Effect Initiative tracks it anyway.',
     },
     {
       slug: 'lead', name: 'Lead', chemicalName: 'Pb', category: 'Metal',
       legalLimit: 15, legalLimitUnit: 'ppb', healthGuideline: 0.2, healthGuidelineUnit: 'ppb', ewgHealthLimit: 0.2,
       description: 'A neurotoxic heavy metal that enters drinking water primarily through corrosion of plumbing materials.',
-      healthEffects: 'Especially harmful to children — causes irreversible neurological damage, lowered IQ, behavioral problems, and anemia. No safe level of exposure exists.',
+      healthEffects: 'Especially harmful to children - causes irreversible neurological damage, lowered IQ, behavioral problems, and anemia. No safe level of exposure exists.',
       sources: 'Lead service lines, brass fixtures, lead solder in plumbing, galvanized pipes.', regulated: true,
       trackedByUs: true, rarityNote: 'Tracked by EWG and EPA, but service-line inventory data is still incomplete nationwide.',
     },
@@ -291,13 +291,13 @@ async function runSeed(): Promise<void> {
 
   // Chapter signups (Start a Chapter program)
   const chapters = [
-    { name: 'Dev Sharma', email: 'dev.sharma@example.edu', chapterName: 'A Ripple Effect Initiative — UIC Chapter', city: 'Chicago', state: 'IL', zipCode: '60607', waterBody: 'Chicago River / Lake Michigan', organization: 'University of Illinois Chicago', identifier: true, message: 'Want to set up a chapter with my environmental science club.', status: 'onboarded' },
-    { name: 'Aisha Khan', email: 'aisha.khan@example.org', chapterName: 'A Ripple Effect Initiative — Houston Chapter', city: 'Houston', state: 'TX', zipCode: '77004', waterBody: 'Buffalo Bayou', organization: 'Houston Climate Alliance', identifier: false, message: 'Already have a microscope setup, need protocols.', status: 'contacted' },
-    { name: 'Marco Reyes', email: 'marco.reyes@example.edu', chapterName: null, city: 'Phoenix', state: 'AZ', zipCode: '85016', waterBody: 'Salt River', organization: null, identifier: true, message: 'Independent — want to test my local river water.', status: 'pending' },
+    { name: 'Dev Sharma', email: 'dev.sharma@example.edu', chapterName: 'A Ripple Effect Initiative - UIC Chapter', city: 'Chicago', state: 'IL', zipCode: '60607', waterBody: 'Chicago River / Lake Michigan', organization: 'University of Illinois Chicago', identifier: true, message: 'Want to set up a chapter with my environmental science club.', status: 'onboarded' },
+    { name: 'Aisha Khan', email: 'aisha.khan@example.org', chapterName: 'A Ripple Effect Initiative - Houston Chapter', city: 'Houston', state: 'TX', zipCode: '77004', waterBody: 'Buffalo Bayou', organization: 'Houston Climate Alliance', identifier: false, message: 'Already have a microscope setup, need protocols.', status: 'contacted' },
+    { name: 'Marco Reyes', email: 'marco.reyes@example.edu', chapterName: null, city: 'Phoenix', state: 'AZ', zipCode: '85016', waterBody: 'Salt River', organization: null, identifier: true, message: 'Independent - want to test my local river water.', status: 'pending' },
   ]
   await db.chapter.createMany({ data: chapters })
 
-  // Donations (pledges — links out to GoFundMe for actual payment)
+  // Donations (historic records - funding now runs through HCB)
   const donations = [
     { name: 'Anonymous', email: null, amount: 25, tier: 'Supporter', message: null, anonymous: true, status: 'completed' },
     { name: 'Jordan Lee', email: 'jordan@example.com', amount: 50, tier: 'Friend', message: 'Love what you all are building for clean water!', anonymous: false, status: 'completed' },

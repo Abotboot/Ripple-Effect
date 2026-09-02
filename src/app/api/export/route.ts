@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   if (adminOnlyTables.includes(table)) {
     const admin = await requireAdmin()
     if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized — admin login required for this export.' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized - admin login required for this export.' }, { status: 401 })
     }
   }
 

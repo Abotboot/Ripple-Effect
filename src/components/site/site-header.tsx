@@ -57,7 +57,7 @@ export function SiteHeader({
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
-        {/* Brand — logo zoomed in (bigger) */}
+        {/* Brand, logo zoomed in (bigger) */}
         <button
           onClick={() => go('home')}
           className="group flex shrink-0 items-center gap-3 transition-transform hover:scale-[1.02]"

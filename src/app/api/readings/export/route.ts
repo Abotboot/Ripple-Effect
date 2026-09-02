@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 
-// GET /api/readings/export — admin only.
+// GET /api/readings/export - admin only.
 // Returns all citizen-quality readings as a CSV file for offline analysis.
 export async function GET(req: NextRequest) {
   const admin = await requireAdmin()

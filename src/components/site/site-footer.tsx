@@ -32,7 +32,7 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
               A community-built freshwater and microplastics database. Built by
                             volunteers to make data about our
                             rivers, lakes, and streams open, searchable, and actionable.
-                            Almost no public water database tracks microplastics — we do.
+                            Almost no public water database tracks microplastics, but we do.
             </p>
             <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
               <MapPin className="h-3.5 w-3.5" />

@@ -148,7 +148,7 @@ export function SubmitReadingSection() {
               <span className="text-muted-foreground">
                 Every submission you make is tagged{' '}
                 <QualityBadge quality="citizen" size="xs" /> in the database.
-                We never present unverified data as official — your reading
+                We never present unverified data as official; your reading
                 helps identify areas that need lab follow-up.
               </span>
             </div>

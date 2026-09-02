@@ -254,8 +254,8 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                 <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
                   The EPA has no legal limit for microplastics. EWG, most state
                   portals, and your utility&apos;s report don&apos;t include it.
-                  A Ripple Effect Initiative tracks microplastics anyway — see the data.
-                </p>
+                  A Ripple Effect Initiative tracks microplastics anyway. See the data.
+                                  </p>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5 self-end text-sm font-semibold text-amber-700 dark:text-amber-400 sm:self-center">
@@ -473,8 +473,8 @@ function Hero({
               ?
             </h1>
             <p className="mt-5 text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-              We track what&apos;s in the freshwater around you — rivers,
-              lakes, and streams, before it ever reaches a treatment plant.
+              We track what&apos;s in the freshwater around you: rivers,
+                            lakes, and streams, before it ever reaches a treatment plant.
               Search your area to see microplastics, lead, PFAS, and other
               contaminants measured in untreated water near you.
             </p>
@@ -822,7 +822,7 @@ function EmptyBrowse({ onSearch }: { onSearch: (q: string) => void }) {
   )
 }
 
-// ── Recent Activity feed + Alert subscription CTA ────────────────────
+// -- Recent Activity feed + Alert subscription CTA --
 type ActivityItem = {
   id: string
   type: string
@@ -969,8 +969,8 @@ function RecentActivityAndAlerts() {
               <h3 className="text-base font-bold text-foreground">Get water alerts</h3>
               <p className="mt-1.5 text-sm text-muted-foreground">
                 Enter your ZIP and email. We&apos;ll notify you when new
-                contaminant data is published for your area — especially if
-                levels exceed health guidelines.
+                                contaminant data is published for your area, especially if
+                                levels exceed health guidelines.
               </p>
               {subscribed ? (
                 <motion.div
@@ -1024,7 +1024,7 @@ function RecentActivityAndAlerts() {
   )
 }
 
-// ── Recently added utilities + Data quality callout ──────────────────
+// -- Recently added utilities + Data quality callout --
 type RecentUtility = {
   id: string
   name: string
@@ -1221,7 +1221,7 @@ function QualityRow({
   )
 }
 
-// ── Citizen readings feed (showcase community contributions) ─────────
+// -- Citizen readings feed (showcase community contributions) --
 type CitizenReading = {
   id: string
   level: number

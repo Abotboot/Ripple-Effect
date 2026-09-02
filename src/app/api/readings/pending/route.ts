@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 
-// GET /api/readings/pending — admin only.
+// GET /api/readings/pending - admin only.
 // Returns all citizen-quality samples for moderation, newest first.
 // Includes parsed reporter info from the notes field.
 export async function GET() {

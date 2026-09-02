@@ -68,7 +68,7 @@ const tooltipStyle = {
   boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
 }
 
-// ── Plastic contaminants (from the old Plastics page) ────────────────
+// -- Plastic contaminants (from the old Plastics page) --
 type PlasticEntry = {
   name: string
   size: string
@@ -84,9 +84,9 @@ const PLASTIC_ENTRIES: PlasticEntry[] = [
     name: 'Microplastics',
     size: '< 5 mm (down to ~1 µm)',
     sources: 'Plastic packaging breakdown, synthetic textile fibers, tire wear particles, microbeads, degraded larger plastics.',
-    foundIn: 'Rivers, lakes, streams, oceans, soil, air, food — and the water supplies drawn from them.',
+    foundIn: 'Rivers, lakes, streams, oceans, soil, air, food, and the water supplies drawn from them.',
     healthNote: 'WHO 2019: evidence too limited to set a health guideline; more research needed. Particle size determines whether they cross gut/lung barriers.',
-    source: 'WHO 2019 — Microplastics in Drinking-Water',
+    source: 'WHO 2019, Microplastics in Drinking-Water',
     sourceUrl: 'https://www.who.int/publications/i/item/9789241516198',
   },
   {
@@ -104,7 +104,7 @@ const PLASTIC_ENTRIES: PlasticEntry[] = [
     sources: 'Historically used in exfoliating face washes and toothpastes. Banned in rinse-off cosmetics in the US (Microbead-Free Waters Act of 2015) but persist in the environment.',
     foundIn: 'Lakes, rivers, marine sediment; legacy contamination persists.',
     healthNote: 'Ingested by aquatic organisms and passed up the food chain. The 2015 ban addressed new production, not existing environmental loads.',
-    source: 'EPA — Microbeads',
+    source: 'EPA, Microbeads',
     sourceUrl: 'https://www.epa.gov/water-contaminants/microbeads',
   },
   {
@@ -127,7 +127,7 @@ const PLASTIC_ENTRIES: PlasticEntry[] = [
   },
 ]
 
-// ── Other emerging contaminants ──────────────────────────────────────
+// -- Other emerging contaminants --
 type EmergingEntry = {
   name: string
   category: string
@@ -148,40 +148,40 @@ const EMERGING_ENTRIES: EmergingEntry[] = [
     name: 'Pharmaceuticals & personal care products',
     category: 'PPCPs',
     summary: 'Trace levels of antibiotics, hormones, antidepressants, and painkillers detected in surface water. Not fully removed by conventional wastewater treatment, so they reach rivers and lakes.',
-    source: 'USGS — Emerging Contaminants',
+    source: 'USGS, Emerging Contaminants',
     sourceUrl: 'https://toxics.usgs.gov/investigations/pcps/',
   },
   {
     name: 'Endocrine disruptors (BPA, phthalates)',
     category: 'Endocrine',
     summary: 'Bisphenol A and phthalates leach from plastics and can interfere with hormone systems at very low doses. Often found alongside microplastics because they share plastic sources.',
-    source: 'NIEHS — Endocrine Disruptors',
+    source: 'NIEHS, Endocrine Disruptors',
     sourceUrl: 'https://www.niehs.nih.gov/health/topics/agents/endocrine',
   },
   {
     name: 'Perchlorate',
     category: 'Rocket fuel / oxidizer',
     summary: 'Used in rocket fuel, fireworks, and flares. Interferes with thyroid function. Contaminates groundwater and surface water near manufacturing and testing sites.',
-    source: 'EPA — Perchlorate',
+    source: 'EPA, Perchlorate',
     sourceUrl: 'https://www.epa.gov/sdwa/perchlorate',
   },
   {
     name: '1,4-Dioxane',
     category: 'Solvent',
     summary: 'A likely human carcinogen used as a solvent stabilizer. Present in some groundwater and resistant to conventional treatment. Often a contaminant in consumer products.',
-    source: 'EPA — 1,4-Dioxane',
+    source: 'EPA, 1,4-Dioxane',
     sourceUrl: 'https://www.epa.gov/sites/default/files/2014-03/documents/14-dioxane_factsheet.pdf',
   },
   {
     name: 'Cyanotoxins (microcystin)',
     category: 'Algal toxins',
     summary: 'Toxins produced by harmful algal blooms in warm, nutrient-rich freshwater. Microcystin can contaminate lakes and reservoirs. EPA issued health advisories (2015) but no binding MCL.',
-    source: 'EPA — Cyanotoxins in Drinking Water',
+    source: 'EPA, Cyanotoxins in Drinking Water',
     sourceUrl: 'https://www.epa.gov/cyanohabs',
   },
 ]
 
-// ── Filter / removal guide (from the old Filters page) ───────────────
+// -- Filter / removal guide (from the old Filters page) --
 type FilterType = {
   name: string
   costRange: string
@@ -219,7 +219,7 @@ const FILTER_TYPES: FilterType[] = [
     costRange: '$500–$3,000+ upfront, $100–$300/year maintenance',
     maintenance: 'Replace media annually, professional service recommended',
     effectiveness: { lead: 'medium', chlorine: 'high', pfas: 'low', microplastics: 'low', thm: 'high', arsenic: 'none' },
-    description: 'Treats all water entering the home. Good for chlorine, sediment, and scale. Does NOT effectively remove lead, PFAS, or microplastics — pair with a point-of-use system.',
+    description: 'Treats all water entering the home. Good for chlorine, sediment, and scale. Does NOT effectively remove lead, PFAS, or microplastics, so pair with a point-of-use system.',
     certifications: ['NSF/ANSI 42 (taste/odor)', 'NSF/ANSI 44 (cation exchange)'],
     pros: ['Treats all water (showers, laundry, etc.)', 'Reduces chlorine exposure from bathing', 'Protects plumbing from scale'],
     cons: ['Expensive upfront', 'Doesn\'t remove lead/PFAS/microplastics', 'Requires professional installation', 'Ongoing maintenance'],
@@ -300,7 +300,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
   const chartError = !loading && (!data || errored) && (
     <div className="flex h-[220px] items-center justify-center rounded-lg border border-dashed border-border px-6 text-center text-sm text-muted-foreground">
       {errored
-        ? 'Live data is temporarily unavailable — please refresh in a moment.'
+        ? 'Live data is temporarily unavailable. Please refresh in a moment.'
         : 'No microplastics measurements recorded yet.'}
     </div>
   )
@@ -342,10 +342,10 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
               Microplastics in our freshwater
             </h1>
             <p className="mt-4 text-pretty text-base text-white/90 sm:text-lg">
-              Microplastics data is unavailable in most of the world — including
-              much of the US. We&apos;re building a low-cost identifier and a
-              public database to map microplastics in our rivers, lakes, and
-              streams — the untreated water everything starts with.
+              Microplastics data is unavailable in most of the world, including
+                            much of the US. We&apos;re building a low-cost identifier and a
+                            public database to map microplastics in our rivers, lakes, and
+                            streams, the untreated water everything starts with.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
               <Badge className="bg-white/20 text-white hover:bg-white/20">
@@ -433,7 +433,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
           </TabsTrigger>
         </TabsList>
 
-        {/* ── Tab: the data ─────────────────────────────────────── */}
+        {/* -- Tab: the data -- */}
         <TabsContent value="data">
           <section className="py-4">
             {/* Data provenance callout */}
@@ -465,7 +465,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
                     Average microplastic particles per liter (p/L) in untreated
-                    source water vs after treatment — the gap is what reaches people.
+                    source water vs after treatment, the gap is what reaches people.
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -506,7 +506,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                   {reductionPct > 0 && (
                     <p className="mt-2 text-xs text-muted-foreground">
                       On average, treatment removes <strong className="text-emerald-600 dark:text-emerald-400">{reductionPct}%</strong> of
-                      microplastics — which is exactly why we measure the untreated source.
+                      microplastics, which is exactly why we measure the untreated source.
                     </p>
                   )}
                 </CardContent>
@@ -601,7 +601,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
           </section>
         </TabsContent>
 
-        {/* ── Tab: plastics & contaminants ──────────────────────── */}
+        {/* -- Tab: plastics & contaminants -- */}
         <TabsContent value="plastics">
           <section className="py-4">
             <div className="mb-6 flex items-center gap-2">
@@ -726,7 +726,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                   <h3 className="text-base font-semibold">Regulation lags the science</h3>
                   <p className="mt-1.5 text-sm text-muted-foreground">
                     EPA limits reflect what was measurable and concerning decades
-                    ago. Many emerging contaminants have no MCL — but they&apos;re
+                    ago. Many emerging contaminants have no MCL, but they&apos;re
                     in our rivers and lakes anyway.
                   </p>
                 </div>
@@ -736,7 +736,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                   </div>
                   <h3 className="text-base font-semibold">Plastics are everywhere</h3>
                   <p className="mt-1.5 text-sm text-muted-foreground">
-                    Plastic doesn&apos;t biodegrade — it fragments. Every piece of
+                    Plastic doesn&apos;t biodegrade; it fragments. Every piece of
                     plastic ever made still exists in some form. Tracking it in
                     freshwater is the first step to removing it.
                   </p>
@@ -757,7 +757,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
           </section>
         </TabsContent>
 
-        {/* ── Tab: filters & removal ────────────────────────────── */}
+        {/* -- Tab: filters & removal -- */}
         <TabsContent value="filters">
           <section className="py-4">
             <div className="mb-2 flex items-center gap-2">
@@ -768,7 +768,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
             </div>
             <p className="mb-6 max-w-2xl text-sm text-muted-foreground">
               Not all filters remove all contaminants. Here&apos;s how the common
-              filtration systems stack up — with effectiveness ratings, NSF
+              filtration systems stack up, with effectiveness ratings, NSF
               certifications, and cost estimates.
             </p>
 
@@ -911,7 +911,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                   <a href="https://www.nsf.org" target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">
                     NSF official website
                   </a>{' '}
-                  — packaging claims are not always verified.
+                  packaging claims are not always verified.
                 </p>
               </CardContent>
             </Card>
@@ -925,10 +925,10 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                 <div>
                   <h3 className="text-sm font-bold text-foreground">Removing microplastics</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Microplastics are particles, not dissolved chemicals — so filtration works differently.
+                    Microplastics are particles, not dissolved chemicals, so filtration works differently.
                     Reverse osmosis, ceramic filters, and distillation are most effective (they physically block particles).
                     Activated carbon pitchers help but vary by pore size. For nanoplastics (&lt;1µm), only reverse osmosis
-                    and distillation are reliable. Avoid single-use plastic bottles — a 2024 study found bottled water
+                    and distillation are reliable. Avoid single-use plastic bottles; a 2024 study found bottled water
                     contains ~110,000–370,000 particles/L, far more than most freshwater sources.
                   </p>
                 </div>
@@ -953,7 +953,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                 <p className="mt-3 text-sm text-muted-foreground">
                   Our crew is designing a low-cost microplastics identifier that
                   can be used to see microplastics in a quantifiable way. The
-                  data flows into this open database — for everyone to see.
+                  data flows into this open database, for everyone to see.
                 </p>
                 <p className="mt-3 text-sm text-muted-foreground">
                   Where we dip it:
@@ -961,11 +961,11 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                 <ul className="mt-2 space-y-1.5 text-sm">
                   <li className="flex items-start gap-2">
                     <Droplets className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span><strong className="text-foreground">Rivers &amp; lakes</strong> — measure microplastics in the freshwater communities rely on</span>
+                    <span><strong className="text-foreground">Rivers &amp; lakes</strong>, measure microplastics in the freshwater communities rely on</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <BarChart3 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span><strong className="text-foreground">Streams &amp; runoff</strong> — measure industrial runoff and pre-treatment microplastics</span>
+                    <span><strong className="text-foreground">Streams &amp; runoff</strong>, measure industrial runoff and pre-treatment microplastics</span>
                   </li>
                 </ul>
                 <div className="mt-4 flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">

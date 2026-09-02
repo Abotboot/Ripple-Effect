@@ -1,4 +1,4 @@
-// Water Safety Score — a composite 0-100 metric for a utility's water quality.
+// Water Safety Score - a composite 0-100 metric for a utility's water quality.
 //
 // Scoring philosophy:
 //   - Start at 100 (perfect).

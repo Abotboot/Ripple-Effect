@@ -13,19 +13,19 @@ const QUALITY_CONFIG: Record<
     label: 'Verified',
     icon: ShieldCheck,
     className: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800',
-    title: 'Lab-verified — measured by a utility, EPA program, or certified lab',
+    title: 'Lab-verified. Measured by a utility, EPA program, or certified lab',
   },
   provisional: {
     label: 'Provisional',
     icon: FlaskConical,
     className: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
-    title: 'Provisional — from a research lab; pending full verification',
+    title: 'Provisional. From a research lab; pending full verification',
   },
   citizen: {
     label: 'Citizen',
     icon: Users,
     className: 'bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800',
-    title: 'Citizen-submitted — contributed by a community member or chapter',
+    title: 'Citizen-submitted. Contributed by a community member or chapter',
   },
 }
 
@@ -77,7 +77,7 @@ export function QualityLegend() {
               <Icon className="h-2.5 w-2.5" />
               {config.label}
             </span>
-            <span className="hidden sm:inline">{config.title.split('—')[1]?.trim()}</span>
+            <span className="hidden sm:inline">{config.title.split('.')[1]?.trim()}</span>
           </span>
         )
       })}

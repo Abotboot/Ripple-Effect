@@ -143,7 +143,7 @@ export function AdminSection() {
   )
 }
 
-// ── Login ──────────────────────────────────────────────────────────────
+// -- Login --
 function LoginScreen({ onLogin }: { onLogin: (u: AdminUser) => void }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -236,7 +236,7 @@ function LoginScreen({ onLogin }: { onLogin: (u: AdminUser) => void }) {
   )
 }
 
-// ── Reports Admin ──────────────────────────────────────────────────────
+// -- Reports Admin --
 function ReportsAdmin() {
   const [reports, setReports] = useState<Report[] | null>(null)
   const { toast } = useToast()
@@ -298,7 +298,7 @@ function ReportsAdmin() {
   )
 }
 
-// ── Utilities Admin ────────────────────────────────────────────────────
+// -- Utilities Admin --
 function UtilitiesAdmin() {
   const [utilities, setUtilities] = useState<Utility[] | null>(null)
   const [editing, setEditing] = useState<Utility | null>(null)
@@ -513,7 +513,7 @@ function FormSelectField({
   )
 }
 
-// ── Contaminants Admin (read-only catalog display) ────────────────────
+// -- Contaminants Admin (read-only catalog display) --
 function ContaminantsAdmin() {
   const [contaminants, setContaminants] = useState<Contaminant[] | null>(null)
   useEffect(() => { api.listContaminants().then(setContaminants) }, [])
@@ -562,7 +562,7 @@ function ContaminantsAdmin() {
   )
 }
 
-// ── Import / Export ────────────────────────────────────────────────────
+// -- Import / Export --
 function DataAdmin() {
   const [table, setTable] = useState<'utilities' | 'contaminants' | 'samples' | 'reports' | 'volunteers' | 'chapters' | 'donations'>('utilities')
   const [importFormat, setImportFormat] = useState<'csv' | 'json'>('json')
@@ -743,7 +743,7 @@ function DataAdmin() {
   )
 }
 
-// ── Volunteers Admin ───────────────────────────────────────────────────
+// -- Volunteers Admin --
 function VolunteersAdmin() {
   const [volunteers, setVolunteers] = useState<Volunteer[] | null>(null)
   const { toast } = useToast()
@@ -847,7 +847,7 @@ function VolunteersAdmin() {
   )
 }
 
-// ── Chapters Admin (Start a Chapter signups) ─────────────────────────
+// -- Chapters Admin (Start a Chapter signups) --
 function ChaptersAdmin() {
   const [chapters, setChapters] = useState<Chapter[] | null>(null)
   const { toast } = useToast()
@@ -968,7 +968,7 @@ function ChaptersAdmin() {
   )
 }
 
-// ── Donations Admin (pledge tracking) ────────────────────────────────
+// -- Donations Admin (pledge tracking) --
 function DonationsAdmin() {
   const [donations, setDonations] = useState<Donation[] | null>(null)
   const { toast } = useToast()
@@ -1101,7 +1101,7 @@ function DonationsAdmin() {
   )
 }
 
-// ── Citizen Readings Admin (moderation) ──────────────────────────────
+// -- Citizen Readings Admin (moderation) --
 function CitizenReadingsAdmin() {
   const [readings, setReadings] = useState<Array<{
     id: string

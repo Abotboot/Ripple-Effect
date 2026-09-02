@@ -28,7 +28,7 @@ export async function PATCH(
   return NextResponse.json(updated)
 }
 
-// DELETE /api/readings/[id] — admin only, remove a reading
+// DELETE /api/readings/[id] - admin only, remove a reading
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

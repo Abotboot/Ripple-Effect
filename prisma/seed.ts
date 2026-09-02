@@ -6,8 +6,8 @@ import { hashPassword } from '../src/lib/auth'
 async function main() {
   console.log('🌱 Seeding A Ripples Effect database...')
 
-  // ── Admin user ────────────────────────────────────────────────────────
-  // Strong default password — change immediately after first login.
+  // -- Admin user --
+  // Strong default password - change immediately after first login.
   // Credentials: admin@arippleseffect.org / Ripples#2026!Secure
   await db.user.upsert({
     where: { email: 'admin@arippleseffect.org' },
@@ -20,7 +20,7 @@ async function main() {
     },
   })
 
-  // ── Contaminants ──────────────────────────────────────────────────────
+  // -- Contaminants --
   const contaminants = [
     {
       slug: 'microplastics',
@@ -235,7 +235,7 @@ async function main() {
   }
   console.log(`✓ Seeded ${contaminants.length} contaminants`)
 
-  // ── Utilities (real-ish US systems) ───────────────────────────────────
+  // -- Utilities (real-ish US systems) --
   const utilities = [
     {
       pwsid: 'IL0316040',
@@ -432,7 +432,7 @@ async function main() {
   }
   console.log(`✓ Seeded ${utilities.length} utilities`)
 
-  // ── Sample measurements ───────────────────────────────────────────────
+  // -- Sample measurements --
   const contaminantsDb = await db.contaminant.findMany()
   const cBySlug = Object.fromEntries(contaminantsDb.map((c) => [c.slug, c]))
 
@@ -547,7 +547,7 @@ async function main() {
   }
   console.log(`✓ Seeded ${samples.length} sample measurements`)
 
-  // ── Community reports ─────────────────────────────────────────────────
+  // -- Community reports --
   await db.report.deleteMany({})
   const reports = [
     {

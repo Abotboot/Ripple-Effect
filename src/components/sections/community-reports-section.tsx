@@ -35,8 +35,8 @@ const APPEARANCES = [
 
 const SEVERITIES = [
   { value: 'info', label: 'Just sharing info', color: 'bg-sky-100 text-sky-700 border-sky-200' },
-  { value: 'warning', label: 'Concerned — please review', color: 'bg-amber-100 text-amber-700 border-amber-200' },
-  { value: 'critical', label: 'Urgent — potential hazard', color: 'bg-rose-100 text-rose-700 border-rose-200' },
+  { value: 'warning', label: 'Concerned, please review', color: 'bg-amber-100 text-amber-700 border-amber-200' },
+    { value: 'critical', label: 'Urgent, potential hazard', color: 'bg-rose-100 text-rose-700 border-rose-200' },
 ]
 
 const STATUS_META: Record<string, { label: string; icon: React.ElementType; cls: string }> = {

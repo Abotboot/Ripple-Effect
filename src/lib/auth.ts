@@ -7,7 +7,7 @@ import { scryptSync, randomBytes, timingSafeEqual } from 'crypto'
 // and expensive to brute-force. We store hashes as "salt:hash" in the DB.
 //
 // Format: "scrypt:<salt_hex>:<hash_hex>"
-// Old format ("h<hex>") is the legacy weak hash — supported for migration
+// Old format ("h<hex>") is the legacy weak hash - supported for migration
 // but all new passwords use scrypt.
 
 const SCRYPT_KEYLEN = 64
@@ -23,7 +23,7 @@ export function hashPassword(s: string): string {
 export function verifyPassword(s: string, stored: string): boolean {
   // Handle legacy weak hashes for migration (h<hex> format)
   if (stored.startsWith('h') && !stored.startsWith('scrypt:')) {
-    // Legacy weak hash — verify with old algorithm, caller should rehash
+    // Legacy weak hash - verify with old algorithm, caller should rehash
     return legacyHash(s) === stored
   }
 
@@ -45,7 +45,7 @@ export function needsRehash(stored: string): boolean {
   return !stored.startsWith('scrypt:')
 }
 
-// Legacy hash function — only used for verifying old passwords during migration.
+// Legacy hash function - only used for verifying old passwords during migration.
 function legacyHash(s: string): string {
   let h = 0
   for (let i = 0; i < s.length; i++) {

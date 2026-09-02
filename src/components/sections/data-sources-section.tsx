@@ -19,7 +19,7 @@ type DataSource = {
   accent: string
 }
 
-// ── Real external databases this project references ────────────────────
+// -- Real external databases this project references --
 // Every entry below is a real, public, government or NGO database with
 // an accurate description of what it tracks. No hallucinations.
 const DATA_SOURCES: DataSource[] = [
@@ -56,7 +56,7 @@ const DATA_SOURCES: DataSource[] = [
     accent: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950/50 dark:text-cyan-300',
   },
   {
-    name: 'WHO — Microplastics in Drinking-Water (2019)',
+    name: 'WHO, Microplastics in Drinking-Water (2019)',
     url: 'https://www.who.int/publications/i/item/9789241516198',
     description:
       'The World Health Organization\'s 2019 report reviewing the evidence on microplastics in drinking-water. Concluded routine monitoring isn\'t yet warranted due to limited evidence, but called for more research. No health-based guideline value set.',
@@ -114,8 +114,8 @@ export function DataSourcesSection() {
               Integrated data sources
             </h1>
             <p className="mt-4 text-pretty text-base text-muted-foreground sm:text-lg">
-              We cross-reference these public databases — run by the EPA, USGS,
-              WHO, CDC, and the EWG — and supplement them with our own
+              We cross-reference these public databases, run by the EPA, USGS,
+                            WHO, CDC, and the EWG, and supplement them with our own
               community-collected microplastics measurements. Every source here
               is free, public, and open.
             </p>
@@ -123,7 +123,7 @@ export function DataSourcesSection() {
         </div>
       </section>
 
-      {/* Amber callout — the gap we fill */}
+      {/* Amber callout, the gap we fill */}
       <section className="border-b border-amber-300/50 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 dark:border-amber-500/30 dark:from-amber-950/40 dark:via-orange-950/30 dark:to-amber-950/40">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">

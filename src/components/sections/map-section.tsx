@@ -280,7 +280,7 @@ export function MapSection() {
                 <div>
                   <div className="text-sm font-semibold text-foreground">Find utilities near you</div>
                   <div className="text-[11px] text-muted-foreground">
-                    Geospatial radius search (haversine — PostGIS-ready)
+                    Geospatial radius search (haversine, PostGIS-ready)
                   </div>
                 </div>
               </div>

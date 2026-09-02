@@ -46,7 +46,7 @@ export function UtilityDetailDialog({
               <div className="absolute right-4 top-4 flex gap-1.5">
                 <button
                   onClick={() => {
-                    const text = `${utility.name} — ${utility.city}, ${utility.state}\n${utility.contaminantSummaries.length} contaminants tracked · ${utility.healthExceedances} above health guideline · ${utility.exceedances} above legal limit\nvia A Ripple Effect Initiative freshwater database`
+                    const text = `${utility.name}, ${utility.city}, ${utility.state}\n${utility.contaminantSummaries.length} contaminants tracked · ${utility.healthExceedances} above health guideline · ${utility.exceedances} above legal limit\nvia A Ripple Effect Initiative freshwater database`
                     if (navigator.share) {
                       navigator.share({ title: utility.name, text }).catch(() => {})
                     } else {
@@ -78,7 +78,7 @@ export function UtilityDetailDialog({
                     if (!w) return
                     const exceedances = utility.contaminantSummaries.filter((s) => s.exceedsLegalLimit || s.exceedsHealthGuideline)
                     const score = utility.safetyScore
-                    const html = `<!DOCTYPE html><html><head><title>${utility.name} — Water Quality Report</title>
+                    const html = `<!DOCTYPE html><html><head><title>${utility.name} | Water Quality Report</title>
 <style>
   body { font-family: -apple-system, system-ui, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 24px; color: #1a1a1a; line-height: 1.6; }
   h1 { color: #0d9488; font-size: 24px; margin-bottom: 4px; }
@@ -97,7 +97,7 @@ export function UtilityDetailDialog({
 <h1>${utility.name}</h1>
 <div class="meta">${utility.city}, ${utility.state} · PWSID: ${utility.pwsid} · Population served: ${utility.population.toLocaleString()}<br>
 Source: ${utility.sourceType} · Treatment: ${utility.treatmentStatus}</div>
-${score ? `<div class="score" style="background: ${score.score >= 80 ? '#d1fae5' : score.score >= 70 ? '#e0f2fe' : score.score >= 60 ? '#fef3c7' : '#fee2e2'}; color: ${score.score >= 80 ? '#065f46' : score.score >= 70 ? '#075985' : score.score >= 60 ? '#92400e' : '#991b1b'};">Water Safety Score: ${score.score}/100 (Grade ${score.grade} — ${score.label})</div>` : ''}
+${score ? `<div class="score" style="background: ${score.score >= 80 ? '#d1fae5' : score.score >= 70 ? '#e0f2fe' : score.score >= 60 ? '#fef3c7' : '#fee2e2'}; color: ${score.score >= 80 ? '#065f46' : score.score >= 70 ? '#075985' : score.score >= 60 ? '#92400e' : '#991b1b'};">Water Safety Score: ${score.score}/100 (Grade ${score.grade}, ${score.label})</div>` : ''}
 <h2>Summary</h2>
 <p>Contaminants tracked: ${utility.contaminantSummaries.length} · Samples: ${utility.totalSamples} · Above health guideline: ${utility.healthExceedances} · Above legal limit: ${utility.exceedances}</p>
 <h2>Contaminant Breakdown</h2>
@@ -240,8 +240,8 @@ Learn more at ${typeof window !== 'undefined' ? window.location.origin : 'https:
                   Health guidelines reflect EWG / independent research thresholds.
                   Legal limits reflect EPA Maximum Contaminant Levels (MCLs).
                   Microplastics are currently <strong>unregulated</strong> in the
-                  US — there is no federal legal limit. Always cross-reference
-                  with your utility&apos;s annual Consumer Confidence Report (CCR).
+                  US; there is no federal legal limit. Always cross-reference
+                                    with your utility&apos;s annual Consumer Confidence Report (CCR).
                 </p>
               </div>
             </ScrollArea>
@@ -442,7 +442,7 @@ function ContaminantDetailCard({
   )
 }
 
-// ── Water Safety Score card ──────────────────────────────────────────
+// -- Water Safety Score card --
 function SafetyScoreCard({
   score,
 }: {

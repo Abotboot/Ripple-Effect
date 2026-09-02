@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
       }
     })
 
-    // Determine the "winner" (lowest level) — nulls don't count.
+    // Determine the "winner" (lowest level) - nulls don't count.
     let bestUtilityId: string | null = null
     let bestLevel = Infinity
     for (const p of perUtility) {

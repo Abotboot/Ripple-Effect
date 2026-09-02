@@ -34,7 +34,7 @@ async function req<T>(url: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T
 }
 
-// ── Utilities ────────────────────────────────────────────────────────
+// -- Utilities --
 export const api = {
   searchUtilities: (q: string) =>
     req<Utility[]>(`/api/utilities?q=${encodeURIComponent(q)}`),
@@ -43,7 +43,7 @@ export const api = {
 
   listUtilities: () => req<Utility[]>(`/api/utilities`),
 
-  // Geospatial search — find utilities within `radius` miles of a point.
+  // Geospatial search - find utilities within `radius` miles of a point.
   // PostGIS alternative (haversine in the app layer).
   nearbyUtilities: (lat: number, lng: number, radius = 100) =>
     req<{
@@ -73,7 +73,7 @@ export const api = {
 
   getStats: () => req<Stats>(`/api/stats`),
 
-  // ── Admin ──────────────────────────────────────────────────────────
+  // -- Admin --
   login: (email: string, password: string) =>
     req<{ user: AdminUser }>(`/api/auth/login`, {
       method: 'POST',
@@ -99,7 +99,7 @@ export const api = {
       body: JSON.stringify({ status }),
     }),
 
-  // ── Chapters (Start a Chapter program) ────────────────────────────
+  // -- Chapters (Start a Chapter program) --
   submitChapter: (data: Partial<Chapter>) =>
     req<Chapter>(`/api/chapters`, { method: 'POST', body: JSON.stringify(data) }),
 
@@ -111,7 +111,7 @@ export const api = {
       body: JSON.stringify({ status }),
     }),
 
-  // ── Donations ─────────────────────────────────────────────────────
+  // -- Donations --
   submitDonation: (data: Partial<Donation>) =>
     req<Donation>(`/api/donations`, { method: 'POST', body: JSON.stringify(data) }),
 
@@ -123,16 +123,16 @@ export const api = {
       body: JSON.stringify({ status }),
     }),
 
-  // ── Activity feed ─────────────────────────────────────────────────
+  // -- Activity feed --
   getActivity: () => req<{ items: Array<{ id: string; type: string; date: string; title: string; subtitle: string; meta?: string; tone: string }>; counts: { samples: number; reports: number; chapters: number; donations: number } }>(`/api/activity`),
 
-  // ── Alert subscriptions ────────────────────────────────────────────
+  // -- Alert subscriptions --
   subscribeAlert: (data: { email: string; utilityId?: string; zipCode?: string; contaminantId?: string; threshold?: number }) =>
     req<{ ok: true; id?: string; alreadySubscribed?: boolean }>(`/api/alerts`, { method: 'POST', body: JSON.stringify(data) }),
 
   getAlertCount: () => req<{ count: number }>(`/api/alerts`),
 
-  // ── Utility comparison ─────────────────────────────────────────────
+  // -- Utility comparison --
   compareUtilities: (ids: string[]) =>
     req<{
       utilities: Array<{ id: string; name: string; city: string; state: string; pwsid: string; population: number; sourceType: string; treatmentStatus: string }>
@@ -143,14 +143,14 @@ export const api = {
       }>
     }>(`/api/utilities/compare?ids=${ids.join(',')}`),
 
-  // ── Chapter leaderboard ────────────────────────────────────────────
+  // -- Chapter leaderboard --
   getLeaderboard: () => req<{
     leaderboard: Array<{ id: string; name: string; chapterName: string | null; city: string | null; state: string | null; waterBody: string | null; status: string; createdAt: string; reportCount: number; sampleCount: number; score: number; rank: number }>
     totalChapters: number
     activeChapters: number
   }>(`/api/leaderboard`),
 
-  // ── Citizen reading submission (public) ────────────────────────────
+  // -- Citizen reading submission (public) --
   submitReading: (data: {
     contaminantId: string
     level: number
@@ -214,7 +214,7 @@ export const api = {
   deleteReading: (id: string) =>
     req<{ ok: true }>(`/api/readings/${id}`, { method: 'DELETE' }),
 
-  // ── Dashboard (national stats) ──────────────────────────────────────
+  // -- Dashboard (national stats) --
   getDashboard: () => req<{
     scoreDistribution: { a: number; b: number; c: number; d: number; f: number }
     topExceedances: Array<{ name: string; slug: string; category: string; healthCount: number; legalCount: number }>
@@ -229,7 +229,7 @@ export const api = {
     worstUtility: { id: string; name: string; city: string; state: string; score: number; grade: string; label: string } | null
   }>(`/api/dashboard`),
 
-  // ── Utility safety scores (lightweight, all utilities) ─────────────
+  // -- Utility safety scores (lightweight, all utilities) --
   getUtilityScores: () => req<{
     scores: Array<{
       id: string
@@ -242,7 +242,7 @@ export const api = {
     }>
   }>(`/api/utilities/scores`),
 
-  // ── Recently added utilities ───────────────────────────────────────
+  // -- Recently added utilities --
   getRecentUtilities: () => req<{
     utilities: Array<{
       id: string
@@ -258,7 +258,7 @@ export const api = {
     }>
   }>(`/api/utilities/recent`),
 
-  // ── Microplastics trend ────────────────────────────────────────────
+  // -- Microplastics trend --
   getMicroplasticsTrend: () => req<{
     trend: Array<{ quarter: string; label: string; treatedAvg: number; untreatedAvg: number; maxLevel: number }>
     direction: 'up' | 'down' | 'flat'
@@ -267,7 +267,7 @@ export const api = {
     dateRange: { from: string; to: string } | null
   }>(`/api/microplastics/trend`),
 
-  // ── Import / Export ───────────────────────────────────────────────
+  // -- Import / Export --
   exportUrl: (format: 'csv' | 'json', table: 'utilities' | 'contaminants' | 'samples' | 'reports') =>
     `/api/export?format=${format}&table=${table}`,
 
