@@ -11,6 +11,31 @@ import { db } from './db'
 let seedPromise: Promise<void> | null = null
 
 export async function ensureSeeded(): Promise<void> {
+  // Always ensure the admin accounts exist, even on an already-seeded DB.
+  // Uses upsert with update:{} so existing (changed) passwords are preserved.
+  const { hashPassword } = await import('./auth')
+
+  const admins: Array<{ email: string; name: string }> = [
+    { email: 'admin@arippleseffect.org', name: 'A Ripple Effect Initiative Admin' },
+    {
+      email: 'siddhant.khatiwada@outlook.com',
+      name: 'Siddhant Khatiwada',
+    },
+  ]
+
+  for (const a of admins) {
+    await db.user.upsert({
+      where: { email: a.email },
+      update: {},
+      create: {
+        email: a.email,
+        name: a.name,
+        password: hashPassword('Ripples#2026!Secure'),
+        role: 'admin',
+      },
+    })
+  }
+
   // Quick check — does the DB have any utilities?
   const count = await db.utility.count()
   if (count > 0) return

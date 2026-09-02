@@ -30,9 +30,9 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
             </div>
             <p className="mt-3 max-w-md text-sm text-muted-foreground">
               A community-built freshwater and microplastics database. Built by
-              volunteers for our 2026 Water Project — making data about our
-              rivers, lakes, and streams open, searchable, and actionable.
-              Almost no public water database tracks microplastics — we do.
+                            volunteers to make data about our
+                            rivers, lakes, and streams open, searchable, and actionable.
+                            Almost no public water database tracks microplastics — we do.
             </p>
             <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
               <MapPin className="h-3.5 w-3.5" />
@@ -72,10 +72,15 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
                 </button>
               </li>
               <li>
-                <button onClick={() => go('about')} className="text-muted-foreground hover:text-primary transition-colors">
-                  About us
-                </button>
-              </li>
+                              <button onClick={() => go('about')} className="text-muted-foreground hover:text-primary transition-colors">
+                                About us
+                              </button>
+                            </li>
+                            <li>
+                              <button onClick={() => go('partners')} className="text-muted-foreground hover:text-primary transition-colors">
+                                Partnerships
+                              </button>
+                            </li>
               <li>
                 <button onClick={() => go('faq')} className="text-muted-foreground hover:text-primary transition-colors">
                   FAQ
@@ -163,7 +168,7 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
         <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row">
           <p className="flex items-center gap-1.5">
             © {new Date().getFullYear()} A Ripple Effect Initiative · Built with
-            <Heart className="h-3 w-3 text-rose-500" /> by the 2026 Water Project crew
+                        <Heart className="h-3 w-3 text-rose-500" /> by the crew
           </p>
           <p>
             Data is illustrative and community-submitted. Always verify with your

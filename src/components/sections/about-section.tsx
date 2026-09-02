@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   Droplets, Beaker, Users, FlaskConical, Github, Mail, Instagram,
-  ArrowRight, Calendar, ShieldCheck, BookOpen, Wrench, Megaphone,
-  Building2, Code2, Sparkles, Info,
+  ArrowRight, Calendar, ShieldCheck, BookOpen,
+  Building2, Sparkles, Info,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -58,26 +58,82 @@ const VALUES = [
   },
 ]
 
-const CREW = [
+// Team organized by working group. Photos live in /public/team/<slug>.jpg
+// (e.g. /team/siddhant-khatiwada.jpg). If a photo file is missing, the card
+// falls back to an initials avatar so the layout never breaks.
+type TeamMember = {
+  name: string
+  title: string
+  photo?: string
+}
+
+type TeamGroup = {
+  id: string
+  group: string
+  accent: string
+  members: TeamMember[]
+}
+
+const TEAM_GROUPS: TeamGroup[] = [
   {
-    icon: Wrench,
-    role: 'Engineering crew',
-    blurb:
-      'Builds and maintains the low-cost microplastics identifier hardware and the sampling protocol volunteers use in the field.',
+    id: 'leadership',
+    group: 'Leadership',
+    accent: 'border-primary/40 bg-primary/5',
+    members: [
+      { name: 'Siddhant Khatiwada', title: 'Founder & President', photo: '/team/siddhant-khatiwada.jpg' },
+    ],
   },
   {
-    icon: Code2,
-    role: 'Coding crew',
-    blurb:
-      'Builds and maintains this database, the API, the maps, and the open-source code on GitHub.',
+    id: 'engineering',
+    group: 'Engineering / Programming',
+    accent: 'border-cyan-400/40 bg-cyan-500/5',
+    members: [
+      { name: 'Abod', title: 'Engineering', photo: '/team/abod.jpg' },
+      { name: 'Diwash', title: 'Engineering', photo: '/team/diwash.jpg' },
+      { name: 'Aryan', title: 'Programming', photo: '/team/aryan.jpg' },
+      { name: 'Akshat', title: 'Programming', photo: '/team/akshat.jpg' },
+    ],
   },
   {
-    icon: Megaphone,
-    role: 'PR & social crew',
-    blurb:
-      'Runs outreach, onboards new volunteers, and turns our data into stories people can act on.',
+    id: 'pr',
+    group: 'Public Relations / Social Media',
+    accent: 'border-rose-400/40 bg-rose-500/5',
+    members: [
+      { name: 'Abby', title: 'PR / Social Media', photo: '/team/abby.jpg' },
+      { name: 'Zahra', title: 'PR / Social Media', photo: '/team/zahra.jpg' },
+      { name: 'Giamy', title: 'PR / Social Media', photo: '/team/giamy.jpg' },
+    ],
+  },
+  {
+    id: 'finance',
+    group: 'Finance Team',
+    accent: 'border-amber-400/40 bg-amber-500/5',
+    members: [
+      { name: 'Sujhav', title: 'Finance', photo: '/team/sujhav.jpg' },
+      { name: 'Aryash', title: 'Finance', photo: '/team/aryash.jpg' },
+    ],
   },
 ]
+
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0]?.toUpperCase() ?? '')
+    .join('')
+}
+
+function initialsColor(index: number): string {
+  const colors = [
+    'bg-primary/15 text-primary',
+    'bg-cyan-500/15 text-cyan-600 dark:text-cyan-300',
+    'bg-rose-500/15 text-rose-600 dark:text-rose-300',
+    'bg-amber-500/15 text-amber-600 dark:text-amber-300',
+    'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300',
+  ]
+  return colors[index % colors.length]
+}
 
 export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void }) {
   const [stats, setStats] = useState<Stats | null>(null)
@@ -138,11 +194,10 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
               Our mission
             </h2>
             <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-              We are a volunteer crew building a community water database for
-              the 2026 Water Project. We make local water data open,
-              searchable, and actionable &mdash; and we track microplastics
-              that almost no one else does.
-            </p>
+                          We are a volunteer crew building a community water database. We make
+                          local water data open, searchable, and actionable &mdash; and we track
+                          microplastics that almost no one else does.
+                        </p>
           </motion.div>
         </div>
       </section>
@@ -261,63 +316,79 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
         </div>
       </section>
 
-      {/* The crew */}
-      <section className="bg-water-hero">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-          <div className="mx-auto mb-8 max-w-2xl text-center">
-            <Badge variant="secondary" className="mb-3 gap-1.5">
-              <Users className="h-3.5 w-3.5" />
-              The crew
-            </Badge>
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              A volunteer non-profit
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-              No paid staff. No corporate sponsors. Just a crew of volunteers
-              organized into working groups.
-            </p>
-          </div>
+      {/* Meet the team */}
+            <section className="bg-water-hero">
+              <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+                <div className="mx-auto mb-10 max-w-2xl text-center">
+                  <Badge variant="secondary" className="mb-3 gap-1.5">
+                    <Users className="h-3.5 w-3.5" />
+                    Meet the team
+                  </Badge>
+                  <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                    A volunteer crew
+                  </h2>
+                  <p className="mt-2 text-sm text-muted-foreground sm:text-base">
+                    No paid staff. Just a crew of volunteers organized into working
+                    groups, led by our founder and president.
+                  </p>
+                </div>
 
-          <motion.div
-            variants={container}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-          >
-            {CREW.map((c) => {
-              const Icon = c.icon
-              return (
-                <motion.div key={c.role} variants={item}>
-                  <Card className="h-full">
-                    <CardHeader>
-                      <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                        <Icon className="h-5 w-5" />
+                <div className="space-y-10">
+                  {TEAM_GROUPS.map((g) => (
+                    <motion.div
+                      key={g.id}
+                      variants={container}
+                      initial="hidden"
+                      whileInView="show"
+                      viewport={{ once: true }}
+                    >
+                      <div className={`mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${g.accent}`}>
+                        <span className="text-foreground">{g.group}</span>
                       </div>
-                      <CardTitle className="text-base">{c.role}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm leading-relaxed text-muted-foreground">
-                        {c.blurb}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )
-            })}
-          </motion.div>
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        {g.members.map((m, i) => (
+                          <motion.div key={m.name} variants={item}>
+                            <Card className="h-full overflow-hidden shadow-sm">
+                              <CardContent className="flex flex-col items-center p-6 text-center">
+                                <div className={`mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full text-2xl font-extrabold ${initialsColor(i)}`}>
+                                  {m.photo ? (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
+                                    <img
+                                      src={m.photo}
+                                      alt={m.name}
+                                      className="h-full w-full object-cover"
+                                      onError={(e) => {
+                                        ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                                        e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                                      }}
+                                    />
+                                  ) : null}
+                                  <span className={m.photo ? 'hidden' : ''}>
+                                    {initials(m.name)}
+                                  </span>
+                                </div>
+                                <h3 className="text-base font-bold text-foreground">{m.name}</h3>
+                                <p className="mt-0.5 text-xs font-medium text-primary">{m.title}</p>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
 
-          <div className="mx-auto mt-8 flex max-w-2xl flex-col items-center gap-2 rounded-xl border border-border bg-card p-5 text-center sm:flex-row sm:gap-4 sm:text-left">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Calendar className="h-5 w-5" />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">We meet virtually every Monday at 6:30 PM.</span>{' '}
-              Want to sit in? Email us &mdash; newcomers are always welcome.
-            </p>
-          </div>
-        </div>
-      </section>
+                <div className="mx-auto mt-10 flex max-w-2xl flex-col items-center gap-2 rounded-xl border border-border bg-card p-5 text-center sm:flex-row sm:gap-4 sm:text-left">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Calendar className="h-5 w-5" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">We meet virtually every Monday at 6:30 PM.</span>{' '}
+                    Want to sit in? Email us &mdash; newcomers are always welcome.
+                  </p>
+                </div>
+              </div>
+            </section>
 
       {/* CTA */}
       <section className="border-t border-border/60 bg-background">

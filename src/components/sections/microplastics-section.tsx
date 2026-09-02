@@ -336,8 +336,8 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
           <div className="mx-auto max-w-3xl text-center">
             <Badge className="mb-4 border-white/30 bg-white/15 text-white hover:bg-white/15">
               <Microscope className="mr-1 h-3 w-3" />
-              2026 Water Project · Featured Initiative
-            </Badge>
+              Featured Initiative
+                          </Badge>
             <h1 className="text-balance text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
               Microplastics in our freshwater
             </h1>

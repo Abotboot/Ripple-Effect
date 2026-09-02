@@ -11,6 +11,7 @@ import { CommunityReportsSection } from '@/components/sections/community-reports
 import { AdminSection } from '@/components/sections/admin-section'
 import { MapSection } from '@/components/sections/map-section'
 import { AboutSection } from '@/components/sections/about-section'
+import { PartnershipsSection } from '@/components/sections/partnerships-section'
 import { DonateSection } from '@/components/sections/donate-section'
 import { SubmitReadingSection } from '@/components/sections/submit-reading-section'
 import { FaqSection } from '@/components/sections/faq-section'
@@ -30,7 +31,8 @@ export default function Home() {
         {section === 'sources' && <DataSourcesSection />}
         {section === 'reports' && <CommunityReportsSection />}
         {section === 'about' && <AboutSection onNavigate={setSection} />}
-        {section === 'faq' && <FaqSection />}
+                {section === 'partners' && <PartnershipsSection onNavigate={setSection} />}
+                {section === 'faq' && <FaqSection />}
         {section === 'donate' && <DonateSection />}
         {section === 'admin' && <AdminSection />}
       </main>

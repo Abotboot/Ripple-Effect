@@ -3,9 +3,9 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
   Search, Droplets, Map, BarChart3,
-  Beaker, Database, Megaphone, Info, HandHeart, Lock,
-  Building2, MapPin, ArrowRight, Command as CommandIcon, HelpCircle,
-} from 'lucide-react'
+    Beaker, Database, Megaphone, Info, HandHeart, Lock,
+    Building2, MapPin, ArrowRight, Command as CommandIcon, HelpCircle, Handshake,
+  } from 'lucide-react'
 import {
   CommandDialog, CommandEmpty, CommandGroup, CommandInput,
   CommandItem, CommandList, CommandSeparator, CommandShortcut,
@@ -19,6 +19,7 @@ type NavItem = { id: Section; label: string; icon: React.ElementType; keywords?:
 const NAV_ITEMS: NavItem[] = [
   { id: 'home', label: 'Home', icon: Droplets, keywords: ['search', 'water', 'zip'] },
   { id: 'about', label: 'About us', icon: Info, keywords: ['mission', 'story', 'crew'] },
+  { id: 'partners', label: 'Partnerships', icon: Handshake, keywords: ['sponsors', 'partners', 'nonprofit', 'non-profit'] },
   { id: 'map', label: 'Map view', icon: Map, keywords: ['us', 'utilities', 'geography'] },
   { id: 'microplastics', label: 'Microplastics, plastics & filters', icon: BarChart3, keywords: ['plastic', 'particles', 'unregulated', 'nanoplastic', 'tire', 'pfas', 'filter', 'filtration', 'nsf', 'reverse osmosis'] },
   { id: 'submit', label: 'Submit a reading', icon: Beaker, keywords: ['citizen', 'report', 'identifier'] },

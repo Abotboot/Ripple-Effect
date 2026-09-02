@@ -453,8 +453,8 @@ function Hero({
               variant="secondary"
               className="mb-5 gap-1.5 border-primary/20 bg-primary/10 text-primary"
             >
-              2026 Water Project · Freshwater Database
-            </Badge>
+              Freshwater Database
+                          </Badge>
             <h1 className="text-balance text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               What&apos;s in your{' '}
               <span className="relative inline-block">

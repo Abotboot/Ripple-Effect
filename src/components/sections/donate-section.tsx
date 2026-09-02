@@ -386,6 +386,55 @@ export function DonateSection() {
         </div>
       </section>
 
+      {/* ── EMBEDDED DONATION IFRAME ─────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl rounded-2xl border border-rose-200 bg-white p-6 shadow-sm dark:border-rose-900/50 dark:bg-card sm:p-8">
+          <div className="mb-5 text-center">
+            <h2 className="flex items-center justify-center gap-2 text-2xl font-bold tracking-tight sm:text-3xl">
+              <Heart className="h-6 w-6 text-rose-500" />
+              Donate directly
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Complete your donation securely in the embedded form below, or
+              open it in a new tab with the button.
+            </p>
+            <div className="mt-4 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button
+                asChild
+                size="lg"
+                className="bg-gradient-to-r from-rose-500 to-pink-600 text-white hover:from-rose-600 hover:to-pink-700"
+              >
+                <a
+                  href={HCB_DONATE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Open donation page
+                </a>
+              </Button>
+            </div>
+          </div>
+          <div className="flex w-full justify-center overflow-hidden rounded-xl border border-border bg-muted/20">
+            {/* eslint-disable-next-line react/no-unknown-property */}
+            <iframe
+              src="https://hcb.hackclub.com/donations/start/a-ripple-effect-initiative-arei"
+              style={{ border: 'none' }}
+              name="donateFrame"
+              scrolling="yes"
+              frameBorder={0}
+              marginHeight={0}
+              marginWidth={0}
+              height={512}
+              width={512}
+              allowFullScreen
+              title="A Ripple Effect Initiative donation form"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* ── MAIN CONTENT ─────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Tier cards */}

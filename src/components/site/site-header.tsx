@@ -1,6 +1,6 @@
 'use client'
 
-import { Droplets, Menu, X, Github, BarChart3, Megaphone, Lock, Map, Info, HandHeart, Database, Beaker, HelpCircle } from 'lucide-react'
+import { Droplets, Menu, X, Github, BarChart3, Megaphone, Lock, Map, Info, HandHeart, Database, Beaker, HelpCircle, Handshake } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -14,13 +14,15 @@ export type Section =
   | 'sources'
   | 'submit'
   | 'about'
-  | 'faq'
-  | 'donate'
-  | 'admin'
+    | 'partners'
+    | 'faq'
+    | 'donate'
+    | 'admin'
 
 const NAV: Array<{ id: Section; label: string; icon: React.ElementType }> = [
   { id: 'home', label: 'Home', icon: Droplets },
   { id: 'about', label: 'About Us', icon: Info },
+  { id: 'partners', label: 'Partnerships', icon: Handshake },
   { id: 'map', label: 'Map', icon: Map },
   { id: 'microplastics', label: 'Microplastics', icon: BarChart3 },
   { id: 'submit', label: 'Submit Reading', icon: Beaker },
@@ -32,7 +34,7 @@ const NAV: Array<{ id: Section; label: string; icon: React.ElementType }> = [
 ]
 
 const DESKTOP_NAV = NAV.filter(({ id }) =>
-  ['home', 'about', 'map', 'microplastics', 'submit', 'donate'].includes(id)
+  ['home', 'about', 'partners', 'map', 'microplastics', 'submit', 'donate'].includes(id)
 )
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
@@ -69,13 +71,13 @@ export function SiteHeader({
             />
           </div>
           <span className="hidden sm:flex flex-col items-start leading-none">
-            <span className="text-lg font-extrabold tracking-tight text-foreground">
-              A Ripple<span className="text-primary"> Effect</span>
-            </span>
-            <span className="mt-0.5 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Initiative · One Act. Endless Impact.
-            </span>
-          </span>
+                      <span className="text-lg font-extrabold tracking-tight text-foreground">
+                        A Ripple<span className="text-primary"> Effect Initiative</span>
+                      </span>
+                      <span className="mt-0.5 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                        One act. Endless impact.
+                      </span>
+                    </span>
         </button>
 
         {/* Desktop nav */}
