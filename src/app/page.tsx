@@ -21,30 +21,38 @@ import { CommandPalette } from '@/components/site/command-palette'
 
 export default function Home() {
   const [section, setSection] = useState<Section>('home')
+  const [donateOrigin, setDonateOrigin] = useState<{ x: number; y: number } | null>(null)
+
+  const handleNavigate = (s: Section, origin?: { x: number; y: number }) => {
+    if (s === 'donate' && origin) {
+      setDonateOrigin(origin)
+    }
+    setSection(s)
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader current={section} onNavigate={setSection} />
+      <SiteHeader current={section} onNavigate={handleNavigate} />
       <main className="flex-1">
         <AnimatePresence mode="wait">
           <motion.div
             key={section}
-            initial={{ opacity: section === 'donate' ? 0 : 1 }}
+            initial={{ opacity: section === 'donate' ? 1 : 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
           >
-            {section === 'home' && <HomeSection onNavigate={setSection} />}
+            {section === 'home' && <HomeSection onNavigate={handleNavigate} />}
             {section === 'map' && <MapSection />}
-            {section === 'microplastics' && <MicroplasticsSection onNavigate={setSection} />}
+            {section === 'microplastics' && <MicroplasticsSection onNavigate={handleNavigate} />}
             {section === 'submit' && <SubmitReadingSection />}
             {section === 'sources' && <DataSourcesSection />}
             {section === 'reports' && <CommunityReportsSection />}
-            {section === 'about' && <AboutSection onNavigate={setSection} />}
-            {section === 'partners' && <PartnershipsSection onNavigate={setSection} />}
+            {section === 'about' && <AboutSection onNavigate={handleNavigate} />}
+            {section === 'partners' && <PartnershipsSection onNavigate={handleNavigate} />}
             {section === 'faq' && <FaqSection />}
             {section === 'donate' && (
-              <DonationPageTransition key="donate-transition">
+              <DonationPageTransition key="donate-transition" origin={donateOrigin}>
                 <DonateSection />
               </DonationPageTransition>
             )}
@@ -52,9 +60,9 @@ export default function Home() {
           </motion.div>
         </AnimatePresence>
       </main>
-      <SiteFooter onNavigate={setSection} />
+      <SiteFooter onNavigate={handleNavigate} />
       <ScrollToTop />
-      <CommandPalette onNavigate={setSection} />
+      <CommandPalette onNavigate={handleNavigate} />
     </div>
   )
 }
