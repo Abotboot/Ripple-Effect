@@ -44,12 +44,12 @@ export function SiteHeader({
   onNavigate,
 }: {
   current: Section
-  onNavigate: (s: Section, origin?: { x: number; y: number }) => void
+  onNavigate: (s: Section) => void
 }) {
   const [open, setOpen] = useState(false)
 
-  const go = (s: Section, origin?: { x: number; y: number }) => {
-    onNavigate(s, origin)
+  const go = (s: Section) => {
+    onNavigate(s)
     setOpen(false)
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -85,10 +85,7 @@ export function SiteHeader({
           {DESKTOP_NAV.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onClick={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect()
-                go(id, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
-              }}
+              onClick={() => go(id)}
               className={cn(
                 'group inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors',
                 current === id
@@ -140,10 +137,7 @@ export function SiteHeader({
             {NAV.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect()
-                  go(id, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
-                }}
+                onClick={() => go(id)}
                 className={cn(
                   'inline-flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                   current === id

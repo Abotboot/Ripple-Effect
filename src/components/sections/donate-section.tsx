@@ -11,6 +11,20 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { Ripple } from '@/components/canvas-ui/Ripple'
+
+const DROPLET_POSITIONS = [
+  { left: '5%', size: 10, duration: 6, delay: 0 },
+  { left: '15%', size: 14, duration: 8, delay: 1.5 },
+  { left: '28%', size: 8, duration: 7, delay: 3 },
+  { left: '42%', size: 12, duration: 9, delay: 0.5 },
+  { left: '55%', size: 16, duration: 7.5, delay: 2 },
+  { left: '68%', size: 10, duration: 8.5, delay: 4 },
+  { left: '80%', size: 13, duration: 6.5, delay: 1 },
+  { left: '90%', size: 9, duration: 7.8, delay: 2.8 },
+  { left: '35%', size: 11, duration: 9.2, delay: 5 },
+  { left: '72%', size: 15, duration: 8.2, delay: 3.5 },
+]
 
 const MOTION_REDUCED = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -129,25 +143,85 @@ export function DonateSection() {
   return (
     <div className="bg-background">
       {/* Hero */}
-            <section className="relative overflow-hidden bg-gradient-to-br from-rose-500 via-rose-600 to-pink-600 text-white">
+      <Ripple
+        trigger="click"
+        interval={5}
+        amplitude={0.6}
+        speed={0.7}
+        wavelength={70}
+        refraction={60}
+        shine={0.7}
+      >
+        <section className="relative overflow-hidden bg-gradient-to-br from-rose-500 via-rose-600 to-pink-600 text-white">
+          {/* Animated gradient orbs */}
+          <div className="pointer-events-none absolute inset-0 opacity-40">
+            <motion.div
+              className="absolute -top-12 right-[10%] h-72 w-72 rounded-full bg-white/25 blur-3xl"
+              animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className="absolute bottom-0 left-[5%] h-60 w-60 rounded-full bg-pink-300/40 blur-3xl"
+              animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.6, 0.4] }}
+              transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+            />
+            <motion.div
+              className="absolute top-[40%] left-[60%] h-40 w-40 rounded-full bg-amber-300/30 blur-3xl"
+              animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
+              transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+            />
+          </div>
+
+          {/* Falling water droplets animation */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            {DROPLET_POSITIONS.map((pos, i) => (
               <motion.div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-white/25 blur-3xl"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute top-10 right-[5%] h-64 w-64 rounded-full bg-amber-300/40 blur-3xl"
-          animate={{ scale: [1.1, 1, 1.1], opacity: [0.6, 0.35, 0.6] }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-        />
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute bottom-0 left-[30%] h-56 w-56 rounded-full bg-pink-300/40 blur-3xl"
-          animate={{ scale: [1, 1.25, 1], opacity: [0.4, 0.7, 0.4] }}
-          transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        />
+                key={i}
+                className="absolute"
+                style={{ left: pos.left, top: '-20px' }}
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: ['calc(-20px)', 'calc(100vh)'], opacity: [0, 0.6, 0.6, 0] }}
+                transition={{
+                  duration: pos.duration,
+                  repeat: Infinity,
+                  delay: pos.delay,
+                  ease: 'easeIn',
+                }}
+              >
+                <svg width={pos.size} height={pos.size * 1.4} viewBox="0 0 12 16" fill="none">
+                  <path
+                    d="M6 0 C6 4, 12 8, 12 11 A6 6 0 0 1 0 11 C0 8, 6 4, 6 0 Z"
+                    fill="white"
+                    opacity="0.6"
+                  />
+                </svg>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Wave decoration at bottom of hero */}
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0">
+            <svg
+              viewBox="0 0 1440 80"
+              className="w-full h-[40px] sm:h-[60px]"
+              preserveAspectRatio="none"
+              fill="none"
+            >
+              <motion.path
+                d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"
+                fill="oklch(0.99 0.005 200)"
+                className="dark:fill-[oklch(0.16_0.02_200)]"
+                animate={{
+                  d: [
+                    'M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z',
+                    'M0,40 C240,0 480,80 720,40 C960,0 1200,80 1440,40 L1440,80 L0,80 Z',
+                    'M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z',
+                  ],
+                }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            </svg>
+          </div>
 
         <div className="relative mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
@@ -248,6 +322,7 @@ export function DonateSection() {
           </div>
         </div>
       </section>
+      </Ripple>
 
       {/* Embedded HCB donation form */}
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
