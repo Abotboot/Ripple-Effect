@@ -11,6 +11,9 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { RaindropHero } from '@/components/canvas-ui/raindrop-hero'
+
+const MOTION_REDUCED = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 const GOAL = 25000
 
@@ -127,8 +130,10 @@ export function DonateSection() {
   return (
     <div className="bg-background">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-rose-500 via-rose-600 to-pink-600 text-white">
-        <motion.div
+            <section className="relative overflow-hidden bg-gradient-to-br from-rose-500 via-rose-600 to-pink-600 text-white">
+              {/* One-shot 3D raindrop intro; hidden when user prefers reduced motion */}
+              {!MOTION_REDUCED && <RaindropHero />}
+              <motion.div
           aria-hidden
           className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-white/25 blur-3xl"
           animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
@@ -277,18 +282,16 @@ export function DonateSection() {
               </Button>
             </div>
           </div>
-          <div className="flex w-full justify-center overflow-hidden rounded-xl border border-border bg-muted/20">
+          <div className="mx-auto flex w-full max-w-2xl justify-center overflow-hidden rounded-xl border border-border bg-muted/20 shadow-sm transition-all sm:max-w-3xl">
             {/* eslint-disable-next-line react/no-unknown-property */}
             <iframe
               src="https://hcb.hackclub.com/donations/start/a-ripple-effect-initiative-arei"
-              style={{ border: 'none' }}
+              className="w-full min-h-[580px] sm:min-h-[660px] md:min-h-[720px] border-none"
               name="donateFrame"
               scrolling="yes"
               frameBorder={0}
               marginHeight={0}
               marginWidth={0}
-              height={512}
-              width={512}
               allowFullScreen
               title="A Ripple Effect Initiative donation form"
             />
