@@ -11,7 +11,6 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { RaindropHero } from '@/components/canvas-ui/raindrop-hero'
 
 const MOTION_REDUCED = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -131,8 +130,6 @@ export function DonateSection() {
     <div className="bg-background">
       {/* Hero */}
             <section className="relative overflow-hidden bg-gradient-to-br from-rose-500 via-rose-600 to-pink-600 text-white">
-              {/* One-shot 3D raindrop intro; hidden when user prefers reduced motion */}
-              {!MOTION_REDUCED && <RaindropHero />}
               <motion.div
           aria-hidden
           className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-white/25 blur-3xl"
