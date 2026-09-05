@@ -23,6 +23,10 @@ import { Microscope, HandHeart, Database, Github, Info } from 'lucide-react'
 import { useCountUp, formatCount } from '@/hooks/use-count-up'
 import { Bell, Activity as ActivityIcon, Beaker, Heart, HandHeart as DonationIcon, Clock } from 'lucide-react'
 import { QualityBadge } from '@/components/quality-badge'
+import { Share2 } from 'lucide-react'
+import { AnimatedCounter as BaseAnimatedCounter } from '@/components/ui/animated-counter'
+import { ContaminantSpectrumChart } from '@/components/d3/contaminant-spectrum-chart'
+import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
 
@@ -36,6 +40,8 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
   const [scores, setScores] = useState<Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> | null>(null)
   const [selected, setSelected] = useState<UtilityWithStats | null>(null)
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null)
+  const [shareUtility, setShareUtility] = useState<UtilityWithStats | null>(null)
+  const [loadingShareId, setLoadingShareId] = useState<string | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -103,6 +109,25 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
     [toast]
   )
 
+  const openShareCard = useCallback(
+    async (u: Utility) => {
+      setLoadingShareId(u.id)
+      try {
+        const detail = await api.getUtility(u.id)
+        setShareUtility(detail)
+      } catch {
+        toast({
+          title: 'Failed to generate card',
+          description: 'Could not load contaminant measurements for this utility.',
+          variant: 'destructive',
+        })
+      } finally {
+        setLoadingShareId(null)
+      }
+    },
+    [toast]
+  )
+
   // Pick up a pending search from the command palette (sessionStorage)
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -164,17 +189,20 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
               Try:
             </span>
             {POPULAR_ZIPS.map((z) => (
-              <button
+              <motion.button
                 key={z}
+                whileTap={{ scale: 0.94 }}
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 22 }}
                 onClick={() => {
                   setQ(z)
                   doSearch(z)
                 }}
-                className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary"
+                className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-foreground shadow-xs transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary"
               >
                 <MapPin className="h-3 w-3" />
                 {z}
-              </button>
+              </motion.button>
             ))}
           </div>
         )}
@@ -216,6 +244,8 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                     score={scores?.[u.id]}
                     onOpen={() => openUtility(u)}
                     loading={loadingDetail === u.id}
+                    onShare={() => openShareCard(u)}
+                    loadingShare={loadingShareId === u.id}
                   />
                 </motion.div>
               ))}
@@ -224,6 +254,11 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
             <EmptyBrowse onSearch={doSearch} />
           ) : null}
         </div>
+      </section>
+
+      {/* Interactive D3 Contaminant Safety Gap Visualizer */}
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <ContaminantSpectrumChart />
       </section>
 
       {/* Recent activity + Alert subscription */}
@@ -349,6 +384,13 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
       <UtilityDetailDialog
         utility={selected}
         onClose={() => setSelected(null)}
+      />
+
+      {/* Shareable Water Report Card Modal */}
+      <WaterReportCardModal
+        utility={shareUtility}
+        open={!!shareUtility}
+        onClose={() => setShareUtility(null)}
       />
     </div>
   )
@@ -669,47 +711,7 @@ function StatsBar({ stats }: { stats: Stats | null }) {
 }
 
 function AnimatedCounter({ value, className }: { value: number; className?: string }) {
-  const [display, setDisplay] = useState(0)
-  const elRef = useRef<HTMLDivElement | null>(null)
-  const started = useRef(false)
-
-  useEffect(() => {
-    if (!value || !Number.isFinite(value)) return
-
-    const prefersReduced =
-      typeof window !== 'undefined' &&
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-
-    const start = () => {
-      if (started.current) return
-      started.current = true
-
-      if (prefersReduced) {
-        requestAnimationFrame(() => setDisplay(value))
-        return
-      }
-
-      const duration = 1400
-      const startTime = performance.now()
-      const tick = (now: number) => {
-        const progress = Math.min((now - startTime) / duration, 1)
-        const eased = 1 - Math.pow(1 - progress, 3)
-        setDisplay(Math.round(value * eased))
-        if (progress < 1) requestAnimationFrame(tick)
-        else setDisplay(value)
-      }
-      requestAnimationFrame(tick)
-    }
-
-    // Start immediately (stats are above the fold on load).
-    start()
-  }, [value])
-
-  return (
-    <div ref={elRef} className={className}>
-      {formatCount(display)}
-    </div>
-  )
+  return <BaseAnimatedCounter value={value} className={className} />
 }
 
 function UtilityCard({
@@ -717,11 +719,15 @@ function UtilityCard({
   score,
   onOpen,
   loading,
+  onShare,
+  loadingShare,
 }: {
   utility: Utility
   score?: { score: number; grade: string; label: string; color: string; bgColor: string }
   onOpen: () => void
   loading: boolean
+  onShare?: () => void
+  loadingShare?: boolean
 }) {
   return (
     <Card className="group h-full overflow-hidden transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
@@ -775,22 +781,46 @@ function UtilityCard({
             <Users className="h-3 w-3" />
             {utility.population.toLocaleString()} served
           </span>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={onOpen}
-            disabled={loading}
-            className="h-7 px-2 text-xs text-primary hover:bg-primary/10 hover:text-primary"
-          >
-            {loading ? (
-              <Loader2 className="h-3 w-3 animate-spin" />
-            ) : (
-              <>
-                View details
-                <ChevronRight className="h-3 w-3" />
-              </>
+          <div className="flex items-center gap-1.5">
+            {onShare && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onShare()
+                }}
+                disabled={loadingShare}
+                className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                title="Generate and share community water card"
+              >
+                {loadingShare ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <>
+                    <Share2 className="h-3 w-3" />
+                    <span>Card</span>
+                  </>
+                )}
+              </Button>
             )}
-          </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onOpen}
+              disabled={loading}
+              className="h-7 px-2 text-xs text-primary hover:bg-primary/10 hover:text-primary"
+            >
+              {loading ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <>
+                  View details
+                  <ChevronRight className="h-3 w-3" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X, Building2, MapPin, Users, Globe, AlertTriangle, ShieldCheck,
@@ -15,6 +16,7 @@ import type { UtilityWithStats } from '@/lib/types'
 import { ContaminantTrendChart } from '@/components/charts/contaminant-trend-chart'
 import { ContaminantBarChart } from '@/components/charts/contaminant-bar-chart'
 import { QualityBadge } from '@/components/quality-badge'
+import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
 
 export function UtilityDetailDialog({
   utility,
@@ -23,42 +25,38 @@ export function UtilityDetailDialog({
   utility: UtilityWithStats | null
   onClose: () => void
 }) {
+  const [shareCardOpen, setShareCardOpen] = useState(false)
+
   return (
-    <AnimatePresence>
-      {utility && (
-        <motion.div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        >
+    <>
+      <AnimatePresence>
+        {utility && (
           <motion.div
-            className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:max-w-4xl sm:rounded-2xl"
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
           >
-            {/* Header */}
-            <div className="relative shrink-0 overflow-hidden bg-water-surface px-5 py-6 text-primary-foreground sm:px-7">
-              <div className="absolute right-4 top-4 flex gap-1.5">
-                <button
-                  onClick={() => {
-                    const text = `${utility.name}, ${utility.city}, ${utility.state}\n${utility.contaminantSummaries.length} contaminants tracked · ${utility.healthExceedances} above health guideline · ${utility.exceedances} above legal limit\nvia A Ripple Effect Initiative freshwater database`
-                    if (navigator.share) {
-                      navigator.share({ title: utility.name, text }).catch(() => {})
-                    } else {
-                      navigator.clipboard?.writeText(text)
-                    }
-                  }}
-                  aria-label="Share"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
-                  title="Share summary"
-                >
-                  <Share2 className="h-4 w-4" />
-                </button>
+            <motion.div
+              className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:max-w-4xl sm:rounded-2xl"
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 40, opacity: 0 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="relative shrink-0 overflow-hidden bg-water-surface px-5 py-6 text-primary-foreground sm:px-7">
+                <div className="absolute right-4 top-4 flex gap-1.5">
+                  <button
+                    onClick={() => setShareCardOpen(true)}
+                    aria-label="Share community card"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
+                    title="Generate shareable report card"
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </button>
                 <a
                   href={`/api/export?format=csv&table=samples`}
                   onClick={(e) => {
@@ -249,6 +247,12 @@ Learn more at ${typeof window !== 'undefined' ? window.location.origin : 'https:
         </motion.div>
       )}
     </AnimatePresence>
+      <WaterReportCardModal
+        utility={utility}
+        open={shareCardOpen}
+        onClose={() => setShareCardOpen(false)}
+      />
+    </>
   )
 }
 

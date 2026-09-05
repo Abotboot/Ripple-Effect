@@ -21,6 +21,8 @@ import { cn } from '@/lib/utils'
 import { api } from '@/lib/api'
 import type { Section } from '@/components/site/site-header'
 import { MicroplasticsTrendSection } from '@/components/sections/microplastics-trend-section'
+import { ContaminantSpectrumChart } from '@/components/d3/contaminant-spectrum-chart'
+import { MicroplasticsFlowChart } from '@/components/d3/microplastics-flow-chart'
 
 type ContaminantDetail = {
   contaminant: {
@@ -578,6 +580,11 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
           {/* Trend over time */}
           <MicroplasticsTrendSection />
 
+          {/* D3 Contaminant Safety Gap Spectrum */}
+          <div className="mx-auto max-w-7xl pt-4 pb-8">
+            <ContaminantSpectrumChart />
+          </div>
+
           {/* What are microplastics / why it matters */}
           <section className="py-12">
             <div className="grid gap-6 lg:grid-cols-3">
@@ -771,6 +778,11 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
               filtration systems stack up, with effectiveness ratings, NSF
               certifications, and cost estimates.
             </p>
+
+            {/* D3 Freshwater & Filtration Pathway Flow */}
+            <div className="mb-8">
+              <MicroplasticsFlowChart />
+            </div>
 
             {/* Filter cards */}
             <div className="space-y-6">
