@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import {
   Droplets, Beaker, Users, FlaskConical, Github, Mail, Instagram,
   ArrowRight, Calendar, ShieldCheck, BookOpen,
-  Building2, Sparkles, Info,
+  Building2, Info,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -157,21 +157,21 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-water-surface text-primary-foreground">
+      <section className="relative overflow-hidden bg-water-hero text-foreground">
         <div className="pointer-events-none absolute inset-0 opacity-30">
-          <div className="absolute -top-20 right-[5%] h-80 w-80 rounded-full bg-white/20 blur-3xl" />
-          <div className="absolute bottom-0 left-[20%] h-60 w-60 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -top-20 right-[5%] h-80 w-80 rounded-full bg-primary/20 blur-3xl" />
+          <div className="absolute bottom-0 left-[20%] h-60 w-60 rounded-full bg-accent/20 blur-3xl" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <Badge className="mb-4 border-white/30 bg-white/15 text-white hover:bg-white/15">
+            <Badge className="mb-4 border-primary/20 bg-primary/10 text-primary hover:bg-primary/15">
               <Info className="mr-1 h-3 w-3" />
               About us
             </Badge>
             <h1 className="text-balance text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
               A Ripple Effect Initiative
             </h1>
-            <p className="mt-4 text-pretty text-lg text-white/90 sm:text-xl">
+            <p className="mt-4 text-pretty text-lg text-muted-foreground sm:text-xl">
               One act. Endless impact.
             </p>
           </div>
@@ -188,16 +188,16 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
             className="text-center"
           >
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Sparkles className="h-6 w-6" />
+              <Droplets className="h-6 w-6" />
             </div>
             <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
               Our mission
             </h2>
             <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-                          We are a volunteer crew building a community water database. We make
-                          local water data open, searchable, and actionable &mdash; and we track
-                          microplastics that almost no one else does.
-                        </p>
+              We are a volunteer crew building a community water database. We make
+              local water data open, searchable, and actionable &mdash; and we track
+              microplastics that almost no one else does.
+            </p>
           </motion.div>
         </div>
       </section>

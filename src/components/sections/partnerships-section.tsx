@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import {
-  Handshake, Building2, HeartHandshake, ArrowRight, Sparkles, Users, Globe, BookOpen,
+  Handshake, Building2, HeartHandshake, ArrowRight, Users, Globe, BookOpen,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -177,8 +177,7 @@ export function PartnershipsSection({ onNavigate }: { onNavigate?: (s: Section) 
       <section className="border-t border-border/60 bg-card/50">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
           <div className="mx-auto mb-8 max-w-2xl text-center">
-            <Badge variant="secondary" className="mb-3 gap-1.5">
-              <Sparkles className="h-3.5 w-3.5" />
+            <Badge variant="secondary" className="mb-3">
               Why partner with us
             </Badge>
             <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">

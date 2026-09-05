@@ -213,9 +213,13 @@ export function MapSection() {
             >
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: t.color }} />
               {t.label}
-              <span className={cn('ml-0.5 rounded-full px-1.5 text-[10px]', filterTier === t.id ? 'bg-white/20' : 'bg-muted')}>
-                {t.count}
-              </span>
+              {loading ? (
+                <span className="ml-1 inline-block h-3 w-4 animate-pulse rounded bg-muted-foreground/20" />
+              ) : (
+                <span className={cn('ml-0.5 rounded-full px-1.5 text-[10px]', filterTier === t.id ? 'bg-white/20' : 'bg-muted')}>
+                  {t.count}
+                </span>
+              )}
             </button>
           ))}
 
@@ -261,9 +265,13 @@ export function MapSection() {
               >
                 {c.Icon && <c.Icon className="h-3 w-3" />}
                 {c.label}
-                <span className={cn('ml-0.5 rounded-full px-1.5 text-[10px]', selected ? 'bg-white/20' : 'bg-muted')}>
-                  {c.count}
-                </span>
+                {loading ? (
+                  <span className="ml-1 inline-block h-3 w-4 animate-pulse rounded bg-muted-foreground/20" />
+                ) : (
+                  <span className={cn('ml-0.5 rounded-full px-1.5 text-[10px]', selected ? 'bg-white/20' : 'bg-muted')}>
+                    {c.count}
+                  </span>
+                )}
               </button>
             )
           })}

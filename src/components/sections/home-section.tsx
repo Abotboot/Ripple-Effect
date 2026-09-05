@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, MapPin, Droplets, AlertTriangle, Building2, Users, FlaskConical,
-  ChevronRight, Loader2, ShieldAlert, ShieldCheck, ArrowRight, Sparkles,
+  ChevronRight, Loader2, ShieldAlert, ShieldCheck, ArrowRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -54,6 +54,12 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
   const doSearch = useCallback(
     async (query: string) => {
       if (!query.trim()) return
+      setTimeout(() => {
+        const el = document.getElementById('search')
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 50)
       setLoading(true)
       setResults(null)
       try {
@@ -1055,7 +1061,7 @@ function RecentlyAddedAndQuality({ onNavigate }: { onNavigate?: (s: Section) => 
         {/* Recently added utilities */}
         <div className="lg:col-span-2">
           <div className="mb-4 flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
+            <Clock className="h-5 w-5 text-primary" />
             <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Recently added utilities</h2>
           </div>
           {!recent ? (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { SiteHeader, type Section } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
@@ -18,8 +18,50 @@ import { SubmitReadingSection } from '@/components/sections/submit-reading-secti
 import { FaqSection } from '@/components/sections/faq-section'
 import { CommandPalette } from '@/components/site/command-palette'
 
+const VALID_SECTIONS: readonly Section[] = [
+  'home',
+  'map',
+  'microplastics',
+  'submit',
+  'sources',
+  'reports',
+  'about',
+  'partners',
+  'faq',
+  'donate',
+  'admin',
+] as const
+
 export default function Home() {
-  const [section, setSection] = useState<Section>('home')
+  const [section, setSectionState] = useState<Section>('home')
+
+  useEffect(() => {
+    const syncFromHash = () => {
+      const hash = window.location.hash.replace(/^#/, '').toLowerCase() as Section
+      if (VALID_SECTIONS.includes(hash)) {
+        setSectionState(hash)
+      } else if (!hash) {
+        setSectionState('home')
+      }
+    }
+
+    syncFromHash()
+    window.addEventListener('hashchange', syncFromHash)
+    return () => window.removeEventListener('hashchange', syncFromHash)
+  }, [])
+
+  const setSection = (next: Section) => {
+    setSectionState(next)
+    if (typeof window !== 'undefined') {
+      if (next === 'home') {
+        if (window.location.hash) {
+          history.pushState(null, '', window.location.pathname + window.location.search)
+        }
+      } else {
+        window.location.hash = next
+      }
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
