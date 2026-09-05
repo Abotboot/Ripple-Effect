@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  HandHeart, Heart, Gift, ShieldCheck, PieChart, ExternalLink,
+  Heart, PieChart, ExternalLink,
   Wrench, FlaskConical, Microscope, Database,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -34,37 +34,6 @@ const GOAL = 25000
 // HCB API (Transparency Mode is on, so no auth needed).
 const HCB_DONATE_URL = 'https://hcb.hackclub.com/donations/start/a-ripple-effect-initiative-arei'
 const HCB_ORG_API = 'https://hcb.hackclub.com/api/v3/organizations/a-ripple-effect-initiative-arei'
-
-const TIERS = [
-  {
-    title: 'Supporter',
-    min: 25,
-    accent: 'border-rose-300 bg-rose-50 dark:border-rose-900/60 dark:bg-rose-950/30',
-    tag: 'text-rose-600 dark:text-rose-300',
-    badge: 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-200',
-  },
-  {
-    title: 'Friend',
-    min: 50,
-    accent: 'border-amber-300 bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/30',
-    tag: 'text-amber-600 dark:text-amber-300',
-    badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-200',
-  },
-  {
-    title: 'Champion',
-    min: 250,
-    accent: 'border-fuchsia-300 bg-fuchsia-50 dark:border-fuchsia-900/60 dark:bg-fuchsia-950/30',
-    tag: 'text-fuchsia-600 dark:text-fuchsia-300',
-    badge: 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/50 dark:text-fuchsia-200',
-  },
-  {
-    title: 'Founding Sponsor',
-    min: 1000,
-    accent: 'border-emerald-300 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/30',
-    tag: 'text-emerald-600 dark:text-emerald-300',
-    badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-200',
-  },
-]
 
 const ALLOCATIONS = [
   {
@@ -322,64 +291,38 @@ export function DonateSection() {
       </section>
       </Ripple>
 
-      {/* Main content */}
+      {/* Embedded HCB donation form */}
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        {/* Impact tiers */}
-        <div className="mb-12">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Choose your impact level
+        <div className="mx-auto max-w-4xl rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+          <div className="mb-6 text-center">
+            <h2 className="flex items-center justify-center gap-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              <Heart className="h-6 w-6 text-rose-500" />
+              Donate directly
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Any amount helps. These tiers describe the impact you unlock.
+              Complete your donation securely below, or open HCB directly using the button above.
             </p>
           </div>
-
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {TIERS.map((t, i) => {
-              const Icon = i === 0 ? Heart : i === 1 ? Gift : i === 2 ? HandHeart : ShieldCheck
-              return (
-                <motion.div
-                  key={t.title}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08 }}
-                >
-                  <Card className={cn('h-full overflow-hidden border-2 transition-all hover:shadow-lg', t.accent)}>
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl', t.badge)}>
-                          <Icon className="h-5 w-5 text-foreground" />
-                        </div>
-                        <Badge variant="secondary" className={t.badge}>
-                          {formatCurrency(t.min)}+
-                        </Badge>
-                      </div>
-                      <CardTitle className="mt-3 text-lg text-foreground">{t.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <Button
-                        asChild
-                        variant="outline"
-                        className={cn('mt-1 w-full border-rose-300 hover:bg-rose-50 dark:border-rose-800', t.tag)}
-                      >
-                        <a
-                          href={`${HCB_DONATE_URL}?amount=${t.min}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                          Donate {formatCurrency(t.min)}
-                        </a>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )
-            })}
+          <div className="mx-auto flex w-full max-w-2xl justify-center overflow-hidden rounded-xl border border-border bg-muted/20 shadow-sm transition-all sm:max-w-3xl">
+            {/* eslint-disable-next-line react/no-unknown-property */}
+            <iframe
+              src="https://hcb.hackclub.com/donations/start/a-ripple-effect-initiative-arei"
+              className="w-full min-h-[580px] sm:min-h-[660px] md:min-h-[720px] border-none"
+              name="donateFrame"
+              scrolling="yes"
+              frameBorder={0}
+              marginHeight={0}
+              marginWidth={0}
+              allowFullScreen
+              loading="lazy"
+              title="A Ripple Effect Initiative donation form"
+            />
           </div>
         </div>
+      </section>
+
+      {/* Main content */}
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
 
         {/* Where the money goes */}
         <div className="mx-auto max-w-2xl">
