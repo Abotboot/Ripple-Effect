@@ -121,21 +121,21 @@ export function DonateSection() {
         refraction={60}
         shine={0.7}
       >
-        <section className="relative overflow-hidden bg-water-hero text-foreground">
+        <section className="relative overflow-hidden bg-gradient-to-br from-rose-500 via-rose-600 to-pink-600 text-white">
           {/* Animated gradient orbs */}
           <div className="pointer-events-none absolute inset-0 opacity-40">
             <motion.div
-              className="absolute -top-12 right-[10%] h-72 w-72 rounded-full bg-rose-500/20 blur-3xl"
+              className="absolute -top-12 right-[10%] h-72 w-72 rounded-full bg-white/25 blur-3xl"
               animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
               transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
             />
             <motion.div
-              className="absolute bottom-0 left-[5%] h-60 w-60 rounded-full bg-pink-500/15 blur-3xl"
-              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+              className="absolute bottom-0 left-[5%] h-60 w-60 rounded-full bg-pink-300/40 blur-3xl"
+              animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.6, 0.4] }}
               transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
             />
             <motion.div
-              className="absolute top-[40%] left-[60%] h-40 w-40 rounded-full bg-amber-300/15 blur-3xl"
+              className="absolute top-[40%] left-[60%] h-40 w-40 rounded-full bg-amber-300/30 blur-3xl"
               animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
               transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
             />
@@ -160,8 +160,8 @@ export function DonateSection() {
                 <svg width={pos.size} height={pos.size * 1.4} viewBox="0 0 12 16" fill="none">
                   <path
                     d="M6 0 C6 4, 12 8, 12 11 A6 6 0 0 1 0 11 C0 8, 6 4, 6 0 Z"
-                    fill="oklch(0.7 0.13 195)"
-                    opacity="0.4"
+                    fill="white"
+                    opacity="0.6"
                   />
                 </svg>
               </motion.div>
@@ -199,13 +199,13 @@ export function DonateSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <Badge className="mb-4 border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400">
+              <Badge className="mb-4 border-white/40 bg-white/15 text-white hover:bg-white/20">
                 Crowdfunding · Tax-deductible via HCB
               </Badge>
-              <h1 className="text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+              <h1 className="text-balance text-3xl font-extrabold tracking-tight drop-shadow-sm text-white sm:text-5xl">
                 Fund the microplastics identifier
               </h1>
-              <p className="mx-auto mt-4 max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
+              <p className="mx-auto mt-4 max-w-2xl text-pretty text-base text-white/90 sm:text-lg">
                 We&apos;re crowdfunding a low-cost, open-source microplastics
                 identifier that volunteers can dip directly into local rivers,
                 lakes, and streams. Every dollar moves us closer to
@@ -219,43 +219,43 @@ export function DonateSection() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.15 }}
-              className="mx-auto mt-8 max-w-xl rounded-2xl border border-border/80 bg-card/80 p-5 backdrop-blur-md shadow-sm"
+              className="mx-auto mt-8 max-w-xl rounded-2xl border border-white/30 bg-white/10 p-5 backdrop-blur-sm text-white"
             >
               <div className="flex items-end justify-between gap-2">
                 <div className="text-left">
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-white/80">
                     Raised so far
                   </div>
                   {statsLoading ? (
-                    <Skeleton className="mt-1 h-8 w-32" />
+                    <Skeleton className="mt-1 h-8 w-32 bg-white/20" />
                   ) : (
-                    <div className="text-3xl font-extrabold leading-none text-foreground sm:text-4xl">
+                    <div className="text-3xl font-extrabold leading-none text-white sm:text-4xl">
                       {formatCurrency(raised ?? 0)}
                     </div>
                   )}
                 </div>
                 <div className="text-right">
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-white/80">
                     Goal
                   </div>
-                  <div className="text-xl font-bold text-foreground sm:text-2xl">
+                  <div className="text-xl font-bold text-white sm:text-2xl">
                     {formatCurrency(GOAL)}
                   </div>
                 </div>
               </div>
 
-              <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted">
+              <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-white/20">
                 <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400"
+                  className="h-full rounded-full bg-gradient-to-r from-amber-300 via-amber-200 to-white"
                   initial={{ width: 0 }}
                   animate={{ width: `${pct}%` }}
                   transition={{ duration: 1, ease: 'easeOut' }}
                 />
               </div>
 
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-white/85">
                 <span>Donations are handled live by HCB (Hack Club Bank).</span>
-                <span className="font-semibold text-foreground">{pct}% funded</span>
+                <span className="font-semibold text-white">{pct}% funded</span>
               </div>
             </motion.div>
 
@@ -269,7 +269,8 @@ export function DonateSection() {
               <Button
                 asChild
                 size="lg"
-                className="w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-lg shadow-rose-500/25 hover:from-rose-600 hover:to-pink-700 sm:w-auto"
+                variant="secondary"
+                className="w-full bg-white text-rose-600 shadow-lg hover:bg-white/90 sm:w-auto font-semibold"
               >
                 <a
                   href={HCB_DONATE_URL}
@@ -282,7 +283,7 @@ export function DonateSection() {
                 </a>
               </Button>
             </motion.div>
-            <p className="mt-3 text-xs text-muted-foreground">
+            <p className="mt-3 text-xs text-white/75">
               Donations are processed by HCB (Hack Club)&apos;s fiscal sponsor
               platform, tax-deductible in the US.
             </p>
