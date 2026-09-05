@@ -312,7 +312,7 @@ export function WaterReportCardModal({
 
         {/* Modal Window */}
         <motion.div
-          className="relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-border/80 bg-background shadow-2xl"
+          className="relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-border/80 bg-background shadow-2xl max-h-[92vh] flex flex-col"
           initial={{ scale: 0.95, opacity: 0, y: 15 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 15 }}
@@ -320,7 +320,7 @@ export function WaterReportCardModal({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header - without the requested removed string */}
-          <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
+          <div className="shrink-0 flex items-center justify-between border-b border-border/60 px-5 py-4">
             <h3 className="font-bold text-base text-foreground">
               Community Water Quality Card
             </h3>
@@ -335,7 +335,7 @@ export function WaterReportCardModal({
           </div>
 
           {/* Canvas Card Preview */}
-          <div className="p-4 sm:p-5 bg-muted/20">
+          <div className="p-4 sm:p-5 bg-muted/20 flex-1 min-h-0 overflow-y-auto">
             <div className="overflow-hidden rounded-xl border border-border/80 shadow-lg bg-card">
               {/* Offscreen high-res canvas (never hidden via display:none) */}
               <canvas
@@ -365,7 +365,7 @@ export function WaterReportCardModal({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 bg-muted/10 px-5 py-4">
+          <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 bg-muted/10 px-5 py-4">
             <div className="text-xs text-muted-foreground hidden sm:block">
               {utility.name} · {utility.city}, {utility.state}
             </div>

@@ -11,7 +11,6 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import type { UtilityWithStats } from '@/lib/types'
 import { ContaminantTrendChart } from '@/components/charts/contaminant-trend-chart'
 import { ContaminantBarChart } from '@/components/charts/contaminant-bar-chart'
@@ -32,14 +31,14 @@ export function UtilityDetailDialog({
       <AnimatePresence>
         {utility && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
           >
             <motion.div
-              className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:max-w-4xl sm:rounded-2xl"
+              className="relative flex max-h-[92vh] sm:max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:max-w-4xl sm:rounded-2xl"
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 40, opacity: 0 }}
@@ -156,8 +155,8 @@ Learn more at ${typeof window !== 'undefined' ? window.location.origin : 'https:
             </div>
 
             {/* Body */}
-            <ScrollArea className="flex-1 scroll-area">
-              <div className="space-y-6 p-5 sm:p-7">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+              <div className="space-y-6 p-5 sm:p-7 pb-12">
                 {/* Summary stats */}
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   <StatTile
@@ -242,7 +241,7 @@ Learn more at ${typeof window !== 'undefined' ? window.location.origin : 'https:
                                     with your utility&apos;s annual Consumer Confidence Report (CCR).
                 </p>
               </div>
-            </ScrollArea>
+            </div>
           </motion.div>
         </motion.div>
       )}
