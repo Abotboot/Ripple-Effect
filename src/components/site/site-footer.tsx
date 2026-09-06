@@ -170,6 +170,15 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
             © {new Date().getFullYear()} A Ripple Effect Initiative · Built with
                         <Heart className="h-3 w-3 text-rose-500" /> by the crew
           </p>
+          <div className="flex items-center gap-3">
+            <button onClick={() => go('privacy' as Section)} className="hover:text-primary transition-colors underline-offset-2 hover:underline">
+              Privacy Policy
+            </button>
+            <span className="text-border">·</span>
+            <button onClick={() => go('terms' as Section)} className="hover:text-primary transition-colors underline-offset-2 hover:underline">
+              Terms of Service
+            </button>
+          </div>
           <p>
             Data is illustrative and community-submitted. Always verify with your
             utility&apos;s Consumer Confidence Report.

@@ -15,6 +15,8 @@ import { PartnershipsSection } from '@/components/sections/partnerships-section'
 import { DonateSection } from '@/components/sections/donate-section'
 import { SubmitReadingSection } from '@/components/sections/submit-reading-section'
 import { FaqSection } from '@/components/sections/faq-section'
+import { PrivacySection } from '@/components/sections/privacy-section'
+import { TermsSection } from '@/components/sections/terms-section'
 import { CommandPalette } from '@/components/site/command-palette'
 
 const VALID_SECTIONS: readonly Section[] = [
@@ -29,6 +31,8 @@ const VALID_SECTIONS: readonly Section[] = [
   'faq',
   'donate',
   'admin',
+  'privacy',
+  'terms',
 ] as const
 
 export default function Home() {
@@ -78,6 +82,8 @@ export default function Home() {
         {section === 'faq' && <FaqSection />}
         {section === 'donate' && <DonateSection />}
         {section === 'admin' && <AdminSection />}
+        {section === 'privacy' && <PrivacySection />}
+        {section === 'terms' && <TermsSection />}
       </main>
       <SiteFooter onNavigate={setSection} />
       <ScrollToTop />

@@ -18,6 +18,8 @@ export type Section =
     | 'faq'
     | 'donate'
     | 'admin'
+    | 'privacy'
+    | 'terms'
 
 const NAV: Array<{ id: Section; label: string; icon: React.ElementType }> = [
   { id: 'home', label: 'Home', icon: Droplets },

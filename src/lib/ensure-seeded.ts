@@ -15,11 +15,15 @@ export async function ensureSeeded(): Promise<void> {
   // Uses upsert with update:{} so existing (changed) passwords are preserved.
   const { hashPassword } = await import('./auth')
 
+  // Read admin password from env to keep it out of source control.
+  // Falls back to a default ONLY for local development.
+  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'ChangeMe!OnFirstLogin'
+
   const admins: Array<{ email: string; name: string }> = [
     { email: 'admin@arippleseffect.org', name: 'A Ripple Effect Initiative Admin' },
     {
-      email: 'siddhant.khatiwada@outlook.com',
-      name: 'Siddhant Khatiwada',
+      email: process.env.ADMIN_EMAIL_2 || 'admin2@arippleseffect.org',
+      name: process.env.ADMIN_NAME_2 || 'Admin',
     },
   ]
 
@@ -30,7 +34,7 @@ export async function ensureSeeded(): Promise<void> {
       create: {
         email: a.email,
         name: a.name,
-        password: hashPassword('Ripples#2026!Secure'),
+        password: hashPassword(adminPassword),
         role: 'admin',
       },
     })
@@ -51,16 +55,16 @@ async function runSeed(): Promise<void> {
   console.log('[ensureSeeded] Database is empty - running inline seed...')
 
   const { hashPassword } = await import('./auth')
+  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'ChangeMe!OnFirstLogin'
 
-  // Admin user - strong default password (change immediately after first login).
-    // Credentials documented in README.md, NOT in the UI.
+  // Admin user - reads password from env (change immediately after first login).
   await db.user.upsert({
     where: { email: 'admin@arippleseffect.org' },
     update: {},
     create: {
       email: 'admin@arippleseffect.org',
       name: 'A Ripple Effect Initiative Admin',
-      password: hashPassword('Ripples#2026!Secure'),
+      password: hashPassword(adminPassword),
       role: 'admin',
     },
   })
