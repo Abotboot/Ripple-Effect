@@ -10,7 +10,9 @@ export async function GET(req: NextRequest) {
     include: { utility: { select: { name: true, city: true, state: true } } },
     orderBy: { createdAt: 'desc' },
   })
-  return NextResponse.json(reports)
+  // Strip reporterEmail to protect user privacy
+  const sanitized = reports.map(({ reporterEmail: _omit, ...rest }) => rest)
+  return NextResponse.json(sanitized)
 }
 
 // POST /api/reports - public submission (no auth required)

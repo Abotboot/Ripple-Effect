@@ -17,6 +17,26 @@ import { ContaminantBarChart } from '@/components/charts/contaminant-bar-chart'
 import { QualityBadge } from '@/components/quality-badge'
 import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
 
+function escapeHtml(str: unknown): string {
+  if (str == null) return ''
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function isSafeUrl(url?: string | null): boolean {
+  if (!url) return false
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 export function UtilityDetailDialog({
   utility,
   onClose,
@@ -75,7 +95,13 @@ export function UtilityDetailDialog({
                     if (!w) return
                     const exceedances = utility.contaminantSummaries.filter((s) => s.exceedsLegalLimit || s.exceedsHealthGuideline)
                     const score = utility.safetyScore
-                    const html = `<!DOCTYPE html><html><head><title>${utility.name} | Water Quality Report</title>
+                    const name = escapeHtml(utility.name)
+                    const city = escapeHtml(utility.city)
+                    const state = escapeHtml(utility.state)
+                    const pwsid = escapeHtml(utility.pwsid)
+                    const sourceType = escapeHtml(utility.sourceType)
+                    const treatmentStatus = escapeHtml(utility.treatmentStatus)
+                    const html = `<!DOCTYPE html><html><head><title>${name} | Water Quality Report</title>
 <style>
   body { font-family: -apple-system, system-ui, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 24px; color: #1a1a1a; line-height: 1.6; }
   h1 { color: #0d9488; font-size: 24px; margin-bottom: 4px; }
@@ -91,10 +117,10 @@ export function UtilityDetailDialog({
   .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #ccc; font-size: 11px; color: #666; }
   @media print { body { margin: 0; } }
 </style></head><body>
-<h1>${utility.name}</h1>
-<div class="meta">${utility.city}, ${utility.state} · PWSID: ${utility.pwsid} · Population served: ${utility.population.toLocaleString()}<br>
-Source: ${utility.sourceType} · Treatment: ${utility.treatmentStatus}</div>
-${score ? `<div class="score" style="background: ${score.score >= 80 ? '#d1fae5' : score.score >= 70 ? '#e0f2fe' : score.score >= 60 ? '#fef3c7' : '#fee2e2'}; color: ${score.score >= 80 ? '#065f46' : score.score >= 70 ? '#075985' : score.score >= 60 ? '#92400e' : '#991b1b'};">Water Safety Score: ${score.score}/100 (Grade ${score.grade}, ${score.label})</div>` : ''}
+<h1>${name}</h1>
+<div class="meta">${city}, ${state} · PWSID: ${pwsid} · Population served: ${utility.population.toLocaleString()}<br>
+Source: ${sourceType} · Treatment: ${treatmentStatus}</div>
+${score ? `<div class="score" style="background: ${score.score >= 80 ? '#d1fae5' : score.score >= 70 ? '#e0f2fe' : score.score >= 60 ? '#fef3c7' : '#fee2e2'}; color: ${score.score >= 80 ? '#065f46' : score.score >= 70 ? '#075985' : score.score >= 60 ? '#92400e' : '#991b1b'};">Water Safety Score: ${score.score}/100 (Grade ${escapeHtml(score.grade)}, ${escapeHtml(score.label)})</div>` : ''}
 <h2>Summary</h2>
 <p>Contaminants tracked: ${utility.contaminantSummaries.length} · Samples: ${utility.totalSamples} · Above health guideline: ${utility.healthExceedances} · Above legal limit: ${utility.exceedances}</p>
 <h2>Contaminant Breakdown</h2>
@@ -102,13 +128,13 @@ ${score ? `<div class="score" style="background: ${score.score >= 80 ? '#d1fae5'
 <tr><th>Contaminant</th><th>Latest Level</th><th>Unit</th><th>Health Guideline</th><th>Legal Limit</th><th>Status</th></tr>
 ${utility.contaminantSummaries.map((s) => {
   const status = s.exceedsLegalLimit ? '<span class="danger">Above legal limit</span>' : s.exceedsHealthGuideline ? '<span class="warning">Above health guideline</span>' : '<span class="ok">Within guidelines</span>'
-  return `<tr><td>${s.contaminant.name}</td><td>${s.latestLevel.toFixed(2)}</td><td>${s.unit}</td><td>${s.contaminant.healthGuideline ?? '—'}</td><td>${s.contaminant.legalLimit ?? 'None'}</td><td>${status}</td></tr>`
+  return `<tr><td>${escapeHtml(s.contaminant.name)}</td><td>${s.latestLevel.toFixed(2)}</td><td>${escapeHtml(s.unit)}</td><td>${escapeHtml(s.contaminant.healthGuideline ?? '—')}</td><td>${escapeHtml(s.contaminant.legalLimit ?? 'None')}</td><td>${status}</td></tr>`
 }).join('')}
 </table>
 <div class="footer">
-Report generated from A Ripple Effect Initiative freshwater database on ${new Date().toLocaleDateString()}.<br>
+Report generated from A Ripple Effect Initiative freshwater database on ${escapeHtml(new Date().toLocaleDateString())}.<br>
 Data is illustrative and community-submitted. Always verify with your utility's Consumer Confidence Report (CCR).<br>
-Learn more at ${typeof window !== 'undefined' ? window.location.origin : 'https://arippleeffectinitiative.org'}
+Learn more at https://arippleeffectinitiative.org
 </div>
 </body></html>`
                     w.document.write(html)
@@ -195,7 +221,7 @@ Learn more at ${typeof window !== 'undefined' ? window.location.origin : 'https:
                   </div>
                 )}
 
-                {utility.website && (
+                {utility.website && isSafeUrl(utility.website) && (
                   <div className="text-sm">
                     <a
                       href={utility.website}

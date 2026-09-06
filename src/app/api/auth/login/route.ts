@@ -11,12 +11,12 @@ const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000 // 15 minutes
 const RATE_LIMIT_MAX = 5
 const attemptMap = new Map<string, { count: number; firstAttempt: number }>()
 
-function checkRateLimit(ip: string): { allowed: boolean; retryAfterSec?: number } {
+function checkRateLimit(key: string): { allowed: boolean; retryAfterSec?: number } {
   const now = Date.now()
-  const entry = attemptMap.get(ip)
+  const entry = attemptMap.get(key)
 
   if (!entry || now - entry.firstAttempt > RATE_LIMIT_WINDOW_MS) {
-    attemptMap.set(ip, { count: 1, firstAttempt: now })
+    attemptMap.set(key, { count: 1, firstAttempt: now })
     return { allowed: true }
   }
 
@@ -41,13 +41,13 @@ function getClientIp(req: NextRequest): string {
 export async function POST(req: NextRequest) {
   await ensureSeeded()
 
-  // Rate limit check
+  // Rate limit check by IP
   const ip = getClientIp(req)
-  const rateCheck = checkRateLimit(ip)
-  if (!rateCheck.allowed) {
+  const ipCheck = checkRateLimit(`ip:${ip}`)
+  if (!ipCheck.allowed) {
     return NextResponse.json(
-      { error: `Too many login attempts. Try again in ${rateCheck.retryAfterSec} seconds.` },
-      { status: 429, headers: { 'Retry-After': String(rateCheck.retryAfterSec) } }
+      { error: `Too many login attempts. Try again in ${ipCheck.retryAfterSec} seconds.` },
+      { status: 429, headers: { 'Retry-After': String(ipCheck.retryAfterSec) } }
     )
   }
 
@@ -61,6 +61,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: 'Email and password are required' },
       { status: 400 }
+    )
+  }
+
+  // Rate limit check by target email account
+  const emailCheck = checkRateLimit(`email:${email}`)
+  if (!emailCheck.allowed) {
+    return NextResponse.json(
+      { error: `Too many failed login attempts for this account. Try again in ${emailCheck.retryAfterSec} seconds.` },
+      { status: 429, headers: { 'Retry-After': String(emailCheck.retryAfterSec) } }
     )
   }
 
