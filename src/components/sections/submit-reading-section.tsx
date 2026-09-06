@@ -380,9 +380,7 @@ export function SubmitReadingSection() {
                       )}
                     </Button>
                     <p className="text-[11px] text-muted-foreground">
-                      By submitting, you agree to be contacted for verification.
-                      Your email is never displayed publicly. Rate limit: 10
-                      readings per email per 24 hours.
+                      By submitting, you certify that you are at least 13 years old and that this reading is for educational/community science purposes per our Terms of Service. Your email is never displayed publicly. Rate limit: 10 readings per email per 24 hours.
                     </p>
                   </form>
                 )}

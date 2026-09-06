@@ -136,12 +136,43 @@ export function PrivacySection() {
           </p>
         </div>
 
-        {/* Children */}
+        {/* Children (COPPA) */}
         <div>
-          <h2 className="text-xl font-bold text-foreground mb-3">Children&apos;s Privacy</h2>
-          <p className="ml-7">
-            Our site is not directed at children under 13. We do not knowingly collect personal information from children. If you believe a child has provided us with personal data, please contact us and we will delete it.
-          </p>
+          <div className="flex items-center gap-2 mb-3">
+            <UserCheck className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold text-foreground">Children&apos;s Privacy (COPPA Compliance)</h2>
+          </div>
+          <div className="ml-7 space-y-2">
+            <p>
+              A Ripple Effect Initiative complies strictly with the Children&apos;s Online Privacy Protection Act (COPPA). This Platform is <strong>not directed to children under 13 years of age</strong>, and we do not knowingly collect, solicit, or maintain personal information from individuals under 13.
+            </p>
+            <p>
+              Minors between the ages of 13 and 17 may only submit volunteer inquiries, chapter applications, or water readings with the express permission and supervision of a parent or legal guardian.
+            </p>
+            <p>
+              If you are a parent or guardian and believe that your child under 13 has submitted personal data (such as their name or email address) to our site, please contact us immediately at{' '}
+              <a href={`mailto:${EMAIL}`} className="font-medium text-primary hover:underline">{EMAIL}</a>{' '}
+              and we will permanently delete such information from our records within 48 hours.
+            </p>
+          </div>
+        </div>
+
+        {/* California & State Privacy Rights */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <Shield className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold text-foreground">California &amp; State Privacy Rights (CCPA / CPRA)</h2>
+          </div>
+          <div className="ml-7 space-y-2">
+            <p>
+              If you are a resident of California or another state with comprehensive privacy legislation, you have specific statutory rights regarding your personal information:
+            </p>
+            <ul className="list-disc ml-5 space-y-1">
+              <li><strong>Notice of Collection:</strong> We collect contact identifiers (name, email, ZIP code) solely for the educational, civic, and volunteer purposes specified in this policy.</li>
+              <li><strong>Do Not Sell or Share:</strong> We do NOT sell, rent, trade, or share your personal information with any third party for commercial marketing or cross-context behavioral advertising.</li>
+              <li><strong>Right to Non-Discrimination:</strong> We will never discriminate against you, deny access, or alter your experience for exercising any of your privacy rights.</li>
+            </ul>
+          </div>
         </div>
 
         {/* Changes */}

@@ -189,9 +189,8 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
               Terms of Service
             </button>
           </div>
-          <p>
-            Data is illustrative and community-submitted. Always verify with your
-            utility&apos;s Consumer Confidence Report.
+          <p className="max-w-xs sm:max-w-md text-center sm:text-right">
+            Educational &amp; research data; not medical or regulatory advice. Always verify with your utility&apos;s annual CCR.
           </p>
         </div>
       </div>

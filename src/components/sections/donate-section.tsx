@@ -283,9 +283,8 @@ export function DonateSection() {
                 </a>
               </Button>
             </motion.div>
-            <p className="mt-3 text-xs text-white/75">
-              Donations are processed by HCB (Hack Club)&apos;s fiscal sponsor
-              platform, tax-deductible in the US.
+            <p className="mt-3 max-w-lg text-center text-xs text-white/80">
+              A Ripple Effect Initiative is a fiscally sponsored project of The Hack Foundation (dba Hack Club), a 501(c)(3) public charity. Contributions made through Hack Club Bank are tax-deductible to the full extent permitted by U.S. law.
             </p>
           </div>
         </div>
