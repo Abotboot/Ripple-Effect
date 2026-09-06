@@ -86,6 +86,16 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
                   FAQ
                 </button>
               </li>
+              <li>
+                <button onClick={() => go('privacy')} className="text-muted-foreground hover:text-primary transition-colors">
+                  Privacy Policy
+                </button>
+              </li>
+              <li>
+                <button onClick={() => go('terms')} className="text-muted-foreground hover:text-primary transition-colors">
+                  Terms of Service
+                </button>
+              </li>
             </ul>
           </div>
 

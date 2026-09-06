@@ -45,6 +45,39 @@ export async function ensureSeeded(): Promise<void> {
     })
   }
 
+  // Purge any legacy fake/demo seed records from the database
+  try {
+    await Promise.all([
+      db.donation.deleteMany({
+        where: {
+          OR: [
+            { email: { in: ['jordan@example.com', 'hello@greenearth.example'] } },
+            { name: { in: ['Green Earth Co.', 'Jordan Lee'] } },
+            { AND: [{ name: 'Anonymous' }, { amount: { in: [25, 250] } }] },
+          ],
+        },
+      }),
+      db.report.deleteMany({
+        where: {
+          OR: [
+            { reporterName: { in: ['Maria G.', 'James R.', 'Priya K.'] } },
+            { title: 'Water tastes great', reporterName: 'Anonymous' },
+            { title: 'Strong chlorine taste', reporterName: 'Anonymous' },
+          ],
+        },
+      }),
+      db.chapter.deleteMany({
+        where: {
+          email: {
+            in: ['dev.sharma@example.edu', 'aisha.khan@example.org', 'marco.reyes@example.edu'],
+          },
+        },
+      }),
+    ])
+  } catch (e) {
+    console.error('[ensureSeeded] Failed to clean demo data:', e)
+  }
+
   // Quick check - does the DB have any utilities?
   const count = await db.utility.count()
   if (count > 0) return
@@ -287,33 +320,6 @@ async function runSeed(): Promise<void> {
   for (let i = 0; i < samples.length; i += 100) {
     await db.sample.createMany({ data: samples.slice(i, i + 100) })
   }
-
-  // Community reports
-  const reports = [
-    { utilityId: utilityIds['IL0316040'], reporterName: 'Maria G.', zipCode: '60614', city: 'Chicago', state: 'IL', title: 'Cloudy water in Lincoln Park', description: 'Tap water has been cloudy for the past 3 days. Settles after a minute but unusual for this area.', contaminant: 'Unknown', appearance: 'cloudy', severity: 'warning', status: 'reviewed' },
-    { utilityId: utilityIds['CA1910052'], reporterName: 'Anonymous', zipCode: '90026', city: 'Los Angeles', state: 'CA', title: 'Strong chlorine taste', description: 'Water has a noticeably strong chlorine taste and smell this week. Filling a pitcher and letting it sit helps.', contaminant: 'Chlorine', appearance: 'odor', severity: 'info', status: 'pending' },
-    { utilityId: utilityIds['TX1010337'], reporterName: 'James R.', zipCode: '77007', city: 'Houston', state: 'TX', title: 'Brown discoloration after storm', description: 'After the heavy rains, water came out brown for several hours. Boil notice issued and lifted next day.', contaminant: 'Sediment', appearance: 'discolored', severity: 'critical', status: 'resolved' },
-    { utilityId: utilityIds['AZ0413027'], reporterName: 'Priya K.', zipCode: '85016', city: 'Phoenix', state: 'AZ', title: 'Concerned about microplastics', description: 'Installed a countertop filter after reading about microplastics in tap water. Would love to see local testing data.', contaminant: 'Microplastics', appearance: 'normal', severity: 'info', status: 'pending' },
-    { utilityId: utilityIds['WA5376550'], reporterName: 'Anonymous', zipCode: '98103', city: 'Seattle', state: 'WA', title: 'Water tastes great', description: 'Seattle tap water has always tasted clean to me. Sharing a positive report!', contaminant: null, appearance: 'normal', severity: 'info', status: 'reviewed' },
-  ]
-  await db.report.createMany({ data: reports })
-
-  // Chapter signups (Start a Chapter program)
-  const chapters = [
-    { name: 'Dev Sharma', email: 'dev.sharma@example.edu', chapterName: 'A Ripple Effect Initiative - UIC Chapter', city: 'Chicago', state: 'IL', zipCode: '60607', waterBody: 'Chicago River / Lake Michigan', organization: 'University of Illinois Chicago', identifier: true, message: 'Want to set up a chapter with my environmental science club.', status: 'onboarded' },
-    { name: 'Aisha Khan', email: 'aisha.khan@example.org', chapterName: 'A Ripple Effect Initiative - Houston Chapter', city: 'Houston', state: 'TX', zipCode: '77004', waterBody: 'Buffalo Bayou', organization: 'Houston Climate Alliance', identifier: false, message: 'Already have a microscope setup, need protocols.', status: 'contacted' },
-    { name: 'Marco Reyes', email: 'marco.reyes@example.edu', chapterName: null, city: 'Phoenix', state: 'AZ', zipCode: '85016', waterBody: 'Salt River', organization: null, identifier: true, message: 'Independent - want to test my local river water.', status: 'pending' },
-  ]
-  await db.chapter.createMany({ data: chapters })
-
-  // Donations (historic records - funding now runs through HCB)
-  const donations = [
-    { name: 'Anonymous', email: null, amount: 25, tier: 'Supporter', message: null, anonymous: true, status: 'completed' },
-    { name: 'Jordan Lee', email: 'jordan@example.com', amount: 50, tier: 'Friend', message: 'Love what you all are building for clean water!', anonymous: false, status: 'completed' },
-    { name: 'Anonymous', email: null, amount: 250, tier: 'Champion', message: 'In memory of my grandfather who fought for our local river.', anonymous: true, status: 'completed' },
-    { name: 'Green Earth Co.', email: 'hello@greenearth.example', amount: 1000, tier: 'Founding', message: 'Proud founding sponsor of the microplastics identifier project.', anonymous: false, status: 'completed' },
-  ]
-  await db.donation.createMany({ data: donations })
 
   console.log('[ensureSeeded] Seed complete.')
 }
