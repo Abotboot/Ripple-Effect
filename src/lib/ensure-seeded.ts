@@ -30,7 +30,12 @@ export async function ensureSeeded(): Promise<void> {
   for (const a of admins) {
     await db.user.upsert({
       where: { email: a.email },
-      update: {},
+      update: process.env.ADMIN_DEFAULT_PASSWORD
+        ? {
+            password: hashPassword(process.env.ADMIN_DEFAULT_PASSWORD),
+            role: 'admin',
+          }
+        : {},
       create: {
         email: a.email,
         name: a.name,
