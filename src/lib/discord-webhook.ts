@@ -89,7 +89,6 @@ export async function sendDiscordReadingWebhook(reading: {
   try {
     const payload = {
       username: 'Ripple Water Monitor',
-      avatar_url: 'https://raw.githubusercontent.com/feathericons/feather/master/icons/droplet.svg',
       embeds: [
         {
           title: `💧 New Citizen Reading: ${reading.contaminantName}`,
@@ -130,6 +129,75 @@ export async function sendDiscordReadingWebhook(reading: {
     })
   } catch (err) {
     console.error('Failed to send Discord reading webhook:', err)
+  }
+}
+
+export async function sendDiscordAlertWebhook(alert: {
+  contaminantName: string
+  level: number
+  unit: string
+  legalLimit?: number | null
+  healthGuideline?: number | null
+  location?: string | null
+  utilityName?: string | null
+}) {
+  try {
+    const exceedsLegal = alert.legalLimit != null && alert.level > alert.legalLimit
+    const exceedsHealth = alert.healthGuideline != null && alert.level > alert.healthGuideline
+
+    const payload = {
+      username: 'Ripple Alert System',
+      embeds: [
+        {
+          title: `🚨 Contaminant Threshold Alert: ${alert.contaminantName}`,
+          description: `Water quality reading exceeds safety thresholds at **${alert.utilityName || alert.location || 'Monitored Facility'}**.`,
+          color: exceedsLegal ? 0xef4444 : 0xf59e0b,
+          fields: [
+            {
+              name: '📍 Location / Utility',
+              value: alert.utilityName || alert.location || 'Unknown',
+              inline: true,
+            },
+            {
+              name: '📊 Measured Value',
+              value: `**${alert.level} ${alert.unit}**`,
+              inline: true,
+            },
+            {
+              name: '⚖️ Legal Limit (MCL)',
+              value: alert.legalLimit != null ? `${alert.legalLimit} ${alert.unit}` : 'Unregulated',
+              inline: true,
+            },
+            {
+              name: '🏥 Health Guideline',
+              value: alert.healthGuideline != null ? `${alert.healthGuideline} ${alert.unit}` : 'None',
+              inline: true,
+            },
+            {
+              name: '⚠️ Status',
+              value: exceedsLegal
+                ? '🔴 **EXCEEDS EPA LEGAL LIMIT**'
+                : exceedsHealth
+                ? '🟡 **EXCEEDS HEALTH GUIDELINE**'
+                : 'Notice',
+              inline: false,
+            },
+          ],
+          footer: {
+            text: 'A Ripple Effect • Automated Contaminant Alert Network',
+          },
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    }
+
+    await fetch(ALERTS_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  } catch (err) {
+    console.error('Failed to send Discord alert webhook:', err)
   }
 }
 

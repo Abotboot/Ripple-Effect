@@ -53,7 +53,8 @@ export async function POST(req: NextRequest) {
   })
 
   // Dispatch real-time report to Discord webhook
-  sendDiscordReportWebhook(created).catch(() => {})
+  await sendDiscordReportWebhook(created)
 
   return NextResponse.json(created, { status: 201 })
 }
+

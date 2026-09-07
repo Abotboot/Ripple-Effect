@@ -40,7 +40,10 @@ export default function Home() {
 
   useEffect(() => {
     const syncFromHash = () => {
-      const hash = window.location.hash.replace(/^#/, '').toLowerCase() as Section
+      let raw = window.location.hash.replace(/^#/, '').toLowerCase().trim()
+      if (raw === 'report') raw = 'reports'
+      if (raw === 'reading' || raw === 'readings') raw = 'submit'
+      const hash = raw as Section
       if (VALID_SECTIONS.includes(hash)) {
         setSectionState(hash)
       } else if (!hash) {
@@ -52,6 +55,7 @@ export default function Home() {
     window.addEventListener('hashchange', syncFromHash)
     return () => window.removeEventListener('hashchange', syncFromHash)
   }, [])
+
 
   const setSection = (next: Section) => {
     setSectionState(next)

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { ensureSeeded } from '@/lib/ensure-seeded'
-import { sendDiscordReadingWebhook } from '@/lib/discord-webhook'
+import { sendDiscordReadingWebhook, sendDiscordAlertWebhook } from '@/lib/discord-webhook'
 
 // POST /api/readings - public citizen-science reading submission.
 // Creates a Sample with quality='citizen'. This is the public entry point
@@ -58,12 +58,14 @@ export async function POST(req: NextRequest) {
 
   // Optional: verify the utility exists if provided
   let utilityId: string | null = null
+  let utilityName: string | null = null
   if (body.utilityId) {
     const utility = await db.utility.findUnique({ where: { id: String(body.utilityId) } })
     if (!utility) {
       return NextResponse.json({ error: 'Utility not found.' }, { status: 404 })
     }
     utilityId = utility.id
+    utilityName = utility.name
   }
 
   // Rate-limit: max 10 citizen readings per email in the last 24h
@@ -92,12 +94,14 @@ export async function POST(req: NextRequest) {
   if (body.notes) notesParts.push(`notes:${String(body.notes).trim().slice(0, 500)}`)
   const notes = notesParts.join(' | ')
 
+  const unit = body.unit ?? contaminant.legalLimitUnit ?? contaminant.healthGuidelineUnit ?? 'ppb'
+
   const created = await db.sample.create({
     data: {
-      utilityId: utilityId ?? '', // empty string if no utility - TODO: consider nullable later
+      utilityId: utilityId ?? null,
       contaminantId: contaminant.id,
       level,
-      unit: body.unit ?? contaminant.legalLimitUnit ?? contaminant.healthGuidelineUnit ?? 'ppb',
+      unit,
       sampleDate: body.sampleDate ? new Date(body.sampleDate) : new Date(),
       source: 'Citizen Test',
       treatmentStatus: body.treatmentStatus ?? 'Treated',
@@ -108,18 +112,34 @@ export async function POST(req: NextRequest) {
   })
 
   // Dispatch real-time citizen reading to Discord webhook
-  sendDiscordReadingWebhook({
+  await sendDiscordReadingWebhook({
     contaminantName: contaminant.name,
     level,
-    unit: body.unit ?? contaminant.legalLimitUnit ?? contaminant.healthGuidelineUnit ?? 'ppb',
+    unit,
     location: body.location,
     reporterName: body.reporterName,
-    utilityName: body.utilityName || (utilityId ? 'Mapped Utility' : null),
+    utilityName: utilityName || body.utilityName || (utilityId ? 'Mapped Utility' : null),
     notes: body.notes
-  }).catch(() => {})
+  })
+
+  // If level exceeds EPA legal limit or health guideline, dispatch alert to #contaminant-alerts
+  const exceedsLegal = contaminant.legalLimit != null && level > contaminant.legalLimit
+  const exceedsHealth = contaminant.healthGuideline != null && level > contaminant.healthGuideline
+  if (exceedsLegal || exceedsHealth) {
+    await sendDiscordAlertWebhook({
+      contaminantName: contaminant.name,
+      level,
+      unit,
+      legalLimit: contaminant.legalLimit,
+      healthGuideline: contaminant.healthGuideline,
+      location: body.location,
+      utilityName: utilityName || body.utilityName || null,
+    })
+  }
 
   return NextResponse.json(
     { ok: true, id: created.id, message: 'Citizen reading recorded. Thank you!' },
     { status: 201 }
   )
 }
+
