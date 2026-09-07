@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { ensureSeeded } from '@/lib/ensure-seeded'
+import { sendDiscordReadingWebhook } from '@/lib/discord-webhook'
 
 // POST /api/readings - public citizen-science reading submission.
 // Creates a Sample with quality='citizen'. This is the public entry point
@@ -105,6 +106,17 @@ export async function POST(req: NextRequest) {
       notes,
     },
   })
+
+  // Dispatch real-time citizen reading to Discord webhook
+  sendDiscordReadingWebhook({
+    contaminantName: contaminant.name,
+    level,
+    unit: body.unit ?? contaminant.legalLimitUnit ?? contaminant.healthGuidelineUnit ?? 'ppb',
+    location: body.location,
+    reporterName: body.reporterName,
+    utilityName: body.utilityName || (utilityId ? 'Mapped Utility' : null),
+    notes: body.notes
+  }).catch(() => {})
 
   return NextResponse.json(
     { ok: true, id: created.id, message: 'Citizen reading recorded. Thank you!' },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { sendDiscordReportWebhook } from '@/lib/discord-webhook'
 
 // GET /api/reports - list all community reports (newest first)
 export async function GET(req: NextRequest) {
@@ -50,5 +51,9 @@ export async function POST(req: NextRequest) {
       status: 'pending',
     },
   })
+
+  // Dispatch real-time report to Discord webhook
+  sendDiscordReportWebhook(created).catch(() => {})
+
   return NextResponse.json(created, { status: 201 })
 }
