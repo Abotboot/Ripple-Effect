@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { sendDiscordReportWebhook } from '@/lib/discord-webhook'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 // GET /api/reports - list all community reports (newest first)
 export async function GET(req: NextRequest) {
@@ -16,9 +17,27 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(sanitized)
 }
 
-// POST /api/reports - public submission (no auth required)
+// POST /api/reports - public submission (rate-limited, no auth required)
 export async function POST(req: NextRequest) {
-  const body = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body) {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  }
+
+  // Honeypot check for automated bot scrapers/scanners
+  if (body.website || body.honeypot || body.hp_check) {
+    return NextResponse.json({ error: 'Submission rejected.' }, { status: 400 })
+  }
+
+  // IP rate-limiting (max 5 submissions per 10 minutes)
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown'
+  if (!checkRateLimit(`report:${ip}`, { windowMs: 10 * 60 * 1000, max: 5 })) {
+    return NextResponse.json(
+      { error: 'Too many submissions. Please wait 10 minutes before submitting again.' },
+      { status: 429 }
+    )
+  }
+
   if (!body?.zipCode || !body?.title || !body?.description) {
     return NextResponse.json(
       { error: 'zipCode, title, and description are required' },

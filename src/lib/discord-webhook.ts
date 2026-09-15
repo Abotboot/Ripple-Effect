@@ -1,10 +1,5 @@
-const REPORTS_WEBHOOK_URL =
-  process.env.DISCORD_WEBHOOK_REPORTS ||
-  'https://discord.com/api/webhooks/1546398624643031143/SSIAAqxJqI0nQFYIP6nSAE2CrW6vNXzFdx1VY-0RQopZpaKQ9XGb25R9nwupqwHdFh_e'
-
-const ALERTS_WEBHOOK_URL =
-  process.env.DISCORD_WEBHOOK_ALERTS ||
-  'https://discord.com/api/webhooks/1546398627684032544/Me_NKfiZ4l_h-MsZxARa_wgJu3Pg9Sat898xhEy-7bW7OYtSVnus2GqVSdy5nCCdgBH3'
+const REPORTS_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_REPORTS
+const ALERTS_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_ALERTS
 
 export async function sendDiscordReportWebhook(report: {
   title: string
@@ -17,6 +12,7 @@ export async function sendDiscordReportWebhook(report: {
   severity?: string
   reporterName?: string | null
 }) {
+  if (!REPORTS_WEBHOOK_URL) return
   try {
     const location = [report.city, report.state, report.zipCode]
       .filter(Boolean)
@@ -86,6 +82,7 @@ export async function sendDiscordReadingWebhook(reading: {
   utilityName?: string | null
   notes?: string | null
 }) {
+  if (!REPORTS_WEBHOOK_URL) return
   try {
     const payload = {
       username: 'Ripple Water Monitor',
@@ -141,6 +138,7 @@ export async function sendDiscordAlertWebhook(alert: {
   location?: string | null
   utilityName?: string | null
 }) {
+  if (!ALERTS_WEBHOOK_URL) return
   try {
     const exceedsLegal = alert.legalLimit != null && alert.level > alert.legalLimit
     const exceedsHealth = alert.healthGuideline != null && alert.level > alert.healthGuideline

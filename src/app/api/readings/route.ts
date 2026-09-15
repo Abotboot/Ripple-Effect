@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { ensureSeeded } from '@/lib/ensure-seeded'
 import { sendDiscordReadingWebhook, sendDiscordAlertWebhook } from '@/lib/discord-webhook'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 // POST /api/readings - public citizen-science reading submission.
 // Creates a Sample with quality='citizen'. This is the public entry point
@@ -14,7 +15,7 @@ import { sendDiscordReadingWebhook, sendDiscordAlertWebhook } from '@/lib/discor
 //  - forces source='Citizen Test'
 //  - allows optional utilityId (so readings can be tied to a known utility)
 //    OR a free-text location string (for unmapped water bodies)
-//  - rate-limits by reporter email (max 10 pending readings per email)
+//  - rate-limits by IP and reporter email (max 10 pending readings per email)
 
 export async function POST(req: NextRequest) {
   await ensureSeeded()
@@ -22,6 +23,20 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null)
   if (!body) {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 })
+  }
+
+  // Honeypot check for bots/scanners
+  if (body.website || body.honeypot || body.hp_check) {
+    return NextResponse.json({ error: 'Submission rejected.' }, { status: 400 })
+  }
+
+  // Rate limiting by client IP (max 5 readings per 10 minutes)
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown'
+  if (!checkRateLimit(`reading:${ip}`, { windowMs: 10 * 60 * 1000, max: 5 })) {
+    return NextResponse.json(
+      { error: 'Too many submissions. Please wait 10 minutes before submitting again.' },
+      { status: 429 }
+    )
   }
 
   // Required fields
