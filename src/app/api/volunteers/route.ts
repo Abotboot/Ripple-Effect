@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 // GET /api/volunteers - list all volunteers (admin only)
 export async function GET(req: NextRequest) {
@@ -17,9 +18,27 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(volunteers)
 }
 
-// POST /api/volunteers - public signup (no auth required)
+// POST /api/volunteers - public signup (rate-limited, no auth required)
 export async function POST(req: NextRequest) {
-  const body = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body) {
+    return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 })
+  }
+
+  // Honeypot check for bots/scanners
+  if (body.website || body.honeypot || body.hp_check) {
+    return NextResponse.json({ error: 'Submission rejected.' }, { status: 400 })
+  }
+
+  // Rate limiting by client IP (max 5 submissions per 10 minutes)
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown'
+  if (!checkRateLimit(`volunteer:${ip}`, { windowMs: 10 * 60 * 1000, max: 5 })) {
+    return NextResponse.json(
+      { error: 'Too many submissions. Please wait 10 minutes before submitting again.' },
+      { status: 429 }
+    )
+  }
+
   if (!body?.name || !body?.email) {
     return NextResponse.json(
       { error: 'name and email are required' },
