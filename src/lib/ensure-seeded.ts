@@ -9,10 +9,20 @@ import { db } from './db'
 // Safe to call on every API request - it only queries a count first.
 
 let seedPromise: Promise<void> | null = null
+let adminPromise: Promise<void> | null = null
 
-export async function ensureSeeded(): Promise<void> {
-  // Always ensure the admin accounts exist, even on an already-seeded DB.
-  // Uses upsert with update:{} so existing (changed) passwords are preserved.
+// Ensures the admin accounts exist and purges legacy demo data.
+// Memoized per process: this runs at most once per server start (and once
+// more only if it fails), NOT on every request. The previous per-request
+// version hashed passwords (scrypt) on every API call, which was a DoS
+// amplifier.
+//
+// Password rules:
+//  - create: uses ADMIN_DEFAULT_PASSWORD (or a local-dev fallback).
+//  - update: NEVER resets an existing password silently. Set the explicit
+//    recovery flag ADMIN_RESET_PASSWORD=true once to force a reset to
+//    ADMIN_DEFAULT_PASSWORD, then remove the flag.
+async function ensureAdminsAndCleanData(): Promise<void> {
   const { hashPassword } = await import('./auth')
 
   // Read admin password from env to keep it out of source control.
@@ -30,12 +40,13 @@ export async function ensureSeeded(): Promise<void> {
   for (const a of admins) {
     await db.user.upsert({
       where: { email: a.email },
-      update: process.env.ADMIN_DEFAULT_PASSWORD
-        ? {
-            password: hashPassword(process.env.ADMIN_DEFAULT_PASSWORD),
-            role: 'admin',
-          }
-        : {},
+      update:
+        process.env.ADMIN_RESET_PASSWORD === 'true'
+          ? {
+              password: hashPassword(process.env.ADMIN_DEFAULT_PASSWORD || adminPassword),
+              role: 'admin',
+            }
+          : {},
       create: {
         email: a.email,
         name: a.name,
@@ -77,6 +88,17 @@ export async function ensureSeeded(): Promise<void> {
   } catch (e) {
     console.error('[ensureSeeded] Failed to clean demo data:', e)
   }
+}
+
+export async function ensureSeeded(): Promise<void> {
+  if (!adminPromise) {
+    adminPromise = ensureAdminsAndCleanData().catch((e) => {
+      // Reset the memo so a transient failure is retried on the next request.
+      adminPromise = null
+      throw e
+    })
+  }
+  await adminPromise
 
   // Quick check - does the DB have any utilities?
   const count = await db.utility.count()
