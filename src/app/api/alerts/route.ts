@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 // POST /api/alerts - subscribe to email alerts.
 // Body: { email, utilityId?, zipCode?, contaminantId?, threshold? }
@@ -9,6 +10,21 @@ export async function POST(req: NextRequest) {
   if (!body || !body.email) {
     return NextResponse.json({ error: 'Email is required.' }, { status: 400 })
   }
+
+  // Honeypot check for automated bot scrapers/scanners
+  if (body.website || body.honeypot || body.hp_check) {
+    return NextResponse.json({ error: 'Submission rejected.' }, { status: 400 })
+  }
+
+  // IP rate-limiting (max 5 subscriptions per 10 minutes)
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown'
+  if (!checkRateLimit(`alerts:${ip}`, { windowMs: 10 * 60 * 1000, max: 5 })) {
+    return NextResponse.json(
+      { error: 'Too many subscriptions. Please wait 10 minutes before trying again.' },
+      { status: 429 }
+    )
+  }
+
   const email = String(body.email).trim().toLowerCase()
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: 'Please enter a valid email.' }, { status: 400 })
