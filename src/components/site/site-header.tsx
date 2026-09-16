@@ -2,6 +2,7 @@
 
 import { Droplets, Menu, X, Github, BarChart3, Megaphone, Lock, Map, Info, HandHeart, Database, Beaker, HelpCircle, Handshake } from 'lucide-react'
 import { useState } from 'react'
+import { motion, useScroll, useSpring } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/site/theme-toggle'
@@ -50,6 +51,10 @@ export function SiteHeader({
 }) {
   const [open, setOpen] = useState(false)
 
+  // Scrolltide-style reading progress: a thin aqua bar along the header edge.
+  const { scrollYProgress } = useScroll()
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 25, mass: 0.3 })
+
   const go = (s: Section) => {
     onNavigate(s)
     setOpen(false)
@@ -58,6 +63,11 @@ export function SiteHeader({
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/85 backdrop-blur-md">
+      <motion.div
+        aria-hidden="true"
+        style={{ scaleX: progress }}
+        className="absolute inset-x-0 top-0 h-[3px] origin-left bg-gradient-to-r from-primary via-cyan-400 to-primary"
+      />
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
         {/* Brand, logo zoomed in (bigger) */}
         <button

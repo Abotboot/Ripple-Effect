@@ -161,6 +161,7 @@ export type Donation = {
   anonymous: boolean
   status: string
   createdAt: string
+  externalId?: string | null
 }
 
 export type Stats = {

@@ -207,15 +207,18 @@ model AlertSubscription {
 // links to external GoFundMe). We record intent + optional message so the crew
 // can thank donors and track momentum.
 model Donation {
-  id        String   @id @default(cuid())
-  name      String
-  email     String?
-  amount    Float    // pledged amount in USD
-  tier      String   @default("Supporter") // Supporter / Friend / Champion / Founding
-  message   String?
-  anonymous Boolean  @default(false)
-  status    String   @default("pledged") // pledged / completed
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  name       String
+  email      String?
+  amount     Float    // pledged amount in USD
+  tier       String   @default("Supporter") // Supporter / Friend / Champion / Founding
+  message    String?
+  anonymous  Boolean  @default(false)
+  status     String   @default("pledged") // pledged / completed
+  createdAt  DateTime @default(now())
+  // Set for donations synced from our HCB (Hack Club) fiscal-sponsorship
+  // account, so re-syncing never creates duplicates.
+  externalId String?  @unique
 
   @@index([status])
   @@index([tier])

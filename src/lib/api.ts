@@ -117,6 +117,11 @@ export const api = {
 
   listDonations: () => req<Donation[]>(`/api/donations`),
 
+  // Pull donations made through the embedded HCB form into the database
+  // (idempotent - keyed by the HCB donation id).
+  syncDonations: () =>
+    req<{ ok: true; created: number; updated: number; total: number }>(`/api/donations/sync`, { method: 'POST' }),
+
   updateDonationStatus: (id: string, status: string) =>
     req<Donation>(`/api/donations/${id}`, {
       method: 'PATCH',

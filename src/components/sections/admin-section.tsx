@@ -1049,10 +1049,27 @@ function ChaptersAdmin() {
 // -- Donations Admin (pledge tracking) --
 function DonationsAdmin() {
   const [donations, setDonations] = useState<Donation[] | null>(null)
+  const [syncing, setSyncing] = useState(false)
   const { toast } = useToast()
 
   const load = () => api.listDonations().then(setDonations).catch(() => setDonations([]))
-  useEffect(() => { load() }, [])
+
+  // Real donations are made on the embedded HCB form, which never touches our
+  // database - pull them in (idempotently, keyed by HCB id) on every visit.
+  const syncHcb = async () => {
+    setSyncing(true)
+    try {
+      const r = await api.syncDonations()
+      if (r.created > 0) toast({ title: `Synced ${r.created} donation${r.created === 1 ? '' : 's'} from HCB` })
+      else toast({ title: 'HCB is up to date' })
+    } catch {
+      toast({ title: 'HCB sync failed', description: 'Will retry next visit.', variant: 'destructive' })
+    } finally {
+      setSyncing(false)
+      load()
+    }
+  }
+  useEffect(() => { syncHcb() }, [])
 
   const setStatus = async (id: string, status: string) => {
     try {
@@ -1090,6 +1107,16 @@ function DonationsAdmin() {
           <CardTitle className="flex items-center gap-2 text-base">
             <HandHeart className="h-4 w-4 text-primary" />
             Donations ({donations.length})
+            <Button
+              size="sm"
+              variant="outline"
+              className="ml-2 h-7 gap-1 text-[11px]"
+              disabled={syncing}
+              onClick={syncHcb}
+            >
+              {syncing ? <Loader2 className="h-3 w-3 animate-spin" /> : <ArrowUpCircle className="h-3 w-3" />}
+              Sync from HCB
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
