@@ -14,6 +14,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
+import { cn } from '@/lib/utils'
 
 const Scene = dynamic(() => import('@/components/3d/water-drop-scene'), {
   ssr: false,
@@ -109,18 +110,34 @@ export function WaterDrop3D({ className }: { className?: string }) {
 
   return (
     <div ref={hostRef} className={className}>
-      {showScene ? (
-        <Scene
-          revealed={revealed}
-          onReady={() => setSceneOk(true)}
-          onFail={() => setFailed(true)}
-        />
-      ) : (
+      {/* The poster is the permanent base layer; the live scene fades in over
+          it once WebGL has rendered its first frame, so there is no pop. */}
+      <div
+        className={cn(
+          'absolute inset-0 transition-opacity duration-700',
+          sceneOk ? 'opacity-0' : 'opacity-100'
+        )}
+        aria-hidden={sceneOk || undefined}
+      >
         <DropletPoster />
+      </div>
+      {showScene && (
+        <div
+          className={cn(
+            'absolute inset-0 transition-opacity duration-700',
+            sceneOk ? 'opacity-100' : 'opacity-0'
+          )}
+        >
+          <Scene
+            revealed={revealed}
+            onReady={() => setSceneOk(true)}
+            onFail={() => setFailed(true)}
+          />
+        </div>
       )}
 
       {/* Controls: plain HTML buttons, keyboard reachable. */}
-      {showScene && (
+      {showScene && sceneOk && (
         <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap">
           <button
             type="button"
@@ -130,15 +147,6 @@ export function WaterDrop3D({ className }: { className?: string }) {
           >
             {revealed ? 'Hide particles' : 'Reveal particles'}
           </button>
-          <span className="hidden shrink-0 rounded-full border border-border/50 bg-card/70 px-2 py-1 text-[10px] text-muted-foreground/70 sm:inline">
-            Illustration &mdash; not to scale
-          </span>
-        </div>
-      )}
-      {showScene && !sceneOk && (
-        // Until the first frame lands, keep the poster visually behind the canvas.
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <DropletPoster />
         </div>
       )}
     </div>
