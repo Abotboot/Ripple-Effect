@@ -176,7 +176,7 @@ Learn more at https://arippleeffectinitiative.org
                 </Badge>
                 <Badge className="bg-white/20 text-white hover:bg-white/20">
                   <Users className="mr-1 h-3 w-3" />
-                  {utility.population.toLocaleString()} served
+                  {utility.population.toLocaleString()} residents served
                 </Badge>
               </div>
             </div>

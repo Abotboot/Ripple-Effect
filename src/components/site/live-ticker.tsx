@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Droplets, AlertTriangle, FlaskConical, Users, MapPin } from 'lucide-react'
+import { Droplets, AlertTriangle, FlaskConical, MapPin } from 'lucide-react'
 import { api } from '@/lib/api'
 import type { Stats } from '@/lib/types'
 
@@ -18,7 +18,6 @@ export function LiveTicker() {
   const items = [
     { icon: Droplets, text: `${stats.utilitiesCount} utilities tracked across ${stats.statesCovered} states` },
     { icon: FlaskConical, text: `${stats.contaminantsCount} contaminants catalogued including microplastics` },
-    { icon: Users, text: `${(stats.populationServed / 1_000_000).toFixed(1)}M people served by tracked utilities` },
     { icon: AlertTriangle, text: `${stats.healthExceedances} measurements above EWG health guidelines` },
     { icon: Droplets, text: `Microplastics avg: ${stats.microplasticsAvg} particles/L in untreated freshwater` },
     { icon: MapPin, text: `${stats.reportsCount} community reports filed` },

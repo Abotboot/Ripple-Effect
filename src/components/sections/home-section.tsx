@@ -564,10 +564,6 @@ function Hero({
                 <Droplets className="h-3.5 w-3.5 text-primary" />
                 {stats.samplesCount} measurements
               </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5 text-primary" />
-                {(stats.populationServed / 1_000_000).toFixed(1)}M people served
-              </span>
             </motion.div>
           )}
         </div>
@@ -736,7 +732,7 @@ function UtilityCard({
         <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Users className="h-3 w-3" />
-            {utility.population.toLocaleString()} served
+            {utility.population.toLocaleString()} residents served
           </span>
           <div className="flex items-center gap-1.5">
             {onShare && (

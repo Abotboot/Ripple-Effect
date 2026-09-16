@@ -11,7 +11,7 @@ import {
 } from 'react-simple-maps'
 import {
   Map as MapIcon, MapPin, Loader2, AlertTriangle, ShieldCheck, Building2,
-  Users, Navigation, Search, X, RotateCcw,
+  Navigation, Search, X, RotateCcw,
   Microscope, FlaskConical, Droplets, Beaker,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -598,9 +598,8 @@ export function MapSection() {
 
         {/* Quick stats */}
         {!loading && stats && (
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
             <MiniStat icon={Building2} label="Utilities mapped" value={stats.mapUtilities.length.toString()} />
-            <MiniStat icon={Users} label="People represented" value={`${(stats.populationServed / 1_000_000).toFixed(1)}M`} />
             <MiniStat icon={AlertTriangle} label="Above legal limit" value={tierCounts.legal.toString()} tone="warning" />
             <MiniStat icon={ShieldCheck} label="Within guidelines" value={tierCounts.clean.toString()} tone="ok" />
           </div>
@@ -671,7 +670,7 @@ export function MapSection() {
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-sm font-medium text-foreground">{u.name}</div>
                           <div className="text-xs text-muted-foreground">
-                            {u.city}, {u.state} · {u.population.toLocaleString()} served
+                            {u.city}, {u.state} · {u.population.toLocaleString()} residents served
                           </div>
                         </div>
                         <div className="flex shrink-0 gap-1.5 text-[10px]">
