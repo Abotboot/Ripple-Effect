@@ -268,10 +268,11 @@ export default function WaterDropScene({ revealed, onReady, onFail }: WaterDropS
       if (!hidden) settleFrames = 30
       else settleFrames--
 
-      // Gentle idle bob + eased tilt toward the pointer target.
+      // Gentle idle bob (vertical + horizontal sway) + eased pointer tilt.
       // Baseline sits slightly below center: the drop is top-heavy
       // (tip ~3.1 up, belly ~1.9 down), this keeps it optically centered.
       dropGroup.position.y = -0.35 + Math.sin(t * 0.8) * 0.08
+      dropGroup.position.x = Math.sin(t * 0.5) * 0.18
       dropGroup.rotation.x += (targetTilt.x - dropGroup.rotation.x) * 0.06
       dropGroup.rotation.y += (targetTilt.y - dropGroup.rotation.y) * 0.06
 

@@ -92,7 +92,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
   )
 
   const openUtility = useCallback(
-    async (u: Utility) => {
+    async (u: { id: string }) => {
       setLoadingDetail(u.id)
       try {
         const detail = await api.getUtility(u.id)
@@ -266,7 +266,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
       <RecentActivityAndAlerts />
 
       {/* Recently added utilities + Data quality callout */}
-      <RecentlyAddedAndQuality onNavigate={onNavigate} />
+      <RecentlyAddedAndQuality onNavigate={onNavigate} onOpenUtility={openUtility} />
 
       {/* Citizen readings feed */}
       <CitizenReadingsFeed onNavigate={onNavigate} />
@@ -1031,7 +1031,13 @@ type RecentUtility = {
   sampleCount: number
 }
 
-function RecentlyAddedAndQuality({ onNavigate }: { onNavigate?: (s: Section) => void }) {
+function RecentlyAddedAndQuality({
+  onNavigate,
+  onOpenUtility,
+}: {
+  onNavigate?: (s: Section) => void
+  onOpenUtility: (u: RecentUtility) => void
+}) {
   const [recent, setRecent] = useState<RecentUtility[] | null>(null)
   const [stats, setStats] = useState<Stats | null>(null)
 
@@ -1073,7 +1079,19 @@ function RecentlyAddedAndQuality({ onNavigate }: { onNavigate?: (s: Section) => 
                   viewport={{ once: true }}
                   transition={{ delay: Math.min(i * 0.06, 0.3) }}
                 >
-                  <Card className="group h-full cursor-pointer transition-all hover:border-primary/40 hover:shadow-md" >
+                  <Card
+                    className="group h-full cursor-pointer transition-all hover:border-primary/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for ${u.name}`}
+                    onClick={() => onOpenUtility(u)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        onOpenUtility(u)
+                      }
+                    }}
+                  >
                     <CardContent className="p-4" >
                       <div className="flex items-start gap-3">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
