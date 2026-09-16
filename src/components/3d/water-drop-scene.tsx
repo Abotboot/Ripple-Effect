@@ -223,16 +223,33 @@ export default function WaterDropScene({ revealed, onReady, onFail }: WaterDropS
     }
     dropGroup.add(fragments)
 
-    // Bounded pointer tilt (never a free orbit).
+    // Bounded pointer tilt + magnetic shift + hover glow, so hovering gives a
+    // clearly visible reaction whether or not the particles are revealed.
     const targetTilt = { x: 0, y: 0 }
+    const targetShift = { x: 0, y: 0 }
     const onPointerMove = (e: PointerEvent) => {
       const rect = host.getBoundingClientRect()
       const nx = (e.clientX - rect.left) / Math.max(rect.width, 1) - 0.5
       const ny = (e.clientY - rect.top) / Math.max(rect.height, 1) - 0.5
       targetTilt.x = THREE.MathUtils.clamp(ny, -0.5, 0.5) * 0.3
       targetTilt.y = THREE.MathUtils.clamp(nx, -0.5, 0.5) * 0.5
+      targetShift.x = THREE.MathUtils.clamp(nx, -0.5, 0.5) * 0.45
+      targetShift.y = THREE.MathUtils.clamp(ny, -0.5, 0.5) * 0.3
+    }
+    const onPointerLeave = () => {
+      targetTilt.x = 0
+      targetTilt.y = 0
+      targetShift.x = 0
+      targetShift.y = 0
+      hoverTarget.value = 0
+    }
+    const hoverTarget = { value: 0 }
+    const onPointerEnter = () => {
+      hoverTarget.value = 1
     }
     host.addEventListener('pointermove', onPointerMove)
+    host.addEventListener('pointerenter', onPointerEnter)
+    host.addEventListener('pointerleave', onPointerLeave)
 
     // Resize via ResizeObserver (no window listeners needed).
     const resize = () => {
@@ -258,6 +275,8 @@ export default function WaterDropScene({ revealed, onReady, onFail }: WaterDropS
     let settleFrames = 30
     let revealedAmount = 0
     let disposed = false
+    const shiftSm = { x: 0, y: 0 }
+    let hoverSm = 0
 
     const tick = () => {
       if (disposed) return
@@ -268,11 +287,17 @@ export default function WaterDropScene({ revealed, onReady, onFail }: WaterDropS
       if (!hidden) settleFrames = 30
       else settleFrames--
 
+      // Smoothed hover response: magnetic shift toward the cursor + rim glow
+      // boost, identical whether particles are revealed or not.
+      shiftSm.x += (targetShift.x - shiftSm.x) * 0.07
+      shiftSm.y += (targetShift.y - shiftSm.y) * 0.07
+      hoverSm += (hoverTarget.value - hoverSm) * 0.08
+      rimMat.uniforms.uStrength.value = 0.85 + hoverSm * 0.55
       // Gentle idle bob (vertical + horizontal sway) + eased pointer tilt.
       // Baseline sits slightly below center: the drop is top-heavy
       // (tip ~3.1 up, belly ~1.9 down), this keeps it optically centered.
-      dropGroup.position.y = -0.35 + Math.sin(t * 0.8) * 0.08
-      dropGroup.position.x = Math.sin(t * 0.5) * 0.18
+      dropGroup.position.y = -0.35 + Math.sin(t * 0.8) * 0.08 + shiftSm.y
+      dropGroup.position.x = Math.sin(t * 0.5) * 0.18 + shiftSm.x
       dropGroup.rotation.x += (targetTilt.x - dropGroup.rotation.x) * 0.06
       dropGroup.rotation.y += (targetTilt.y - dropGroup.rotation.y) * 0.06
 
@@ -318,6 +343,8 @@ export default function WaterDropScene({ revealed, onReady, onFail }: WaterDropS
       ro.disconnect()
       io.disconnect()
       host.removeEventListener('pointermove', onPointerMove)
+      host.removeEventListener('pointerenter', onPointerEnter)
+      host.removeEventListener('pointerleave', onPointerLeave)
       renderer.domElement.removeEventListener('webglcontextlost', onContextLost)
       drop.geometry.dispose()
       dropMat.dispose()
