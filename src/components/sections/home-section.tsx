@@ -17,7 +17,8 @@ import { api } from '@/lib/api'
 import type { Utility, Stats, UtilityWithStats } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
 import { LiveTicker } from '@/components/site/live-ticker'
-import { Ripple } from '@/components/canvas-ui/Ripple'
+import { TankHero } from '@/components/atmosphere/tank-hero'
+import { WaterNarrative } from '@/components/atmosphere/water-narrative'
 import type { Section } from '@/components/site/site-header'
 import { Microscope, HandHeart, Database, Github, Info } from 'lucide-react'
 import { useCountUp, formatCount } from '@/hooks/use-count-up'
@@ -154,6 +155,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
 
       {/* Stats bar */}
       <StatsBar stats={stats} />
+      <WaterNarrative />
 
       {/* Search results */}
       <section id="search" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -396,240 +398,25 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
   )
 }
 
-function Hero({
-  q,
-  setQ,
-  onSearch,
-  stats,
-  onNavigate,
-}: {
+function Hero({ q, setQ, onSearch, onNavigate }: {
   q: string
   setQ: (s: string) => void
   onSearch: () => void
   stats: Stats | null
   onNavigate?: (s: Section) => void
 }) {
-  return (
-    <Ripple
-      trigger="click"
-      interval={5}
-      amplitude={0.6}
-      speed={0.7}
-      wavelength={70}
-      refraction={60}
-      shine={0.7}
-    >
-    <section className="relative overflow-hidden bg-water-hero">
-      {/* Animated gradient orbs */}
-      <div className="pointer-events-none absolute inset-0 opacity-40">
-        <motion.div
-          className="absolute -top-12 right-[10%] h-72 w-72 rounded-full bg-primary/30 blur-3xl"
-          animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute bottom-0 left-[5%] h-60 w-60 rounded-full bg-accent/50 blur-3xl"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.6, 0.4] }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        />
-        <motion.div
-          className="absolute top-[40%] left-[60%] h-40 w-40 rounded-full bg-cyan-300/30 blur-3xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        />
-      </div>
-
-      {/* Falling water droplets animation */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {DROPLET_POSITIONS.map((pos, i) => (
-          <motion.div
-            key={i}
-            className="absolute"
-            style={{ left: pos.left, top: '-20px' }}
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: ['calc(-20px)', 'calc(100vh)'], opacity: [0, 0.6, 0.6, 0] }}
-            transition={{
-              duration: pos.duration,
-              repeat: Infinity,
-              delay: pos.delay,
-              ease: 'easeIn',
-            }}
-          >
-            <svg width={pos.size} height={pos.size * 1.4} viewBox="0 0 12 16" fill="none">
-              <path
-                d="M6 0 C6 4, 12 8, 12 11 A6 6 0 0 1 0 11 C0 8, 6 4, 6 0 Z"
-                fill="oklch(0.7 0.13 195)"
-                opacity="0.5"
-              />
-            </svg>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Wave decoration at bottom of hero */}
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0">
-        <svg
-          viewBox="0 0 1440 80"
-          className="w-full h-[40px] sm:h-[60px]"
-          preserveAspectRatio="none"
-          fill="none"
-        >
-          <motion.path
-            d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"
-            fill="oklch(0.99 0.005 200)"
-            className="dark:fill-[oklch(0.16_0.02_200)]"
-            animate={{
-              d: [
-                'M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z',
-                'M0,40 C240,0 480,80 720,40 C960,0 1200,80 1440,40 L1440,80 L0,80 Z',
-                'M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z',
-              ],
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </svg>
-      </div>
-
-      <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-        <div className="mx-auto max-w-3xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <Badge
-              variant="secondary"
-              className="mb-5 gap-1.5 border-primary/20 bg-primary/10 text-primary"
-            >
-              Freshwater Database
-                          </Badge>
-            <h1 className="text-balance text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              What&apos;s in your{' '}
-              <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-primary via-cyan-500 to-primary bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_ease_infinite]">
-                  water
-                </span>
-                <motion.span
-                  className="absolute -right-3 -top-2 text-primary"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 0.8] }}
-                  transition={{ duration: 1, delay: 0.8, repeat: Infinity, repeatDelay: 4 }}
-                >
-                  <Droplets className="h-5 w-5 fill-primary" />
-                </motion.span>
-              </span>
-              ?
-            </h1>
-            <p className="mt-5 text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-              We track what&apos;s in the freshwater around you: rivers,
-                            lakes, and streams, before it ever reaches a treatment plant.
-              Search your area to see microplastics, lead, PFAS, and other
-              contaminants measured in untreated water near you.
-            </p>
-          </motion.div>
-
-          <motion.form
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            onSubmit={(e) => {
-              e.preventDefault()
-              onSearch()
-            }}
-            className="mx-auto mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row"
-          >
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Enter ZIP code, city, state, or utility name"
-                className="h-12 rounded-xl border-border/80 bg-card pl-10 pr-4 text-base shadow-sm focus-visible:ring-primary focus-visible:ring-2"
-                aria-label="Search by ZIP code, city, state, or utility name"
-              />
-            </div>
-            <Button
-              type="submit"
-              size="lg"
-              className="h-12 rounded-xl px-6 text-base shadow-md shadow-primary/30 transition-transform hover:scale-[1.02] active:scale-[0.98]"
-              disabled={!q.trim()}
-            >
-              <Droplets className="h-4 w-4" />
-              Search water
-            </Button>
-          </motion.form>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.22 }}
-            className="mt-5 flex flex-wrap items-center justify-center gap-3"
-          >
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => onNavigate?.('about')}
-              className="h-11 rounded-xl px-6 text-base shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <Info className="h-4 w-4" />
-              Learn about us
-            </Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={() => onNavigate?.('microplastics')}
-              className="h-11 rounded-xl px-6 text-base text-primary hover:bg-primary/10 hover:text-primary"
-            >
-              Explore microplastics data
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </motion.div>
-
-          {stats && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground"
-            >
-              <span className="inline-flex items-center gap-1.5">
-                <Building2 className="h-3.5 w-3.5 text-primary" />
-                {stats.utilitiesCount} utilities tracked
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <FlaskConical className="h-3.5 w-3.5 text-primary" />
-                {stats.contaminantsCount} contaminants
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Droplets className="h-3.5 w-3.5 text-primary" />
-                {stats.samplesCount} measurements
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5 text-primary" />
-                {(stats.populationServed / 1_000_000).toFixed(1)}M people served
-              </span>
-            </motion.div>
-          )}
-        </div>
-      </div>
-    </section>
-    </Ripple>
-  )
+  return <TankHero>
+    <form onSubmit={(event) => { event.preventDefault(); onSearch() }}>
+      <input value={q} onChange={(event) => setQ(event.target.value)} placeholder="ZIP, city or utility" aria-label="Search by ZIP code, city, state, or utility name" />
+      <button type="submit" disabled={!q.trim()}>Search water ↗</button>
+    </form>
+    <div className="tank-search-links">
+      <button onClick={() => onNavigate?.('about')}>ABOUT THE INITIATIVE ↗</button>
+      <button onClick={() => onNavigate?.('microplastics')}>EXPLORE MICROPLASTICS ↗</button>
+    </div>
+  </TankHero>
 }
 
-// Pre-computed droplet positions for the hero animation
-const DROPLET_POSITIONS = [
-  { left: '5%', size: 10, duration: 6, delay: 0 },
-  { left: '15%', size: 14, duration: 8, delay: 1.5 },
-  { left: '28%', size: 8, duration: 7, delay: 3 },
-  { left: '42%', size: 12, duration: 9, delay: 0.5 },
-  { left: '55%', size: 16, duration: 7.5, delay: 2 },
-  { left: '68%', size: 10, duration: 8.5, delay: 4 },
-  { left: '80%', size: 13, duration: 6.5, delay: 1 },
-  { left: '90%', size: 9, duration: 7.8, delay: 2.8 },
-  { left: '35%', size: 11, duration: 9.2, delay: 5 },
-  { left: '72%', size: 15, duration: 8.2, delay: 3.5 },
-]
 
 function StatsBar({ stats }: { stats: Stats | null }) {
   if (!stats) return null

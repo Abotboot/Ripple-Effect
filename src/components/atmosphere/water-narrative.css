@@ -1,0 +1,28 @@
+.water-narrative { background: #05080a; color: #e6ede8; border-top: 1px solid #26413e; }
+.water-narrative section { position: relative; padding: clamp(64px, 9vw, 140px) 7vw; }
+.narrative-label, .narrative-coordinate, .narrative-link, .particle-unit { font-family: var(--font-geist-mono), monospace; font-size: 11px; letter-spacing: .1em; }
+.narrative-label { color: #1df2b3; margin-bottom: 48px; }
+.illusion-stage h2 { max-width: 1100px; font: 400 clamp(60px, 9vw, 148px)/.94 var(--font-tank-display), serif; letter-spacing: -.04em; margin: 0; }
+.illusion-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; margin: 64px 0 40px; }
+.illusion-bottom p { max-width: 480px; font-size: 18px; line-height: 1.8; color: #b6ccc6; }
+.narrative-coordinate { color: #94aca6; }
+.narrative-link { display: inline-flex; gap: 24px; align-items: center; padding: 14px 0; color: #cce5db; border-bottom: 1px solid #57716a; text-decoration: none; }
+.narrative-link:hover { color: #1df2b3; border-color: currentColor; }
+.narrative-link:focus-visible { outline: 2px solid #1df2b3; outline-offset: 5px; }
+.particle-stage { border-top: 1px solid #26413e; background: radial-gradient(ellipse at 90% 60%, #271020 0, transparent 60%), #080d10; min-height: 680px; }
+.particle-stage h2 { font: 400 clamp(34px, 4.5vw, 72px)/1.05 var(--font-tank-display), serif; letter-spacing: -.025em; }
+.particle-stage h2 em { color: #adcac0; }
+.particle-number { display: flex; align-items: baseline; gap: 32px; margin: 28px 0; }
+.particle-number > span:first-child { font: 400 clamp(68px, 13vw, 210px)/1 var(--font-tank-display), serif; font-variant-numeric: lining-nums tabular-nums; color: #ff729b; letter-spacing: -.035em; }
+.particle-unit { color: #ffb1c8; }
+.particle-context { display: grid; grid-template-columns: 1fr 1fr; gap: 8vw; max-width: 1200px; }
+.particle-context p { color: #b6ccc6; font-size: 15px; line-height: 1.8; }
+.particle-context > div p { font-size: 13px; color: #a3b8b0; }
+@media (max-width: 899px) {
+  .water-narrative section { padding: 64px 6vw; }
+  .illusion-bottom, .particle-context { grid-template-columns: 1fr; gap: 24px; }
+  .illusion-bottom { margin: 40px 0 20px; }
+  .particle-number { flex-direction: column; gap: 16px; margin: 32px 0; }
+  .particle-stage { min-height: auto; }
+  .narrative-label { font-size: 10px; margin-bottom: 32px; }
+}

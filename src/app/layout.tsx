@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/site/theme-provider";
+
+const tankDisplay = Cormorant_Garamond({
+  variable: "--font-tank-display", subsets: ["latin"], weight: ["400"], style: ["normal", "italic"],
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,11 +59,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} ${tankDisplay.variable} antialiased bg-background text-foreground`}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >

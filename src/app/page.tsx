@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { SmoothCurrent } from '@/components/atmosphere/smooth-current'
 import { SiteHeader, type Section } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { ScrollToTop } from '@/components/site/scroll-to-top'
@@ -65,6 +66,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <SmoothCurrent />
       <SiteHeader current={section} onNavigate={setSection} />
       <main className="flex-1">
         {section === 'home' && <HomeSection onNavigate={setSection} />}
