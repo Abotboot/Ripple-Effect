@@ -92,7 +92,9 @@ export default function WaterDropScene({ revealed, onReady, onFail }: WaterDropS
     scene.environment = envMap
 
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 50)
-    camera.position.set(0, 0.2, 7.2)
+    // Far enough back that the stretched teardrop tip (~3.1 units above the
+    // group origin) and the fully-expanded ripple rings stay inside the frame.
+    camera.position.set(0, 0.2, 9.6)
 
     scene.add(new THREE.AmbientLight(0xbfe9f2, 0.9))
     const key = new THREE.DirectionalLight(0xffffff, 1.6)
@@ -267,7 +269,9 @@ export default function WaterDropScene({ revealed, onReady, onFail }: WaterDropS
       else settleFrames--
 
       // Gentle idle bob + eased tilt toward the pointer target.
-      dropGroup.position.y = Math.sin(t * 0.8) * 0.08
+      // Baseline sits slightly below center: the drop is top-heavy
+      // (tip ~3.1 up, belly ~1.9 down), this keeps it optically centered.
+      dropGroup.position.y = -0.35 + Math.sin(t * 0.8) * 0.08
       dropGroup.rotation.x += (targetTilt.x - dropGroup.rotation.x) * 0.06
       dropGroup.rotation.y += (targetTilt.y - dropGroup.rotation.y) * 0.06
 
