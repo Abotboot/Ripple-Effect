@@ -17,7 +17,7 @@ import { api } from '@/lib/api'
 import type { Utility, Stats, UtilityWithStats } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
 import { LiveTicker } from '@/components/site/live-ticker'
-import { Ripple } from '@/components/canvas-ui/Ripple'
+import { WaterDrop3D } from '@/components/3d/water-drop'
 import type { Section } from '@/components/site/site-header'
 import { Microscope, HandHeart, Database, Github, Info } from 'lucide-react'
 import { useCountUp, formatCount } from '@/hooks/use-count-up'
@@ -411,15 +411,6 @@ function Hero({
   onNavigate?: (s: Section) => void
 }) {
   return (
-    <Ripple
-      trigger="click"
-      interval={5}
-      amplitude={0.6}
-      speed={0.7}
-      wavelength={70}
-      refraction={60}
-      shine={0.7}
-    >
     <section className="relative overflow-hidden bg-water-hero">
       {/* Animated gradient orbs */}
       <div className="pointer-events-none absolute inset-0 opacity-40">
@@ -433,38 +424,6 @@ function Hero({
           animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.6, 0.4] }}
           transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
         />
-        <motion.div
-          className="absolute top-[40%] left-[60%] h-40 w-40 rounded-full bg-cyan-300/30 blur-3xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        />
-      </div>
-
-      {/* Falling water droplets animation */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {DROPLET_POSITIONS.map((pos, i) => (
-          <motion.div
-            key={i}
-            className="absolute"
-            style={{ left: pos.left, top: '-20px' }}
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: ['calc(-20px)', 'calc(100vh)'], opacity: [0, 0.6, 0.6, 0] }}
-            transition={{
-              duration: pos.duration,
-              repeat: Infinity,
-              delay: pos.delay,
-              ease: 'easeIn',
-            }}
-          >
-            <svg width={pos.size} height={pos.size * 1.4} viewBox="0 0 12 16" fill="none">
-              <path
-                d="M6 0 C6 4, 12 8, 12 11 A6 6 0 0 1 0 11 C0 8, 6 4, 6 0 Z"
-                fill="oklch(0.7 0.13 195)"
-                opacity="0.5"
-              />
-            </svg>
-          </motion.div>
-        ))}
       </div>
 
       {/* Wave decoration at bottom of hero */}
@@ -491,8 +450,8 @@ function Hero({
         </svg>
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-        <div className="mx-auto max-w-3xl text-center">
+      <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-8 lg:px-8 lg:py-16">
+        <div className="mx-auto max-w-3xl text-center lg:max-w-none lg:text-left">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -537,7 +496,7 @@ function Hero({
               e.preventDefault()
               onSearch()
             }}
-            className="mx-auto mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row"
+            className="mx-auto mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row lg:mx-0"
           >
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -564,7 +523,7 @@ function Hero({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.22 }}
-            className="mt-5 flex flex-wrap items-center justify-center gap-3"
+            className="mt-5 flex flex-wrap items-center justify-center gap-3 lg:justify-start"
           >
             <Button
               variant="outline"
@@ -591,7 +550,7 @@ function Hero({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground"
+              className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground lg:justify-start"
             >
               <span className="inline-flex items-center gap-1.5">
                 <Building2 className="h-3.5 w-3.5 text-primary" />
@@ -612,25 +571,22 @@ function Hero({
             </motion.div>
           )}
         </div>
+
+        {/* Interactive 3D centerpiece: a world inside one drop.
+            Mobile and reduced-motion visitors get the static SVG poster
+            and never download the WebGL chunk. */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+          className="relative mx-auto mt-10 block h-[300px] w-full max-w-[300px] sm:max-w-[360px] lg:mt-0 lg:h-[440px] lg:max-w-[420px]"
+        >
+          <WaterDrop3D className="absolute inset-0" />
+        </motion.div>
       </div>
     </section>
-    </Ripple>
   )
 }
-
-// Pre-computed droplet positions for the hero animation
-const DROPLET_POSITIONS = [
-  { left: '5%', size: 10, duration: 6, delay: 0 },
-  { left: '15%', size: 14, duration: 8, delay: 1.5 },
-  { left: '28%', size: 8, duration: 7, delay: 3 },
-  { left: '42%', size: 12, duration: 9, delay: 0.5 },
-  { left: '55%', size: 16, duration: 7.5, delay: 2 },
-  { left: '68%', size: 10, duration: 8.5, delay: 4 },
-  { left: '80%', size: 13, duration: 6.5, delay: 1 },
-  { left: '90%', size: 9, duration: 7.8, delay: 2.8 },
-  { left: '35%', size: 11, duration: 9.2, delay: 5 },
-  { left: '72%', size: 15, duration: 8.2, delay: 3.5 },
-]
 
 function StatsBar({ stats }: { stats: Stats | null }) {
   if (!stats) return null
