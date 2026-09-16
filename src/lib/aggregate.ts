@@ -9,6 +9,7 @@ export type ContaminantSummaryT = {
   maxLevel: number
   unit: string
   source: string
+  robot: boolean
   quality: string
   sampleCount: number
   exceedsHealthGuideline: boolean
@@ -59,6 +60,7 @@ export function buildContaminantSummary(
     maxLevel,
     unit,
     source: latest?.source ?? 'Utility CCR',
+    robot: latest?.robot ?? false,
     quality: latest?.quality ?? 'verified',
     sampleCount: sorted.length,
     exceedsHealthGuideline,

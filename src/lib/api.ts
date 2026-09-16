@@ -176,6 +176,8 @@ export const api = {
       treatmentStatus: string
       sampleDate: string
       createdAt: string
+      source: string
+      robot: boolean
       reporterName: string
       contaminant: { name: string; slug: string }
       utility: { name: string; city: string; state: string } | null
@@ -185,12 +187,13 @@ export const api = {
     count: number
   }>(`/api/readings/recent`),
 
-  getPendingReadings: () => req<{
+  getPendingReadings: (status: 'pending' | 'approved' | 'all' = 'pending') => req<{
     items: Array<{
       id: string
       level: number
       unit: string
       source: string
+      robot: boolean
       location: string | null
       treatmentStatus: string
       sampleDate: string
@@ -203,7 +206,7 @@ export const api = {
       utility: { id: string; name: string; city: string; state: string } | null
     }>
     count: number
-  }>(`/api/readings/pending`),
+  }>(`/api/readings/pending?status=${status}`),
 
   updateReadingQuality: (id: string, quality: 'citizen' | 'provisional' | 'verified') =>
     req<{ id: string; quality: string }>(`/api/readings/${id}`, {

@@ -73,7 +73,8 @@ model Sample {
   level         Float    // measured value
   unit          String   // particles/L, ppb, ppm
   sampleDate    DateTime
-  source        String   @default("Utility CCR") // Utility CCR / Citizen Test / Research Lab / EWG
+  source        String   @default("Utility CCR") // Utility CCR / Citizen Test / Research Lab / EWG / Ripple Robot
+  robot         Boolean  @default(false) // true = measured by A Ripple Effect's own identifier robot
   treatmentStatus String @default("Treated") // Treated / Untreated (lets us compare)
   location      String?  // tap, stream, reservoir, treatment plant outflow...
   quality       String   @default("verified") // verified / provisional / citizen

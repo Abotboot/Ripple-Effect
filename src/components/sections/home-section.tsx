@@ -23,6 +23,7 @@ import { Microscope, HandHeart, Database, Github, Info } from 'lucide-react'
 import { useCountUp, formatCount } from '@/hooks/use-count-up'
 import { Bell, Activity as ActivityIcon, Beaker, Heart, HandHeart as DonationIcon, Clock } from 'lucide-react'
 import { QualityBadge } from '@/components/quality-badge'
+import { SourceBadge } from '@/components/source-badge'
 import { Share2 } from 'lucide-react'
 import { AnimatedCounter as BaseAnimatedCounter } from '@/components/ui/animated-counter'
 import { ContaminantSpectrumChart } from '@/components/d3/contaminant-spectrum-chart'
@@ -1266,6 +1267,8 @@ type CitizenReading = {
   treatmentStatus: string
   sampleDate: string
   createdAt: string
+  source: string
+  robot: boolean
   reporterName: string
   contaminant: { name: string; slug: string }
   utility: { name: string; city: string; state: string } | null
@@ -1346,7 +1349,10 @@ function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void
                       </div>
                       <p className="mt-0.5 text-sm font-medium text-foreground">{r.contaminant.name}</p>
                     </div>
-                    <QualityBadge quality="citizen" size="xs" />
+                    <div className="flex flex-col items-end gap-1">
+                      <SourceBadge source={r.source} robot={r.robot} size="xs" />
+                      <QualityBadge quality="citizen" size="xs" />
+                    </div>
                   </div>
 
                   <div className="mt-2 space-y-1 text-xs text-muted-foreground">

@@ -15,6 +15,7 @@ import type { UtilityWithStats } from '@/lib/types'
 import { ContaminantTrendChart } from '@/components/charts/contaminant-trend-chart'
 import { ContaminantBarChart } from '@/components/charts/contaminant-bar-chart'
 import { QualityBadge } from '@/components/quality-badge'
+import { SourceBadge } from '@/components/source-badge'
 import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
 
 function escapeHtml(str: unknown): string {
@@ -357,15 +358,13 @@ function ContaminantDetailCard({
                 </Badge>
               )}
               <QualityBadge quality={summary.quality} size="xs" />
+              <SourceBadge source={summary.source} robot={summary.robot} size="xs" />
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {c.category}
               {c.chemicalName ? ` · ${c.chemicalName}` : ''}
               {summary.sampleCount > 0 && (
                 <> · <span className="tabular-nums">{summary.sampleCount}</span> samples</>
-              )}
-              {summary.source && (
-                <> · source: <span className="text-foreground/70">{summary.source}</span></>
               )}
             </p>
           </div>

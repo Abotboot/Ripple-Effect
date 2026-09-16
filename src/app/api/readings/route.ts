@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { timingSafeEqual } from 'crypto'
 import { db } from '@/lib/db'
 import { ensureSeeded } from '@/lib/ensure-seeded'
 import { sendDiscordReadingWebhook, sendDiscordAlertWebhook } from '@/lib/discord-webhook'
 import { checkRateLimit } from '@/lib/rate-limit'
+
+// Constant-time comparison so a wrong key leaks no timing information.
+function robotKeyMatches(presented: string | null, expected: string | undefined): boolean {
+  if (!presented || !expected) return false
+  const a = Buffer.from(presented)
+  const b = Buffer.from(expected)
+  return a.length === b.length && timingSafeEqual(a, b)
+}
 
 // POST /api/readings - public citizen-science reading submission.
 // Creates a Sample with quality='citizen'. This is the public entry point
@@ -28,6 +37,69 @@ export async function POST(req: NextRequest) {
   // Honeypot check for bots/scanners
   if (body.website || body.honeypot || body.hp_check) {
     return NextResponse.json({ error: 'Submission rejected.' }, { status: 400 })
+  }
+
+  // -- Robot ingestion path --
+  // The A Ripple Effect identifier robot posts readings with the shared
+  // secret in the X-Robot-Key header (ROBOT_API_KEY env var on the server).
+  // Robot data is labeled distinctly (source='Ripple Robot', robot=true) so
+  // the UI can separate our own robot's measurements from external sources.
+  // It skips the citizen review queue as 'provisional'. If ROBOT_API_KEY is
+  // not set on the server, this path is disabled and cannot be spoofed.
+  const isRobot = robotKeyMatches(req.headers.get('x-robot-key'), process.env.ROBOT_API_KEY)
+  if (isRobot) {
+    const robotLevel = Number(body.level)
+    if (!body.contaminantId || !Number.isFinite(robotLevel) || robotLevel < 0) {
+      return NextResponse.json(
+        { error: 'contaminantId and a non-negative level are required.' },
+        { status: 400 }
+      )
+    }
+    const robotContaminant = await db.contaminant.findUnique({
+      where: { id: String(body.contaminantId) },
+    })
+    if (!robotContaminant) {
+      return NextResponse.json({ error: 'Contaminant not found.' }, { status: 404 })
+    }
+    let robotUtilityId: string | null = null
+    let robotUtilityName: string | null = null
+    if (body.utilityId) {
+      const robotUtility = await db.utility.findUnique({ where: { id: String(body.utilityId) } })
+      if (!robotUtility) {
+        return NextResponse.json({ error: 'Utility not found.' }, { status: 404 })
+      }
+      robotUtilityId = robotUtility.id
+      robotUtilityName = robotUtility.name
+    }
+    const robotUnit = body.unit ?? robotContaminant.legalLimitUnit ?? robotContaminant.healthGuidelineUnit ?? 'ppb'
+    const robotCreated = await db.sample.create({
+      data: {
+        utilityId: robotUtilityId,
+        contaminantId: robotContaminant.id,
+        level: robotLevel,
+        unit: robotUnit,
+        sampleDate: body.sampleDate ? new Date(body.sampleDate) : new Date(),
+        source: 'Ripple Robot',
+        robot: true,
+        treatmentStatus: body.treatmentStatus ?? 'Treated',
+        location: body.location ? String(body.location).trim().slice(0, 120) : null,
+        quality: 'provisional',
+        notes: body.deviceId ? `device:${String(body.deviceId).slice(0, 60)}` : null,
+      },
+    })
+    await sendDiscordReadingWebhook({
+      contaminantName: robotContaminant.name,
+      level: robotLevel,
+      unit: robotUnit,
+      location: body.location,
+      reporterName: '🤖 Ripple Robot' + (body.deviceId ? ` (${String(body.deviceId).slice(0, 40)})` : ''),
+      utilityName: robotUtilityName || body.utilityName || null,
+      notes: body.notes,
+    })
+    return NextResponse.json(
+      { ok: true, id: robotCreated.id, message: 'Robot reading recorded.', robot: true },
+      { status: 201 }
+    )
   }
 
   // Rate limiting by client IP (max 5 readings per 10 minutes)
