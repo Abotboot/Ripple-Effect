@@ -1,0 +1,46 @@
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const assert = require('node:assert/strict');
+(async () => {
+  const browser = await chromium.launch({channel:'chrome',headless:true});
+  try {
+    const page = await browser.newPage({viewport:{width:1440,height:1000}});
+    await page.addInitScript(()=>sessionStorage.setItem('ripple-entered','1'));
+    await page.goto(process.env.QA_URL || 'http://localhost:3015');
+    const link = page.locator('.countermeasure-action');
+    const label = link.locator('.countermeasure-label');
+    assert.equal(await label.count(),1,'Refraction label missing');
+    await link.scrollIntoViewIfNeeded();
+    await link.hover();
+    await page.waitForFunction(()=>getComputedStyle(document.querySelector('.countermeasure-label')).filter !== 'none');
+    const filter = await label.evaluate(e=>getComputedStyle(e).filter);
+    assert.match(filter,/url\(/,'Hover must use displacement filter');
+    assert.equal(await link.evaluate(e=>getComputedStyle(e).filter),'none','Do not distort hit area');
+    const hovered = await label.screenshot();
+    await page.mouse.move(0,0);
+    await page.waitForFunction(()=>getComputedStyle(document.querySelector('.countermeasure-label')).filter === 'none');
+    assert.equal(hovered.equals(await label.screenshot()),false,'Refraction must change rendered pixels');
+    console.log('PASS: hover changes label pixels only; leave resets');
+    await link.focus();
+    assert.equal(await link.evaluate(e=>e.matches(':focus-visible')),true);
+    assert.equal(await label.evaluate(e=>getComputedStyle(e).filter),'none');
+    await link.hover();
+    assert.equal(await label.evaluate(e=>getComputedStyle(e).filter),'none','Keyboard focus overrides hover');
+    await page.keyboard.press('Enter');
+    await page.waitForURL('**/#submit');
+    await page.locator('form').waitFor();
+    console.log('PASS: keyboard focus stays crisp and Enter opens form');
+    await page.goto(process.env.QA_URL || 'http://localhost:3015');
+    await page.emulateMedia({reducedMotion:'reduce'});
+    await link.hover();
+    assert.equal(await label.evaluate(e=>getComputedStyle(e).filter),'none');
+    console.log('PASS: reduced motion disables refraction');
+    const touch = await browser.newContext({viewport:{width:375,height:700},isMobile:true,hasTouch:true});
+    await touch.addInitScript(()=>sessionStorage.setItem('ripple-entered','1'));
+    const mobile = await touch.newPage();
+    await mobile.goto(process.env.QA_URL || 'http://localhost:3015');
+    await mobile.locator('.countermeasure-action').hover();
+    assert.equal(await mobile.locator('.countermeasure-label').evaluate(e=>getComputedStyle(e).filter),'none');
+    console.log('PASS: touch disables refraction');
+    await touch.close();
+  } finally { await browser.close(); }
+})().catch(e=>{console.error(e);process.exitCode=1});

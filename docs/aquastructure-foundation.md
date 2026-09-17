@@ -1,5 +1,11 @@
 # Human Aquastructure: foundation and narrative stages 01-04
 
+## Stage 04 label refraction
+- Added a static SVG displacement filter to the primary CTA label only. Native cursor, link hit area and navigation remain unchanged; this is not the planned inertial/magnetic cursor.
+- Effect applies only on fine-pointer hover with normal motion, never on keyboard focus, touch or reduced motion. No event handlers, animation loop or dependency added.
+- Test first failed with `Refraction label missing`. Production build at port 3016 passed `scripts/refraction-check.cjs`: hover pixels change, leave resets, keyboard focus remains crisp, Enter opens the form, reduced-motion and touch disable the filter.
+- Run with the same QA-only `PLAYWRIGHT_MODULE` override documented below and `QA_URL=http://localhost:3016`. Atmosphere lint, production build and whitespace checks passed. Build skips types. Direct review only; not deployed.
+
 ## Specimen inspector
 - Added `specimen-inspector.tsx` and `.css` between the stats bar and narrative. Canvas2D pseudo-3D bottle, Macro/UV buttons, native keyboard/touch rotation slider. No production dependencies added.
 - Canvas redraws only on mode, angle or size changes. ResizeObserver disconnects on cleanup; no perpetual animation loop. Reduced motion remains static except for explicit controls. DPR capped at 2.

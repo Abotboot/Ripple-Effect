@@ -48,6 +48,11 @@
 .countermeasure-panel p { color: #b6ccc6; font-size: 15px; line-height: 1.8; }
 .countermeasure-action { display: flex; justify-content: space-between; align-items: center; gap: 20px; min-height: 56px; padding: 16px 20px; margin: 28px 0 12px; color: #05080a; background: #1df2b3; font: 500 13px/1.5 var(--font-geist-mono), monospace; text-decoration: none; transition: background .2s; }
 .countermeasure-action:hover { background: #a2ffe1; }
+.countermeasure-filter { position: absolute; pointer-events: none; }
+.countermeasure-label { display: inline-block; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .countermeasure-action:hover:not(:focus-visible) .countermeasure-label { filter: var(--label-refraction); }
+}
 .countermeasure-action:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
 .countermeasure-footnote { margin-top: 64px; color: #94aca6; font: 10px/1.8 var(--font-geist-mono), monospace; letter-spacing: .1em; }
 @media (prefers-reduced-motion: reduce) { .countermeasure-action { transition: none; } }

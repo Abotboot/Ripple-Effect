@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useId, type CSSProperties } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import SplitType from 'split-type'
@@ -40,6 +40,7 @@ const SIPHON_WAYPOINTS = [
 ]
 
 export function WaterNarrative() {
+  const refractionId = useId().replace(/:/g, "")
   const root = useRef<HTMLDivElement>(null)
   const count = useRef<HTMLSpanElement>(null)
   const track = useRef<HTMLDivElement>(null)
@@ -142,7 +143,13 @@ export function WaterNarrative() {
           <span className="narrative-coordinate">FIELDWORK / OPEN TO EVERYONE</span>
           <h3>Make your observation count.</h3>
           <p>Have a water reading? Share its source, location and method. Contributions are labeled as citizen readings. A single reading is not a safety verdict.</p>
-          <a className="countermeasure-action" href="#submit">Contribute a reading <span aria-hidden="true">↗</span></a>
+          <svg className="countermeasure-filter" aria-hidden="true" width="0" height="0" focusable="false">
+            <defs><filter id={refractionId} x="-10%" y="-30%" width="120%" height="160%" colorInterpolationFilters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency="0.015 0.09" numOctaves="1" seed="8" result="ripple" />
+              <feDisplacementMap in="SourceGraphic" in2="ripple" scale="3" xChannelSelector="R" yChannelSelector="G" />
+            </filter></defs>
+          </svg>
+          <a className="countermeasure-action" href="#submit" style={{ '--label-refraction': `url("#${refractionId}")` } as CSSProperties}><span className="countermeasure-label">Contribute a reading</span> <span aria-hidden="true">↗</span></a>
           <a className="narrative-link" href="#search">Explore existing water data <span aria-hidden="true">↓</span></a>
         </div>
       </div>
