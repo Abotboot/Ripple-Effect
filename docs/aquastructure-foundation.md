@@ -1,5 +1,13 @@
 # Human Aquastructure: foundation and narrative stages 01-04
 
+## Magnetic fluid cursor
+- Added FluidCursor once in page.tsx: fine-pointer mouse overlay with time-based easing and bounded attraction toward hovered links/buttons. Native cursor and hit areas remain unchanged. No added production dependency.
+- Animation frames stop after settling. Overlay hides on keyboard input, scrolling, resize, blur, visibility and hash changes, and over fields/dialogs. Media-query listener handles reduced-motion changes in both directions; touch does not mount the overlay.
+- Initial acceptance failed because the cursor was missing. Updated test checks rendered geometry rather than unitless CSS values and scrolls the target into view before attraction assertions.
+- Final build at http://localhost:3017 passed cursor acceptance, specimen and refraction browser regressions, Stage 04 HTTP smoke, atmosphere lint, particle/audio checks and whitespace checks. Full legacy pinned-narrative suite not rerun in this batch. Build skips type validation; existing database blocker remains.
+- Run `scripts/cursor-check.cjs` with the QA-only PLAYWRIGHT_MODULE override documented below and QA_URL=http://localhost:3017. Screenshot reviewed: C:/Users/ayada/AppData/Local/Temp/fluid-cursor-desktop.png.
+- Direct verification only, no independent review or deployment. Site-wide reskin and final integration/deployment remain unfinished.
+
 ## Stage 04 label refraction
 - Added a static SVG displacement filter to the primary CTA label only. Native cursor, link hit area and navigation remain unchanged; this is not the planned inertial/magnetic cursor.
 - Effect applies only on fine-pointer hover with normal motion, never on keyboard focus, touch or reduced motion. No event handlers, animation loop or dependency added.
