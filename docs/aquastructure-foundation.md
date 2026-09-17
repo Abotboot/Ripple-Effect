@@ -1,5 +1,11 @@
 # Human Aquastructure: foundation and narrative stages 01-04
 
+## Submission-page reskin
+- Replaced bright hero and rounded surfaces with a scoped obsidian reading workbench, editorial headings, mono labels and full-width 44px-minimum controls. Removed decorative hero blobs. Form state, field IDs, validation, submit handler and API calls unchanged.
+- Production preview http://localhost:3019/#submit passed scripts/submit-reskin-check.cjs with the QA-only PLAYWRIGHT_MODULE override: ten fields retained, empty-form validity, keyboard input, treatment selection, 320/375/768px control bounds and light-theme field contrast. Zero POST requests sent; this is not an end-to-end submission test.
+- Production build and diff checks passed. Targeted ESLint reports one pre-existing react-hooks/set-state-in-effect error in the auto-unit effect, independently reproduced against HEAD via eslint stdin; not altered in this styling batch. Build skips type checks. Database blocker remains.
+- Desktop/mobile screenshots reviewed: C:/Users/ayada/AppData/Local/Temp/reading-desktop.png and reading-mobile.png. Direct verification only, not deployed. Other inner pages and final integration remain unfinished.
+
 ## Shared header and footer reskin
 - Shared obsidian shell, editorial brand wordmark, monospaced navigation, cyan active-route indicators and editorial footer. Navigation/contact/export destinations retained. Inner-page content is not yet reskinned.
 - Removed nested button from GitHub link. Menu has an accessible name, controls association, current-page state, Escape close/focus return and bounded viewport scrolling. Navigation respects reduced motion.

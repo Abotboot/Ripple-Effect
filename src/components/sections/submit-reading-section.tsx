@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast'
 import { api } from '@/lib/api'
 import type { Contaminant, Utility } from '@/lib/types'
 import { QualityBadge } from '@/components/quality-badge'
+import './reading-workbench.css'
 
 export function SubmitReadingSection() {
   const [contaminants, setContaminants] = useState<Contaminant[] | null>(null)
@@ -111,15 +112,12 @@ export function SubmitReadingSection() {
   const selectedContaminant = contaminants?.find((c) => c.id === form.contaminantId)
 
   return (
-    <div className="bg-water-hero">
+    <div className="reading-workbench">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-water-surface text-primary-foreground">
-        <div className="pointer-events-none absolute inset-0 opacity-30">
-          <div className="absolute -top-20 right-[5%] h-80 w-80 rounded-full bg-white/20 blur-3xl" />
-          <div className="absolute bottom-0 left-[20%] h-60 w-60 rounded-full bg-white/10 blur-3xl" />
-        </div>
+      <section className="reading-hero">
+
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-          <div className="mx-auto max-w-3xl text-center">
+          <div className="reading-intro">
             <Badge className="mb-4 border-white/30 bg-white/15 text-white hover:bg-white/15">
               <Beaker className="mr-1 h-3 w-3" />
               Citizen science
@@ -137,7 +135,7 @@ export function SubmitReadingSection() {
       </section>
 
       {/* Quality notice */}
-      <section className="border-b border-sky-300/40 bg-gradient-to-r from-sky-50 to-cyan-50 dark:border-sky-700/30 dark:from-sky-950/30 dark:to-cyan-950/20">
+      <section className="reading-quality">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-start gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-500 text-white">
@@ -392,7 +390,7 @@ export function SubmitReadingSection() {
 
           {/* Side info */}
           <div className="space-y-4">
-            <Card className="bg-water-surface text-primary-foreground">
+            <Card className="reading-protocol">
               <CardContent className="p-5">
                 <Microscope className="h-6 w-6 text-white/90" />
                 <h3 className="mt-2 text-base font-semibold">How to take a reading</h3>
