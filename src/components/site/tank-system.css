@@ -1,4 +1,17 @@
 /* Shared surfaces include portals: dialogs and menus inherit the same palette. */
+:root { --radius: 0px; }
+/* Site UI only: optical lenses, plotted marks, avatars and canvas particles are not panels. */
+body :is(button, input, textarea, select, [role=button], [role=dialog], [role=combobox], [role=tab], [role=tablist], [role=tooltip]),
+body :is(main, header, footer, [data-slot=dialog-content]) [class*="rounded"]:not(svg):not(circle):not([data-slot=avatar]):not([data-slot=avatar-image]):not([data-slot=avatar-fallback]) {
+  border-radius: 0 !important;
+}
+/* Rectangular controls/panels stay square; circles for maps, avatars and particles remain. */
+body :is([data-slot=button], [data-slot=card], [data-slot=input], [data-slot=textarea],
+  [data-slot=select-trigger], [data-slot=select-content], [data-slot=dialog-content],
+  [data-slot=popover-content], [data-slot=dropdown-menu-content], [data-slot=tabs-list],
+  [data-slot=tabs-trigger], [data-slot=badge], button[aria-label="Open search"]) {
+  border-radius: 0;
+}
 .dark {
   --background: #05080a; --foreground: #dcebe5;
   --card: #0b1417; --card-foreground: #dcebe5;
@@ -14,7 +27,7 @@
 .home-data > section:not(.tank-hero):not(.specimen-stage):not(.water-narrative), .legal-page { color: var(--foreground); }
 .home-data > section:not(.tank-hero):not(.specimen-stage):not(.water-narrative) h2, .legal-page h1, .legal-page h2, .admin-workbench [data-slot=card-title] { font-family: var(--font-tank-display), serif; font-weight: 400; letter-spacing: -.025em; }
 .home-data > section:not(.tank-hero):not(.specimen-stage):not(.water-narrative) h2 { font-size: clamp(32px, 4vw, 56px); line-height: 1.1; }
-.home-data [data-slot=card], .admin-workbench [data-slot=card], [data-slot=dialog-content] { border-radius: 3px; box-shadow: none; }
+.home-data [data-slot=card], .admin-workbench [data-slot=card], [data-slot=dialog-content] { border-radius: 0; box-shadow: none; }
 .home-data [data-slot=card] { border-top: 1px solid var(--border); background: var(--card); }
 .home-data #search { padding-block: clamp(56px, 7vw, 100px); }
 .home-data #search > div:first-child { border-bottom: 1px solid var(--border); padding-bottom: 28px; }

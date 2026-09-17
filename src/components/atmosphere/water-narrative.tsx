@@ -61,13 +61,9 @@ export function WaterNarrative() {
       const meter = { value: 0 }
       const render = () => { if (count.current) count.current.textContent = Math.round(meter.value).toLocaleString('en-US') }
       gsap.fromTo(meter, { value: 0 }, {
-        value: 240000, ease: 'none', onUpdate: render,
-        scrollTrigger: {
-          trigger: stage, start: 'top 76px', end: '+=650', scrub: true,
-          // Small screens keep native document flow; never trap touch scrolling.
-          pin: Boolean(context.conditions?.desktop),
-          invalidateOnRefresh: true,
-        },
+        value: 240000, duration: 2.2, ease: 'power2.out', onUpdate: render,
+        // Reveal once, then keep the study average fixed even when scrolling back.
+        scrollTrigger: { trigger: count.current, start: 'top 88%', once: true },
       })
       // Stage 03: pinned horizontal scrub across the anatomic waypoints.
       if (context.conditions?.desktop && track.current) {

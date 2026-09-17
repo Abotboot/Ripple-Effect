@@ -49,8 +49,8 @@ export interface TankOptions {
   repulsionScale?: number
 }
 
-const TOXIN_COLORS = ['rgba(255, 42, 109,', 'rgba(143, 0, 255,']
-const BIOLUME_COLORS = ['rgba(29, 242, 179,', 'rgba(14, 210, 247,']
+const TOXIN_COLORS = ['rgba(164, 118, 104,', 'rgba(127, 132, 155,']
+const BIOLUME_COLORS = ['rgba(149, 177, 170,', 'rgba(153, 177, 189,']
 const GLASS_COLOR = 'rgba(210, 245, 255,'
 
 /** Tweakable feel constants */
@@ -77,7 +77,7 @@ function pickColor(): string {
 export function spawnParticle(w: number, h: number): Particle {
   const depth = rand(0, 1)
   const roll = Math.random()
-  const kind: ParticleKind = roll < 0.34 ? 'fiber' : roll < 0.62 ? 'fragment' : roll < 0.86 ? 'pellet' : 'bead'
+  const kind: ParticleKind = roll < 0.48 ? 'fiber' : roll < 0.90 ? 'fragment' : roll < 0.97 ? 'pellet' : 'bead'
   const size =
     kind === 'fiber'
       ? rand(10, 26) * (0.6 + depth * 0.8)
@@ -173,7 +173,7 @@ export function drawParticle(ctx: CanvasRenderingContext2D, p: Particle) {
     ctx.strokeStyle = color
     ctx.lineWidth = Math.max(0.6, p.size * 0.055 + p.agit * 0.4)
     ctx.beginPath()
-    const segs = 5
+    const segs = 20
     const half = p.size
     const ux = Math.cos(p.rot)
     const uy = Math.sin(p.rot)
@@ -182,7 +182,7 @@ export function drawParticle(ctx: CanvasRenderingContext2D, p: Particle) {
     ctx.moveTo(p.x - ux * half, p.y - uy * half)
     for (let i = 1; i <= segs; i++) {
       const f = (i / segs) * 2 - 1 // -1..1
-      const wave = Math.sin(p.seedA + p.rot * 3 + i * 1.7) * half * 0.22
+      const wave = Math.sin(p.seedA + p.rot * 3 + i * 0.425) * half * 0.22
       ctx.lineTo(p.x + ux * half * f + px * wave, p.y + uy * half * f + py * wave)
     }
     ctx.stroke()
@@ -211,15 +211,14 @@ export function drawParticle(ctx: CanvasRenderingContext2D, p: Particle) {
     return
   }
 
-  // pellet / bead — soft orb via radial gradient (cheap, cached not worth it at this size)
-  const r = p.size * (1 + p.agit * 0.35)
-  const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 3)
-  const coreA = p.kind === 'bead' ? Math.min(1, alphaClamped * 1.8) : alphaClamped
-  g.addColorStop(0, p.color + `${coreA.toFixed(3)})`)
-  g.addColorStop(0.45, p.color + `${(coreA * 0.35).toFixed(3)})`)
-  g.addColorStop(1, p.color + '0)')
+  // Compact shaded granules, not emissive halos.
+  const r = p.size
+  const g = ctx.createRadialGradient(p.x - r * .35, p.y - r * .35, 0, p.x, p.y, r)
+  g.addColorStop(0, `rgba(223,235,231,${alphaClamped})`)
+  g.addColorStop(.45, color)
+  g.addColorStop(1, `rgba(68,88,86,${alphaClamped * .5})`)
   ctx.fillStyle = g
   ctx.beginPath()
-  ctx.arc(p.x, p.y, r * 3, 0, Math.PI * 2)
+  ctx.arc(p.x, p.y, r, 0, Math.PI * 2)
   ctx.fill()
 }
