@@ -128,7 +128,27 @@ const results = {
         assert(bounds.canvas.right <= bounds.winW + 0.5, `Canvas right (${bounds.canvas.right}) must not exceed viewport width at ${vpName}`);
         assert(bounds.canvas.width <= bounds.winW + 0.5, `Canvas width (${bounds.canvas.width}) must fit viewport at ${vpName}`);
 
-        // Test Skip button interaction
+        // Rectangle intersection check for Enter and Skip controls
+        const rects = await page.evaluate(() => {
+          const enter = document.querySelector('.gate-enter');
+          const skip = document.querySelector('.gate-skip');
+          const a = enter ? enter.getBoundingClientRect() : null;
+          const b = skip ? skip.getBoundingClientRect() : null;
+          return {
+            a: a ? { left: a.left, right: a.right, top: a.top, bottom: a.bottom, width: a.width, height: a.height } : null,
+            b: b ? { left: b.left, right: b.right, top: b.top, bottom: b.bottom, width: b.width, height: b.height } : null,
+          };
+        });
+
+        assert(rects.a, `Enter button must exist and have bounding rect at ${vpName}`);
+        assert(rects.b, `Skip button must exist and have bounding rect at ${vpName}`);
+        const a = rects.a;
+        const b = rects.b;
+        const overlapWidth = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+        const overlapHeight = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+        assert.equal(overlapWidth * overlapHeight, 0, `Enter and Skip controls must not overlap at ${vpName} (overlap: ${overlapWidth}px x ${overlapHeight}px; Enter y=${a.top}..${a.bottom}, Skip y=${b.top}..${b.bottom})`);
+
+        // Test unforced Skip button interaction (without force: true)
         const skipBtn = page.locator('.gate-skip');
         await skipBtn.click();
         await page.waitForTimeout(500);
@@ -142,13 +162,41 @@ const results = {
         });
 
         assert.equal(afterSkip.dialogOpen, false, `Dialog must be dismissed after skip at ${vpName}`);
+        await context.close();
+
+        // Test unforced Enter button interaction on a fresh page
+        const enterContext = await browser.newContext({ viewport: { width: w, height: h } });
+        const enterPage = await enterContext.newPage();
+        await enterPage.goto(BASE_URL + '/?intro=1', { waitUntil: 'domcontentloaded' });
+        await enterPage.waitForTimeout(1000);
+
+        const enterBtn = enterPage.locator('.gate-enter');
+        await enterBtn.click(); // Unforced click
+        await enterPage.waitForFunction(() => {
+          const d = document.querySelector('dialog.tank-gate');
+          return !d || !d.open;
+        }, { timeout: 6500 });
+
+        const afterEnter = await enterPage.evaluate(() => {
+          const dialog = document.querySelector('dialog.tank-gate');
+          return {
+            dialogOpen: dialog ? dialog.open : false,
+            activeElementId: document.activeElement ? document.activeElement.id : null,
+          };
+        });
+        assert.equal(afterEnter.dialogOpen, false, `Dialog must be dismissed after enter transition at ${vpName}`);
+
         results.mobileMicroscope[vpName] = {
           bounds: bounds.canvas,
+          enterRect: a,
+          skipRect: b,
+          overlapArea: overlapWidth * overlapHeight,
           skipDismissed: !afterSkip.dialogOpen,
+          enterDismissed: !afterEnter.dialogOpen,
           focusRestored: afterSkip.activeElementId,
         };
-        console.log(`[QA] Mobile Stage ${vpName}: Bounds PASS, Skip Dismissed=true, Focus=${afterSkip.activeElementId}`);
-        await context.close();
+        console.log(`[QA] Mobile Stage ${vpName}: Bounds PASS, Overlap=0px², Unforced Skip PASS, Unforced Enter PASS`);
+        await enterContext.close();
       }
     }
 

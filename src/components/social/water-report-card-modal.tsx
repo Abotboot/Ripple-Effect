@@ -133,12 +133,15 @@ export function WaterReportCardModal({
 
       ctx.font = '700 13px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#94a3b8'
-      ctx.fillText('CONTAMINANTS TRACKED', 95, cardY + 38)
-      ctx.font = '900 48px system-ui, -apple-system, sans-serif'
+      ctx.fillText('CONTAMINANTS TRACKED', 95, cardY + 32)
+      ctx.font = '900 44px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#ffffff'
-      ctx.fillText(`${vm.totalContaminantsCount}`, 95, cardY + 92)
+      ctx.fillText(`${vm.totalContaminantsCount}`, 95, cardY + 74)
+      ctx.font = '500 12px system-ui, -apple-system, sans-serif'
+      ctx.fillStyle = '#94a3b8'
+      ctx.fillText('Utility monitoring scope', 95, cardY + 98)
 
-      // Stat 2: Health Exceedances
+      // Stat 2: Health Comparisons
       const card2X = 70 + cardW + gap
       const isHealthWarn = vm.healthCardTone === 'amber'
       ctx.fillStyle = isHealthWarn ? 'rgba(245, 158, 11, 0.12)' : 'rgba(255, 255, 255, 0.05)'
@@ -150,10 +153,15 @@ export function WaterReportCardModal({
 
       ctx.font = '700 13px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = isHealthWarn ? '#fbbf24' : '#94a3b8'
-      ctx.fillText('ABOVE EWG HEALTH GUIDELINES', card2X + 25, cardY + 38)
-      ctx.font = '900 48px system-ui, -apple-system, sans-serif'
+      ctx.fillText('HEALTH GUIDELINE COMPARISONS', card2X + 25, cardY + 32)
+      ctx.font = vm.healthExceedancesText.length > 6 ? '900 24px system-ui, -apple-system, sans-serif' : '900 44px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = isHealthWarn ? '#fef3c7' : '#ffffff'
-      ctx.fillText(vm.healthExceedancesText, card2X + 25, cardY + 92)
+      ctx.fillText(vm.healthExceedancesText, card2X + 25, cardY + 74)
+      if (vm.healthSublabel) {
+        ctx.font = '500 12px system-ui, -apple-system, sans-serif'
+        ctx.fillStyle = '#94a3b8'
+        ctx.fillText(vm.healthSublabel, card2X + 25, cardY + 98)
+      }
 
       // Stat 3: Legal Status
       const card3X = card2X + cardW + gap
@@ -176,10 +184,15 @@ export function WaterReportCardModal({
 
       ctx.font = '700 13px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = isLegalDanger ? '#fb7185' : isLegalSuccess ? '#34d399' : '#94a3b8'
-      ctx.fillText(vm.legalStatusHeader, card3X + 25, cardY + 38)
-      ctx.font = '900 44px system-ui, -apple-system, sans-serif'
+      ctx.fillText(vm.legalStatusHeader, card3X + 25, cardY + 32)
+      ctx.font = vm.legalStatusText.length > 12 ? '900 24px system-ui, -apple-system, sans-serif' : '900 44px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = isLegalDanger ? '#ffe4e6' : isLegalSuccess ? '#d1fae5' : '#ffffff'
-      ctx.fillText(vm.legalStatusText, card3X + 25, cardY + 92)
+      ctx.fillText(vm.legalStatusText, card3X + 25, cardY + 74)
+      if (vm.legalSublabel) {
+        ctx.font = '500 12px system-ui, -apple-system, sans-serif'
+        ctx.fillStyle = '#94a3b8'
+        ctx.fillText(vm.legalSublabel, card3X + 25, cardY + 98)
+      }
 
       // 8. Top Detected Contaminants List (Bottom section)
       ctx.font = '700 14px system-ui, -apple-system, sans-serif'
@@ -212,12 +225,14 @@ export function WaterReportCardModal({
           // Value & Unit
           ctx.font = '14px monospace'
           ctx.fillStyle = '#94a3b8'
-          ctx.fillText(item.valueText, W - 340, y + 20)
+          ctx.fillText(item.valueText, W - 360, y + 20)
 
-          // Status flag
+          // Status flag (right-aligned to avoid clipping)
           ctx.font = 'bold 11px system-ui, -apple-system, sans-serif'
           ctx.fillStyle = item.textColor
-          ctx.fillText(item.statusText, W - 200, y + 20)
+          ctx.textAlign = 'right'
+          ctx.fillText(item.statusText, W - 90, y + 20)
+          ctx.textAlign = 'left'
         })
       }
 

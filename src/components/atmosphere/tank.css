@@ -81,6 +81,12 @@
   outline: 2px solid var(--tank-cyan);
   outline-offset: 2px;
 }
+@media (max-width: 860px) {
+  .gate-skip-control {
+    bottom: 20px;
+    left: 6vw;
+  }
+}
 .gate-top { display: flex; justify-content: space-between; align-items: center; padding: 28px 4vw; color: #9cb1ae; font: 10px/1.6 var(--font-geist-mono), monospace; letter-spacing: .14em; z-index: 4; }
 .gate-top button { border: 0; background: transparent; color: #9cb1ae; padding: 6px; font: inherit; cursor: pointer; }
 .gate-top button:hover { color: #e6ede8; }

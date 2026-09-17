@@ -5,6 +5,7 @@ import {
   getBenchmarkStatus,
   getProvenancePresentation,
   areUnitsCompatible,
+  normalizeToBenchmarkUnit,
 } from '@/lib/provenance'
 
 // GET /api/stats - returns high-level platform impact numbers
@@ -63,17 +64,22 @@ export async function GET() {
   const populationServed = utilities.reduce((s, u) => s + u.population, 0)
 
   // Microplastics average across eligible treated drinking water samples (null if no eligible samples)
-  const mpEligibleTreated = samples.filter(
-    (s) =>
-      s.contaminant.slug === 'microplastics' &&
-      s.treatmentStatus === 'Treated' &&
-      isEligibleForScoring(s) &&
-      areUnitsCompatible(s.unit, 'particles/l')
-  )
-  const microplasticsAvg = mpEligibleTreated.length
-    ? +(mpEligibleTreated.reduce((s, x) => s + x.level, 0) / mpEligibleTreated.length).toFixed(2)
+  // Normalizes each measurement to particles/l before averaging
+  const mpValues = samples.flatMap((s) => {
+    if (
+      s.contaminant.slug !== 'microplastics' ||
+      s.treatmentStatus !== 'Treated' ||
+      !isEligibleForScoring(s)
+    ) {
+      return []
+    }
+    const v = normalizeToBenchmarkUnit(s.level, s.unit, 'particles/l')
+    return v != null && Number.isFinite(v) && v >= 0 ? [v] : []
+  })
+  const microplasticsAvg = mpValues.length
+    ? +(mpValues.reduce((sum, v) => sum + v, 0) / mpValues.length).toFixed(2)
     : null
-  const microplasticsCohortCount = mpEligibleTreated.length
+  const microplasticsCohortCount = mpValues.length
 
   // Exceedance counts + per-utility exceedance counts (for map coloring)
   // + per-contaminant exceedance flags (for map contaminant filter chips)

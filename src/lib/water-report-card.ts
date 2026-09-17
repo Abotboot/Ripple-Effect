@@ -14,9 +14,11 @@ export interface WaterReportCardViewModel {
   totalContaminantsCount: number
   healthExceedancesText: string
   healthCardTone: 'amber' | 'neutral'
+  healthSublabel?: string
   legalStatusHeader: string
   legalStatusText: string
   legalCardTone: 'rose' | 'emerald' | 'neutral'
+  legalSublabel?: string
   hasAssessedVerifiedData: boolean
   keyFindings: WaterReportCardItemViewModel[]
   shareText: string
@@ -25,7 +27,7 @@ export interface WaterReportCardViewModel {
 /**
  * Pure view-model generator for water report cards (Canvas, Share, Print).
  * Strictly guards against inferring "clean" or "within limits" from missing,
- * unreviewed, or illustrative evidence.
+ * unreviewed, illustrative, or unbenchmarked evidence.
  */
 export function buildWaterReportCardViewModel(
   utility: UtilityWithStats | null
@@ -37,9 +39,11 @@ export function buildWaterReportCardViewModel(
       totalContaminantsCount: 0,
       healthExceedancesText: '—',
       healthCardTone: 'neutral',
-      legalStatusHeader: 'EPA LEGAL STATUS',
+      healthSublabel: 'No verified benchmarks available',
+      legalStatusHeader: 'LEGAL LIMIT COMPARISONS',
       legalStatusText: 'Not Assessed',
       legalCardTone: 'neutral',
+      legalSublabel: 'No verified benchmarks available',
       hasAssessedVerifiedData: false,
       keyFindings: [],
       shareText: 'Explore freshwater quality and contaminant data on A Ripple Effect Initiative.',
@@ -47,7 +51,25 @@ export function buildWaterReportCardViewModel(
   }
 
   const summaries = utility.contaminantSummaries || []
-  const hasAssessedVerifiedData = summaries.some((s) => s.isVerified && s.hasData)
+
+  const compared = (status: string | undefined) =>
+    status === 'above_benchmark' || status === 'below_benchmark'
+
+  const measured = (s: typeof summaries[number]) =>
+    s.isVerified && s.hasData && s.latestLevel != null &&
+    Number.isFinite(s.latestLevel)
+
+  const legalAssessed = summaries.filter(s =>
+    measured(s) && compared(s.legalBenchmarkStatus))
+  const healthAssessed = summaries.filter(s =>
+    measured(s) && compared(s.healthBenchmarkStatus))
+
+  const legalAbove = legalAssessed.filter(s =>
+    s.legalBenchmarkStatus === 'above_benchmark').length
+  const healthAbove = healthAssessed.filter(s =>
+    s.healthBenchmarkStatus === 'above_benchmark').length
+
+  const hasAssessedVerifiedData = legalAssessed.length > 0 || healthAssessed.length > 0
 
   const title = utility.name.length > 36 ? utility.name.slice(0, 34) + '…' : utility.name
   const pop = utility.population ?? (utility as any).populationServed
@@ -55,67 +77,83 @@ export function buildWaterReportCardViewModel(
   const locationSubtitle = `${utility.city}, ${utility.state}${popText}`
 
   // Health guideline exceedances
-  const hExceed = utility.healthExceedances
   let healthExceedancesText = '—'
   let healthCardTone: 'amber' | 'neutral' = 'neutral'
-  if (hasAssessedVerifiedData && hExceed != null) {
-    healthExceedancesText = `${hExceed}`
-    if (hExceed > 0) healthCardTone = 'amber'
+  let healthSublabel = summaries.length ? `${summaries.length} not assessed` : 'No data recorded'
+
+  if (healthAssessed.length > 0) {
+    healthExceedancesText = `${healthAbove} above / ${healthAssessed.length} assessed`
+    if (healthAbove > 0) {
+      healthCardTone = 'amber'
+    }
+    const unassessedCount = summaries.length - healthAssessed.length
+    healthSublabel = unassessedCount > 0 ? `${unassessedCount} not assessed` : 'All tracked contaminants assessed'
   }
 
-  // Legal limit exceedances
-  const lExceed = utility.exceedances ?? utility.legalExceedances
-  let legalStatusHeader = 'EPA LEGAL STATUS'
+  // Legal limit comparisons
+  let legalStatusHeader = 'LEGAL LIMIT COMPARISONS'
   let legalStatusText = 'Not Assessed'
   let legalCardTone: 'rose' | 'emerald' | 'neutral' = 'neutral'
+  let legalSublabel = summaries.length ? `${summaries.length} not assessed` : 'No data recorded'
 
-  if (hasAssessedVerifiedData && lExceed != null) {
-    if (lExceed > 0) {
-      legalStatusHeader = 'ABOVE EPA LEGAL LIMITS'
-      legalStatusText = `${lExceed} Violations`
+  if (legalAssessed.length > 0) {
+    legalStatusText = `${legalAbove} above / ${legalAssessed.length} assessed`
+    if (legalAbove > 0) {
       legalCardTone = 'rose'
     } else {
-      legalStatusHeader = 'EPA LEGAL STATUS'
-      legalStatusText = 'No Violations Observed'
       legalCardTone = 'emerald'
     }
+    const unassessedCount = summaries.length - legalAssessed.length
+    legalSublabel = unassessedCount > 0 ? `${unassessedCount} not assessed` : 'All tracked contaminants assessed'
   }
 
   // Key findings (top 3)
   const keyFindings: WaterReportCardItemViewModel[] = summaries.slice(0, 3).map((item) => {
     const name = item.contaminant?.name || (item as any).name || 'Contaminant'
     const val = item.latestLevel
+    const hasMeas = item.hasData && val != null && Number.isFinite(val)
     const unit = item.unit || ''
-    const valueText = val != null && isFinite(val) ? `${val} ${unit}`.trim() : '— Not measured'
+    const valueText = hasMeas ? `${val} ${unit}`.trim() : '— Not measured'
 
     let statusText = 'NOT ASSESSED'
     let dotColor = '#94a3b8' // slate
     let textColor = '#94a3b8'
 
-    if (item.legalBenchmarkStatus === 'above_benchmark') {
-      statusText = 'EXCEEDS LEGAL LIMIT'
-      dotColor = '#f43f5e'
-      textColor = '#f43f5e'
-    } else if (item.healthBenchmarkStatus === 'above_benchmark') {
-      statusText = 'EXCEEDS HEALTH GUIDELINE'
-      dotColor = '#f59e0b'
-      textColor = '#fbbf24'
-    } else if (item.isVerified && (item.legalBenchmarkStatus === 'below_benchmark' || item.healthBenchmarkStatus === 'below_benchmark')) {
-      statusText = 'BELOW BENCHMARK'
-      dotColor = '#10b981'
-      textColor = '#34d399'
-    } else if (item.isIllustrative || item.healthBenchmarkStatus === 'illustrative') {
-      statusText = 'ILLUSTRATIVE BENCHMARK'
-      dotColor = '#a855f7'
-      textColor = '#c084fc'
-    } else if (item.healthBenchmarkStatus === 'incompatible_units' || item.legalBenchmarkStatus === 'incompatible_units') {
-      statusText = 'UNIT MISMATCH'
-      dotColor = '#94a3b8'
-      textColor = '#94a3b8'
-    } else if (item.hasData) {
-      statusText = 'UNREVIEWED SAMPLE'
-      dotColor = '#94a3b8'
-      textColor = '#94a3b8'
+    if (!hasMeas) {
+      statusText = 'NO MEASUREMENT RECORDED'
+    } else if (!item.isVerified) {
+      if (item.isIllustrative || item.healthBenchmarkStatus === 'illustrative' || item.legalBenchmarkStatus === 'illustrative') {
+        statusText = 'ILLUSTRATIVE BENCHMARK'
+        dotColor = '#a855f7'
+        textColor = '#c084fc'
+      } else {
+        statusText = 'UNREVIEWED SAMPLE'
+        dotColor = '#94a3b8'
+        textColor = '#94a3b8'
+      }
+    } else {
+      // Verified and measured
+      if (item.legalBenchmarkStatus === 'above_benchmark') {
+        statusText = 'EXCEEDS LEGAL LIMIT'
+        dotColor = '#f43f5e'
+        textColor = '#f43f5e'
+      } else if (item.healthBenchmarkStatus === 'above_benchmark') {
+        statusText = 'EXCEEDS HEALTH GUIDELINE'
+        dotColor = '#f59e0b'
+        textColor = '#fbbf24'
+      } else if (item.legalBenchmarkStatus === 'below_benchmark' || item.healthBenchmarkStatus === 'below_benchmark') {
+        statusText = 'BELOW BENCHMARK'
+        dotColor = '#10b981'
+        textColor = '#34d399'
+      } else if (item.legalBenchmarkStatus === 'incompatible_units' || item.healthBenchmarkStatus === 'incompatible_units') {
+        statusText = 'UNIT MISMATCH'
+        dotColor = '#94a3b8'
+        textColor = '#94a3b8'
+      } else if (item.legalBenchmarkStatus === 'no_benchmark' || item.healthBenchmarkStatus === 'no_benchmark') {
+        statusText = 'NO BENCHMARK AVAILABLE'
+        dotColor = '#94a3b8'
+        textColor = '#94a3b8'
+      }
     }
 
     return {
@@ -127,13 +165,13 @@ export function buildWaterReportCardViewModel(
     }
   })
 
-  // Outbound share text: neutral non-verdict message when no verified data
-  let shareSummary = 'Water quality measurements recorded for community review'
-  if (hasAssessedVerifiedData && hExceed != null) {
-    if (hExceed > 0) {
-      shareSummary = `${hExceed} contaminants exceed health guidelines in reviewed records`
+  // Outbound share text
+  let shareSummary = 'Water quality measurements recorded for community review (0 benchmarks assessed)'
+  if (hasAssessedVerifiedData) {
+    if (healthAssessed.length > 0) {
+      shareSummary = `${healthAbove} of ${healthAssessed.length} assessed contaminants above health guidelines in reviewed records`
     } else {
-      shareSummary = 'No health guideline exceedances observed in reviewed records'
+      shareSummary = `${legalAbove} of ${legalAssessed.length} assessed contaminants above legal limits in reviewed records`
     }
   }
 
@@ -145,9 +183,11 @@ export function buildWaterReportCardViewModel(
     totalContaminantsCount: summaries.length,
     healthExceedancesText,
     healthCardTone,
+    healthSublabel,
     legalStatusHeader,
     legalStatusText,
     legalCardTone,
+    legalSublabel,
     hasAssessedVerifiedData,
     keyFindings,
     shareText,

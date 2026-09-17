@@ -424,7 +424,7 @@ function checkReportCardViewModel() {
     ]
   };
   const vmC = buildWaterReportCardViewModel(verifiedExceedanceUtility);
-  assert.equal(vmC.legalStatusText, '1 Violations', 'Verified legal exceedance must display violations');
+  assert.equal(vmC.legalStatusText, '1 above / 1 assessed', 'Verified legal exceedance must display numerical comparison count');
   assert.equal(vmC.keyFindings[0].statusText, 'EXCEEDS LEGAL LIMIT');
 
   console.log('[QA-ReadSafety] PASS: Water report card view model strictly guards against false safety claims.');

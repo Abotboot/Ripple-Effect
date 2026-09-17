@@ -119,44 +119,59 @@ export function canonicalizeUnit(unit?: string | null): string {
     .replace(/\s+/g, '')
     .replace(/\/liter$/i, '/l')
     .replace(/\/litre$/i, '/l')
+    .replace(/\/milliliter$/i, '/ml')
+    .replace(/\/millilitre$/i, '/ml')
 }
 
-// Mass concentration scale factors relative to ppb = 1.0
-// Assumes standard dilute aqueous convention: 1 L water = 1 kg
+type UnitDimension = 'mass_concentration' | 'particle_count' | 'fiber_count'
+
+interface UnitSpec {
+  dimension: UnitDimension
+  scale: number // Multiplier to convert 1 unit to canonical reference (ppb for mass, particles/l for particle, fibers/l for fiber)
+}
+
+// Explicit species/dimension/scale definitions
+// Mass concentration assumes dilute aqueous standard: 1 L water = 1 kg
 // 1 ppm = 1 mg/L = 1000 ppb = 1000 ug/L = 1,000,000 ppt = 1,000,000 ng/L
-const MASS_CONCENTRATION_FACTORS: Record<string, number> = {
-  'ppt': 0.001,
-  'ng/l': 0.001,
-  'ppb': 1.0,
-  'ug/l': 1.0,
-  'ppm': 1000.0,
-  'mg/l': 1000.0,
-}
+const UNIT_SPECS: Record<string, UnitSpec> = {
+  // Mass concentration
+  'ppt': { dimension: 'mass_concentration', scale: 0.001 },
+  'ng/l': { dimension: 'mass_concentration', scale: 0.001 },
+  'ppb': { dimension: 'mass_concentration', scale: 1.0 },
+  'ug/l': { dimension: 'mass_concentration', scale: 1.0 },
+  'ppm': { dimension: 'mass_concentration', scale: 1000.0 },
+  'mg/l': { dimension: 'mass_concentration', scale: 1000.0 },
 
-const PARTICLE_UNITS = new Set([
-  'particles/l',
-  'particles/liter',
-  'fibers/l',
-  'fibers/liter',
-])
+  // Particles per volume (canonical = particles/l)
+  'particles/l': { dimension: 'particle_count', scale: 1.0 },
+  'particle/l': { dimension: 'particle_count', scale: 1.0 },
+  'particles/ml': { dimension: 'particle_count', scale: 1000.0 },
+  'particle/ml': { dimension: 'particle_count', scale: 1000.0 },
+  'particles/100ml': { dimension: 'particle_count', scale: 10.0 },
+  'particle/100ml': { dimension: 'particle_count', scale: 10.0 },
+
+  // Fibers per volume (canonical = fibers/l, kept strictly separate from particles)
+  'fibers/l': { dimension: 'fiber_count', scale: 1.0 },
+  'fiber/l': { dimension: 'fiber_count', scale: 1.0 },
+  'fibers/ml': { dimension: 'fiber_count', scale: 1000.0 },
+  'fiber/ml': { dimension: 'fiber_count', scale: 1000.0 },
+  'fibers/100ml': { dimension: 'fiber_count', scale: 10.0 },
+  'fiber/100ml': { dimension: 'fiber_count', scale: 10.0 },
+}
 
 export function areUnitsCompatible(sampleUnit?: string | null, benchmarkUnit?: string | null): boolean {
   if (!sampleUnit || !benchmarkUnit) return false
   const s = canonicalizeUnit(sampleUnit)
   const b = canonicalizeUnit(benchmarkUnit)
   if (!s || !b) return false
-  if (s === b) return true
-  const sIsMass = s in MASS_CONCENTRATION_FACTORS
-  const bIsMass = b in MASS_CONCENTRATION_FACTORS
-  if (sIsMass && bIsMass) return true
-  const sIsParticle = PARTICLE_UNITS.has(s) || s.includes('particle') || s.includes('fiber')
-  const bIsParticle = PARTICLE_UNITS.has(b) || b.includes('particle') || b.includes('fiber')
-  if (sIsParticle && bIsParticle) {
-    if (s.includes('fiber') && !b.includes('fiber')) return false
-    if (!s.includes('fiber') && b.includes('fiber')) return false
-    return true
+  if (s === b) {
+    // If exact match, verify it's a recognized unit or non-empty string
+    return s in UNIT_SPECS
   }
-  return false
+  const sSpec = UNIT_SPECS[s]
+  const bSpec = UNIT_SPECS[b]
+  if (!sSpec || !bSpec) return false
+  return sSpec.dimension === bSpec.dimension
 }
 
 export function normalizeToBenchmarkUnit(level: number, sampleUnit: string, benchmarkUnit: string): number | null {
@@ -165,20 +180,19 @@ export function normalizeToBenchmarkUnit(level: number, sampleUnit: string, benc
   const s = canonicalizeUnit(sampleUnit)
   const b = canonicalizeUnit(benchmarkUnit)
   if (!s || !b) return null
-  if (s === b) return level
-
-  const sFactor = MASS_CONCENTRATION_FACTORS[s]
-  const bFactor = MASS_CONCENTRATION_FACTORS[b]
-  if (sFactor != null && bFactor != null) {
-    const converted = level * (sFactor / bFactor)
-    return Number(converted.toPrecision(12)) / 1
-  }
-
-  if (areUnitsCompatible(sampleUnit, benchmarkUnit)) {
+  if (s === b) {
     return level
   }
 
-  return null
+  const sSpec = UNIT_SPECS[s]
+  const bSpec = UNIT_SPECS[b]
+  if (!sSpec || !bSpec || sSpec.dimension !== bSpec.dimension) {
+    return null
+  }
+
+  const converted = level * (sSpec.scale / bSpec.scale)
+  if (!isFinite(converted)) return null
+  return Number(converted.toPrecision(12)) / 1
 }
 
 export function getBenchmarkStatus(params: {

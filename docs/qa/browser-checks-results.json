@@ -115,7 +115,7 @@
         "text": "",
         "outline": "rgb(29, 242, 179) solid 2px",
         "outlineWidth": "2px",
-        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.426321) 0px 0px 0px 2.55792px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.426589) 0px 0px 0px 2.55953px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
         "isInView": true
       },
       {
@@ -135,7 +135,7 @@
         "text": "",
         "outline": "rgb(29, 242, 179) solid 2px",
         "outlineWidth": "2px",
-        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.462583) 0px 0px 0px 2.7755px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.462068) 0px 0px 0px 2.77241px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
         "isInView": true
       },
       {
@@ -206,8 +206,8 @@
   },
   "zipSearch": {
     "validQuery": "60614",
-    "validResultHeader": "Results for \"60614\"",
-    "cardsFound": 1,
+    "validResultHeader": "Browse water utilities",
+    "cardsFound": 6,
     "invalidQuery": "00000",
     "screenshots": [
       "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\search_valid_zip.png",
@@ -229,12 +229,30 @@
         "left": 0,
         "right": 390,
         "width": 390,
-        "height": 320,
-        "top": 48,
-        "bottom": 368,
+        "height": 260,
+        "top": 40,
+        "bottom": 300,
         "transform": "none"
       },
+      "enterRect": {
+        "left": 27.296875,
+        "right": 327.296875,
+        "top": 483.625,
+        "bottom": 539.625,
+        "width": 300,
+        "height": 56
+      },
+      "skipRect": {
+        "left": 23.390625,
+        "right": 142.8125,
+        "top": 792,
+        "bottom": 824,
+        "width": 119.421875,
+        "height": 32
+      },
+      "overlapArea": 0,
       "skipDismissed": true,
+      "enterDismissed": true,
       "focusRestored": "tank-search-input"
     },
     "320x568": {
@@ -242,12 +260,30 @@
         "left": 0,
         "right": 320,
         "width": 320,
-        "height": 238.546875,
-        "top": 48,
-        "bottom": 286.546875,
+        "height": 170.390625,
+        "top": 30,
+        "bottom": 200.390625,
         "transform": "none"
       },
+      "enterRect": {
+        "left": 19.1875,
+        "right": 300.8125,
+        "top": 335.8946838378906,
+        "bottom": 385.8946838378906,
+        "width": 281.625,
+        "height": 50
+      },
+      "skipRect": {
+        "left": 19.1875,
+        "right": 138.609375,
+        "top": 516,
+        "bottom": 548,
+        "width": 119.421875,
+        "height": 32
+      },
+      "overlapArea": 0,
       "skipDismissed": true,
+      "enterDismissed": true,
       "focusRestored": "tank-search-input"
     }
   }
