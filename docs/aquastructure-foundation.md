@@ -1,5 +1,12 @@
 # Human Aquastructure: foundation and narrative stages 01-04
 
+## Informational-page shared styling
+- About, FAQ, Sources and Partners now share scoped obsidian surfaces, editorial display headings, mono badges, responsive typography and keyboard outlines. Existing content and API calls retained. This is a styling pass, not completion of the full architectural redesign.
+- Removed the source-title stretched-link overlay after the browser test showed it intercepted the separate external-link control.
+- Production build passed; targeted ESLint reported zero errors and two unused-disable warnings. Build still skips type validation. info-reskin-check.cjs passed all four hash routes, 320/375/768px wrapper bounds, FAQ search/keyboard accordion, light-theme FAQ heading, source-link actionability and partner Contact navigation. Submission regression and tank particle/audio checks also passed.
+- Reviewed desktop Sources/Partners and mobile About/FAQ screenshots in C:/Users/ayada/AppData/Local/Temp/info-*.png. Preview reused port 3020; restart the actual listener after builds to avoid stale chunks. Test waits for route-specific headings because hash navigation hydrates after the initial home render.
+- Database integration remains unverified due to the existing local SQLite URL/PostgreSQL schema mismatch. No credentials, schema or deployment changed. Direct verification only; no independent review.
+
 ## Submission unit-update correction
 - Removed the synchronous state-setting effect; contaminant selection now updates the selected ID and default unit together in its event handler. Other form fields and manual unit edits remain intact.
 - Reproduced the original ESLint error before editing. Targeted ESLint and production build now pass (build still skips types).

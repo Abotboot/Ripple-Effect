@@ -1,5 +1,7 @@
 'use client'
 
+import './editorial-pages.css'
+
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -96,7 +98,7 @@ export function FaqSection() {
   ]
 
   return (
-    <div className="bg-water-hero">
+    <div className="editorial-page">
       {/* Hero */}
       <section className="relative overflow-hidden bg-water-surface text-primary-foreground">
         <div className="pointer-events-none absolute inset-0 opacity-30">

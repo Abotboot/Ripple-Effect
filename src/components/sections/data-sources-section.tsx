@@ -1,5 +1,7 @@
 'use client'
 
+import './editorial-pages.css'
+
 import { motion } from 'framer-motion'
 import {
   Database, Building2, FlaskConical, Waves, Globe, Scale, HeartPulse,
@@ -96,7 +98,7 @@ const item = {
 
 export function DataSourcesSection() {
   return (
-    <div className="bg-water-hero">
+    <div className="editorial-page">
       {/* Header */}
       <section className="border-b border-border/60 bg-background/60 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
@@ -181,7 +183,7 @@ export function DataSourcesSection() {
                         href={src.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="after:absolute after:inset-0 hover:text-primary"
+                        className="hover:text-primary"
                       >
                         {src.name}
                       </a>

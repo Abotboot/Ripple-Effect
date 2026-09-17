@@ -1,5 +1,7 @@
 'use client'
 
+import './editorial-pages.css'
+
 import { motion } from 'framer-motion'
 import {
   Handshake, Building2, HeartHandshake, ArrowRight, Users, Globe, BookOpen,
@@ -71,7 +73,7 @@ const WHY_PARTNER = [
 
 export function PartnershipsSection({ onNavigate }: { onNavigate?: (s: Section) => void }) {
   return (
-    <div>
+    <div className="editorial-page">
       {/* Hero */}
       <section className="relative overflow-hidden bg-water-surface text-primary-foreground">
         <div className="pointer-events-none absolute inset-0 opacity-30">

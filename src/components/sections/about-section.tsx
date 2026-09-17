@@ -1,5 +1,7 @@
 'use client'
 
+import './editorial-pages.css'
+
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -155,7 +157,7 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
   ]
 
   return (
-    <div>
+    <div className="editorial-page">
       {/* Hero */}
       <section className="relative overflow-hidden bg-water-hero text-foreground">
         <div className="pointer-events-none absolute inset-0 opacity-30">
