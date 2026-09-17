@@ -131,5 +131,22 @@ export function WaterNarrative() {
       </div>
       <div className="siphon-disclaimer"><p>ILLUSTRATIVE RESEARCH SEQUENCE, NOT A PROVEN ROUTE THROUGH THE BODY OR A MEDICAL SIMULATION.</p><a className="narrative-link" href="https://www.nih.gov/news-events/nih-research-matters/plastic-particles-bottled-water" target="_blank" rel="noopener noreferrer">Evidence and limits / NIH <span aria-hidden="true">↗</span></a></div>
     </section>
+    <section className="countermeasure-stage" aria-labelledby="countermeasure-title">
+      <div className="narrative-label">04 / THE COUNTER-MEASURE</div>
+      <div className="countermeasure-layout">
+        <div>
+          <h2 id="countermeasure-title">Break <em>the tank.</em><br />Not the conversation.</h2>
+          <p className="countermeasure-intro">Uncertainty is not a reason to look away. Help turn scattered observations into evidence we can examine together.</p>
+        </div>
+        <div className="countermeasure-panel">
+          <span className="narrative-coordinate">FIELDWORK / OPEN TO EVERYONE</span>
+          <h3>Make your observation count.</h3>
+          <p>Have a water reading? Share its source, location and method. Contributions are labeled as citizen readings. A single reading is not a safety verdict.</p>
+          <a className="countermeasure-action" href="#submit">Contribute a reading <span aria-hidden="true">↗</span></a>
+          <a className="narrative-link" href="#search">Explore existing water data <span aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+      <p className="countermeasure-footnote">BETTER QUESTIONS. TRACEABLE SOURCES. A SHARED PICTURE.</p>
+    </section>
   </div>
 }

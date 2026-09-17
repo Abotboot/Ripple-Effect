@@ -1,4 +1,17 @@
-# Human Aquastructure: foundation and narrative stages 01/02
+# Human Aquastructure: foundation and narrative stages 01-04
+
+## Stage 04: The Counter-Measure
+- Added responsive editorial CTA and glass panel to the existing WaterNarrative component. No new dependency, router or API changes.
+- Primary link uses the existing `#submit` view; secondary link targets the homepage `#search` anchor. Citizen-reading copy matches the current API, without promising pre-publication moderation or a safety verdict.
+- Final production build tested at http://localhost:3014. `QA_URL=http://localhost:3014 node scripts/countermeasure-smoke.mjs` passed served markup and CSS checks. This smoke test does not execute client navigation.
+- `QA_URL=http://localhost:3014 bash scripts/countermeasure-check.sh` passed mobile width, stable unobstructed CTA and real click navigation to the submission form. The original acceptance test failed with Stage 04 missing before implementation. Click readiness now checks geometry instead of assuming an arbitrary delay.
+- Existing narrative and siphon browser scripts passed against the same build. Secondary-link keyboard activation preserved the homepage and selected `#search`; Stage 04 mobile content bounds passed.
+- Atmosphere ESLint, particle/audio checks, production build and diff whitespace checks passed. Build skips TypeScript validation; this is not a clean type-check claim. Existing database configuration mismatch still blocks end-to-end data operations. No reading was submitted.
+- Reviewed desktop and mobile screenshots: `C:/Users/ayada/AppData/Local/Temp/countermeasure-desktop.png` and `C:/Users/ayada/AppData/Local/Temp/countermeasure-mobile.png` (temporary local artifacts).
+- Direct verification only, no independent-review approval. No deployment performed. Remaining: Macro/UV specimen inspector, magnetic cursor, full-site reskin and deployment.
+
+## Historical implementation records
+The sections below describe earlier batches and their status at that time.
 
 ## Narrative follow-up
 - Added `water-narrative.tsx` / `water-narrative.css`: editorial stage 01 and scroll-driven stage 02 counter, with GSAP and SplitType dependencies.

@@ -38,7 +38,21 @@
 .siphon-body { font-size: 17px; line-height: 1.8; color: #dcebe5; max-width: 420px; }
 .siphon-note { margin-top: 22px; font-family: var(--font-geist-mono), monospace; font-size: 10px; letter-spacing: .08em; line-height: 1.7; color: #8ea39c; max-width: 380px; }
 .siphon-disclaimer { padding: 0 7vw 70px; font-family: var(--font-geist-mono), monospace; font-size: 9px; letter-spacing: .14em; color: #6d807b; }
+.countermeasure-stage { border-top: 1px solid #26413e; background: radial-gradient(ellipse at 90% 60%, #10392f 0, transparent 65%), #05080a; }
+.countermeasure-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: clamp(32px, 6vw, 100px); align-items: center; }
+.countermeasure-stage h2 { font: 400 clamp(46px, 5.5vw, 88px)/1.02 var(--font-tank-display), serif; letter-spacing: -.035em; }
+.countermeasure-stage h2 em { color: #1df2b3; }
+.countermeasure-intro { max-width: 480px; margin-top: 32px; color: #b6ccc6; font-size: 17px; line-height: 1.8; }
+.countermeasure-panel { min-width: 0; padding: clamp(24px, 3vw, 48px); border: 1px solid #54796a; background: rgba(255,255,255,.05); backdrop-filter: blur(16px); }
+.countermeasure-panel h3 { margin: 28px 0 20px; font: 400 36px/1.1 var(--font-tank-display), serif; }
+.countermeasure-panel p { color: #b6ccc6; font-size: 15px; line-height: 1.8; }
+.countermeasure-action { display: flex; justify-content: space-between; align-items: center; gap: 20px; min-height: 56px; padding: 16px 20px; margin: 28px 0 12px; color: #05080a; background: #1df2b3; font: 500 13px/1.5 var(--font-geist-mono), monospace; text-decoration: none; transition: background .2s; }
+.countermeasure-action:hover { background: #a2ffe1; }
+.countermeasure-action:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+.countermeasure-footnote { margin-top: 64px; color: #94aca6; font: 10px/1.8 var(--font-geist-mono), monospace; letter-spacing: .1em; }
+@media (prefers-reduced-motion: reduce) { .countermeasure-action { transition: none; } }
 @media (max-width: 899px) {
+  .countermeasure-layout { grid-template-columns: 1fr; }
   .water-narrative section { padding: 64px 6vw; }
   .illusion-bottom, .particle-context { grid-template-columns: 1fr; gap: 24px; }
   .illusion-bottom { margin: 40px 0 20px; }
