@@ -10,7 +10,14 @@
 - Independent review was not completed; invalid delegation calls produced no review. User explicitly directed final build/lint and a direct commit without further delegation. Verification here refers to executed checks, not independent-review approval.
 - The original foundation record below is historical. Stages 03/04, bottle inspection, magnetic cursor and full-site reskin remain unfinished. No deployment performed.
 
-## Original foundation record
+## Stage 03: The Anatomic Siphon
+- Pinned desktop horizontal scrub across four research waypoints; mobile, short and reduced-motion layouts stack in native flow with no pin and no off-screen content.
+- Copy checked against the NIH summary (2024 SRS microscopy study, three brands, ~240,000 particles/L, ~90% nanoplastics; particles reported in human blood, lungs, placenta; health effects unproven). Stage frames detection vs consequence; includes Evidence and limits link. It does not claim a proven bottle-to-blood route or personal exposure.
+- Fixed during verification: mobile waypoint clipping, desktop pinned panel exceeding viewport, heading size, and stale-transform assertion (GSAP reverts to identity, not "none").
+- Regression: `bash scripts/siphon-check.sh` on an attached `agent-browser` session (production build, port 3012): mobile waypoints, desktop pin fit and midpoint scrub, final waypoint reachability, reduced-motion readability and cleanup, short-viewport fallback all PASS.
+- `npx eslint src/components/atmosphere`, `node scripts/tank-check.mjs`, `npm run build`, `git diff --check` passed. Local Prisma/SQLite error remains environmental and unrelated.
+- Committed d66e2dc. Independent review was not completed (invalid delegation calls again); verification = executed checks above. Stages 04, bottle inspection, magnetic cursor and full-site reskin remain.
+
 
 ## Scope
 Working homepage hero and entry system, integrated into the existing app. This is the first requested deliverable, not the complete site overhaul. Database APIs, section navigation, footer, donations and research content remain intact.
