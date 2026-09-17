@@ -11,14 +11,37 @@
 .gate-skip { margin-top: 14px; padding: 4px 0; border: 0; background: transparent; color: #7f958b; font: 10px var(--font-geist-mono), monospace; letter-spacing: .1em; }
 .gate-skip:hover { color: #e6ede8; }
 @media (max-width: 860px) {
- .microscope-copy { backdrop-filter: blur(2px); }
- .microscope-model { width: min(118vw, 62vh); right: 50%; transform: translateX(50%); bottom: auto; top: 12vh; }
- .tank-gate .microscope-copy { width: 100%; min-width: 0; padding: 44vh 7vw 24px; justify-content: flex-start; }
- .microscope-copy h2 { font-size: clamp(34px, 8.5vw, 50px); }
- .microscope-copy .tank-eyebrow { margin-bottom: 12px; }
- .microscope-copy #gate-note { margin: 14px 0 0; font-size: 10px; }
- .microscope-copy .gate-enter { margin-top: 16px; padding: 13px 18px; }
- .microscope-caption { display: none; }
- .tank-gate .gate-bottom { padding-block: 12px; margin-top: auto; }
+  .microscope-copy { backdrop-filter: blur(2px); }
+  .microscope-viewport {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    right: 0;
+    height: min(42vh, 320px);
+    width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  .microscope-model {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: none;
+    display: block;
+  }
+  .tank-gate .microscope-copy {
+    width: 100%;
+    min-width: 0;
+    padding: calc(min(42vh, 320px) + 54px) 7vw 24px;
+    justify-content: flex-start;
+  }
+  .microscope-copy h2 { font-size: clamp(34px, 8.5vw, 50px); }
+  .microscope-copy .tank-eyebrow { margin-bottom: 12px; }
+  .microscope-copy #gate-note { margin: 14px 0 0; font-size: 10px; }
+  .microscope-copy .gate-enter { margin-top: 16px; padding: 13px 18px; }
+  .microscope-caption { display: none; }
+  .tank-gate .gate-bottom { padding-block: 12px; margin-top: auto; }
 }
 @media (prefers-reduced-motion: reduce) { .microscope-model { opacity: .9; } }
+

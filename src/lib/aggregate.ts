@@ -31,7 +31,15 @@ export type ContaminantSummaryT = {
   legalBenchmarkStatus: BenchmarkStatus
   healthRatio: number | null
   legalRatio: number | null
-  trend: Array<{ date: string; level: number; treatmentStatus: string; provenance?: string; quality?: string }>
+  trend: Array<{
+    date: string
+    level: number
+    unit?: string
+    treatmentStatus: string
+    provenance?: string
+    verificationStatus?: string
+    quality?: string
+  }>
 }
 
 export function buildContaminantSummary(
@@ -139,7 +147,7 @@ export function buildContaminantSummary(
     quality: latest?.quality ?? 'unreviewed',
     provenance,
     verificationStatus,
-    sampleCount: pool.length,
+    sampleCount: compatiblePool.length,
     hasData,
     isIllustrative: sampleIsIllustrative,
     isVerified: sampleIsVerified,
@@ -149,11 +157,13 @@ export function buildContaminantSummary(
     legalBenchmarkStatus,
     healthRatio,
     legalRatio,
-    trend: sorted.map((s) => ({
+    trend: compatiblePool.map((s) => ({
       date: s.sampleDate.toISOString(),
       level: s.level,
+      unit: s.unit,
       treatmentStatus: s.treatmentStatus,
       provenance: normalizeProvenance(s),
+      verificationStatus: normalizeVerification(s),
       quality: s.quality,
     })),
   }

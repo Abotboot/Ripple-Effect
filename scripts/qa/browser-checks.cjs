@@ -88,6 +88,70 @@ const results = {
       await context.close();
     }
 
+    // 1b. Mobile Microscope Stage Geometry & Skip Control (390px & 320px)
+    {
+      console.log('[QA] Testing Mobile Microscope Stage Geometry & Skip Control...');
+      results.mobileMicroscope = {};
+      for (const [w, h] of [[390, 844], [320, 568]]) {
+        const vpName = `${w}x${h}`;
+        const context = await browser.newContext({ viewport: { width: w, height: h } });
+        const page = await context.newPage();
+        await page.goto(BASE_URL + '/?intro=1', { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(1000);
+
+        const bounds = await page.evaluate(() => {
+          const dialog = document.querySelector('dialog.tank-gate');
+          const canvas = document.querySelector('.microscope-model');
+          const cRect = canvas ? canvas.getBoundingClientRect() : null;
+          const winW = window.innerWidth;
+          const docW = document.documentElement.scrollWidth;
+          const style = canvas ? window.getComputedStyle(canvas) : null;
+          return {
+            dialogOpen: dialog ? dialog.open : false,
+            winW,
+            docW,
+            canvas: cRect ? {
+              left: cRect.left,
+              right: cRect.right,
+              width: cRect.width,
+              height: cRect.height,
+              top: cRect.top,
+              bottom: cRect.bottom,
+              transform: style ? style.transform : null,
+            } : null,
+          };
+        });
+
+        assert.equal(bounds.dialogOpen, true, `Intro dialog must open at ${vpName}`);
+        assert(bounds.canvas, `Microscope canvas must render at ${vpName}`);
+        assert(bounds.canvas.left >= -0.5, `Canvas left (${bounds.canvas.left}) must not be negative at ${vpName}`);
+        assert(bounds.canvas.right <= bounds.winW + 0.5, `Canvas right (${bounds.canvas.right}) must not exceed viewport width at ${vpName}`);
+        assert(bounds.canvas.width <= bounds.winW + 0.5, `Canvas width (${bounds.canvas.width}) must fit viewport at ${vpName}`);
+
+        // Test Skip button interaction
+        const skipBtn = page.locator('.gate-skip');
+        await skipBtn.click();
+        await page.waitForTimeout(500);
+
+        const afterSkip = await page.evaluate(() => {
+          const dialog = document.querySelector('dialog.tank-gate');
+          return {
+            dialogOpen: dialog ? dialog.open : false,
+            activeElementId: document.activeElement ? document.activeElement.id : null,
+          };
+        });
+
+        assert.equal(afterSkip.dialogOpen, false, `Dialog must be dismissed after skip at ${vpName}`);
+        results.mobileMicroscope[vpName] = {
+          bounds: bounds.canvas,
+          skipDismissed: !afterSkip.dialogOpen,
+          focusRestored: afterSkip.activeElementId,
+        };
+        console.log(`[QA] Mobile Stage ${vpName}: Bounds PASS, Skip Dismissed=true, Focus=${afterSkip.activeElementId}`);
+        await context.close();
+      }
+    }
+
     // 2. Keyboard Nav & Focus
     {
       console.log('[QA] Testing Keyboard Navigation & Visible Focus (1440px)...');

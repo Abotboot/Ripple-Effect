@@ -13,12 +13,13 @@ export function TankHero({ children }: { children: React.ReactNode }) {
   const [entered, setEntered] = useState(false)
   const [leaving, setLeaving] = useState(false)
   const [revealing, setRevealing] = useState(false)
+  const revealingRef = useRef(false)
   const [paused, setPaused] = useState(false)
   const [filter, setFilter] = useState<ParticleFilter>('all')
 
   const canvasRef = useRef<TankCanvasHandle>(null)
   const entryMotion = useRef<gsap.core.Timeline | null>(null)
-  const microscopePlay = useRef<(() => void) | null>(null)
+  const microscopePlay = useRef<((onComplete?: () => void) => void) | null>(null)
   const dialog = useRef<HTMLDialogElement>(null)
   const sceneLayerRef = useRef<HTMLDivElement>(null)
   const finishedRef = useRef(false)
@@ -81,8 +82,13 @@ export function TankHero({ children }: { children: React.ReactNode }) {
     }
 
     const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth <= 860
       entryMotion.current = gsap.timeline({ defaults: { ease: 'power2.out' } })
-        .fromTo('.microscope-viewport', { filter: 'blur(12px)', scale: 1.05 }, { filter: 'blur(0px)', scale: 1, duration: 1.6 }, 0)
+        .fromTo('.microscope-viewport',
+          { filter: 'blur(12px)', scale: isMobile ? 1 : 1.05 },
+          { filter: 'blur(0px)', scale: 1, duration: 1.6 },
+          0
+        )
         .from('.microscope-copy > *', { opacity: 0, y: 14, duration: 0.5, stagger: 0.1 }, 0.3)
     }, gate!)
 
@@ -120,6 +126,7 @@ export function TankHero({ children }: { children: React.ReactNode }) {
   }
 
   const handleReveal = (coords: { x: number; y: number }) => {
+    revealingRef.current = true
     setRevealing(true)
     const sceneLayer = sceneLayerRef.current
     const canvasEl = dialog.current?.querySelector<HTMLCanvasElement>('.microscope-model')
@@ -246,7 +253,11 @@ export function TankHero({ children }: { children: React.ReactNode }) {
 
             <div className="microscope-viewport">
               <MicroscopeStage
-                onComplete={() => finishEntry(true)}
+                onComplete={() => {
+                  if (!revealingRef.current) {
+                    finishEntry(true)
+                  }
+                }}
                 onReveal={handleReveal}
                 onReady={handleMicroscopeReady}
               />

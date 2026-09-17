@@ -55,3 +55,4 @@ server.log
 .aider*
 .env
 .codegraph/
+.review/

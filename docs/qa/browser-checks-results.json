@@ -115,7 +115,7 @@
         "text": "",
         "outline": "rgb(29, 242, 179) solid 2px",
         "outlineWidth": "2px",
-        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.426052) 0px 0px 0px 2.55631px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.426321) 0px 0px 0px 2.55792px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
         "isInView": true
       },
       {
@@ -135,7 +135,7 @@
         "text": "",
         "outline": "rgb(29, 242, 179) solid 2px",
         "outlineWidth": "2px",
-        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.462412) 0px 0px 0px 2.77447px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.462583) 0px 0px 0px 2.7755px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
         "isInView": true
       },
       {
@@ -154,12 +154,12 @@
   },
   "dialogTraps": {
     "vp_1440": {
-      "escapeDismisses": true,
+      "skipClickDismisses": true,
       "skipButtonPresent": true,
       "topRightRemoved": true
     },
     "vp_390": {
-      "escapeDismisses": true,
+      "skipClickDismisses": true,
       "skipButtonPresent": true,
       "topRightRemoved": true
     }
@@ -206,8 +206,8 @@
   },
   "zipSearch": {
     "validQuery": "60614",
-    "validResultHeader": "Browse water utilities",
-    "cardsFound": 6,
+    "validResultHeader": "Results for \"60614\"",
+    "cardsFound": 1,
     "invalidQuery": "00000",
     "screenshots": [
       "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\search_valid_zip.png",
@@ -222,5 +222,33 @@
   "historyNavigation": {
     "backRestoredHash": "#about",
     "success": true
+  },
+  "mobileMicroscope": {
+    "390x844": {
+      "bounds": {
+        "left": 0,
+        "right": 390,
+        "width": 390,
+        "height": 320,
+        "top": 48,
+        "bottom": 368,
+        "transform": "none"
+      },
+      "skipDismissed": true,
+      "focusRestored": "tank-search-input"
+    },
+    "320x568": {
+      "bounds": {
+        "left": 0,
+        "right": 320,
+        "width": 320,
+        "height": 238.546875,
+        "top": 48,
+        "bottom": 286.546875,
+        "transform": "none"
+      },
+      "skipDismissed": true,
+      "focusRestored": "tank-search-input"
+    }
   }
 }

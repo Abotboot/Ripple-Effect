@@ -17,6 +17,7 @@ import { ContaminantBarChart } from '@/components/charts/contaminant-bar-chart'
 import { QualityBadge } from '@/components/quality-badge'
 import { SourceBadge } from '@/components/source-badge'
 import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
+import { normalizeToBenchmarkUnit } from '@/lib/provenance'
 
 function escapeHtml(str: unknown): string {
   if (str == null) return ''
@@ -488,16 +489,24 @@ function ContaminantDetailCard({
         )}
 
         {/* Trend chart */}
-        {summary.trend.length > 1 && (
-          <div className="mt-3">
-            <ContaminantTrendChart
-              data={summary.trend}
-              unit={unit}
-              healthGuideline={c.healthGuideline ?? undefined}
-              legalLimit={c.legalLimit ?? undefined}
-            />
-          </div>
-        )}
+        {summary.trend.length > 1 && (() => {
+          const hgInUnit = c.healthGuideline != null && c.healthGuidelineUnit
+            ? normalizeToBenchmarkUnit(c.healthGuideline, c.healthGuidelineUnit, unit)
+            : c.healthGuideline ?? undefined
+          const llInUnit = c.legalLimit != null && c.legalLimitUnit
+            ? normalizeToBenchmarkUnit(c.legalLimit, c.legalLimitUnit, unit)
+            : c.legalLimit ?? undefined
+          return (
+            <div className="mt-3">
+              <ContaminantTrendChart
+                data={summary.trend}
+                unit={unit}
+                healthGuideline={hgInUnit ?? undefined}
+                legalLimit={llInUnit ?? undefined}
+              />
+            </div>
+          )
+        })()}
 
         {c.description && (
           <p className="mt-3 text-xs text-muted-foreground">{c.description}</p>

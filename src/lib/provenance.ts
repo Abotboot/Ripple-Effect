@@ -105,28 +105,79 @@ export function isIllustrative(record: {
 }
 
 /**
- * Unit compatibility: prevents comparing particles to mass concentration, etc.
+ * Canonicalizes a unit string for dimensional analysis:
+ * - normalizes Unicode micro ('µ', 'μ') -> 'u'
+ * - strips whitespace, lowercases
+ * - maps volume shorthands (e.g. /liter -> /l)
  */
+export function canonicalizeUnit(unit?: string | null): string {
+  if (!unit) return ''
+  return unit
+    .trim()
+    .toLowerCase()
+    .replace(/[\u00b5\u03bc]/g, 'u')
+    .replace(/\s+/g, '')
+    .replace(/\/liter$/i, '/l')
+    .replace(/\/litre$/i, '/l')
+}
+
+// Mass concentration scale factors relative to ppb = 1.0
+// Assumes standard dilute aqueous convention: 1 L water = 1 kg
+// 1 ppm = 1 mg/L = 1000 ppb = 1000 ug/L = 1,000,000 ppt = 1,000,000 ng/L
+const MASS_CONCENTRATION_FACTORS: Record<string, number> = {
+  'ppt': 0.001,
+  'ng/l': 0.001,
+  'ppb': 1.0,
+  'ug/l': 1.0,
+  'ppm': 1000.0,
+  'mg/l': 1000.0,
+}
+
+const PARTICLE_UNITS = new Set([
+  'particles/l',
+  'particles/liter',
+  'fibers/l',
+  'fibers/liter',
+])
+
 export function areUnitsCompatible(sampleUnit?: string | null, benchmarkUnit?: string | null): boolean {
   if (!sampleUnit || !benchmarkUnit) return false
-  const s = sampleUnit.trim().toLowerCase()
-  const b = benchmarkUnit.trim().toLowerCase()
+  const s = canonicalizeUnit(sampleUnit)
+  const b = canonicalizeUnit(benchmarkUnit)
+  if (!s || !b) return false
   if (s === b) return true
-  const massUnits = ['ppb', 'ug/l', 'µg/l', 'ppm', 'mg/l', 'ppt', 'ng/l']
-  if (massUnits.includes(s) && massUnits.includes(b)) return true
-  if ((s.includes('particle') || s.includes('fiber')) && !b.includes('particle') && !b.includes('fiber')) return false
-  if ((b.includes('particle') || b.includes('fiber')) && !s.includes('particle') && !s.includes('fiber')) return false
+  const sIsMass = s in MASS_CONCENTRATION_FACTORS
+  const bIsMass = b in MASS_CONCENTRATION_FACTORS
+  if (sIsMass && bIsMass) return true
+  const sIsParticle = PARTICLE_UNITS.has(s) || s.includes('particle') || s.includes('fiber')
+  const bIsParticle = PARTICLE_UNITS.has(b) || b.includes('particle') || b.includes('fiber')
+  if (sIsParticle && bIsParticle) {
+    if (s.includes('fiber') && !b.includes('fiber')) return false
+    if (!s.includes('fiber') && b.includes('fiber')) return false
+    return true
+  }
   return false
 }
 
 export function normalizeToBenchmarkUnit(level: number, sampleUnit: string, benchmarkUnit: string): number | null {
-  const s = sampleUnit.trim().toLowerCase()
-  const b = benchmarkUnit.trim().toLowerCase()
+  if (level == null || isNaN(level) || !isFinite(level)) return null
+  if (!sampleUnit || !benchmarkUnit) return null
+  const s = canonicalizeUnit(sampleUnit)
+  const b = canonicalizeUnit(benchmarkUnit)
+  if (!s || !b) return null
   if (s === b) return level
-  if ((s === 'ppb' || s === 'ug/l' || s === 'µg/l') && (b === 'ppm' || b === 'mg/l')) return level / 1000
-  if ((s === 'ppm' || s === 'mg/l') && (b === 'ppb' || b === 'ug/l' || b === 'µg/l')) return level * 1000
-  if ((s === 'ppt' || s === 'ng/l') && (b === 'ppb' || b === 'ug/l' || b === 'µg/l')) return level / 1000
-  if ((s === 'ppb' || s === 'ug/l' || s === 'µg/l') && (b === 'ppt' || b === 'ng/l')) return level * 1000
+
+  const sFactor = MASS_CONCENTRATION_FACTORS[s]
+  const bFactor = MASS_CONCENTRATION_FACTORS[b]
+  if (sFactor != null && bFactor != null) {
+    const converted = level * (sFactor / bFactor)
+    return Number(converted.toPrecision(12)) / 1
+  }
+
+  if (areUnitsCompatible(sampleUnit, benchmarkUnit)) {
+    return level
+  }
+
   return null
 }
 
@@ -141,10 +192,10 @@ export function getBenchmarkStatus(params: {
   source?: string | null
 }): BenchmarkStatus {
   const { level, unit, benchmark, benchmarkUnit } = params
-  if (level == null || isNaN(level)) return 'no_data'
+  if (level == null || isNaN(level) || !isFinite(level)) return 'no_data'
   if (isIllustrative(params)) return 'illustrative'
   if (!isEligibleForScoring(params)) return 'unreviewed'
-  if (benchmark == null || isNaN(benchmark) || benchmark <= 0) return 'no_benchmark'
+  if (benchmark == null || isNaN(benchmark) || !isFinite(benchmark) || benchmark <= 0) return 'no_benchmark'
   if (!unit || !benchmarkUnit || !areUnitsCompatible(unit, benchmarkUnit)) return 'incompatible_units'
   const normalized = normalizeToBenchmarkUnit(level, unit, benchmarkUnit)
   if (normalized == null) return 'incompatible_units'
@@ -182,7 +233,20 @@ export function getProvenancePresentation(record: {
     }
   }
 
-  if (v === 'VERIFIED') {
+  if (v === 'REJECTED') {
+    return {
+      badgeLabel: 'Rejected',
+      badgeVariant: 'unreviewed',
+      description: 'Sample record rejected during verification review.',
+      isVerified: false,
+      isIllustrative: false,
+      isCitizen: false,
+      historicalSourceLabel: record.source || 'Rejected Record',
+    }
+  }
+
+  // Only true verified institutional records get the verified badge
+  if (v === 'VERIFIED' && (p === 'REGULATORY_REPORTED' || p === 'LAB_REPORTED')) {
     return {
       badgeLabel: 'Verified',
       badgeVariant: 'verified',
@@ -216,3 +280,4 @@ export function getProvenancePresentation(record: {
     historicalSourceLabel: record.source || 'Unknown',
   }
 }
+

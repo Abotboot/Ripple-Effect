@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import type { UtilityWithStats } from '@/lib/types'
 
+import { buildWaterReportCardViewModel } from '@/lib/water-report-card'
+
 interface WaterReportCardModalProps {
   utility: UtilityWithStats | null
   open: boolean
@@ -34,6 +36,8 @@ export function WaterReportCardModal({
     if (!ctx) return
 
     try {
+      const vm = buildWaterReportCardViewModel(utility)
+
       // High-resolution landscape card for Twitter / LinkedIn / Discord (1200 x 630)
       const W = 1200
       const H = 630
@@ -107,14 +111,11 @@ export function WaterReportCardModal({
       // 6. Utility Title & Location
       ctx.font = '900 46px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#ffffff'
-      const title = utility.name.length > 36 ? utility.name.slice(0, 34) + '…' : utility.name
-      ctx.fillText(title, 70, 168)
+      ctx.fillText(vm.title, 70, 168)
 
       ctx.font = '500 22px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#94a3b8'
-      const pop = utility.population ?? (utility as any).populationServed
-      const popText = pop ? ` · ${pop.toLocaleString()} residents served` : ''
-      ctx.fillText(`${utility.city}, ${utility.state}${popText}`, 70, 204)
+      ctx.fillText(vm.locationSubtitle, 70, 204)
 
       // 7. Core Stats Cards (3 horizontal cards)
       const cardY = 240
@@ -123,7 +124,6 @@ export function WaterReportCardModal({
       const gap = 35
 
       // Stat 1: Total Contaminants
-      const summaries = utility.contaminantSummaries || []
       ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'
       ctx.beginPath()
       ctx.roundRect(70, cardY, cardW, cardH, 16)
@@ -136,56 +136,62 @@ export function WaterReportCardModal({
       ctx.fillText('CONTAMINANTS TRACKED', 95, cardY + 38)
       ctx.font = '900 48px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#ffffff'
-      ctx.fillText(`${summaries.length}`, 95, cardY + 92)
+      ctx.fillText(`${vm.totalContaminantsCount}`, 95, cardY + 92)
 
-      // Stat 2: Health Exceedances (Gold/Amber)
+      // Stat 2: Health Exceedances
       const card2X = 70 + cardW + gap
-      const hExceed = utility.healthExceedances ?? 0
-      ctx.fillStyle = 'rgba(245, 158, 11, 0.12)'
+      const isHealthWarn = vm.healthCardTone === 'amber'
+      ctx.fillStyle = isHealthWarn ? 'rgba(245, 158, 11, 0.12)' : 'rgba(255, 255, 255, 0.05)'
       ctx.beginPath()
       ctx.roundRect(card2X, cardY, cardW, cardH, 16)
       ctx.fill()
-      ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)'
+      ctx.strokeStyle = isHealthWarn ? 'rgba(245, 158, 11, 0.4)' : 'rgba(255, 255, 255, 0.1)'
       ctx.stroke()
 
       ctx.font = '700 13px system-ui, -apple-system, sans-serif'
-      ctx.fillStyle = '#fbbf24'
+      ctx.fillStyle = isHealthWarn ? '#fbbf24' : '#94a3b8'
       ctx.fillText('ABOVE EWG HEALTH GUIDELINES', card2X + 25, cardY + 38)
       ctx.font = '900 48px system-ui, -apple-system, sans-serif'
-      ctx.fillStyle = '#fef3c7'
-      ctx.fillText(`${hExceed}`, card2X + 25, cardY + 92)
+      ctx.fillStyle = isHealthWarn ? '#fef3c7' : '#ffffff'
+      ctx.fillText(vm.healthExceedancesText, card2X + 25, cardY + 92)
 
-      // Stat 3: Legal Exceedances or Microplastics
+      // Stat 3: Legal Status
       const card3X = card2X + cardW + gap
-      const lExceed = utility.exceedances ?? 0
-      const hasLegalExceedance = lExceed > 0
-      ctx.fillStyle = hasLegalExceedance ? 'rgba(244, 63, 94, 0.14)' : 'rgba(16, 185, 129, 0.12)'
+      const isLegalDanger = vm.legalCardTone === 'rose'
+      const isLegalSuccess = vm.legalCardTone === 'emerald'
+      ctx.fillStyle = isLegalDanger
+        ? 'rgba(244, 63, 94, 0.14)'
+        : isLegalSuccess
+        ? 'rgba(16, 185, 129, 0.12)'
+        : 'rgba(255, 255, 255, 0.05)'
       ctx.beginPath()
       ctx.roundRect(card3X, cardY, cardW, cardH, 16)
       ctx.fill()
-      ctx.strokeStyle = hasLegalExceedance ? 'rgba(244, 63, 94, 0.4)' : 'rgba(16, 185, 129, 0.4)'
+      ctx.strokeStyle = isLegalDanger
+        ? 'rgba(244, 63, 94, 0.4)'
+        : isLegalSuccess
+        ? 'rgba(16, 185, 129, 0.4)'
+        : 'rgba(255, 255, 255, 0.1)'
       ctx.stroke()
 
       ctx.font = '700 13px system-ui, -apple-system, sans-serif'
-      ctx.fillStyle = hasLegalExceedance ? '#fb7185' : '#34d399'
-      ctx.fillText(hasLegalExceedance ? 'ABOVE EPA LEGAL LIMITS' : 'EPA LEGAL STATUS', card3X + 25, cardY + 38)
+      ctx.fillStyle = isLegalDanger ? '#fb7185' : isLegalSuccess ? '#34d399' : '#94a3b8'
+      ctx.fillText(vm.legalStatusHeader, card3X + 25, cardY + 38)
       ctx.font = '900 44px system-ui, -apple-system, sans-serif'
-      ctx.fillStyle = hasLegalExceedance ? '#ffe4e6' : '#d1fae5'
-      ctx.fillText(hasLegalExceedance ? `${lExceed} Violations` : 'Within Legal Limits', card3X + 25, cardY + 92)
+      ctx.fillStyle = isLegalDanger ? '#ffe4e6' : isLegalSuccess ? '#d1fae5' : '#ffffff'
+      ctx.fillText(vm.legalStatusText, card3X + 25, cardY + 92)
 
       // 8. Top Detected Contaminants List (Bottom section)
       ctx.font = '700 14px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#cbd5e1'
       ctx.fillText('KEY WATER QUALITY FINDINGS', 70, 405)
 
-      const topItems = summaries.slice(0, 3)
-      if (topItems.length === 0) {
+      if (vm.keyFindings.length === 0) {
         ctx.font = 'italic 14px system-ui, -apple-system, sans-serif'
         ctx.fillStyle = '#64748b'
-        ctx.fillText('Detailed contaminant measurement records logged in database.', 70, 445)
+        ctx.fillText('No contaminant measurement records logged for this utility.', 70, 445)
       } else {
-        topItems.forEach((item, idx) => {
-          if (!item) return
+        vm.keyFindings.forEach((item, idx) => {
           const y = 430 + idx * 36
           ctx.fillStyle = 'rgba(255, 255, 255, 0.04)'
           ctx.beginPath()
@@ -193,11 +199,7 @@ export function WaterReportCardModal({
           ctx.fill()
 
           // Dot indicator
-          ctx.fillStyle = item.exceedsLegalLimit
-            ? '#f43f5e'
-            : item.exceedsHealthGuideline
-            ? '#f59e0b'
-            : '#10b981'
+          ctx.fillStyle = item.dotColor
           ctx.beginPath()
           ctx.arc(88, y + 15, 5, 0, Math.PI * 2)
           ctx.fill()
@@ -205,29 +207,17 @@ export function WaterReportCardModal({
           // Contaminant name
           ctx.font = '600 14px system-ui, -apple-system, sans-serif'
           ctx.fillStyle = '#f8fafc'
-          const name = item.contaminant?.name || (item as any).name || 'Contaminant'
-          ctx.fillText(name, 108, y + 20)
+          ctx.fillText(item.name, 108, y + 20)
 
           // Value & Unit
           ctx.font = '14px monospace'
           ctx.fillStyle = '#94a3b8'
-          const val = item.latestLevel ?? (item as any).level ?? 0
-          const unit = item.unit || ''
-          ctx.fillText(`${val} ${unit}`, W - 340, y + 20)
+          ctx.fillText(item.valueText, W - 340, y + 20)
 
           // Status flag
-          const statusText = item.exceedsLegalLimit
-            ? 'EXCEEDS LEGAL LIMIT'
-            : item.exceedsHealthGuideline
-            ? 'EXCEEDS HEALTH GUIDELINE'
-            : 'WITHIN GUIDELINES'
           ctx.font = 'bold 11px system-ui, -apple-system, sans-serif'
-          ctx.fillStyle = item.exceedsLegalLimit
-            ? '#f43f5e'
-            : item.exceedsHealthGuideline
-            ? '#fbbf24'
-            : '#34d399'
-          ctx.fillText(statusText, W - 200, y + 20)
+          ctx.fillStyle = item.textColor
+          ctx.fillText(item.statusText, W - 200, y + 20)
         })
       }
 
@@ -287,13 +277,8 @@ export function WaterReportCardModal({
   }
 
   const handleShareX = () => {
-    const hExceed = utility.healthExceedances ?? 0
-    const exceedanceStr = hExceed > 0
-      ? `${hExceed} contaminants exceed EWG health guidelines`
-      : 'Clean bill on health guidelines'
-    const text = encodeURIComponent(
-      `Water quality report for ${utility.name} (${utility.city}, ${utility.state}): ${exceedanceStr}. See untreated freshwater and microplastics data near you on A Ripple Effect Initiative:`
-    )
+    const vm = buildWaterReportCardViewModel(utility)
+    const text = encodeURIComponent(vm.shareText)
     const url = encodeURIComponent('https://rippleeffecter.netlify.app/#map')
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer')
   }

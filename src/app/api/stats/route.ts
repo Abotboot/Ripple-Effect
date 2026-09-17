@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { isEligibleForScoring } from '@/lib/provenance'
+import {
+  isEligibleForScoring,
+  getBenchmarkStatus,
+  getProvenancePresentation,
+  areUnitsCompatible,
+} from '@/lib/provenance'
 
 // GET /api/stats - returns high-level platform impact numbers
 export async function GET() {
@@ -34,11 +39,22 @@ export async function GET() {
     db.sample.findMany({
       select: {
         level: true,
+        unit: true,
         treatmentStatus: true,
         utilityId: true,
         quality: true,
         source: true,
-        contaminant: { select: { slug: true, healthGuideline: true, legalLimit: true } },
+        provenance: true,
+        verificationStatus: true,
+        contaminant: {
+          select: {
+            slug: true,
+            healthGuideline: true,
+            healthGuidelineUnit: true,
+            legalLimit: true,
+            legalLimitUnit: true,
+          },
+        },
       },
     }),
   ])
@@ -46,14 +62,18 @@ export async function GET() {
   const states = new Set(utilities.map((u) => u.state))
   const populationServed = utilities.reduce((s, u) => s + u.population, 0)
 
-  // Microplastics average across treated drinking water samples (null if no eligible samples)
-  const mpTreated = samples.filter(
+  // Microplastics average across eligible treated drinking water samples (null if no eligible samples)
+  const mpEligibleTreated = samples.filter(
     (s) =>
-      s.contaminant.slug === 'microplastics' && s.treatmentStatus === 'Treated'
+      s.contaminant.slug === 'microplastics' &&
+      s.treatmentStatus === 'Treated' &&
+      isEligibleForScoring(s) &&
+      areUnitsCompatible(s.unit, 'particles/l')
   )
-  const microplasticsAvg = mpTreated.length
-    ? +(mpTreated.reduce((s, x) => s + x.level, 0) / mpTreated.length).toFixed(2)
+  const microplasticsAvg = mpEligibleTreated.length
+    ? +(mpEligibleTreated.reduce((s, x) => s + x.level, 0) / mpEligibleTreated.length).toFixed(2)
     : null
+  const microplasticsCohortCount = mpEligibleTreated.length
 
   // Exceedance counts + per-utility exceedance counts (for map coloring)
   // + per-contaminant exceedance flags (for map contaminant filter chips)
@@ -75,9 +95,6 @@ export async function GET() {
 
   for (const s of samples) {
     if (!s.utilityId) continue
-    const eligible = isEligibleForScoring(s)
-    const hg = s.contaminant.healthGuideline
-    const ll = s.contaminant.legalLimit
     const slug = s.contaminant.slug
     const cur = utilityExceedances.get(s.utilityId) ?? {
       health: 0,
@@ -88,8 +105,30 @@ export async function GET() {
       dbp: false,
     }
 
-    const healthExceeded = eligible && hg != null && hg > 0 && s.level > hg
-    const legalExceeded = eligible && ll != null && ll > 0 && s.level > ll
+    const healthStatus = getBenchmarkStatus({
+      level: s.level,
+      unit: s.unit,
+      benchmark: s.contaminant.healthGuideline,
+      benchmarkUnit: s.contaminant.healthGuidelineUnit,
+      provenance: s.provenance,
+      verificationStatus: s.verificationStatus,
+      quality: s.quality,
+      source: s.source,
+    })
+
+    const legalStatus = getBenchmarkStatus({
+      level: s.level,
+      unit: s.unit,
+      benchmark: s.contaminant.legalLimit,
+      benchmarkUnit: s.contaminant.legalLimitUnit,
+      provenance: s.provenance,
+      verificationStatus: s.verificationStatus,
+      quality: s.quality,
+      source: s.source,
+    })
+
+    const healthExceeded = healthStatus === 'above_benchmark'
+    const legalExceeded = legalStatus === 'above_benchmark'
 
     if (healthExceeded) {
       healthExceedances++
@@ -100,12 +139,11 @@ export async function GET() {
       cur.legal++
     }
 
-    // Per-contaminant flag tracking for map filter chips.
-    // Microplastics has no federal legal limit and a healthGuideline of 0
-    // (any detection is technically an exceedance), so we flag any utility
-    // that has microplastics sample data at all.
+    // Per-contaminant flag tracking for map filter chips:
+    // Only flag verified/reviewed measurements, not synthetic demo data
+    const eligible = isEligibleForScoring(s)
     if (slug === 'microplastics') {
-      cur.microplastics = true
+      if (eligible && s.level > 0) cur.microplastics = true
     } else if (PFAS_SLUGS.has(slug)) {
       if (healthExceeded) cur.pfas = true
     } else if (slug === 'lead') {
@@ -145,11 +183,27 @@ export async function GET() {
   const completedDonations = donations.filter((d) => d.status === 'completed')
   const donationsTotal = completedDonations.reduce((s, d) => s + d.amount, 0)
 
-  // Quality breakdown: how many samples are verified vs provisional vs citizen.
-  const qualityCounts = { verified: 0, provisional: 0, citizen: 0 }
+  // Quality breakdown: classified via shared provenance presentation rules
+  const qualityCounts = {
+    verified: 0,
+    provisional: 0,
+    citizen: 0,
+    unreviewed: 0,
+    illustrative: 0,
+  }
   for (const s of samples) {
-    const q = (s.quality ?? 'verified') as keyof typeof qualityCounts
-    if (q in qualityCounts) qualityCounts[q]++
+    const pres = getProvenancePresentation(s)
+    if (pres.badgeVariant === 'verified') {
+      qualityCounts.verified++
+    } else if (pres.badgeVariant === 'provisional') {
+      qualityCounts.provisional++
+    } else if (pres.badgeVariant === 'citizen') {
+      qualityCounts.citizen++
+    } else if (pres.badgeVariant === 'illustrative') {
+      qualityCounts.illustrative++
+    } else {
+      qualityCounts.unreviewed++
+    }
   }
 
   return NextResponse.json({
@@ -164,6 +218,7 @@ export async function GET() {
     statesCovered: states.size,
     populationServed,
     microplasticsAvg,
+    microplasticsCohortCount,
     healthExceedances,
     legalExceedances,
     trackedByUsCount,

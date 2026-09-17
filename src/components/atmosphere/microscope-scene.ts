@@ -297,11 +297,11 @@ export function createMicroscopeScene(
 
     if (!timeline) {
       // Desktop: 38/62 split, microscope positioned cleanly in right 60%
-      // Mobile: centered
-      const isMobile = camera.aspect < 0.95
+      // Mobile: centered in stage region above copy
+      const isMobile = window.innerWidth <= 860 || r.width < 500
       if (isMobile) {
-        target.set(0, 1.48, 0)
-        camera.position.set(3.4, 3.1, 5.2)
+        target.set(0, 1.30, 0)
+        camera.position.set(2.8, 2.5, 4.4)
       } else {
         target.set(-0.65, 1.48, 0)
         camera.position.set(3.8, 3.2, 5.4)

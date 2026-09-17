@@ -82,6 +82,9 @@ export type ContaminantSummary = {
   quality: string
   provenance?: string
   verificationStatus?: string
+  isVerified?: boolean
+  isIllustrative?: boolean
+  hasData?: boolean
   sampleCount: number
   exceedsHealthGuideline: boolean
   exceedsLegalLimit: boolean
@@ -92,6 +95,7 @@ export type ContaminantSummary = {
   trend: Array<{
     date: string
     level: number
+    unit?: string
     treatmentStatus: string
     provenance?: string
     verificationStatus?: string
@@ -102,6 +106,7 @@ export type UtilityWithStats = Utility & {
   contaminantSummaries: ContaminantSummary[]
   totalSamples: number
   exceedances: number
+  legalExceedances?: number
   healthExceedances: number
   safetyScore?: {
     score: number | null
