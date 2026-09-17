@@ -8,9 +8,41 @@ import './water-narrative.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
+const SIPHON_WAYPOINTS = [
+  {
+    id: 'siphon-ingestion',
+    index: '01',
+    name: 'INGESTION',
+    body: 'The bottle empties. Exposure begins where visibility ends.',
+    note: 'Plastic particles have been detected in bottled water. A study average does not measure your exposure.',
+  },
+  {
+    id: 'siphon-contact',
+    index: '02',
+    name: 'CONTACT',
+    body: 'Below the visible scale, size changes the question.',
+    note: 'NIH describes nanoplastics as small enough to enter cells and tissues. This is not a prediction for every particle.',
+  },
+  {
+    id: 'siphon-transit',
+    index: '03',
+    name: 'TRANSIT',
+    body: 'Researchers have reported plastic particles in human blood, lungs and placenta.',
+    note: 'Detection does not establish a route from a particular bottle, dose or health effect.',
+  },
+  {
+    id: 'siphon-unknown',
+    index: '04',
+    name: 'THE UNSETTLED',
+    body: 'A finding is not a forecast. Health effects remain under investigation.',
+    note: 'Exposure, transport and health outcomes are different questions. Uncertainty belongs in the picture.',
+  },
+]
+
 export function WaterNarrative() {
   const root = useRef<HTMLDivElement>(null)
   const count = useRef<HTMLSpanElement>(null)
+  const track = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const element = root.current
@@ -36,6 +68,20 @@ export function WaterNarrative() {
           invalidateOnRefresh: true,
         },
       })
+      // Stage 03: pinned horizontal scrub across the anatomic waypoints.
+      if (context.conditions?.desktop && track.current) {
+        const inner = track.current
+        const distance = () => Math.max(0, inner.scrollWidth - inner.parentElement!.clientWidth)
+        gsap.to(inner, {
+          x: () => -distance(), ease: 'none',
+          scrollTrigger: {
+            trigger: element.querySelector('.siphon-stage')!,
+            start: 'top 76px', end: '+=1500', scrub: true, pin: true,
+            invalidateOnRefresh: true,
+          },
+        })
+        // matchMedia owns the tween and restores its transform on cleanup.
+      }
       return () => { split.revert(); if (count.current) count.current.textContent = '240,000' }
     }, element)
     let active = true
@@ -65,6 +111,25 @@ export function WaterNarrative() {
           <a className="narrative-link" href="https://www.nih.gov/news-events/nih-research-matters/plastic-particles-bottled-water" target="_blank" rel="noopener noreferrer">Read the NIH research summary <span aria-hidden="true">↗</span></a>
         </div>
       </div>
+    </section>
+    <section className="siphon-stage" aria-labelledby="siphon-title">
+      <div className="siphon-head">
+        <div className="narrative-label">03 / THE ANATOMIC SIPHON</div>
+        <h2 id="siphon-title">Inside <em>the body.</em><br />At the edge of what we know.</h2>
+      </div>
+      <div className="siphon-viewport">
+        <div className="siphon-track" ref={track}>
+          {SIPHON_WAYPOINTS.map((waypoint) => (
+            <article className="siphon-stop" key={waypoint.id} aria-labelledby={`${waypoint.id}-name`}>
+              <span className="siphon-index" aria-hidden="true">{waypoint.index}</span>
+              <h3 id={`${waypoint.id}-name`}>{waypoint.name}</h3>
+              <p className="siphon-body">{waypoint.body}</p>
+              <p className="siphon-note">{waypoint.note}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+      <div className="siphon-disclaimer"><p>ILLUSTRATIVE RESEARCH SEQUENCE, NOT A PROVEN ROUTE THROUGH THE BODY OR A MEDICAL SIMULATION.</p><a className="narrative-link" href="https://www.nih.gov/news-events/nih-research-matters/plastic-particles-bottled-water" target="_blank" rel="noopener noreferrer">Evidence and limits / NIH <span aria-hidden="true">↗</span></a></div>
     </section>
   </div>
 }

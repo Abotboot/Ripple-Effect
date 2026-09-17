@@ -18,6 +18,26 @@
 .particle-context { display: grid; grid-template-columns: 1fr 1fr; gap: 8vw; max-width: 1200px; }
 .particle-context p { color: #b6ccc6; font-size: 15px; line-height: 1.8; }
 .particle-context > div p { font-size: 13px; color: #a3b8b0; }
+.siphon-stage { border-top: 1px solid #26413e; background: radial-gradient(ellipse at 20% 30%, #0d1a2c 0, transparent 55%), #06090c; overflow: hidden; }
+.water-narrative .siphon-stage { padding: 0; }
+.siphon-head { padding: 48px 7vw 20px; }
+.siphon-head .narrative-label { margin-bottom: 24px; }
+.siphon-head h2 { font: 400 clamp(40px, 5vw, 76px)/1.02 var(--font-tank-display), serif; letter-spacing: -.03em; max-width: 900px; }
+.siphon-head h2 em { color: #adcac0; }
+.siphon-viewport { overflow: hidden; padding: 30px 0 50px; }
+.siphon-track { display: flex; flex-direction: column; width: 100%; }
+.siphon-track .siphon-stop { width: 100%; border-left: 0; border-top: 1px solid #26413e; }
+@media (min-width: 900px) and (min-height: 900px) and (prefers-reduced-motion: no-preference) {
+  .siphon-track { flex-direction: row; width: max-content; }
+  .siphon-track .siphon-stop { width: 560px; border-top: 0; border-left: 1px solid #26413e; }
+}
+.siphon-stop { width: min(560px, 86vw); flex-shrink: 0; padding: 48px clamp(28px, 4vw, 64px); border-left: 1px solid #26413e; }
+.siphon-stop:first-child { border-left: 0; }
+.siphon-index { font-family: var(--font-geist-mono), monospace; font-size: 12px; letter-spacing: .18em; color: #1df2b3; }
+.siphon-stop h3 { font: 400 clamp(28px, 3.2vw, 54px)/1.05 var(--font-tank-display), serif; letter-spacing: -.02em; margin: 18px 0 22px; }
+.siphon-body { font-size: 17px; line-height: 1.8; color: #dcebe5; max-width: 420px; }
+.siphon-note { margin-top: 22px; font-family: var(--font-geist-mono), monospace; font-size: 10px; letter-spacing: .08em; line-height: 1.7; color: #8ea39c; max-width: 380px; }
+.siphon-disclaimer { padding: 0 7vw 70px; font-family: var(--font-geist-mono), monospace; font-size: 9px; letter-spacing: .14em; color: #6d807b; }
 @media (max-width: 899px) {
   .water-narrative section { padding: 64px 6vw; }
   .illusion-bottom, .particle-context { grid-template-columns: 1fr; gap: 24px; }
