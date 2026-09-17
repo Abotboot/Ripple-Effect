@@ -1,5 +1,12 @@
 # Human Aquastructure: foundation and narrative stages 01-04
 
+## Upstream integration and WebGL bottle
+- Local branch `local/aquastructure-integrated` merges 21 upstream commits (new logo/favicon, 3D drop hero, security rate-limiting, HCB sync, legal pages, fake-data removal) into the local redesign. Two conflicts resolved: home hero keeps TankHero, header combines tank chrome with upstream scroll-progress bar. Merge commit 89dc2dd; verify script still passes.
+- Bottle rebuilt as on-demand WebGL (src/components/atmosphere/bottle-scene.ts): transmission PET lathe, water volume, ribs, threaded cap, canvas-texture label, UV particle layer and wireframe mode; renders only on view change; falls back to the Canvas2D drawing if WebGL init fails. Label rotation, exposure, light intensities and clear-PET material tuned after screenshot review (bottle-v2.png). specimen-check.cjs passed against the production build (added explicit scrollIntoView before render).
+- Second batch (defee5a): tank-system.css tokens for dark theme incl. dialogs, home-data/legal-page/admin-workbench wrappers, fixed three setState-in-effect lint errors (dialog reset now event-driven via onOpenChange, HCB sync and pending-search deferred to timer callbacks). Targeted ESLint zero errors, build passes.
+- Full local regression suite passed on prod server 3020: specimen, info-reskin (about/faq/sources/partners), submit workbench, rest-reskin (map/microplastics/reports/donate + HCB URL/iframe), tank particle/audio checks. Reviewed final home/map desktop screenshots. Zero page errors in browser console during home/map capture.
+- Still local-only per user instruction: no push to GitHub, no deploy. Database remains blocked for real data (local .env file: URL vs PostgreSQL requirement); map zeros are fallbacks, not measurements.
+
 ## Map, Microplastics, Reports and Donate styling
 - Extended scoped editorial styling to four public sections. Reduced Map heading scale and aligned its description; wrapped Reports filters after measuring overflow at 320px. Report controls retain their handlers and now use full-width, 44px-minimum sizing.
 - Removed Donate's legacy Ripple wrapper and continuous decorative orbs, droplets and wave. HCB iframe, external donation URL and funding-fetch logic retained. No payment attempted.
