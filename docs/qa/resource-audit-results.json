@@ -1,0 +1,50 @@
+{
+  "rafLeaks": {
+    "heroInViewFps": 81,
+    "offscreenFps": 287,
+    "offscreenSpins": true,
+    "reducedMotionFps": 154,
+    "reducedMotionSpins": true
+  },
+  "webglFailure": {
+    "dialogOpenOnInit": false,
+    "trappedAtIntro": false,
+    "errors": []
+  },
+  "listenerAccumulation": {
+    "cycles": [
+      {
+        "canvasCount": 2,
+        "dialogCount": 0,
+        "scrollTriggerCount": null
+      },
+      {
+        "canvasCount": 2,
+        "dialogCount": 0,
+        "scrollTriggerCount": null
+      },
+      {
+        "canvasCount": 2,
+        "dialogCount": 0,
+        "scrollTriggerCount": null
+      },
+      {
+        "canvasCount": 2,
+        "dialogCount": 0,
+        "scrollTriggerCount": null
+      },
+      {
+        "canvasCount": 2,
+        "dialogCount": 0,
+        "scrollTriggerCount": null
+      }
+    ],
+    "canvasesStable": true
+  },
+  "bundleSizes": {
+    "/_app": {
+      "filesCount": 0,
+      "totalKilobytes": 0
+    }
+  }
+}
