@@ -45,15 +45,16 @@ export function SubmitReadingSection() {
     api.listUtilities().then(setUtilities).catch(() => setUtilities([]))
   }, [])
 
-  // When contaminant changes, auto-fill the unit
-  useEffect(() => {
-    if (form.contaminantId && contaminants) {
-      const c = contaminants.find((x) => x.id === form.contaminantId)
-      if (c) {
-        setForm((f) => ({ ...f, unit: c.legalLimitUnit || c.healthGuidelineUnit || 'ppb' }))
-      }
-    }
-  }, [form.contaminantId, contaminants])
+  const selectContaminant = (contaminantId: string) => {
+    const contaminant = contaminants?.find((entry) => entry.id === contaminantId)
+    setForm((previous) => ({
+      ...previous,
+      contaminantId,
+      unit: contaminant
+        ? contaminant.legalLimitUnit || contaminant.healthGuidelineUnit || 'ppb'
+        : previous.unit,
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -203,7 +204,7 @@ export function SubmitReadingSection() {
                           <FlaskConical className="mr-1 inline h-3 w-3" />
                           Contaminant *
                         </Label>
-                        <Select value={form.contaminantId} onValueChange={(v) => setForm({ ...form, contaminantId: v })}>
+                        <Select value={form.contaminantId} onValueChange={selectContaminant}>
                           <SelectTrigger id="rcontam"><SelectValue placeholder="Select contaminant" /></SelectTrigger>
                           <SelectContent className="max-h-72">
                             {contaminants?.map((c) => (

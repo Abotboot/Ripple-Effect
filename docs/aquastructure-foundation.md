@@ -1,5 +1,11 @@
 # Human Aquastructure: foundation and narrative stages 01-04
 
+## Submission unit-update correction
+- Removed the synchronous state-setting effect; contaminant selection now updates the selected ID and default unit together in its event handler. Other form fields and manual unit edits remain intact.
+- Reproduced the original ESLint error before editing. Targeted ESLint and production build now pass (build still skips types).
+- Production preview at port 3020 passed reading-unit-check.cjs with explicit intercepted test fixtures for legal-unit precedence, guideline fallback and ppb default. This is a UI test, not evidence of database functionality. Existing submit-reskin-check.cjs also passed; neither test sent a submission.
+- Local DATABASE_URL uses file: while Prisma requires PostgreSQL. Credentials/schema unchanged. Automatic account creation in ensureSeeded means switching databases requires care; end-to-end data validation remains blocked. No new informational-page styles were applied in this batch.
+
 ## Submission-page reskin
 - Replaced bright hero and rounded surfaces with a scoped obsidian reading workbench, editorial headings, mono labels and full-width 44px-minimum controls. Removed decorative hero blobs. Form state, field IDs, validation, submit handler and API calls unchanged.
 - Production preview http://localhost:3019/#submit passed scripts/submit-reskin-check.cjs with the QA-only PLAYWRIGHT_MODULE override: ten fields retained, empty-form validity, keyboard input, treatment selection, 320/375/768px control bounds and light-theme field contrast. Zero POST requests sent; this is not an end-to-end submission test.
