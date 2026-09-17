@@ -1,5 +1,7 @@
 'use client'
 
+import './editorial-pages.css'
+
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -327,7 +329,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
       : 0
 
   return (
-    <div>
+    <div className="editorial-page">
       {/* Mission hero */}
       <section className="relative overflow-hidden bg-water-surface text-primary-foreground">
         <div className="pointer-events-none absolute inset-0 opacity-30">

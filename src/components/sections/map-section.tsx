@@ -1,5 +1,7 @@
 'use client'
 
+import './editorial-pages.css'
+
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -174,7 +176,7 @@ export function MapSection() {
   }
 
   return (
-    <div className="min-h-screen bg-water-hero">
+    <div className="editorial-page map-workbench min-h-screen">
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <div className="mb-6 text-center">
           <Badge variant="secondary" className="mb-3 border-primary/20 bg-primary/10 text-primary">

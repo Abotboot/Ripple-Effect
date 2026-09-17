@@ -1,5 +1,12 @@
 # Human Aquastructure: foundation and narrative stages 01-04
 
+## Map, Microplastics, Reports and Donate styling
+- Extended scoped editorial styling to four public sections. Reduced Map heading scale and aligned its description; wrapped Reports filters after measuring overflow at 320px. Report controls retain their handlers and now use full-width, 44px-minimum sizing.
+- Removed Donate's legacy Ripple wrapper and continuous decorative orbs, droplets and wave. HCB iframe, external donation URL and funding-fetch logic retained. No payment attempted.
+- Production build passed; targeted ESLint reported zero errors and one unused-disable warning. Build still skips type checks. rest-reskin-check.cjs passed four route headings, fonts, dark surfaces, 320/375/768px wrapper bounds, HCB URL/actionability and report input. info-reskin-check.cjs and tank-check.mjs also passed against production port 3020. Reviewed production mobile Donate/Reports and desktop Map screenshots under C:/Users/ayada/AppData/Local/Temp/rest-*.png.
+- Separately captured actual browser /api/stats response: HTTP 500, empty body. Server log confirms Prisma rejects DATABASE_URL's protocol before statistics queries, inside ensureSeeded's account upsert. Map's existing catch leaves stats null and zero-count fallbacks appear; these are not real zero measurements. No database/config/schema changes made. Real search, populated maps and submission remain unverified.
+- Not deployed. Admin and final integration remain outside this batch. This is visual consistency work, not a claim of full reference-site fidelity or completed overhaul.
+
 ## Informational-page shared styling
 - About, FAQ, Sources and Partners now share scoped obsidian surfaces, editorial display headings, mono badges, responsive typography and keyboard outlines. Existing content and API calls retained. This is a styling pass, not completion of the full architectural redesign.
 - Removed the source-title stretched-link overlay after the browser test showed it intercepted the separate external-link control.

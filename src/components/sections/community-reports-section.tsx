@@ -1,5 +1,7 @@
 'use client'
 
+import './editorial-pages.css'
+
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -107,7 +109,7 @@ export function CommunityReportsSection() {
   const filtered = (reports ?? []).filter((r) => filter === 'all' || r.status === filter)
 
   return (
-    <div className="bg-water-hero">
+    <div className="editorial-page reports-workbench">
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="mb-8 text-center">
           <Badge variant="secondary" className="mb-3 border-primary/20 bg-primary/10 text-primary">
@@ -272,7 +274,7 @@ export function CommunityReportsSection() {
 
           {/* Reports feed */}
           <div className="lg:col-span-3">
-            <div className="mb-4 flex items-center justify-between gap-2">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-semibold">
                 Recent reports
                 {reports && (
@@ -281,7 +283,7 @@ export function CommunityReportsSection() {
               </h2>
               <div className="flex items-center gap-1.5">
                 <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-                <div className="flex gap-1 rounded-lg border border-border bg-card p-1">
+                <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-card p-1">
                   {(['all', 'pending', 'reviewed', 'resolved'] as const).map((f) => (
                     <button
                       key={f}
