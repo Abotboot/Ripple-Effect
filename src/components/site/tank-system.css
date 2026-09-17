@@ -18,7 +18,7 @@
 .home-data [data-slot=card] { border-top: 1px solid var(--border); background: var(--card); }
 .home-data #search { padding-block: clamp(56px, 7vw, 100px); }
 .home-data #search > div:first-child { border-bottom: 1px solid var(--border); padding-bottom: 28px; }
-.legal-page h1 { font-size: clamp(42px, 5vw, 76px); line-height: 1.05; }
+.legal-page.editorial-page h1 { font-size: clamp(42px, 5vw, 76px); line-height: 1.05; }
 .legal-page h2 { font-size: 29px; line-height: 1.2; }
 .legal-page p, .legal-page li { line-height: 1.9; }
 .legal-page > div:first-child { padding-bottom: 36px; border-bottom: 1px solid var(--border); }

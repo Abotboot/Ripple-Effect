@@ -6,7 +6,7 @@ const EMAIL = 'rippleeffectoffice@gmail.com'
 
 export function PrivacySection() {
   return (
-    <section className="legal-page mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+    <section className="legal-page editorial-page mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-4">
           <Shield className="h-8 w-8 text-primary" />
