@@ -1,0 +1,226 @@
+{
+  "viewports": {
+    "1440_desktop": {
+      "errors": [],
+      "overflow": false,
+      "screenshot": "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\viewport_1440_desktop.png"
+    },
+    "1024_tablet_landscape": {
+      "errors": [],
+      "overflow": false,
+      "screenshot": "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\viewport_1024_tablet_landscape.png"
+    },
+    "768_tablet_portrait": {
+      "errors": [],
+      "overflow": false,
+      "screenshot": "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\viewport_768_tablet_portrait.png"
+    },
+    "390_mobile_standard": {
+      "errors": [],
+      "overflow": false,
+      "screenshot": "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\viewport_390_mobile_standard.png"
+    },
+    "320_mobile_narrow": {
+      "errors": [],
+      "overflow": false,
+      "screenshot": "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\viewport_320_mobile_narrow.png"
+    }
+  },
+  "keyboardNav": {
+    "tabbedElements": [
+      {
+        "tagName": "BUTTON",
+        "id": "",
+        "className": "site-brand group flex shrink-0 items-center gap-3",
+        "text": "A Ripple Effect InitiativeOne ",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "none",
+        "isInView": true
+      },
+      {
+        "tagName": "BUTTON",
+        "id": "",
+        "className": "group inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors bg-primary/10 text-primary",
+        "text": "Home",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "none",
+        "isInView": true
+      },
+      {
+        "tagName": "BUTTON",
+        "id": "",
+        "className": "group inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors text-muted-foreground hover:bg-muted hover:text-foreground",
+        "text": "About Us",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "none",
+        "isInView": true
+      },
+      {
+        "tagName": "BUTTON",
+        "id": "",
+        "className": "group inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors text-muted-foreground hover:bg-muted hover:text-foreground",
+        "text": "Partnerships",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "none",
+        "isInView": true
+      },
+      {
+        "tagName": "BUTTON",
+        "id": "",
+        "className": "group inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors text-muted-foreground hover:bg-muted hover:text-foreground",
+        "text": "Map",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "none",
+        "isInView": true
+      },
+      {
+        "tagName": "BUTTON",
+        "id": "",
+        "className": "group inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors text-muted-foreground hover:bg-muted hover:text-foreground",
+        "text": "Microplastics",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "none",
+        "isInView": true
+      },
+      {
+        "tagName": "BUTTON",
+        "id": "",
+        "className": "group inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors text-muted-foreground hover:bg-muted hover:text-foreground",
+        "text": "Submit Reading",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "none",
+        "isInView": true
+      },
+      {
+        "tagName": "BUTTON",
+        "id": "",
+        "className": "group inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors text-rose-600 hover:bg-rose-500/10 dark:text-rose-400",
+        "text": "Donate",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "none",
+        "isInView": true
+      },
+      {
+        "tagName": "BUTTON",
+        "id": "",
+        "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 h-9 w-9",
+        "text": "",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.426052) 0px 0px 0px 2.55631px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "isInView": true
+      },
+      {
+        "tagName": "A",
+        "id": "",
+        "className": "site-github hidden sm:inline-flex",
+        "text": "",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "none",
+        "isInView": true
+      },
+      {
+        "tagName": "BUTTON",
+        "id": "",
+        "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 h-9 w-9",
+        "text": "",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.46224) 0px 0px 0px 2.77344px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "isInView": true
+      },
+      {
+        "tagName": "INPUT",
+        "id": "",
+        "className": "",
+        "text": "",
+        "outline": "rgb(29, 242, 179) solid 2px",
+        "outlineWidth": "2px",
+        "boxShadow": "none",
+        "isInView": true
+      }
+    ],
+    "count": 12,
+    "screenshot": "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\keyboard_focus_tabbing.png"
+  },
+  "dialogTraps": {
+    "vp_1440": {
+      "escapeDismisses": false,
+      "skipButtonPresent": true,
+      "topRightRemoved": true
+    },
+    "vp_390": {
+      "escapeDismisses": false,
+      "skipButtonPresent": true,
+      "topRightRemoved": true
+    }
+  },
+  "overflows": {
+    "1440_desktop": {
+      "hasOverflow": false,
+      "docW": 1440,
+      "winW": 1440,
+      "spillingElements": []
+    },
+    "1024_tablet_landscape": {
+      "hasOverflow": false,
+      "docW": 1024,
+      "winW": 1024,
+      "spillingElements": []
+    },
+    "768_tablet_portrait": {
+      "hasOverflow": false,
+      "docW": 768,
+      "winW": 768,
+      "spillingElements": []
+    },
+    "390_mobile_standard": {
+      "hasOverflow": false,
+      "docW": 390,
+      "winW": 390,
+      "spillingElements": []
+    },
+    "320_mobile_narrow": {
+      "hasOverflow": false,
+      "docW": 320,
+      "winW": 320,
+      "spillingElements": []
+    }
+  },
+  "reducedMotion": {
+    "immediateDismiss": true,
+    "cursorSuppressed": true
+  },
+  "zoom": {
+    "zoomTested": "200%",
+    "screenshot": "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\zoom_200_percent.png"
+  },
+  "zipSearch": {
+    "validQuery": "60614",
+    "validResultHeader": "Results for \"60614\"",
+    "cardsFound": 1,
+    "invalidQuery": "00000",
+    "screenshots": [
+      "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\search_valid_zip.png",
+      "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\search_invalid_zip.png"
+    ]
+  },
+  "networkFailure": {
+    "pageSurvived": true,
+    "uncaughtErrors": [],
+    "screenshot": "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\network_failure_500.png"
+  },
+  "historyNavigation": {
+    "backRestoredHash": "#about",
+    "success": true
+  }
+}
