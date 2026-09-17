@@ -1,5 +1,8 @@
 # Human Aquastructure: foundation and narrative stages 01-04
 
+## Acceptance gate
+- `scripts/acceptance.cjs` is the single green gate for the redesign: WebGL bottle confirmed (not 2D fallback), UV + rotation pixel changes, and editorial-page styling asserted on about/faq/sources/partners/map/microplastics/reports/donate/privacy/terms, zero page errors, no mobile overflow. Run: `PLAYWRIGHT_MODULE=C:/Users/ayada/AppData/Local/Temp/ripple-browser-qa/node_modules/playwright node scripts/acceptance.cjs` against `next start -p 3020`.
+
 ## Upstream integration and WebGL bottle
 - Local branch `local/aquastructure-integrated` merges 21 upstream commits (new logo/favicon, 3D drop hero, security rate-limiting, HCB sync, legal pages, fake-data removal) into the local redesign. Two conflicts resolved: home hero keeps TankHero, header combines tank chrome with upstream scroll-progress bar. Merge commit 89dc2dd; verify script still passes.
 - Bottle rebuilt as on-demand WebGL (src/components/atmosphere/bottle-scene.ts): transmission PET lathe, water volume, ribs, threaded cap, canvas-texture label, UV particle layer and wireframe mode; renders only on view change; falls back to the Canvas2D drawing if WebGL init fails. Label rotation, exposure, light intensities and clear-PET material tuned after screenshot review (bottle-v2.png). specimen-check.cjs passed against the production build (added explicit scrollIntoView before render).
