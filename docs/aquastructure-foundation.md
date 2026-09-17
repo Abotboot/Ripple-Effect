@@ -1,5 +1,14 @@
 # Human Aquastructure: foundation and narrative stages 01-04
 
+## Specimen inspector
+- Added `specimen-inspector.tsx` and `.css` between the stats bar and narrative. Canvas2D pseudo-3D bottle, Macro/UV buttons, native keyboard/touch rotation slider. No production dependencies added.
+- Canvas redraws only on mode, angle or size changes. ResizeObserver disconnects on cleanup; no perpetual animation loop. Reduced motion remains static except for explicit controls. DPR capped at 2.
+- UV fragments, scale and distribution are explicitly illustrative. Study figures are labeled study averages, not measurements of this bottle, spectrometry results or shedding rates.
+- Production build and atmosphere ESLint passed. Fresh headless Chrome/Playwright at port 3015 verified actual UV click changes pixels and readouts, keyboard rotation changes pixels, mobile content bounds, reduced-motion static canvas, Macro restoration and CTA route unmount. Particle/audio checks passed. Full legacy narrative animation scripts were not rerun for this batch after agent-browser viewport commands began returning EOF.
+- Regression: `PLAYWRIGHT_MODULE=C:/Users/ayada/AppData/Local/Temp/ripple-browser-qa/node_modules/playwright QA_URL=http://localhost:3015 node scripts/specimen-check.cjs`. The optional module override points to a temporary QA-only install; without it the script expects `playwright` available through normal Node resolution. Chrome channel must be installed.
+- Reviewed `C:/Users/ayada/AppData/Local/Temp/specimen-uv-desktop.png` and `C:/Users/ayada/AppData/Local/Temp/specimen-uv-mobile.png`. Element screenshots include existing fixed navigation overlays; mobile DOM bounds were checked separately.
+- Direct verification only. No deployment, independent review or clean TypeScript claim. Remaining: magnetic/refraction cursor, site-wide reskin and deployment; database configuration blocker unchanged.
+
 ## Stage 04: The Counter-Measure
 - Added responsive editorial CTA and glass panel to the existing WaterNarrative component. No new dependency, router or API changes.
 - Primary link uses the existing `#submit` view; secondary link targets the homepage `#search` anchor. Citizen-reading copy matches the current API, without promising pre-publication moderation or a safety verdict.

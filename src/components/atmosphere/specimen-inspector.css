@@ -1,0 +1,30 @@
+.specimen-stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(36px, 6vw, 96px); padding: clamp(64px, 8vw, 120px) 7vw; background: #080e12; color: #dfede7; border-top: 1px solid #27413e; }
+.specimen-kicker, .specimen-modes, .specimen-chamber-label, .specimen-rotation, .specimen-scale, .specimen-readout dl, .specimen-copy > a { font-family: var(--font-geist-mono), monospace; }
+.specimen-kicker { color: #1df2b3; font-size: 10px; line-height: 1.8; letter-spacing: .12em; }
+.specimen-copy h2 { margin: 32px 0; font: 400 clamp(44px, 5vw, 80px)/1.04 var(--font-tank-display), serif; letter-spacing: -.03em; }
+.specimen-copy h2 em { color: #a3d2c5; }
+.specimen-copy > p:not(.specimen-kicker) { max-width: 520px; font-size: 15px; line-height: 1.8; color: #b5c9c3; }
+.specimen-modes { display: flex; gap: 4px; padding: 4px; margin: 32px 0; border: 1px solid #46645c; width: fit-content; }
+.specimen-modes button { min-height: 48px; padding: 12px 22px; font-size: 12px; color: #c5d6d0; cursor: pointer; }
+.specimen-modes button[aria-pressed=true] { background: #c5eee1; color: #071311; }
+.specimen-stage[data-mode=uv] .specimen-modes button[aria-pressed=true] { background: #ff8abc; }
+.specimen-modes button:hover { box-shadow: inset 0 0 0 1px #c5eee1; }
+.specimen-modes button:focus-visible, .specimen-rotation input:focus-visible, .specimen-copy > a:focus-visible { outline: 2px solid #1df2b3; outline-offset: 5px; }
+.specimen-readout { min-height: 250px; border-top: 1px solid #35524b; padding-top: 24px; }
+.specimen-readout h3 { font: 400 30px/1.15 var(--font-tank-display), serif; margin-bottom: 14px; }
+.specimen-readout p { font-size: 14px; line-height: 1.8; color: #b5c9c3; }
+.specimen-readout dl { margin-top: 24px; font-size: 11px; line-height: 1.8; }
+.specimen-readout dl div { display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid #263c39; padding: 12px 0; }
+.specimen-readout dt { color: #98b5ab; }
+.specimen-readout dd { text-align: right; color: #d6f4e9; }
+.specimen-copy > p.specimen-caveat { font-size: 11px; margin: 24px 0 14px; }
+.specimen-copy > a { display: inline-flex; align-items: center; gap: 24px; min-height: 44px; font-size: 11px; color: #b9e3d4; border-bottom: 1px solid #527269; }
+.specimen-chamber { min-width: 0; align-self: start; border: 1px solid #36534e; background: radial-gradient(ellipse at 50% 50%, #193a3e 0, #0a1319 70%); }
+.specimen-stage[data-mode=uv] .specimen-chamber { background: radial-gradient(ellipse at 50% 50%, #30172e 0, #090e1a 70%); border-color: #72415b; }
+.specimen-chamber-label { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 22px; color: #9ec0b4; font-size: 9px; letter-spacing: .07em; }
+.specimen-chamber canvas { display: block; width: 100%; height: clamp(360px, 42vw, 580px); }
+.specimen-rotation { display: block; margin: 16px 28px; font-size: 11px; color: #c3ded3; }
+.specimen-rotation output { float: right; }
+.specimen-rotation input { display: block; width: 100%; height: 44px; accent-color: #1df2b3; cursor: ew-resize; }
+.specimen-scale { padding: 8px 22px 24px; color: #92b4a8; text-align: center; font-size: 9px; line-height: 1.8; }
+@media (max-width: 899px) { .specimen-stage { grid-template-columns: minmax(0, 1fr); padding: 64px 6vw; } .specimen-chamber { grid-row: 2; } .specimen-readout { min-height: 0; } }

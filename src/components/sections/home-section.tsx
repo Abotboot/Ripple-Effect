@@ -19,6 +19,7 @@ import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog
 import { LiveTicker } from '@/components/site/live-ticker'
 import { TankHero } from '@/components/atmosphere/tank-hero'
 import { WaterNarrative } from '@/components/atmosphere/water-narrative'
+import { SpecimenInspector } from '@/components/atmosphere/specimen-inspector'
 import type { Section } from '@/components/site/site-header'
 import { Microscope, HandHeart, Database, Github, Info } from 'lucide-react'
 import { useCountUp, formatCount } from '@/hooks/use-count-up'
@@ -155,6 +156,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
 
       {/* Stats bar */}
       <StatsBar stats={stats} />
+      <SpecimenInspector />
       <WaterNarrative />
 
       {/* Search results */}
