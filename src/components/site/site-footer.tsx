@@ -2,19 +2,21 @@
 
 import { Droplets, Heart, Github, Mail, MapPin, Instagram, HandHeart } from 'lucide-react'
 import type { Section } from '@/components/site/site-header'
+import './site-chrome.css'
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
 
 export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }) {
   const go = (s: Section) => {
     onNavigate?.(s)
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
   }
 
   return (
-    <footer className="mt-auto border-t border-border/60 bg-muted/30">
+    <footer className="site-footer mt-auto">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid gap-8 md:grid-cols-4">
+        <div className="site-footer-prologue"><span>FIELD NOTES / OPEN WATER</span><p>One act.<br /><em>Endless impact.</em></p></div>
+        <div className="site-footer-grid grid gap-8">
           {/* Brand + mission */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5">

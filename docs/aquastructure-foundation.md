@@ -1,5 +1,12 @@
 # Human Aquastructure: foundation and narrative stages 01-04
 
+## Shared header and footer reskin
+- Shared obsidian shell, editorial brand wordmark, monospaced navigation, cyan active-route indicators and editorial footer. Navigation/contact/export destinations retained. Inner-page content is not yet reskinned.
+- Removed nested button from GitHub link. Menu has an accessible name, controls association, current-page state, Escape close/focus return and bounded viewport scrolling. Navigation respects reduced motion.
+- Production preview http://localhost:3018 passed `scripts/chrome-reskin-check.cjs` using the QA-only PLAYWRIGHT_MODULE override documented below: computed tokens, keyboard focus, desktop navigation, mobile gate/menu/Escape, footer content bounds at 320/375/768px and chrome light-theme colors.
+- Header/footer ESLint, build, cursor/refraction regressions, particle/audio checks and whitespace checks passed. Build skips type checking. Desktop header, footer and mobile menu screenshots reviewed under C:/Users/ayada/AppData/Local/Temp/reskin-*.png.
+- Direct verification only. No deployment; database blocker and inner-page reskin remain.
+
 ## Magnetic fluid cursor
 - Added FluidCursor once in page.tsx: fine-pointer mouse overlay with time-based easing and bounded attraction toward hovered links/buttons. Native cursor and hit areas remain unchanged. No added production dependency.
 - Animation frames stop after settling. Overlay hides on keyboard input, scrolling, resize, blur, visibility and hash changes, and over fields/dialogs. Media-query listener handles reduced-motion changes in both directions; touch does not mount the overlay.

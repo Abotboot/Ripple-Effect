@@ -1,7 +1,8 @@
 'use client'
 
 import { Droplets, Menu, X, Github, BarChart3, Megaphone, Lock, Map, Info, HandHeart, Database, Beaker, HelpCircle, Handshake } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import './site-chrome.css'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/site/theme-toggle'
@@ -47,31 +48,32 @@ export function SiteHeader({
   onNavigate: (s: Section) => void
 }) {
   const [open, setOpen] = useState(false)
+  const menuButton = useRef<HTMLButtonElement>(null)
 
   const go = (s: Section) => {
     onNavigate(s)
     setOpen(false)
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/85 backdrop-blur-md">
+    <header className="site-header sticky top-0 z-50 w-full" onKeyDown={event => { if (event.key === 'Escape' && open) { setOpen(false); menuButton.current?.focus() } }}>
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
         {/* Brand, logo zoomed in (bigger) */}
         <button
           onClick={() => go('home')}
-          className="group flex shrink-0 items-center gap-3 transition-transform hover:scale-[1.02]"
+          className="site-brand group flex shrink-0 items-center gap-3"
           aria-label="A Ripple Effect Initiative home"
         >
-          <div className="relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-primary/30 shadow-lg shadow-primary/20 transition-all group-hover:ring-primary/60 group-hover:shadow-primary/40">
+          <div className="site-brand-seal">
             <img
               src="/logo.png"
               alt="A Ripple Effect Initiative logo"
-              className="h-full w-full scale-110 object-cover transition-transform duration-300 group-hover:scale-125"
+              className="h-full w-full object-cover"
             />
           </div>
           <span className="hidden sm:flex flex-col items-start leading-none">
-                      <span className="text-lg font-extrabold tracking-tight text-foreground">
+                      <span className="site-brand-word">
                         A Ripple<span className="text-primary"> Effect Initiative</span>
                       </span>
                       <span className="mt-0.5 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
@@ -81,11 +83,12 @@ export function SiteHeader({
         </button>
 
         {/* Desktop nav */}
-        <nav className="hidden xl:flex items-center gap-0.5">
+        <nav aria-label="Primary navigation" className="site-nav-desktop hidden xl:flex items-center gap-0.5">
           {DESKTOP_NAV.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => go(id)}
+              aria-current={current === id ? 'page' : undefined}
               className={cn(
                 'group inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors',
                 current === id
@@ -109,20 +112,20 @@ export function SiteHeader({
             href={REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:inline-flex"
+            className="site-github hidden sm:inline-flex"
             aria-label="A Ripple Effect Initiative GitHub repository"
             title="Open source on GitHub"
           >
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <Github className="h-4 w-4" />
-            </Button>
+            <Github className="h-4 w-4" aria-hidden="true" />
           </a>
           <Button
             variant="ghost"
             size="icon"
             className="h-9 w-9"
             onClick={() => setOpen((o) => !o)}
+            ref={menuButton}
             aria-label="Toggle menu"
+            aria-controls="site-navigation-menu"
             aria-expanded={open}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -132,12 +135,13 @@ export function SiteHeader({
 
       {/* Mobile nav */}
       {open && (
-        <nav className="border-t border-border/60 bg-background px-4 py-3">
+        <nav id="site-navigation-menu" aria-label="All sections" data-lenis-prevent className="site-nav-menu px-4 py-3">
           <div className="mx-auto grid max-w-7xl gap-1 sm:grid-cols-2 lg:grid-cols-3">
             {NAV.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => go(id)}
+              aria-current={current === id ? 'page' : undefined}
                 className={cn(
                   'inline-flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                   current === id
