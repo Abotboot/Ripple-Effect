@@ -88,6 +88,16 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
                   FAQ
                 </button>
               </li>
+              <li>
+                <button onClick={() => go('privacy')} className="text-muted-foreground hover:text-primary transition-colors">
+                  Privacy Policy
+                </button>
+              </li>
+              <li>
+                <button onClick={() => go('terms')} className="text-muted-foreground hover:text-primary transition-colors">
+                  Terms of Service
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -172,9 +182,17 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
             © {new Date().getFullYear()} A Ripple Effect Initiative · Built with
                         <Heart className="h-3 w-3 text-rose-500" /> by the crew
           </p>
-          <p>
-            Data is illustrative and community-submitted. Always verify with your
-            utility&apos;s Consumer Confidence Report.
+          <div className="flex items-center gap-3">
+            <button onClick={() => go('privacy' as Section)} className="hover:text-primary transition-colors underline-offset-2 hover:underline">
+              Privacy Policy
+            </button>
+            <span className="text-border">·</span>
+            <button onClick={() => go('terms' as Section)} className="hover:text-primary transition-colors underline-offset-2 hover:underline">
+              Terms of Service
+            </button>
+          </div>
+          <p className="max-w-xs sm:max-w-md text-center sm:text-right">
+            Educational &amp; research data; not medical or regulatory advice. Always verify with your utility&apos;s annual CCR.
           </p>
         </div>
       </div>

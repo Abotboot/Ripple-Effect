@@ -23,6 +23,8 @@ export async function GET() {
       sampleDate: true,
       createdAt: true,
       notes: true,
+      source: true,
+      robot: true,
       contaminant: { select: { id: true, name: true, slug: true, healthGuideline: true, legalLimit: true } },
       utility: { select: { id: true, name: true, city: true, state: true } },
     },
@@ -48,6 +50,8 @@ export async function GET() {
       treatmentStatus: r.treatmentStatus,
       sampleDate: r.sampleDate.toISOString(),
       createdAt: r.createdAt.toISOString(),
+      source: r.source,
+      robot: r.robot,
       reporterName,
       contaminant: { name: c.name, slug: c.slug },
       utility: r.utility

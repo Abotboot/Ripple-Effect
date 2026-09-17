@@ -38,8 +38,10 @@ export async function GET() {
   })
   const sampleByState = new Map<string, number>()
   for (const s of samples) {
-    const st = s.utility.state
-    sampleByState.set(st, (sampleByState.get(st) ?? 0) + 1)
+    const st = s.utility?.state
+    if (st) {
+      sampleByState.set(st, (sampleByState.get(st) ?? 0) + 1)
+    }
   }
 
   const leaderboard = chapters.map((c) => {

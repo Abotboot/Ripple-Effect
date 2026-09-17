@@ -9,32 +9,96 @@ import { db } from './db'
 // Safe to call on every API request - it only queries a count first.
 
 let seedPromise: Promise<void> | null = null
+let adminPromise: Promise<void> | null = null
 
-export async function ensureSeeded(): Promise<void> {
-  // Always ensure the admin accounts exist, even on an already-seeded DB.
-  // Uses upsert with update:{} so existing (changed) passwords are preserved.
+// Ensures the admin accounts exist and purges legacy demo data.
+// Memoized per process: this runs at most once per server start (and once
+// more only if it fails), NOT on every request. The previous per-request
+// version hashed passwords (scrypt) on every API call, which was a DoS
+// amplifier.
+//
+// Password rules:
+//  - create: uses ADMIN_DEFAULT_PASSWORD (or a local-dev fallback).
+//  - update: NEVER resets an existing password silently. Set the explicit
+//    recovery flag ADMIN_RESET_PASSWORD=true once to force a reset to
+//    ADMIN_DEFAULT_PASSWORD, then remove the flag.
+async function ensureAdminsAndCleanData(): Promise<void> {
   const { hashPassword } = await import('./auth')
+
+  // Read admin password from env to keep it out of source control.
+  // Falls back to a default ONLY for local development.
+  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'ChangeMe!OnFirstLogin'
 
   const admins: Array<{ email: string; name: string }> = [
     { email: 'admin@arippleseffect.org', name: 'A Ripple Effect Initiative Admin' },
     {
-      email: 'siddhant.khatiwada@outlook.com',
-      name: 'Siddhant Khatiwada',
+      email: process.env.ADMIN_EMAIL_2 || 'admin2@arippleseffect.org',
+      name: process.env.ADMIN_NAME_2 || 'Admin',
     },
   ]
 
   for (const a of admins) {
     await db.user.upsert({
       where: { email: a.email },
-      update: {},
+      update:
+        process.env.ADMIN_RESET_PASSWORD === 'true'
+          ? {
+              password: hashPassword(process.env.ADMIN_DEFAULT_PASSWORD || adminPassword),
+              role: 'admin',
+            }
+          : {},
       create: {
         email: a.email,
         name: a.name,
-        password: hashPassword('Ripples#2026!Secure'),
+        password: hashPassword(adminPassword),
         role: 'admin',
       },
     })
   }
+
+  // Purge any legacy fake/demo seed records from the database
+  try {
+    await Promise.all([
+      db.donation.deleteMany({
+        where: {
+          OR: [
+            { email: { in: ['jordan@example.com', 'hello@greenearth.example'] } },
+            { name: { in: ['Green Earth Co.', 'Jordan Lee'] } },
+            { AND: [{ name: 'Anonymous' }, { amount: { in: [25, 250] } }] },
+          ],
+        },
+      }),
+      db.report.deleteMany({
+        where: {
+          OR: [
+            { reporterName: { in: ['Maria G.', 'James R.', 'Priya K.'] } },
+            { title: 'Water tastes great', reporterName: 'Anonymous' },
+            { title: 'Strong chlorine taste', reporterName: 'Anonymous' },
+          ],
+        },
+      }),
+      db.chapter.deleteMany({
+        where: {
+          email: {
+            in: ['dev.sharma@example.edu', 'aisha.khan@example.org', 'marco.reyes@example.edu'],
+          },
+        },
+      }),
+    ])
+  } catch (e) {
+    console.error('[ensureSeeded] Failed to clean demo data:', e)
+  }
+}
+
+export async function ensureSeeded(): Promise<void> {
+  if (!adminPromise) {
+    adminPromise = ensureAdminsAndCleanData().catch((e) => {
+      // Reset the memo so a transient failure is retried on the next request.
+      adminPromise = null
+      throw e
+    })
+  }
+  await adminPromise
 
   // Quick check - does the DB have any utilities?
   const count = await db.utility.count()
@@ -51,16 +115,16 @@ async function runSeed(): Promise<void> {
   console.log('[ensureSeeded] Database is empty - running inline seed...')
 
   const { hashPassword } = await import('./auth')
+  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'ChangeMe!OnFirstLogin'
 
-  // Admin user - strong default password (change immediately after first login).
-    // Credentials documented in README.md, NOT in the UI.
+  // Admin user - reads password from env (change immediately after first login).
   await db.user.upsert({
     where: { email: 'admin@arippleseffect.org' },
     update: {},
     create: {
       email: 'admin@arippleseffect.org',
       name: 'A Ripple Effect Initiative Admin',
-      password: hashPassword('Ripples#2026!Secure'),
+      password: hashPassword(adminPassword),
       role: 'admin',
     },
   })
@@ -278,33 +342,6 @@ async function runSeed(): Promise<void> {
   for (let i = 0; i < samples.length; i += 100) {
     await db.sample.createMany({ data: samples.slice(i, i + 100) })
   }
-
-  // Community reports
-  const reports = [
-    { utilityId: utilityIds['IL0316040'], reporterName: 'Maria G.', zipCode: '60614', city: 'Chicago', state: 'IL', title: 'Cloudy water in Lincoln Park', description: 'Tap water has been cloudy for the past 3 days. Settles after a minute but unusual for this area.', contaminant: 'Unknown', appearance: 'cloudy', severity: 'warning', status: 'reviewed' },
-    { utilityId: utilityIds['CA1910052'], reporterName: 'Anonymous', zipCode: '90026', city: 'Los Angeles', state: 'CA', title: 'Strong chlorine taste', description: 'Water has a noticeably strong chlorine taste and smell this week. Filling a pitcher and letting it sit helps.', contaminant: 'Chlorine', appearance: 'odor', severity: 'info', status: 'pending' },
-    { utilityId: utilityIds['TX1010337'], reporterName: 'James R.', zipCode: '77007', city: 'Houston', state: 'TX', title: 'Brown discoloration after storm', description: 'After the heavy rains, water came out brown for several hours. Boil notice issued and lifted next day.', contaminant: 'Sediment', appearance: 'discolored', severity: 'critical', status: 'resolved' },
-    { utilityId: utilityIds['AZ0413027'], reporterName: 'Priya K.', zipCode: '85016', city: 'Phoenix', state: 'AZ', title: 'Concerned about microplastics', description: 'Installed a countertop filter after reading about microplastics in tap water. Would love to see local testing data.', contaminant: 'Microplastics', appearance: 'normal', severity: 'info', status: 'pending' },
-    { utilityId: utilityIds['WA5376550'], reporterName: 'Anonymous', zipCode: '98103', city: 'Seattle', state: 'WA', title: 'Water tastes great', description: 'Seattle tap water has always tasted clean to me. Sharing a positive report!', contaminant: null, appearance: 'normal', severity: 'info', status: 'reviewed' },
-  ]
-  await db.report.createMany({ data: reports })
-
-  // Chapter signups (Start a Chapter program)
-  const chapters = [
-    { name: 'Dev Sharma', email: 'dev.sharma@example.edu', chapterName: 'A Ripple Effect Initiative - UIC Chapter', city: 'Chicago', state: 'IL', zipCode: '60607', waterBody: 'Chicago River / Lake Michigan', organization: 'University of Illinois Chicago', identifier: true, message: 'Want to set up a chapter with my environmental science club.', status: 'onboarded' },
-    { name: 'Aisha Khan', email: 'aisha.khan@example.org', chapterName: 'A Ripple Effect Initiative - Houston Chapter', city: 'Houston', state: 'TX', zipCode: '77004', waterBody: 'Buffalo Bayou', organization: 'Houston Climate Alliance', identifier: false, message: 'Already have a microscope setup, need protocols.', status: 'contacted' },
-    { name: 'Marco Reyes', email: 'marco.reyes@example.edu', chapterName: null, city: 'Phoenix', state: 'AZ', zipCode: '85016', waterBody: 'Salt River', organization: null, identifier: true, message: 'Independent - want to test my local river water.', status: 'pending' },
-  ]
-  await db.chapter.createMany({ data: chapters })
-
-  // Donations (historic records - funding now runs through HCB)
-  const donations = [
-    { name: 'Anonymous', email: null, amount: 25, tier: 'Supporter', message: null, anonymous: true, status: 'completed' },
-    { name: 'Jordan Lee', email: 'jordan@example.com', amount: 50, tier: 'Friend', message: 'Love what you all are building for clean water!', anonymous: false, status: 'completed' },
-    { name: 'Anonymous', email: null, amount: 250, tier: 'Champion', message: 'In memory of my grandfather who fought for our local river.', anonymous: true, status: 'completed' },
-    { name: 'Green Earth Co.', email: 'hello@greenearth.example', amount: 1000, tier: 'Founding', message: 'Proud founding sponsor of the microplastics identifier project.', anonymous: false, status: 'completed' },
-  ]
-  await db.donation.createMany({ data: donations })
 
   console.log('[ensureSeeded] Seed complete.')
 }

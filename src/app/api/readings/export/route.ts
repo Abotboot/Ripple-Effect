@@ -84,7 +84,10 @@ export async function GET(req: NextRequest) {
   ]
 
   const escapeCsv = (val: string | number | boolean): string => {
-    const s = String(val ?? '')
+    let s = String(val ?? '')
+    if (/^[=+\-@\t\r]/.test(s)) {
+      s = `'${s}`
+    }
     if (s.includes(',') || s.includes('"') || s.includes('\n')) {
       return `"${s.replace(/"/g, '""')}"`
     }

@@ -2,20 +2,25 @@
 // Run with: bun run db:seed
 import { db } from '../src/lib/db'
 import { hashPassword } from '../src/lib/auth'
+import { randomBytes } from 'node:crypto'
 
 async function main() {
   console.log('🌱 Seeding A Ripples Effect database...')
 
   // -- Admin user --
-  // Strong default password - change immediately after first login.
-  // Credentials: admin@arippleseffect.org / Ripples#2026!Secure
+  // Credentials come from env (ADMIN_EMAIL / ADMIN_PASSWORD) so no secrets
+  // live in source control. If ADMIN_PASSWORD is not set, a strong random
+  // password is generated and printed once below.
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@arippleseffect.org'
+  const adminPassword =
+    process.env.ADMIN_PASSWORD || `Ripples-${randomBytes(12).toString('base64url')}-!Secure`
   await db.user.upsert({
-    where: { email: 'admin@arippleseffect.org' },
+    where: { email: adminEmail },
     update: {},
     create: {
-      email: 'admin@arippleseffect.org',
+      email: adminEmail,
       name: 'A Ripples Effect Admin',
-      password: hashPassword('Ripples#2026!Secure'),
+      password: hashPassword(adminPassword),
       role: 'admin',
     },
   })
@@ -629,7 +634,10 @@ async function main() {
   console.log(`✓ Seeded ${reports.length} community reports`)
 
   console.log('\n✅ Seed complete.')
-  console.log('   Admin login: admin@arippleseffect.org / Ripples#2026!Secure')
+  console.log(`   Admin login: ${adminEmail}`)
+  if (!process.env.ADMIN_PASSWORD) {
+    console.log(`   Generated admin password: ${adminPassword}`)
+  }
   console.log('   ⚠️  Change this password immediately after first login.')
 }
 

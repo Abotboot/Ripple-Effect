@@ -1,18 +1,30 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 
-// GET /api/readings/pending - admin only.
-// Returns all citizen-quality samples for moderation, newest first.
-// Includes parsed reporter info from the notes field.
-export async function GET() {
+// GET /api/readings/pending?status=pending|approved|all - admin only.
+// Returns citizen-quality samples for moderation, newest first.
+//  - pending (default): quality='citizen' — awaiting review
+//  - approved: quality in ('provisional','verified') — already approved
+//  - all: everything
+// Includes parsed reporter info from the notes field and the robot flag so
+// the admin can tell robot data from citizen data at a glance.
+export async function GET(req: NextRequest) {
   const admin = await requireAdmin()
   if (!admin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const status = req.nextUrl.searchParams.get('status') ?? 'pending'
+  const qualityWhere =
+    status === 'approved'
+      ? { quality: { in: ['provisional', 'verified'] } }
+      : status === 'all'
+      ? {}
+      : { quality: 'citizen' }
+
   const readings = await db.sample.findMany({
-    where: { quality: 'citizen' },
+    where: qualityWhere,
     orderBy: { createdAt: 'desc' },
     take: 200,
     select: {
@@ -20,6 +32,7 @@ export async function GET() {
       level: true,
       unit: true,
       source: true,
+      robot: true,
       location: true,
       treatmentStatus: true,
       sampleDate: true,

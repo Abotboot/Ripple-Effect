@@ -22,7 +22,13 @@ export async function GET(req: NextRequest) {
     take: limit,
   })
 
-  return NextResponse.json(samples)
+  // Sanitize internal reporter contact details from notes in public API
+  const sanitized = samples.map((s) => ({
+    ...s,
+    notes: s.notes ? s.notes.replace(/reporter:[^|]+(\| )?/g, '').trim() : null,
+  }))
+
+  return NextResponse.json(sanitized)
 }
 
 // POST /api/samples (admin only) - add a single measurement
@@ -45,7 +51,8 @@ export async function POST(req: NextRequest) {
       level: Number(body.level),
       unit: body.unit ?? 'ppb',
       sampleDate: body.sampleDate ? new Date(body.sampleDate) : new Date(),
-      source: body.source ?? 'Utility CCR',
+      source: body.source ?? (body.robot ? 'Ripple Robot' : 'Utility CCR'),
+      robot: body.robot === true,
       treatmentStatus: body.treatmentStatus ?? 'Treated',
       location: body.location ?? null,
       notes: body.notes ?? null,

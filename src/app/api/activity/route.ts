@@ -89,7 +89,9 @@ export async function GET() {
       type: 'sample',
       date: s.sampleDate.toISOString(),
       title: `${s.level.toFixed(2)} ${s.unit} ${c.name}`,
-      subtitle: `${s.utility.name} · ${s.utility.city}, ${s.utility.state}`,
+      subtitle: s.utility
+        ? `${s.utility.name} · ${s.utility.city}, ${s.utility.state}`
+        : 'Community measurement',
       meta: `${s.treatmentStatus} · ${s.source}`,
       tone: exceedsLegal ? 'warning' : exceedsHealth ? 'warning' : 'ok',
     })

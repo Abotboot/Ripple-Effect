@@ -7,6 +7,7 @@ import {
   ShieldCheck, Database, FileJson, FileSpreadsheet, CheckCircle2,
   AlertCircle, Building2, Megaphone, Heart, Mail, Calendar, HandHeart,
   MapPin, Droplets, Users, Beaker, FlaskConical, ArrowUpCircle,
+  Clock, CheckCheck, XCircle, ListFilter,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,6 +27,7 @@ import { useToast } from '@/hooks/use-toast'
 import { api } from '@/lib/api'
 import type { Utility, Contaminant, Report, AdminUser, Volunteer, Chapter, Donation } from '@/lib/types'
 import { QualityBadge } from '@/components/quality-badge'
+import { SourceBadge } from '@/components/source-badge'
 import { cn } from '@/lib/utils'
 
 export function AdminSection() {
@@ -237,8 +239,27 @@ function LoginScreen({ onLogin }: { onLogin: (u: AdminUser) => void }) {
 }
 
 // -- Reports Admin --
+const REPORT_STATUS_BADGE: Record<string, { label: string; className: string; icon: React.ElementType }> = {
+  pending: {
+    label: 'Pending review',
+    icon: Clock,
+    className: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
+  },
+  reviewed: {
+    label: 'Approved',
+    icon: CheckCheck,
+    className: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800',
+  },
+  resolved: {
+    label: 'Resolved',
+    icon: CheckCircle2,
+    className: 'bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-800',
+  },
+}
+
 function ReportsAdmin() {
   const [reports, setReports] = useState<Report[] | null>(null)
+  const [filter, setFilter] = useState<'pending' | 'reviewed' | 'resolved' | 'all'>('pending')
   const { toast } = useToast()
 
   const load = () => api.listReports().then(setReports)
@@ -262,37 +283,94 @@ function ReportsAdmin() {
     return <Skeleton className="h-64 w-full" />
   }
 
+  const counts = {
+    pending: reports.filter((r) => r.status === 'pending').length,
+    reviewed: reports.filter((r) => r.status === 'reviewed').length,
+    resolved: reports.filter((r) => r.status === 'resolved').length,
+  }
+  const visible = filter === 'all' ? reports : reports.filter((r) => r.status === filter)
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-base">Community reports ({reports.length})</CardTitle>
+        {/* Approval queue filters — make it obvious what still needs a decision */}
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {(['pending', 'reviewed', 'resolved', 'all'] as const).map((f) => {
+            const active = filter === f
+            const label = f === 'pending' ? `Needs review (${counts.pending})` : f === 'reviewed' ? `Approved (${counts.reviewed})` : f === 'resolved' ? `Resolved (${counts.resolved})` : `All (${reports.length})`
+            return (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+                  active
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border/60 bg-card text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <ListFilter className="h-3 w-3" />
+                {label}
+              </button>
+            )
+          })}
+        </div>
       </CardHeader>
       <CardContent className="space-y-2">
-        {reports.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No reports yet.</p>
-        ) : reports.map((r) => (
+        {visible.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {filter === 'pending'
+              ? '🎉 Nothing waiting for review — the queue is clear.'
+              : 'No reports in this view.'}
+          </p>
+        ) : visible.map((r) => {
+          const badge = REPORT_STATUS_BADGE[r.status] ?? REPORT_STATUS_BADGE.pending
+          const BadgeIcon = badge.icon
+          return (
           <div key={r.id} className="rounded-lg border border-border/60 bg-card p-3">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <div className="text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                  <span
+                    className={cn('inline-flex items-center gap-0.5 rounded-md border px-1.5 py-0 text-[9px] font-medium', badge.className)}
+                  >
+                    <BadgeIcon className="h-2.5 w-2.5" />
+                    {badge.label}
+                  </span>
                   {r.zipCode} · {new Date(r.createdAt).toLocaleDateString()}
                 </div>
                 <div className="font-medium text-foreground">{r.title}</div>
                 <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{r.description}</p>
               </div>
-              <Select value={r.status} onValueChange={(v) => setStatus(r.id, v)}>
-                <SelectTrigger className="h-8 w-32 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="reviewed">Reviewed</SelectItem>
-                  <SelectItem value="resolved">Resolved</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-1.5">
+                {r.status !== 'reviewed' && (
+                  <Button size="sm" variant="outline" className="h-8 gap-1 text-xs" onClick={() => setStatus(r.id, 'reviewed')}>
+                    <CheckCheck className="h-3.5 w-3.5" />
+                    Approve
+                  </Button>
+                )}
+                {r.status === 'pending' && (
+                  <Button size="sm" variant="outline" className="h-8 gap-1 text-xs text-rose-600 hover:text-rose-700" onClick={() => setStatus(r.id, 'resolved')}>
+                    <XCircle className="h-3.5 w-3.5" />
+                    Resolve
+                  </Button>
+                )}
+                <Select value={r.status} onValueChange={(v) => setStatus(r.id, v)}>
+                  <SelectTrigger className="h-8 w-32 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="reviewed">Reviewed</SelectItem>
+                    <SelectItem value="resolved">Resolved</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
-        ))}
+          )
+        })}
       </CardContent>
     </Card>
   )
@@ -971,10 +1049,27 @@ function ChaptersAdmin() {
 // -- Donations Admin (pledge tracking) --
 function DonationsAdmin() {
   const [donations, setDonations] = useState<Donation[] | null>(null)
+  const [syncing, setSyncing] = useState(false)
   const { toast } = useToast()
 
   const load = () => api.listDonations().then(setDonations).catch(() => setDonations([]))
-  useEffect(() => { load() }, [])
+
+  // Real donations are made on the embedded HCB form, which never touches our
+  // database - pull them in (idempotently, keyed by HCB id) on every visit.
+  const syncHcb = async () => {
+    setSyncing(true)
+    try {
+      const r = await api.syncDonations()
+      if (r.created > 0) toast({ title: `Synced ${r.created} donation${r.created === 1 ? '' : 's'} from HCB` })
+      else toast({ title: 'HCB is up to date' })
+    } catch {
+      toast({ title: 'HCB sync failed', description: 'Will retry next visit.', variant: 'destructive' })
+    } finally {
+      setSyncing(false)
+      load()
+    }
+  }
+  useEffect(() => { syncHcb() }, [])
 
   const setStatus = async (id: string, status: string) => {
     try {
@@ -1012,6 +1107,16 @@ function DonationsAdmin() {
           <CardTitle className="flex items-center gap-2 text-base">
             <HandHeart className="h-4 w-4 text-primary" />
             Donations ({donations.length})
+            <Button
+              size="sm"
+              variant="outline"
+              className="ml-2 h-7 gap-1 text-[11px]"
+              disabled={syncing}
+              onClick={syncHcb}
+            >
+              {syncing ? <Loader2 className="h-3 w-3 animate-spin" /> : <ArrowUpCircle className="h-3 w-3" />}
+              Sync from HCB
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -1102,25 +1207,33 @@ function DonationsAdmin() {
 }
 
 // -- Citizen Readings Admin (moderation) --
+type AdminReading = {
+  id: string
+  level: number
+  unit: string
+  source: string
+  robot: boolean
+  location: string | null
+  treatmentStatus: string
+  sampleDate: string
+  createdAt: string
+  quality: string
+  reporterEmail: string
+  reporterName: string
+  userNotes: string
+  contaminant: { id: string; name: string; slug: string; healthGuideline: number | null; legalLimit: number | null }
+  utility: { id: string; name: string; city: string; state: string } | null
+}
+
 function CitizenReadingsAdmin() {
-  const [readings, setReadings] = useState<Array<{
-    id: string
-    level: number
-    unit: string
-    location: string | null
-    treatmentStatus: string
-    sampleDate: string
-    createdAt: string
-    quality: string
-    reporterEmail: string
-    reporterName: string
-    userNotes: string
-    contaminant: { id: string; name: string; slug: string; healthGuideline: number | null; legalLimit: number | null }
-    utility: { id: string; name: string; city: string; state: string } | null
-  }> | null>(null)
+  const [readings, setReadings] = useState<AdminReading[] | null>(null)
+  // Approval visibility: which slice of the queue the admin is looking at.
+  const [tab, setTab] = useState<'pending' | 'approved' | 'all'>('pending')
   const { toast } = useToast()
 
-  const load = () => api.getPendingReadings().then((r) => setReadings(r.items)).catch(() => setReadings([]))
+  // One fetch of everything (capped at 200 by the API), filtered client-side
+  // so tab counts are always live without extra round trips.
+  const load = () => api.getPendingReadings('all').then((r) => setReadings(r.items)).catch(() => setReadings([]))
   useEffect(() => { load() }, [])
 
   const updateQuality = async (id: string, quality: 'citizen' | 'provisional' | 'verified') => {
@@ -1155,6 +1268,13 @@ function CitizenReadingsAdmin() {
     return <Skeleton className="h-64 w-full" />
   }
 
+  const isPending = (r: AdminReading) => r.quality === 'citizen'
+  const counts = {
+    pending: readings.filter(isPending).length,
+    approved: readings.filter((r) => !isPending(r)).length,
+  }
+  const visible = tab === 'all' ? readings : tab === 'approved' ? readings.filter((r) => !isPending(r)) : readings.filter(isPending)
+
   return (
     <Card>
       <CardHeader>
@@ -1162,12 +1282,35 @@ function CitizenReadingsAdmin() {
           <div>
             <CardTitle className="flex items-center gap-2 text-base">
               <Beaker className="h-4 w-4 text-primary" />
-              Citizen readings ({readings.length})
+              Data queue ({readings.length})
             </CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              Review community-submitted readings. Promote verified readings to
-              &quot;provisional&quot; or &quot;verified&quot;, or delete spam/inaccurate ones.
+              Review citizen readings and robot measurements together &mdash; the
+              badge on each row tells you whether the data came from our own
+              robot or from an external source.
             </p>
+            {/* Approval queue tabs — pending first so nothing gets lost */}
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {(['pending', 'approved', 'all'] as const).map((f) => {
+                const active = tab === f
+                const label = f === 'pending' ? `Needs review (${counts.pending})` : f === 'approved' ? `Approved (${counts.approved})` : `All (${readings.length})`
+                return (
+                  <button
+                    key={f}
+                    onClick={() => setTab(f)}
+                    className={cn(
+                      'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+                      active
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : 'border-border/60 bg-card text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    <ListFilter className="h-3 w-3" />
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
           </div>
           {readings.length > 0 && (
             <Button
@@ -1185,11 +1328,13 @@ function CitizenReadingsAdmin() {
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
-        {readings.length === 0 ? (
+        {visible.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No citizen readings to review. Share the &quot;Submit Reading&quot; page to start collecting!
+            {tab === 'pending'
+              ? 'Nothing waiting for review — the queue is clear.'
+              : 'No readings in this view.'}
           </p>
-        ) : readings.map((r) => {
+        ) : visible.map((r) => {
           const exceedsHealth = r.contaminant.healthGuideline != null && r.contaminant.healthGuideline > 0 && r.level > r.contaminant.healthGuideline
           const exceedsLegal = r.contaminant.legalLimit != null && r.contaminant.legalLimit > 0 && r.level > r.contaminant.legalLimit
           return (
@@ -1201,6 +1346,7 @@ function CitizenReadingsAdmin() {
                       {r.level.toFixed(2)} {r.unit}
                     </span>
                     <span className="text-sm font-medium text-foreground">{r.contaminant.name}</span>
+                    <SourceBadge source={r.source} robot={r.robot} size="xs" />
                     <QualityBadge quality={r.quality} size="xs" />
                     {(exceedsHealth || exceedsLegal) && (
                       <span className="inline-flex items-center gap-0.5 rounded-md bg-rose-100 px-1.5 py-0.5 text-[10px] font-medium text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
@@ -1241,24 +1387,28 @@ function CitizenReadingsAdmin() {
                 </div>
                 <div className="flex flex-col items-end gap-1.5">
                   <div className="flex gap-1">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 gap-1 px-2 text-[11px] text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40"
-                      onClick={() => updateQuality(r.id, 'provisional')}
-                    >
-                      <FlaskConical className="h-3 w-3" />
-                      Provisional
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 gap-1 px-2 text-[11px] text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
-                      onClick={() => updateQuality(r.id, 'verified')}
-                    >
-                      <ArrowUpCircle className="h-3 w-3" />
-                      Verify
-                    </Button>
+                    {tab === 'pending' && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 gap-1 px-2 text-[11px] text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40"
+                          onClick={() => updateQuality(r.id, 'provisional')}
+                        >
+                          <FlaskConical className="h-3 w-3" />
+                          Provisional
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 gap-1 px-2 text-[11px] text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+                          onClick={() => updateQuality(r.id, 'verified')}
+                        >
+                          <ArrowUpCircle className="h-3 w-3" />
+                          Verify
+                        </Button>
+                      </>
+                    )}
                     <Button
                       size="sm"
                       variant="outline"
@@ -1268,6 +1418,11 @@ function CitizenReadingsAdmin() {
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
+                  {tab !== 'pending' && (
+                    <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                      approved
+                    </span>
+                  )}
                   <span className="text-[10px] text-muted-foreground">
                     submitted {new Date(r.createdAt).toLocaleDateString()}
                   </span>

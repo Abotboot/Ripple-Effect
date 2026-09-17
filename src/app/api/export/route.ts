@@ -128,7 +128,11 @@ function toCSV(rows: Record<string, unknown>[]): string {
   )
   const escape = (v: unknown) => {
     if (v == null) return ''
-    const s = String(v)
+    let s = String(v)
+    // Neutralize spreadsheet formula injection (=, +, -, @, tab, CR)
+    if (/^[=+\-@\t\r]/.test(s)) {
+      s = `'${s}`
+    }
     if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`
     return s
   }

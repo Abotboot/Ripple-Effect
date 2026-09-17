@@ -25,6 +25,7 @@ import { Microscope, HandHeart, Database, Github, Info } from 'lucide-react'
 import { useCountUp, formatCount } from '@/hooks/use-count-up'
 import { Bell, Activity as ActivityIcon, Beaker, Heart, HandHeart as DonationIcon, Clock } from 'lucide-react'
 import { QualityBadge } from '@/components/quality-badge'
+import { SourceBadge } from '@/components/source-badge'
 import { Share2 } from 'lucide-react'
 import { AnimatedCounter as BaseAnimatedCounter } from '@/components/ui/animated-counter'
 import { ContaminantSpectrumChart } from '@/components/d3/contaminant-spectrum-chart'
@@ -93,7 +94,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
   )
 
   const openUtility = useCallback(
-    async (u: Utility) => {
+    async (u: { id: string }) => {
       setLoadingDetail(u.id)
       try {
         const detail = await api.getUtility(u.id)
@@ -269,7 +270,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
       <RecentActivityAndAlerts />
 
       {/* Recently added utilities + Data quality callout */}
-      <RecentlyAddedAndQuality onNavigate={onNavigate} />
+      <RecentlyAddedAndQuality onNavigate={onNavigate} onOpenUtility={openUtility} />
 
       {/* Citizen readings feed */}
       <CitizenReadingsFeed onNavigate={onNavigate} />
@@ -568,7 +569,7 @@ function UtilityCard({
         <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Users className="h-3 w-3" />
-            {utility.population.toLocaleString()} served
+            {utility.population.toLocaleString()} residents served
           </span>
           <div className="flex items-center gap-1.5">
             {onShare && (
@@ -863,7 +864,13 @@ type RecentUtility = {
   sampleCount: number
 }
 
-function RecentlyAddedAndQuality({ onNavigate }: { onNavigate?: (s: Section) => void }) {
+function RecentlyAddedAndQuality({
+  onNavigate,
+  onOpenUtility,
+}: {
+  onNavigate?: (s: Section) => void
+  onOpenUtility: (u: RecentUtility) => void
+}) {
   const [recent, setRecent] = useState<RecentUtility[] | null>(null)
   const [stats, setStats] = useState<Stats | null>(null)
 
@@ -905,7 +912,19 @@ function RecentlyAddedAndQuality({ onNavigate }: { onNavigate?: (s: Section) => 
                   viewport={{ once: true }}
                   transition={{ delay: Math.min(i * 0.06, 0.3) }}
                 >
-                  <Card className="group h-full cursor-pointer transition-all hover:border-primary/40 hover:shadow-md" >
+                  <Card
+                    className="group h-full cursor-pointer transition-all hover:border-primary/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for ${u.name}`}
+                    onClick={() => onOpenUtility(u)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        onOpenUtility(u)
+                      }
+                    }}
+                  >
                     <CardContent className="p-4" >
                       <div className="flex items-start gap-3">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -1055,6 +1074,8 @@ type CitizenReading = {
   treatmentStatus: string
   sampleDate: string
   createdAt: string
+  source: string
+  robot: boolean
   reporterName: string
   contaminant: { name: string; slug: string }
   utility: { name: string; city: string; state: string } | null
@@ -1135,7 +1156,10 @@ function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void
                       </div>
                       <p className="mt-0.5 text-sm font-medium text-foreground">{r.contaminant.name}</p>
                     </div>
-                    <QualityBadge quality="citizen" size="xs" />
+                    <div className="flex flex-col items-end gap-1">
+                      <SourceBadge source={r.source} robot={r.robot} size="xs" />
+                      <QualityBadge quality="citizen" size="xs" />
+                    </div>
                   </div>
 
                   <div className="mt-2 space-y-1 text-xs text-muted-foreground">

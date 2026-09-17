@@ -51,6 +51,9 @@ export type Sample = {
   location: string | null
   quality: string
   notes: string | null
+  // True when the sample was measured by our own identifier robot
+  // (vs. pulled in from an external source like EPA or a utility).
+  robot?: boolean
 }
 
 // Sample joined with contaminant & utility for display
@@ -68,6 +71,7 @@ export type ContaminantSummary = {
   maxLevel: number
   unit: string
   source: string
+  robot?: boolean
   quality: string
   sampleCount: number
   exceedsHealthGuideline: boolean
@@ -157,6 +161,7 @@ export type Donation = {
   anonymous: boolean
   status: string
   createdAt: string
+  externalId?: string | null
 }
 
 export type Stats = {

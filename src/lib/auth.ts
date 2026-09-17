@@ -90,7 +90,7 @@ export async function requireAdmin(): Promise<{ id: string; email: string; name:
   const session = await getSession(token)
   if (!session) return null
   const user = await db.user.findUnique({ where: { id: session.userId } })
-  if (!user) return null
+  if (!user || user.role !== 'admin') return null
   return { id: user.id, email: user.email, name: user.name, role: user.role }
 }
 
