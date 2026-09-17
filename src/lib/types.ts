@@ -16,8 +16,8 @@ export type Utility = {
   longitude: number | null
   website: string | null
   notes: string | null
-  createdAt: string
-  updatedAt: string
+  createdAt: string | Date
+  updatedAt: string | Date
 }
 
 export type Contaminant = {
@@ -41,7 +41,7 @@ export type Contaminant = {
 
 export type Sample = {
   id: string
-  utilityId: string
+  utilityId: string | null
   contaminantId: string
   level: number
   unit: string
@@ -50,6 +50,13 @@ export type Sample = {
   treatmentStatus: string
   location: string | null
   quality: string
+  provenance?: string
+  verificationStatus?: string
+  sourceUrl?: string | null
+  sourceRecordId?: string | null
+  reportingPeriod?: string | null
+  method?: string | null
+  verifiedAt?: string | null
   notes: string | null
   // True when the sample was measured by our own identifier robot
   // (vs. pulled in from an external source like EPA or a utility).
@@ -65,20 +72,28 @@ export type SampleWithRelations = Sample & {
 // Aggregated contaminant measurement for a single utility
 export type ContaminantSummary = {
   contaminant: Contaminant
-  latestLevel: number
-  latestDate: string
-  avgLevel: number
-  maxLevel: number
+  latestLevel: number | null
+  latestDate: string | null
+  avgLevel: number | null
+  maxLevel: number | null
   unit: string
   source: string
   robot?: boolean
   quality: string
+  provenance?: string
+  verificationStatus?: string
   sampleCount: number
   exceedsHealthGuideline: boolean
   exceedsLegalLimit: boolean
-  healthRatio: number
-  legalRatio: number
-  trend: Array<{ date: string; level: number; treatmentStatus: string }>
+  healthRatio: number | null
+  legalRatio: number | null
+  trend: Array<{
+    date: string
+    level: number
+    treatmentStatus: string
+    provenance?: string
+    verificationStatus?: string
+  }>
 }
 
 export type UtilityWithStats = Utility & {
@@ -87,8 +102,9 @@ export type UtilityWithStats = Utility & {
   exceedances: number
   healthExceedances: number
   safetyScore?: {
-    score: number
+    score: number | null
     grade: string
+    status?: string
     label: string
     color: string
     bgColor: string

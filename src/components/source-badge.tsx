@@ -14,6 +14,8 @@ export type SampleSource =
   | 'Research Lab'
   | 'EPA UCMR'
   | 'EWG'
+  | 'Illustrative data'
+  | 'Unknown'
 
 export function isRobotSource(source: string | null | undefined, robot?: boolean): boolean {
   if (robot) return true
@@ -101,5 +103,17 @@ const SOURCE_CONFIG: Record<SampleSource, { label: string; icon: React.ElementTy
     icon: FileText,
     className: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800',
     title: 'From the EWG Tap Water Database',
+  },
+  'Illustrative data': {
+    label: 'Illustrative',
+    icon: FlaskConical,
+    className: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800',
+    title: 'Synthetic benchmark for demonstration only; not a measured sample',
+  },
+  Unknown: {
+    label: 'Unknown',
+    icon: FileText,
+    className: 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-300 dark:border-zinc-700',
+    title: 'Source record unverified or unspecified',
   },
 }

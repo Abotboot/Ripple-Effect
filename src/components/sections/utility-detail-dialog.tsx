@@ -121,7 +121,7 @@ export function UtilityDetailDialog({
 <h1>${name}</h1>
 <div class="meta">${city}, ${state} · PWSID: ${pwsid} · Population served: ${utility.population.toLocaleString()}<br>
 Source: ${sourceType} · Treatment: ${treatmentStatus}</div>
-${score ? `<div class="score" style="background: ${score.score >= 80 ? '#d1fae5' : score.score >= 70 ? '#e0f2fe' : score.score >= 60 ? '#fef3c7' : '#fee2e2'}; color: ${score.score >= 80 ? '#065f46' : score.score >= 70 ? '#075985' : score.score >= 60 ? '#92400e' : '#991b1b'};">Water Safety Score: ${score.score}/100 (Grade ${escapeHtml(score.grade)}, ${escapeHtml(score.label)})</div>` : ''}
+${score && score.score !== null ? `<div class="score" style="background: ${score.score >= 80 ? '#d1fae5' : score.score >= 70 ? '#e0f2fe' : score.score >= 60 ? '#fef3c7' : '#fee2e2'}; color: ${score.score >= 80 ? '#065f46' : score.score >= 70 ? '#075985' : score.score >= 60 ? '#92400e' : '#991b1b'};">Water Safety Score: ${score.score}/100 (Grade ${escapeHtml(score.grade)}, ${escapeHtml(score.label)})</div>` : `<div class="score" style="background: #f4f4f5; color: #52525b;">Water Safety Score: Not enough reviewed data (${escapeHtml(score?.label ?? 'Pending verification')})</div>`}
 <h2>Summary</h2>
 <p>Contaminants tracked: ${utility.contaminantSummaries.length} · Samples: ${utility.totalSamples} · Above health guideline: ${utility.healthExceedances} · Above legal limit: ${utility.exceedances}</p>
 <h2>Contaminant Breakdown</h2>
@@ -129,7 +129,8 @@ ${score ? `<div class="score" style="background: ${score.score >= 80 ? '#d1fae5'
 <tr><th>Contaminant</th><th>Latest Level</th><th>Unit</th><th>Health Guideline</th><th>Legal Limit</th><th>Status</th></tr>
 ${utility.contaminantSummaries.map((s) => {
   const status = s.exceedsLegalLimit ? '<span class="danger">Above legal limit</span>' : s.exceedsHealthGuideline ? '<span class="warning">Above health guideline</span>' : '<span class="ok">Within guidelines</span>'
-  return `<tr><td>${escapeHtml(s.contaminant.name)}</td><td>${s.latestLevel.toFixed(2)}</td><td>${escapeHtml(s.unit)}</td><td>${escapeHtml(s.contaminant.healthGuideline ?? '—')}</td><td>${escapeHtml(s.contaminant.legalLimit ?? 'None')}</td><td>${status}</td></tr>`
+  const lvl = s.latestLevel != null ? s.latestLevel.toFixed(2) : '—'
+  return `<tr><td>${escapeHtml(s.contaminant.name)}</td><td>${lvl}</td><td>${escapeHtml(s.unit)}</td><td>${escapeHtml(s.contaminant.healthGuideline ?? '—')}</td><td>${escapeHtml(s.contaminant.legalLimit ?? 'None')}</td><td>${status}</td></tr>`
 }).join('')}
 </table>
 <div class="footer">
@@ -385,7 +386,8 @@ function ContaminantDetailCard({
               Latest
             </div>
             <div className="mt-0.5 font-semibold tabular-nums text-foreground">
-              {latestLevel.toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">{unit}</span>
+              {latestLevel != null ? latestLevel.toFixed(2) : '—'}{' '}
+              <span className="text-[10px] font-normal text-muted-foreground">{unit}</span>
             </div>
           </div>
           <div className="rounded-md bg-muted/50 p-2">
@@ -471,20 +473,42 @@ function ContaminantDetailCard({
 }
 
 // -- Water Safety Score card --
-function SafetyScoreCard({
+export function SafetyScoreCard({
   score,
 }: {
   score: NonNullable<UtilityWithStats['safetyScore']>
 }) {
   const { score: value, grade, label, color, bgColor, deductions, dataConfidence } = score
+  const hasScore = value !== null
+
+  const borderClass = !hasScore
+    ? 'border-border/80 dark:border-border/60'
+    : value >= 80
+    ? 'border-emerald-300/60 dark:border-emerald-700/40'
+    : value >= 70
+    ? 'border-sky-300/60 dark:border-sky-700/40'
+    : value >= 60
+    ? 'border-amber-300/60 dark:border-amber-700/40'
+    : 'border-rose-300/60 dark:border-rose-700/40'
+
+  const barColor = !hasScore
+    ? 'bg-zinc-400'
+    : value >= 80
+    ? 'bg-emerald-500'
+    : value >= 70
+    ? 'bg-sky-500'
+    : value >= 60
+    ? 'bg-amber-500'
+    : 'bg-rose-500'
+
   return (
-    <Card className={`overflow-hidden border-2 ${value >= 80 ? 'border-emerald-300/60 dark:border-emerald-700/40' : value >= 70 ? 'border-sky-300/60 dark:border-sky-700/40' : value >= 60 ? 'border-amber-300/60 dark:border-amber-700/40' : 'border-rose-300/60 dark:border-rose-700/40'}`}>
+    <Card className={`overflow-hidden border-2 ${borderClass}`}>
       <CardContent className="p-5">
         <div className="flex items-center gap-4">
           {/* Score circle */}
           <div className={`relative flex h-20 w-20 shrink-0 items-center justify-center rounded-full ${bgColor}`}>
             <div className="text-center">
-              <div className={`text-2xl font-extrabold tabular-nums ${color}`}>{value}</div>
+              <div className={`text-2xl font-extrabold tabular-nums ${color}`}>{hasScore ? value : '—'}</div>
               <div className={`text-[10px] font-bold ${color}`}>Grade {grade}</div>
             </div>
           </div>
@@ -498,8 +522,9 @@ function SafetyScoreCard({
               </span>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              A composite 0-100 metric based on legal + health guideline exceedances
-              and data confidence.
+              {hasScore
+                ? 'A composite 0-100 metric based on legal + health guideline exceedances and data confidence.'
+                : 'Insufficient reviewed laboratory or regulatory records are available to establish a formal compliance score.'}
             </p>
             <div className="mt-2 flex items-center gap-3 text-xs">
               <span className="text-muted-foreground">
@@ -520,9 +545,9 @@ function SafetyScoreCard({
         <div className="mt-4">
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
             <motion.div
-              className={`h-full ${value >= 80 ? 'bg-emerald-500' : value >= 70 ? 'bg-sky-500' : value >= 60 ? 'bg-amber-500' : 'bg-rose-500'}`}
+              className={`h-full ${barColor}`}
               initial={{ width: 0 }}
-              animate={{ width: `${value}%` }}
+              animate={{ width: hasScore ? `${value}%` : '0%' }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
             />
           </div>

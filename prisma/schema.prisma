@@ -73,13 +73,13 @@ model Sample {
   level         Float    // measured value
   unit          String   // particles/L, ppb, ppm
   sampleDate    DateTime
-  source        String   @default("Utility CCR") // Utility CCR / Citizen Test / Research Lab / EWG / Ripple Robot
-  robot         Boolean  @default(false) // true = measured by A Ripple Effect's own identifier robot
-  treatmentStatus String @default("Treated") // Treated / Untreated (lets us compare)
-  location      String?  // tap, stream, reservoir, treatment plant outflow...
-  quality       String   @default("verified") // verified / provisional / citizen
-  notes         String?
-  createdAt     DateTime @default(now())
+  source             String    @default("Unknown") // Unknown / Utility CCR / Citizen Test / Research Lab / EWG / Ripple Robot / Illustrative data
+  robot              Boolean   @default(false) // true = measured by A Ripple Effect's own identifier robot
+  treatmentStatus    String    @default("Treated") // Treated / Untreated (lets us compare)
+  location           String?   // tap, stream, reservoir, treatment plant outflow...
+  quality            String    @default("unreviewed") // unreviewed / verified / provisional / citizen / illustrative
+  notes              String?
+  createdAt          DateTime  @default(now())
 
   utility       Utility?     @relation(fields: [utilityId], references: [id], onDelete: Cascade)
   contaminant   Contaminant @relation(fields: [contaminantId], references: [id], onDelete: Cascade)

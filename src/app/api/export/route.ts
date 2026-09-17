@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { normalizeProvenance, normalizeVerification } from '@/lib/provenance'
 
 // GET /api/export?format=csv|json&table=utilities|contaminants|samples|reports
 // Returns the entire table as a downloadable file.
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  let rows: Record<string, unknown>[]
+  let rows: Record<string, unknown>[] = []
   switch (table) {
     case 'utilities':
       rows = await db.utility.findMany({ orderBy: { state: 'asc' } })
@@ -56,9 +57,11 @@ export async function GET(req: NextRequest) {
         level: r.level,
         unit: r.unit,
         sampleDate: (r.sampleDate as Date).toISOString(),
-        source: r.source,
+        source: r.source ?? 'Unknown',
         treatmentStatus: r.treatmentStatus,
-        quality: r.quality ?? 'verified',
+        quality: r.quality ?? 'unreviewed',
+        provenance: normalizeProvenance(r),
+        verificationStatus: normalizeVerification(r),
         location: r.location ?? '',
         createdAt: (r.createdAt as Date).toISOString(),
       }))

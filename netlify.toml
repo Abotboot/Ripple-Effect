@@ -1,5 +1,5 @@
 [build]
-  command = "npm install && npx prisma db push --accept-data-loss && npx prisma generate && npx next build"
+  command = "npx prisma generate && npm run build"
   publish = ".next"
 
 # Netlify's Next.js Runtime (OpenNext-based adapter) auto-detects Next.js and

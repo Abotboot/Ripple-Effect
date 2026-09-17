@@ -135,12 +135,12 @@
         "text": "",
         "outline": "rgb(29, 242, 179) solid 2px",
         "outlineWidth": "2px",
-        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.46224) 0px 0px 0px 2.77344px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.85359 -0.169083 0.0440078 / 0.462412) 0px 0px 0px 2.77447px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
         "isInView": true
       },
       {
         "tagName": "INPUT",
-        "id": "",
+        "id": "tank-search-input",
         "className": "",
         "text": "",
         "outline": "rgb(29, 242, 179) solid 2px",
@@ -154,12 +154,12 @@
   },
   "dialogTraps": {
     "vp_1440": {
-      "escapeDismisses": false,
+      "escapeDismisses": true,
       "skipButtonPresent": true,
       "topRightRemoved": true
     },
     "vp_390": {
-      "escapeDismisses": false,
+      "escapeDismisses": true,
       "skipButtonPresent": true,
       "topRightRemoved": true
     }
@@ -197,7 +197,7 @@
     }
   },
   "reducedMotion": {
-    "immediateDismiss": true,
+    "immediateDismiss": false,
     "cursorSuppressed": true
   },
   "zoom": {
@@ -206,8 +206,8 @@
   },
   "zipSearch": {
     "validQuery": "60614",
-    "validResultHeader": "Results for \"60614\"",
-    "cardsFound": 1,
+    "validResultHeader": "Browse water utilities",
+    "cardsFound": 6,
     "invalidQuery": "00000",
     "screenshots": [
       "C:\\Users\\ayada\\Ripple-Effect\\docs\\qa\\screenshots\\search_valid_zip.png",

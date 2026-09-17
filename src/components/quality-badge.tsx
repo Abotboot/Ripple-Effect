@@ -3,7 +3,7 @@
 import { ShieldCheck, FlaskConical, Users, HelpCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export type SampleQuality = 'verified' | 'provisional' | 'citizen'
+export type SampleQuality = 'verified' | 'provisional' | 'citizen' | 'unreviewed' | 'illustrative'
 
 const QUALITY_CONFIG: Record<
   SampleQuality,
@@ -19,13 +19,25 @@ const QUALITY_CONFIG: Record<
     label: 'Provisional',
     icon: FlaskConical,
     className: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
-    title: 'Provisional. From a research lab; pending full verification',
+    title: 'Provisional. Pending full verification',
   },
   citizen: {
     label: 'Citizen',
     icon: Users,
     className: 'bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800',
     title: 'Citizen-submitted. Contributed by a community member or chapter',
+  },
+  unreviewed: {
+    label: 'Unreviewed',
+    icon: HelpCircle,
+    className: 'bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800/60 dark:text-zinc-300 dark:border-zinc-700',
+    title: 'Unreviewed. Record has not undergone formal verification review',
+  },
+  illustrative: {
+    label: 'Illustrative',
+    icon: FlaskConical,
+    className: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800',
+    title: 'Illustrative demonstration. Simulated benchmark data, not a verified municipal sample',
   },
 }
 
@@ -38,7 +50,7 @@ export function QualityBadge({
   size?: 'xs' | 'sm' | 'md'
   showIcon?: boolean
 }) {
-  const q = (quality in QUALITY_CONFIG ? quality : 'verified') as SampleQuality
+  const q = (quality in QUALITY_CONFIG ? quality : 'unreviewed') as SampleQuality
   const config = QUALITY_CONFIG[q]
   const Icon = config.icon
   const sizeCls =

@@ -1,9 +1,9 @@
 {
   "rafLeaks": {
-    "heroInViewFps": 81,
-    "offscreenFps": 287,
+    "heroInViewFps": 188,
+    "offscreenFps": 166,
     "offscreenSpins": true,
-    "reducedMotionFps": 154,
+    "reducedMotionFps": 65,
     "reducedMotionSpins": true
   },
   "webglFailure": {

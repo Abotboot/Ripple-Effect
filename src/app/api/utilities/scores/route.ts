@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { ensureSeeded } from '@/lib/ensure-seeded'
 import { computeSafetyScore } from '@/lib/safety-score'
+import { isEligibleForScoring, normalizeProvenance, normalizeVerification } from '@/lib/provenance'
 
 // GET /api/utilities/scores
 // Returns a lightweight safety score for every utility, for at-a-glance
-// display on search result cards, map tooltips, and rankings. This avoids
-// the need to fetch each utility's full detail just to show a grade.
+// display on search result cards, map tooltips, and rankings.
 export async function GET() {
   await ensureSeeded()
 
@@ -16,7 +16,9 @@ export async function GET() {
       samples: {
         select: {
           level: true,
+          unit: true,
           quality: true,
+          source: true,
           contaminant: { select: { healthGuideline: true, legalLimit: true } },
         },
       },
@@ -30,38 +32,43 @@ export async function GET() {
     let provisional = 0
     let citizen = 0
 
-    // Track latest level per contaminant to avoid double-counting
-    // (simplified: count any sample that exceeds)
     const seenLegal = new Set<string>()
     const seenHealth = new Set<string>()
-    let contaminantCount = 0
     const contamIds = new Set<string>()
 
     for (const s of u.samples) {
       contamIds.add(s.contaminant.healthGuideline + '|' + s.contaminant.legalLimit + '|' + s.level)
-      const q = s.quality ?? 'verified'
-      if (q === 'verified') verified++
-      else if (q === 'provisional') provisional++
-      else if (q === 'citizen') citizen++
+      const p = normalizeProvenance(s)
+      const eligible = isEligibleForScoring(s)
 
-      const hg = s.contaminant.healthGuideline
-      const ll = s.contaminant.legalLimit
-      const key = hg + '|' + ll
-      if (hg != null && hg > 0 && s.level > hg && !seenHealth.has(key)) {
-        healthExceedances++
-        seenHealth.add(key)
+      if (eligible) {
+        verified++
+      } else if (p === 'CITIZEN_CONTRIBUTED' || s.quality === 'citizen') {
+        citizen++
+      } else {
+        provisional++
       }
-      if (ll != null && ll > 0 && s.level > ll && !seenLegal.has(key)) {
-        legalExceedances++
-        seenLegal.add(key)
+
+      // Only reviewed regulatory or lab measurements can establish an exceedance
+      if (eligible) {
+        const hg = s.contaminant.healthGuideline
+        const ll = s.contaminant.legalLimit
+        const key = hg + '|' + ll
+        if (hg != null && hg > 0 && s.level > hg && !seenHealth.has(key)) {
+          healthExceedances++
+          seenHealth.add(key)
+        }
+        if (ll != null && ll > 0 && s.level > ll && !seenLegal.has(key)) {
+          legalExceedances++
+          seenLegal.add(key)
+        }
       }
     }
-    contaminantCount = contamIds.size
 
     const score = computeSafetyScore({
       legalExceedances,
       healthExceedances,
-      totalContaminants: contaminantCount,
+      totalContaminants: contamIds.size,
       totalSamples: u.samples.length,
       verifiedSamples: verified,
       provisionalSamples: provisional,
@@ -72,6 +79,7 @@ export async function GET() {
       id: u.id,
       score: score.score,
       grade: score.grade,
+      status: score.status,
       label: score.label,
       color: score.color,
       bgColor: score.bgColor,

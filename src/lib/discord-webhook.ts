@@ -8,8 +8,8 @@ export async function sendDiscordReportWebhook(report: {
   city?: string | null
   state?: string | null
   contaminant?: string | null
-  appearance?: string
-  severity?: string
+  appearance?: string | null
+  severity?: string | null
   reporterName?: string | null
 }) {
   if (!REPORTS_WEBHOOK_URL) return

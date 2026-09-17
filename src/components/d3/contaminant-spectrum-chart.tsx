@@ -45,11 +45,11 @@ const CONTAMINANTS_DATA: ContaminantBenchmark[] = [
     healthRisk: 'Immune system suppression, liver damage, testicular and kidney cancer, low birth weight.',
     filterTip: 'Reverse osmosis or NSF 53/58 certified activated carbon filters reduce PFAS by up to 99%.',
     utilities: [
-      { name: 'Charlotte Water', city: 'Charlotte', state: 'NC', level: 5.4 },
-      { name: 'Greater Cincinnati Water Works', city: 'Cincinnati', state: 'OH', level: 3.8 },
-      { name: 'City of Philadelphia Water', city: 'Philadelphia', state: 'PA', level: 4.9 },
-      { name: 'Cape Fear Public Utility', city: 'Wilmington', state: 'NC', level: 8.2 },
-      { name: 'Detroit Water and Sewerage', city: 'Detroit', state: 'MI', level: 2.1 },
+      { name: 'Example System A', city: 'Fictional Valley', state: 'Benchmark', level: 5.4 },
+      { name: 'Example System B', city: 'Metro District', state: 'Benchmark', level: 3.8 },
+      { name: 'Example System C', city: 'Highland Basin', state: 'Benchmark', level: 4.9 },
+      { name: 'Example System D', city: 'Coastal Point', state: 'Benchmark', level: 8.2 },
+      { name: 'Example System E', city: 'Lake Region', state: 'Benchmark', level: 2.1 },
     ],
   },
   {
@@ -65,11 +65,11 @@ const CONTAMINANTS_DATA: ContaminantBenchmark[] = [
     healthRisk: 'Cellular membrane disruption, inflammation, endocrine disrupting chemical leaching (BPA, phthalates).',
     filterTip: 'Sub-micron (<0.5 μm) carbon block and reverse osmosis filtration capture over 98% of particles.',
     utilities: [
-      { name: 'Chicago Water Dept (Lake Michigan)', city: 'Chicago', state: 'IL', level: 7.2 },
-      { name: 'Los Angeles DWP', city: 'Los Angeles', state: 'CA', level: 6.1 },
-      { name: 'New Orleans S&WB (Mississippi River)', city: 'New Orleans', state: 'LA', level: 9.8 },
-      { name: 'Cleveland Water (Lake Erie)', city: 'Cleveland', state: 'OH', level: 8.5 },
-      { name: 'Seattle Public Utilities', city: 'Seattle', state: 'WA', level: 2.4 },
+      { name: 'Example System A', city: 'Surface Water Intake', state: 'Benchmark', level: 7.2 },
+      { name: 'Example System B', city: 'Reservoir System', state: 'Benchmark', level: 6.1 },
+      { name: 'Example System C', city: 'River Basin Intake', state: 'Benchmark', level: 9.8 },
+      { name: 'Example System D', city: 'Great Lake Intake', state: 'Benchmark', level: 8.5 },
+      { name: 'Example System E', city: 'Mountain Aquifer', state: 'Benchmark', level: 2.4 },
     ],
   },
   {
@@ -85,11 +85,11 @@ const CONTAMINANTS_DATA: ContaminantBenchmark[] = [
     healthRisk: 'Irreversible cognitive damage in children, lowered IQ, behavioral disorders, hypertension in adults.',
     filterTip: 'Look for NSF 53 or NSF 58 certification specifically tested for lead reduction.',
     utilities: [
-      { name: 'Chicago Dept of Water', city: 'Chicago', state: 'IL', level: 4.8 },
-      { name: 'Milwaukee Water Works', city: 'Milwaukee', state: 'WI', level: 3.2 },
-      { name: 'Pittsburgh Water & Sewer', city: 'Pittsburgh', state: 'PA', level: 5.1 },
-      { name: 'New York City DEP', city: 'New York', state: 'NY', level: 2.0 },
-      { name: 'Denver Water', city: 'Denver', state: 'CO', level: 3.9 },
+      { name: 'Example System A', city: 'Aging Infrastructure Model', state: 'Benchmark', level: 4.8 },
+      { name: 'Example System B', city: 'Treated Distribution Model', state: 'Benchmark', level: 3.2 },
+      { name: 'Example System C', city: 'Mixed Pipe Network Model', state: 'Benchmark', level: 5.1 },
+      { name: 'Example System D', city: 'Modernized Grid Model', state: 'Benchmark', level: 2.0 },
+      { name: 'Example System E', city: 'Corrosion Controlled Model', state: 'Benchmark', level: 3.9 },
     ],
   },
   {
@@ -105,11 +105,11 @@ const CONTAMINANTS_DATA: ContaminantBenchmark[] = [
     healthRisk: 'Increased risk of bladder and colorectal cancer, adverse pregnancy outcomes.',
     filterTip: 'Standard granular activated carbon (GAC) pitcher filters significantly reduce TTHMs.',
     utilities: [
-      { name: 'Houston Public Works', city: 'Houston', state: 'TX', level: 48.0 },
-      { name: 'Dallas Water Utilities', city: 'Dallas', state: 'TX', level: 38.5 },
-      { name: 'Phoenix Water Services', city: 'Phoenix', state: 'AZ', level: 52.0 },
-      { name: 'Atlanta Dept of Watershed', city: 'Atlanta', state: 'GA', level: 29.0 },
-      { name: 'Miami-Dade Water and Sewer', city: 'Miami', state: 'FL', level: 41.2 },
+      { name: 'Example System A', city: 'Warm Surface Water Intake', state: 'Benchmark', level: 48.0 },
+      { name: 'Example System B', city: 'Chlorinated Distribution', state: 'Benchmark', level: 38.5 },
+      { name: 'Example System C', city: 'High Organic Matter Intake', state: 'Benchmark', level: 52.0 },
+      { name: 'Example System D', city: 'Suburban Reservoir Model', state: 'Benchmark', level: 29.0 },
+      { name: 'Example System E', city: 'Coastal Treatment Plant', state: 'Benchmark', level: 41.2 },
     ],
   },
   {
@@ -125,11 +125,11 @@ const CONTAMINANTS_DATA: ContaminantBenchmark[] = [
     healthRisk: 'Carcinogen linked to skin, bladder, and lung cancer, cardiovascular disease.',
     filterTip: 'Reverse osmosis, ion exchange, or activated alumina filtration are required for arsenic.',
     utilities: [
-      { name: 'Tucson Water', city: 'Tucson', state: 'AZ', level: 3.4 },
-      { name: 'Albuquerque Water Authority', city: 'Albuquerque', state: 'NM', level: 2.8 },
-      { name: 'El Paso Water Utilities', city: 'El Paso', state: 'TX', level: 4.1 },
-      { name: 'Los Angeles DWP', city: 'Los Angeles', state: 'CA', level: 1.6 },
-      { name: 'Salt Lake City Public Utilities', city: 'Salt Lake City', state: 'UT', level: 1.2 },
+      { name: 'Example System A', city: 'Deep Mineral Aquifer', state: 'Benchmark', level: 3.4 },
+      { name: 'Example System B', city: 'Volcanic Basin Well', state: 'Benchmark', level: 2.8 },
+      { name: 'Example System C', city: 'Alluvial Basin Model', state: 'Benchmark', level: 4.1 },
+      { name: 'Example System D', city: 'Blended Wellfield Model', state: 'Benchmark', level: 1.6 },
+      { name: 'Example System E', city: 'Mountain Runoff Model', state: 'Benchmark', level: 1.2 },
     ],
   },
 ]
@@ -184,13 +184,16 @@ export function ContaminantSpectrumChart() {
               <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
                 D3 Logarithmic Spectrum
               </Badge>
-              <span className="text-xs text-muted-foreground">EWG vs EPA vs Real Tap Data</span>
+              <Badge variant="outline" className="border-purple-500/40 bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                Illustrative Benchmarks
+              </Badge>
+              <span className="text-xs text-muted-foreground">EWG vs EPA Guideline Models</span>
             </div>
             <CardTitle className="mt-1.5 text-xl font-bold tracking-tight text-foreground">
               Contaminant Safety Gap Visualizer
             </CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              Notice the massive chasm between what science proves is safe (EWG Health Guideline) and what federal law legally permits (EPA Legal Limit).
+              Simulated demonstration benchmarks comparing health guidelines against regulatory thresholds. Fictional system levels are illustrative models for education.
             </p>
           </div>
 

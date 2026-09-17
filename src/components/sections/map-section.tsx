@@ -437,7 +437,7 @@ export function MapSection() {
                           onMouseEnter={() => setHovered(u)}
                           onMouseLeave={() => { setHovered(null); setTooltipPos(null) }}
                           onClick={() => openUtility(u)}
-                          style={{ cursor: 'pointer' }}
+                          style={{ default: { cursor: 'pointer' }, hover: { cursor: 'pointer' } }}
                         >
                           {/* Pulse ring for legal exceedances */}
                           {u.legalExceedances > 0 && (

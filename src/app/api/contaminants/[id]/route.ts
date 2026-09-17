@@ -44,10 +44,10 @@ async function getContaminantDetail(id: string) {
     const u = ss[0].utility
     return {
       utilityId,
-      utilityName: u.name,
-      city: u.city,
-      state: u.state,
-      pwsid: u.pwsid,
+      utilityName: u?.name ?? 'Unknown Utility',
+      city: u?.city ?? '',
+      state: u?.state ?? '',
+      pwsid: u?.pwsid ?? '',
       latestLevel: latest?.level ?? 0,
       avgLevel: pool.reduce((sum, s) => sum + s.level, 0) / (pool.length || 1),
       maxLevel: Math.max(...pool.map((s) => s.level)),

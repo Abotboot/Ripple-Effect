@@ -276,10 +276,16 @@ export const api = {
   }>(`/api/microplastics/trend`),
 
   // -- Import / Export --
-  exportUrl: (format: 'csv' | 'json', table: 'utilities' | 'contaminants' | 'samples' | 'reports') =>
-    `/api/export?format=${format}&table=${table}`,
+  exportUrl: (
+    format: 'csv' | 'json',
+    table: 'utilities' | 'contaminants' | 'samples' | 'reports' | 'volunteers' | 'chapters' | 'donations'
+  ) => `/api/export?format=${format}&table=${table}`,
 
-  importData: (table: 'utilities' | 'contaminants' | 'samples' | 'reports', format: 'csv' | 'json', content: string) =>
+  importData: (
+    table: 'utilities' | 'contaminants' | 'samples' | 'reports' | 'volunteers' | 'chapters' | 'donations',
+    format: 'csv' | 'json',
+    content: string
+  ) =>
     req<{ imported: number; errors: string[] }>(`/api/import`, {
       method: 'POST',
       body: JSON.stringify({ table, format, content }),

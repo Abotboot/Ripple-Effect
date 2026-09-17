@@ -11,9 +11,10 @@
 // page shows the breakdown so users understand exactly why the score is what it is.
 
 export type SafetyScoreBreakdown = {
-  score: number // 0-100, higher is better
-  grade: 'A' | 'B' | 'C' | 'D' | 'F'
-  label: string // e.g., "Excellent", "Good", "Concerning", "Poor", "Critical"
+  score: number | null // 0-100 or null if insufficient verified data
+  grade: 'A' | 'B' | 'C' | 'D' | 'F' | '—'
+  status: 'scored' | 'insufficient_verified_data'
+  label: string // e.g., "Not enough reviewed data", "Excellent", "Good", etc.
   color: string // tailwind text color class
   bgColor: string // tailwind bg color class
   legalExceedances: number
@@ -32,6 +33,28 @@ export function computeSafetyScore(params: {
   provisionalSamples: number
   citizenSamples: number
 }): SafetyScoreBreakdown {
+  // If there are no verified regulatory compliance samples, do NOT fabricate an A-F grade
+  if (params.verifiedSamples < 1) {
+    return {
+      score: null,
+      grade: '—',
+      status: 'insufficient_verified_data',
+      label: 'Not enough reviewed data',
+      color: 'text-muted-foreground',
+      bgColor: 'bg-muted/50',
+      legalExceedances: 0,
+      healthExceedances: 0,
+      totalContaminants: params.totalContaminants,
+      dataConfidence: 0,
+      deductions: [
+        {
+          reason: 'No verified regulatory compliance records found for this system',
+          points: 0,
+        },
+      ],
+    }
+  }
+
   let score = 100
   const deductions: Array<{ reason: string; points: number }> = []
 
@@ -56,29 +79,25 @@ export function computeSafetyScore(params: {
   }
 
   // Data confidence: how much do we trust the data?
-  // More samples = higher confidence. Verified > provisional > citizen.
   const totalQ = params.verifiedSamples + params.provisionalSamples + params.citizenSamples
   const qualityWeighted =
     totalQ > 0
       ? (params.verifiedSamples * 1.0 + params.provisionalSamples * 0.7 + params.citizenSamples * 0.4) / totalQ
       : 0
-  // Confidence from sample count: 10+ samples = full, scales down below that
   const countConfidence = Math.min(params.totalSamples / 10, 1)
   const dataConfidence = Math.round(qualityWeighted * countConfidence * 100)
 
-  // Small penalty if data confidence is very low (few, low-quality samples)
   if (dataConfidence < 30) {
     const confDeduction = Math.round((30 - dataConfidence) / 3)
     score -= confDeduction
     deductions.push({
-      reason: 'Limited data confidence (few or low-quality samples)',
+      reason: 'Limited data confidence (few verified samples)',
       points: confDeduction,
     })
   }
 
   score = Math.max(0, Math.min(100, Math.round(score)))
 
-  // Grade + label
   let grade: SafetyScoreBreakdown['grade'] = 'A'
   let label = 'Excellent'
   let color = 'text-emerald-600 dark:text-emerald-400'
@@ -109,6 +128,7 @@ export function computeSafetyScore(params: {
   return {
     score,
     grade,
+    status: 'scored',
     label,
     color,
     bgColor,

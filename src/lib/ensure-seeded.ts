@@ -268,79 +268,79 @@ async function runSeed(): Promise<void> {
     utilityIds[u.pwsid] = created.id
   }
 
-  // Generate samples. Levels are SIMULATED within ranges consistent with
-  // published data (EWG Tap Water Database; EPA UCMR; Orb Media 2017
-  // microplastics survey; WHO 2019 microplastics report). They are NOT real
-  // measurements and are clearly labeled as illustrative in the UI.
-  const contaminantsDb = await db.contaminant.findMany()
-  const cBySlug = Object.fromEntries(contaminantsDb.map((c) => [c.slug, c]))
-  let s = 42
-  const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280 }
+  // Samples are ONLY generated if explicitly requested for local demonstration
+  // via SEED_DEMO_DATA=true. Production GET requests will never fabricate readings.
+  if (process.env.SEED_DEMO_DATA === 'true') {
+    console.log('[ensureSeeded] Generating illustrative demonstration samples (SEED_DEMO_DATA=true)...')
+    const contaminantsDb = await db.contaminant.findMany()
+    const cBySlug = Object.fromEntries(contaminantsDb.map((c) => [c.slug, c]))
+    let s = 42
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280 }
 
-  // Ranges chosen from published literature:
-  //  - Microplastics in tap water: Orb Media (2017) found ~0-60 particles/L
-  //    across 14 countries; US tap averaged ~4.8 p/500mL in that study.
-  //  - Untreated/source-water microplastics are higher (WHO 2019).
-  //  - Regulated contaminants: EWG Tap Water Database typical detected ranges.
-  const baseRanges: Record<string, [number, number]> = {
-    microplastics: [1.2, 9.5], lead: [0.1, 12], arsenic: [0.1, 4], pfoa: [0.2, 8],
-    pfos: [0.1, 6], thm: [5, 65], hAA5: [2, 35], chromium6: [0.03, 1.2],
-    nitrate: [0.1, 4.5], atrazine: [0.02, 0.9], uranium: [0.1, 6], chlorine: [0.5, 2.5],
-  }
-  const cityMod: Record<string, number> = {
-    IL0316040: 1.0, NY7003493: 0.85, CA1910052: 1.2, TX1010337: 1.4, AZ0413027: 1.6,
-    PA1510001: 1.1, FL6020055: 1.3, OH1800312: 1.15, CA3610008: 1.25, WA5376550: 0.7,
-    TX2200012: 1.1,
-  }
+    const baseRanges: Record<string, [number, number]> = {
+      microplastics: [1.2, 9.5], lead: [0.1, 12], arsenic: [0.1, 4], pfoa: [0.2, 8],
+      pfos: [0.1, 6], thm: [5, 65], hAA5: [2, 35], chromium6: [0.03, 1.2],
+      nitrate: [0.1, 4.5], atrazine: [0.02, 0.9], uranium: [0.1, 6], chlorine: [0.5, 2.5],
+    }
+    const cityMod: Record<string, number> = {
+      IL0316040: 1.0, NY7003493: 0.85, CA1910052: 1.2, TX1010337: 1.4, AZ0413027: 1.6,
+      PA1510001: 1.1, FL6020055: 1.3, OH1800312: 1.15, CA3610008: 1.25, WA5376550: 0.7,
+      TX2200012: 1.1,
+    }
 
-  const samples: Array<{
-    utilityId: string; contaminantId: string; level: number; unit: string;
-    sampleDate: Date; source: string; treatmentStatus: string; location: string; quality: string;
-  }> = []
-  const sourceOptions = ['Utility CCR', 'Research Lab', 'Citizen Test', 'EPA UCMR']
-  const qualityForSource = (src: string): string =>
-    src === 'Utility CCR' || src === 'EPA UCMR' ? 'verified'
-    : src === 'Research Lab' ? 'provisional'
-    : 'citizen'
+    const samples: Array<{
+      utilityId: string; contaminantId: string; level: number; unit: string;
+      sampleDate: Date; source: string; treatmentStatus: string; location: string;
+      quality: string; notes: string;
+    }> = []
 
-  for (const u of utilities) {
-    for (const c of contaminantsDb) {
-      for (let i = 0; i < 4; i++) {
+    for (const u of utilities) {
+      for (const c of contaminantsDb) {
+        for (let i = 0; i < 4; i++) {
+          const date = new Date()
+          date.setMonth(date.getMonth() - (3 - i) * 9 - Math.floor(rand() * 2))
+          const r = baseRanges[c.slug] ?? [0.1, 1]
+          const mod = cityMod[u.pwsid] ?? 1
+          const level = +(r[0] + rand() * (r[1] - r[0]) * mod).toFixed(3)
+          samples.push({
+            utilityId: utilityIds[u.pwsid],
+            contaminantId: c.id,
+            level,
+            unit: c.legalLimitUnit || c.healthGuidelineUnit || 'ppb',
+            sampleDate: date,
+            source: 'Illustrative data',
+            treatmentStatus: u.treatmentStatus,
+            location: rand() < 0.5 ? 'Treatment Plant Outflow' : 'Distribution Tap',
+            quality: 'illustrative',
+            notes: 'Synthetic reference model for demonstration; not an authenticated compliance measurement.',
+          })
+        }
+      }
+    }
+
+    const mp = cBySlug['microplastics']
+    if (mp) {
+      for (const u of utilities) {
         const date = new Date()
-        date.setMonth(date.getMonth() - (3 - i) * 9 - Math.floor(rand() * 2))
-        const r = baseRanges[c.slug] ?? [0.1, 1]
-        const mod = cityMod[u.pwsid] ?? 1
-        const level = +(r[0] + rand() * (r[1] - r[0]) * mod).toFixed(3)
-        const source = sourceOptions[Math.floor(rand() * sourceOptions.length)]
+        date.setMonth(date.getMonth() - 6)
         samples.push({
-          utilityId: utilityIds[u.pwsid], contaminantId: c.id, level,
-          unit: c.legalLimitUnit || c.healthGuidelineUnit || 'ppb',
-          sampleDate: date, source,
-          treatmentStatus: u.treatmentStatus,
-          location: rand() < 0.5 ? 'Treatment Plant Outflow' : 'Distribution Tap',
-          quality: qualityForSource(source),
+          utilityId: utilityIds[u.pwsid],
+          contaminantId: mp.id,
+          level: +(8 + rand() * 30).toFixed(2),
+          unit: 'particles/L',
+          sampleDate: date,
+          source: 'Illustrative data',
+          treatmentStatus: 'Untreated',
+          location: 'Source Water Intake',
+          quality: 'illustrative',
+          notes: 'Illustrative untreated benchmark; not an authenticated compliance measurement.',
         })
       }
     }
-  }
 
-  // Untreated microplastics samples (source water intake). Published source-water
-  // measurements range widely (~5-40+ particles/L depending on the water body).
-  const mp = cBySlug['microplastics']
-  for (const u of utilities) {
-    const date = new Date()
-    date.setMonth(date.getMonth() - 6)
-    samples.push({
-      utilityId: utilityIds[u.pwsid], contaminantId: mp.id,
-      level: +(8 + rand() * 30).toFixed(2), unit: 'particles/L',
-      sampleDate: date, source: 'Research Lab',
-      treatmentStatus: 'Untreated', location: 'Source Water Intake',
-      quality: 'provisional',
-    })
-  }
-
-  for (let i = 0; i < samples.length; i += 100) {
-    await db.sample.createMany({ data: samples.slice(i, i + 100) })
+    for (let i = 0; i < samples.length; i += 100) {
+      await db.sample.createMany({ data: samples.slice(i, i + 100) })
+    }
   }
 
   console.log('[ensureSeeded] Seed complete.')

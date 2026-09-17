@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { ensureSeeded } from '@/lib/ensure-seeded'
+import { isEligibleForScoring } from '@/lib/provenance'
 
-// GET /api/stats - aggregated dashboard statistics
+// GET /api/stats - returns high-level platform impact numbers
 export async function GET() {
   // Auto-seed if DB is empty (prevents "search returns nothing" bug)
   await ensureSeeded()
@@ -39,6 +40,7 @@ export async function GET() {
         treatmentStatus: true,
         utilityId: true,
         quality: true,
+        source: true,
         contaminant: { select: { slug: true, healthGuideline: true, legalLimit: true } },
       },
     }),
@@ -75,6 +77,8 @@ export async function GET() {
   const DBP_SLUGS = new Set(['thm', 'hAA5'])
 
   for (const s of samples) {
+    if (!s.utilityId) continue
+    const eligible = isEligibleForScoring(s)
     const hg = s.contaminant.healthGuideline
     const ll = s.contaminant.legalLimit
     const slug = s.contaminant.slug
@@ -87,8 +91,8 @@ export async function GET() {
       dbp: false,
     }
 
-    const healthExceeded = hg != null && hg > 0 && s.level > hg
-    const legalExceeded = ll != null && ll > 0 && s.level > ll
+    const healthExceeded = eligible && hg != null && hg > 0 && s.level > hg
+    const legalExceeded = eligible && ll != null && ll > 0 && s.level > ll
 
     if (healthExceeded) {
       healthExceedances++

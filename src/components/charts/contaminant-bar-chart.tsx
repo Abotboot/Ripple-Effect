@@ -20,18 +20,19 @@ export function ContaminantBarChart({
   const data = summaries.map((s) => {
     const hg = s.contaminant.healthGuideline
     const ll = s.contaminant.legalLimit
+    const level = s.latestLevel ?? 0
     // ratio vs health guideline (or vs legal limit if no health guideline)
     const ratio = hg != null && hg > 0
-      ? s.latestLevel / hg
+      ? level / hg
       : ll != null && ll > 0
-      ? s.latestLevel / ll
+      ? level / ll
       : 0
     return {
       name: s.contaminant.name.length > 22
         ? s.contaminant.name.slice(0, 20) + '…'
         : s.contaminant.name,
       fullName: s.contaminant.name,
-      level: s.latestLevel,
+      level,
       unit: s.unit,
       ratio,
       status: s.exceedsLegalLimit
@@ -82,7 +83,7 @@ export function ContaminantBarChart({
               background: 'oklch(1 0 0)',
             }}
             formatter={(value: number, _name, item) => {
-              const p = item.payload as { unit: string; ratio: number; status: string }
+              const p = item.payload as { unit: string; ratio: number; status: string; fullName: string }
               const ratioText = p.ratio > 1
                 ? `${p.ratio.toFixed(1)}× health guideline`
                 : `${(p.ratio * 100).toFixed(0)}% of guideline`

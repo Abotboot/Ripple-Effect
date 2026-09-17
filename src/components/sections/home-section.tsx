@@ -30,6 +30,7 @@ import { Share2 } from 'lucide-react'
 import { AnimatedCounter as BaseAnimatedCounter } from '@/components/ui/animated-counter'
 import { ContaminantSpectrumChart } from '@/components/d3/contaminant-spectrum-chart'
 import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
+import { CinematicPanel } from '@/components/ui/cinematic-panel'
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
 
@@ -37,6 +38,7 @@ const POPULAR_ZIPS = ['60614', '10003', '90026', '77007', '85016', '98103']
 
 export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void }) {
   const [q, setQ] = useState('')
+  const [submittedQuery, setSubmittedQuery] = useState('')
   const [results, setResults] = useState<Utility[] | null>(null)
   const [loading, setLoading] = useState(false)
   const [stats, setStats] = useState<Stats | null>(null)
@@ -45,6 +47,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null)
   const [shareUtility, setShareUtility] = useState<UtilityWithStats | null>(null)
   const [loadingShareId, setLoadingShareId] = useState<string | null>(null)
+  const searchRequestId = useRef(0)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -62,36 +65,55 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
 
   const doSearch = useCallback(
     async (query: string) => {
-      if (!query.trim()) return
+      const trimmed = query.trim()
+      if (!trimmed) return
+
+      const reqId = ++searchRequestId.current
+      setSubmittedQuery(trimmed)
+      setLoading(true)
+      setResults(null)
+
+      const isReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
       setTimeout(() => {
         const el = document.getElementById('search')
         if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          el.scrollIntoView({ behavior: isReduced ? 'auto' : 'smooth', block: 'start' })
         }
       }, 50)
-      setLoading(true)
-      setResults(null)
+
       try {
-        const r = await api.searchUtilities(query.trim())
+        const r = await api.searchUtilities(trimmed)
+        if (searchRequestId.current !== reqId) return // discard stale response
         setResults(r)
         if (r.length === 0) {
           toast({
             title: 'No utilities found',
-            description: `No water utilities matched "${query}". Try a ZIP code, city, or state.`,
+            description: `No water utilities matched "${trimmed}". Try a ZIP code, city, or state.`,
           })
         }
       } catch (e) {
+        if (searchRequestId.current !== reqId) return
         toast({
           title: 'Search failed',
           description: e instanceof Error ? e.message : 'Unknown error',
           variant: 'destructive',
         })
       } finally {
-        setLoading(false)
+        if (searchRequestId.current === reqId) {
+          setLoading(false)
+        }
       }
     },
     [toast]
   )
+
+  const clearSearch = useCallback(() => {
+    searchRequestId.current++ // invalidates any pending in-flight requests
+    setResults(null)
+    setSubmittedQuery('')
+    setQ('')
+    setLoading(false)
+  }, [])
 
   const openUtility = useCallback(
     async (u: { id: string }) => {
@@ -156,15 +178,18 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
 
       {/* Stats bar */}
       <StatsBar stats={stats} />
-      <SpecimenInspector />
-      <WaterNarrative />
 
-      {/* Search results */}
+      {/* Polite live region for screen readers */}
+      <div aria-live="polite" className="sr-only">
+        {loading ? 'Searching water utilities...' : results ? `${results.length} water utilities found.` : ''}
+      </div>
+
+      {/* Search results - search-first hierarchy */}
       <section id="search" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              {results ? `Results for "${q}"` : 'Browse water utilities'}
+              {results ? `Results for "${submittedQuery || q}"` : 'Browse water utilities'}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               {results
@@ -176,10 +201,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => {
-                setResults(null)
-                setQ('')
-              }}
+              onClick={clearSearch}
             >
               Clear search
             </Button>
@@ -235,7 +257,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                 show: { transition: { staggerChildren: 0.05 } },
               }}
             >
-              {results.map((u) => (
+              {results.map((u, idx) => (
                 <motion.div
                   key={u.id}
                   variants={{
@@ -243,14 +265,27 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                     show: { opacity: 1, y: 0 },
                   }}
                 >
-                  <UtilityCard
-                    utility={u}
-                    score={scores?.[u.id]}
-                    onOpen={() => openUtility(u)}
-                    loading={loadingDetail === u.id}
-                    onShare={() => openShareCard(u)}
-                    loadingShare={loadingShareId === u.id}
-                  />
+                  {idx === 0 ? (
+                    <CinematicPanel maxTilt={2.5}>
+                      <UtilityCard
+                        utility={u}
+                        score={scores?.[u.id]}
+                        onOpen={() => openUtility(u)}
+                        loading={loadingDetail === u.id}
+                        onShare={() => openShareCard(u)}
+                        loadingShare={loadingShareId === u.id}
+                      />
+                    </CinematicPanel>
+                  ) : (
+                    <UtilityCard
+                      utility={u}
+                      score={scores?.[u.id]}
+                      onOpen={() => openUtility(u)}
+                      loading={loadingDetail === u.id}
+                      onShare={() => openShareCard(u)}
+                      loadingShare={loadingShareId === u.id}
+                    />
+                  )}
                 </motion.div>
               ))}
             </motion.div>
@@ -259,6 +294,22 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
           ) : null}
         </div>
       </section>
+
+      {/* Visual story transition anchor */}
+      <div className="mx-auto max-w-7xl px-4 py-4 text-center sm:px-6 lg:px-8">
+        <a
+          href="#specimen-study"
+          className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/60 px-4 py-1.5 text-xs font-mono tracking-wider text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+        >
+          <span>Explore specimen study &amp; water narrative</span>
+          <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+
+      <div id="specimen-study">
+        <SpecimenInspector />
+        <WaterNarrative />
+      </div>
 
       {/* Interactive D3 Contaminant Safety Gap Visualizer */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -409,7 +460,14 @@ function Hero({ q, setQ, onSearch, onNavigate }: {
 }) {
   return <TankHero>
     <form onSubmit={(event) => { event.preventDefault(); onSearch() }}>
-      <input value={q} onChange={(event) => setQ(event.target.value)} placeholder="ZIP, city or utility" aria-label="Search by ZIP code, city, state, or utility name" />
+      <label htmlFor="tank-search-input" className="sr-only">Search by ZIP code, city, state, or utility name</label>
+      <input
+        id="tank-search-input"
+        value={q}
+        onChange={(event) => setQ(event.target.value)}
+        placeholder="ZIP, city or utility"
+        aria-label="Search by ZIP code, city, state, or utility name"
+      />
       <button type="submit" disabled={!q.trim()}>Search water ↗</button>
     </form>
     <div className="tank-search-links">

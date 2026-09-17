@@ -1,121 +1,432 @@
-import * as THREE from 'three'
+﻿import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 import { gsap } from 'gsap'
 
-/** Local procedural compound microscope. No remote model, tracking or measured sample. */
-export function createMicroscopeScene(canvas: HTMLCanvasElement) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true })
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5))
+export interface RevealCoords {
+  x: number
+  y: number
+}
+
+/**
+ * Procedural compound laboratory microscope.
+ * Built to accurate scientific proportions with high-contrast materials:
+ * warm-ivory enamel, matte charcoal stage, brushed steel barrels, and optical glass.
+ */
+export function createMicroscopeScene(
+  canvas: HTMLCanvasElement,
+  options?: {
+    onReveal?: (coords: RevealCoords) => void
+  }
+) {
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    alpha: true,
+    preserveDrawingBuffer: true,
+    powerPreference: 'high-performance',
+  })
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.15
+  renderer.toneMappingExposure = 1.18
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFSoftShadowMap
+
   const scene = new THREE.Scene()
   scene.background = new THREE.Color('#080e11')
-  const camera = new THREE.PerspectiveCamera(36, 1, .015, 60)
-  const target = new THREE.Vector3(0, 1.55, 0)
+
+  // Camera tuned so instrument fills ~70-75% of stage height with breathing room
+  const camera = new THREE.PerspectiveCamera(34, 1, 0.015, 60)
+  const target = new THREE.Vector3(0, 1.52, 0)
+
   const room = new RoomEnvironment()
   const pmrem = new THREE.PMREMGenerator(renderer)
-  const environment = pmrem.fromScene(room, .06)
+  const environment = pmrem.fromScene(room, 0.06)
   scene.environment = environment.texture
-  room.dispose(); pmrem.dispose()
+  room.dispose()
+  pmrem.dispose()
+
   const model = new THREE.Group()
   scene.add(model)
-  const ivory = new THREE.MeshPhysicalMaterial({ color: '#c4ccc9', roughness: .3, metalness: .25, clearcoat: .5 })
-  const black = new THREE.MeshStandardMaterial({ color: '#141b21', metalness: .55, roughness: .36 })
-  const rubber = new THREE.MeshStandardMaterial({ color: '#080b0d', roughness: .85 })
-  const steel = new THREE.MeshStandardMaterial({ color: '#aebbc0', metalness: .95, roughness: .21 })
-  const brass = new THREE.MeshStandardMaterial({ color: '#ac914f', metalness: .8, roughness: .26 })
-  const glass = new THREE.MeshPhysicalMaterial({ color: '#e1ffff', transmission: .96, roughness: .04, thickness: .045, ior: 1.5 })
-  const lens = new THREE.MeshPhysicalMaterial({ color: '#173544', metalness: .25, roughness: .09, clearcoat: 1 })
-  const water = new THREE.MeshPhysicalMaterial({ color: '#e6ffff', transmission: 1, roughness: .01, thickness: .32, ior: 1.333, clearcoat: 1 })
-  function mesh(g: THREE.BufferGeometry, m: THREE.Material, x: number, y: number, z: number, parent: THREE.Object3D = model) {
-    const o = new THREE.Mesh(g, m); o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o
+
+  // Calibrated materials
+  const ivory = new THREE.MeshPhysicalMaterial({
+    color: '#d6dedb',
+    roughness: 0.28,
+    metalness: 0.15,
+    clearcoat: 0.45,
+  })
+  const black = new THREE.MeshStandardMaterial({
+    color: '#131a1f',
+    metalness: 0.55,
+    roughness: 0.38,
+  })
+  const rubber = new THREE.MeshStandardMaterial({
+    color: '#090c0e',
+    roughness: 0.88,
+  })
+  const steel = new THREE.MeshStandardMaterial({
+    color: '#b2c0c5',
+    metalness: 0.94,
+    roughness: 0.2,
+  })
+  const brass = new THREE.MeshStandardMaterial({
+    color: '#b59c55',
+    metalness: 0.82,
+    roughness: 0.25,
+  })
+  const glass = new THREE.MeshPhysicalMaterial({
+    color: '#e8ffff',
+    transmission: 0.96,
+    roughness: 0.03,
+    thickness: 0.04,
+    ior: 1.5,
+  })
+  const lens = new THREE.MeshPhysicalMaterial({
+    color: '#123040',
+    metalness: 0.25,
+    roughness: 0.08,
+    clearcoat: 1,
+  })
+  const water = new THREE.MeshPhysicalMaterial({
+    color: '#ebffff',
+    transmission: 0.99,
+    roughness: 0.01,
+    thickness: 0.15,
+    ior: 1.333,
+    clearcoat: 1,
+  })
+
+  function mesh(
+    g: THREE.BufferGeometry,
+    m: THREE.Material,
+    x: number,
+    y: number,
+    z: number,
+    parent: THREE.Object3D = model
+  ) {
+    const o = new THREE.Mesh(g, m)
+    o.position.set(x, y, z)
+    o.castShadow = true
+    o.receiveShadow = true
+    parent.add(o)
+    return o
   }
-  const box = (w: number, h: number, d: number, m: THREE.Material, x: number, y: number, z: number) => mesh(new RoundedBoxGeometry(w, h, d, 3, Math.min(.07, h / 4)), m, x, y, z)
-  const cylinder = (r: number, h: number, m: THREE.Material, x: number, y: number, z: number, parent?: THREE.Object3D) => mesh(new THREE.CylinderGeometry(r, r, h, 64), m, x, y, z, parent)
-  // Cast base, rubber feet, upright and sloped structural arm.
-  box(1.8, .25, 2.1, ivory, 0, .22, -.05)
-  for (const x of [-.65, .65]) for (const z of [-.8, .7]) cylinder(.14, .13, rubber, x, .065, z)
-  box(.72, 1.3, .6, ivory, 0, 1.0, -.67)
-  const arm = box(.63, 1.58, .57, ivory, 0, 1.98, -.62); arm.rotation.x = -.27
-  box(.77, .45, .9, ivory, 0, 2.56, -.27)
-  // Mechanical stage with a real aperture through the metal plate.
-  const plate = new THREE.Shape(); plate.moveTo(-.77,-.57);plate.lineTo(.77,-.57);plate.lineTo(.77,.57);plate.lineTo(-.77,.57);plate.closePath()
-  const hole = new THREE.Path();hole.absarc(0,.15,.16,0,Math.PI*2,true);plate.holes.push(hole)
-  const stage=mesh(new THREE.ExtrudeGeometry(plate,{depth:.12,bevelEnabled:true,bevelThickness:.015,bevelSize:.015,bevelSegments:2}),black,0,1.27,.14);stage.rotation.x=-Math.PI/2
-  cylinder(.24,.18,black,0,1.05,0)
-  cylinder(.18,.08,steel,0,.92,0)
-  const lamp = new THREE.MeshStandardMaterial({ color:'#e9f9ed', emissive:'#c6e8dd', emissiveIntensity:2 })
-  cylinder(.28,.06,black,0,.4,0);cylinder(.2,.016,lamp,0,.441,0)
-  const transmitted = new THREE.PointLight('#cdefff',1.7,2);transmitted.position.set(0,.7,0);model.add(transmitted)
-  // Slide, cover slip and spring clips.
-  box(1.25,.025,.44,glass,0,1.41,.25)
-  box(.34,.012,.32,glass,.25,1.432,.25)
-  for(const x of [-.52,.52]) { box(.08,.028,.53,steel,x,1.45,.2);cylinder(.055,.04,steel,x,1.445,-.08) }
-  // Coarse/fine focus knobs and mechanical-stage adjustment.
-  for(const side of [-1,1]) {
-    const knob=cylinder(.24,.16,rubber,side*.49,1.62,-.66);knob.rotation.z=Math.PI/2
-    const fine=cylinder(.12,.22,black,side*.59,1.62,-.66);fine.rotation.z=Math.PI/2
-    for(let i=0;i<32;i++){const a=i/32*Math.PI*2;const rib=box(.17,.025,.018,black,side*.49,1.62+Math.sin(a)*.238,-.66+Math.cos(a)*.238);rib.rotation.x=-a}
+
+  const box = (w: number, h: number, d: number, m: THREE.Material, x: number, y: number, z: number) =>
+    mesh(new RoundedBoxGeometry(w, h, d, 3, Math.min(0.07, h / 4)), m, x, y, z)
+  const cylinder = (r: number, h: number, m: THREE.Material, x: number, y: number, z: number, parent?: THREE.Object3D) =>
+    mesh(new THREE.CylinderGeometry(r, r, h, 48), m, x, y, z, parent)
+
+  // 1. Cast solid horseshoe base & anti-vibration rubber feet
+  box(1.75, 0.24, 2.05, ivory, 0, 0.22, -0.05)
+  for (const x of [-0.62, 0.62]) {
+    for (const z of [-0.78, 0.68]) {
+      cylinder(0.13, 0.12, rubber, x, 0.06, z)
+    }
   }
-  cylinder(.09,.32,black,.68,1.05,.3)
-  // Revolving nosepiece with three individual objective barrels.
-  cylinder(.28,.13,steel,0,2.31,.08)
-  for(let i=0;i<3;i++) {
-    const a=i/3*Math.PI*2, x=Math.sin(a)*.19, z=.08+Math.cos(a)*.19
-    const h=[.53,.39,.3][i]
-    cylinder(.09,h,steel,x,2.21-h/2,z)
-    cylinder(.094,.055,i===0?brass:black,x,2.17-h*.55,z)
-    cylinder(.065,.08,black,x,2.17-h,z)
-    cylinder(.05,.01,lens,x,2.125-h,z)
+
+  // 2. Main structural pillar & sloped ergonomic arm
+  box(0.7, 1.28, 0.58, ivory, 0, 0.98, -0.66)
+  const arm = box(0.62, 1.55, 0.55, ivory, 0, 1.95, -0.61)
+  arm.rotation.x = -0.27
+  box(0.75, 0.44, 0.88, ivory, 0, 2.54, -0.27)
+
+  // 3. Mechanical stage with aperture
+  const plate = new THREE.Shape()
+  plate.moveTo(-0.76, -0.56)
+  plate.lineTo(0.76, -0.56)
+  plate.lineTo(0.76, 0.56)
+  plate.lineTo(-0.76, 0.56)
+  plate.closePath()
+  const hole = new THREE.Path()
+  hole.absarc(0, 0.14, 0.15, 0, Math.PI * 2, true)
+  plate.holes.push(hole)
+  const stage = mesh(
+    new THREE.ExtrudeGeometry(plate, {
+      depth: 0.11,
+      bevelEnabled: true,
+      bevelThickness: 0.015,
+      bevelSize: 0.015,
+      bevelSegments: 2,
+    }),
+    black,
+    0,
+    1.27,
+    0.14
+  )
+  stage.rotation.x = -Math.PI / 2
+
+  cylinder(0.23, 0.18, black, 0, 1.05, 0)
+  cylinder(0.17, 0.08, steel, 0, 0.92, 0)
+
+  // Substage Abbe condenser & field diaphragm lamp
+  const lamp = new THREE.MeshStandardMaterial({ color: '#edfbf0', emissive: '#c4e8de', emissiveIntensity: 2.2 })
+  cylinder(0.27, 0.06, black, 0, 0.4, 0)
+  cylinder(0.19, 0.016, lamp, 0, 0.441, 0)
+  const transmitted = new THREE.PointLight('#cfeeff', 1.8, 2.2)
+  transmitted.position.set(0, 0.72, 0)
+  model.add(transmitted)
+
+  // 4. Glass specimen slide (1.25 units wide x 0.44 units deep)
+  box(1.25, 0.024, 0.44, glass, 0, 1.41, 0.24)
+  // Coverslip placed on left side so right side is completely exposed for the droplet
+  box(0.32, 0.01, 0.32, glass, -0.24, 1.43, 0.24)
+  // Stage specimen clips on far edges
+  for (const x of [-0.52, 0.52]) {
+    box(0.08, 0.026, 0.52, steel, x, 1.448, 0.2)
+    cylinder(0.052, 0.04, steel, x, 1.445, -0.08)
   }
-  // Inclined monocular head, optical tube, ribbed eyecup and recessed ocular glass.
-  const tube = new THREE.Group();tube.position.set(0,2.67,-.08);tube.rotation.x=.55;model.add(tube)
-  cylinder(.26,.35,ivory,0,.07,0,tube)
-  cylinder(.15,.66,black,0,.51,0,tube)
-  cylinder(.18,.16,steel,0,.87,0,tube)
-  cylinder(.205,.13,rubber,0,1.0,0,tube)
-  const eyecup=mesh(new THREE.TorusGeometry(.168,.045,16,64),rubber,0,1.09,0,tube);eyecup.rotation.x=Math.PI/2
-  cylinder(.14,.01,lens,0,1.085,0,tube)
-  for(let i=0;i<8;i++) {const ridge=mesh(new THREE.TorusGeometry(.153,.008,6,48),black,0,.63+i*.023,0,tube);ridge.rotation.x=Math.PI/2}
-  // Small manufacturer-free instrument plaque.
-  const labelCanvas=document.createElement('canvas');labelCanvas.width=512;labelCanvas.height=128
-  const context=labelCanvas.getContext('2d')!;context.fillStyle='#283739';context.fillRect(0,0,512,128);context.fillStyle='#bccdc8';context.font='24px monospace';context.fillText('RIPPLE / OPTICAL STUDY',24,55);context.font='17px monospace';context.fillText('01   COMPOUND MICROSCOPE',24,93)
-  const labelTexture=new THREE.CanvasTexture(labelCanvas);labelTexture.colorSpace=THREE.SRGBColorSpace
-  mesh(new THREE.PlaneGeometry(.75,.185),new THREE.MeshStandardMaterial({map:labelTexture,roughness:.5}),0,.24,1.008)
-  const floor=mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:'#10191c',roughness:.46,metalness:.28}),0,-.005,0,scene);floor.rotation.x=-Math.PI/2
-  const key=new THREE.DirectionalLight('#e5efff',3.3);key.position.set(3,7,5);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-4;key.shadow.camera.right=4;key.shadow.camera.top=5;key.shadow.camera.bottom=-3;key.shadow.normalBias=.025;scene.add(key)
-  const rim=new THREE.DirectionalLight('#90d7ce',2);rim.position.set(-4,3,-4);scene.add(rim)
-  // Drop lands on the exposed right side of the slide, not through an objective.
-  const drop=mesh(new THREE.SphereGeometry(.105,40,32),water,.32,3.1,.36);drop.scale.set(.75,1.4,.75)
-  const wet=mesh(new THREE.SphereGeometry(.19,40,20),water,.32,1.462,.36);wet.scale.set(1,.12,1);wet.visible=false
-  const splash=mesh(new THREE.TorusGeometry(.14,.011,8,64),water,.32,1.464,.36);splash.rotation.x=Math.PI/2;splash.visible=false
+
+  // 5. Coarse and fine coaxial focus knobs
+  for (const side of [-1, 1]) {
+    const knob = cylinder(0.23, 0.16, rubber, side * 0.48, 1.62, -0.66)
+    knob.rotation.z = Math.PI / 2
+    const fine = cylinder(0.12, 0.22, black, side * 0.58, 1.62, -0.66)
+    fine.rotation.z = Math.PI / 2
+    for (let i = 0; i < 32; i++) {
+      const a = (i / 32) * Math.PI * 2
+      const rib = box(0.17, 0.024, 0.018, black, side * 0.48, 1.62 + Math.sin(a) * 0.232, -0.66 + Math.cos(a) * 0.232)
+      rib.rotation.x = -a
+    }
+  }
+
+  // 6. Revolving nosepiece & objective turret
+  cylinder(0.28, 0.13, steel, 0, 2.31, 0.08)
+  for (let i = 0; i < 3; i++) {
+    const a = (i / 3) * Math.PI * 2
+    const x = Math.sin(a) * 0.19
+    const z = 0.08 + Math.cos(a) * 0.19
+    const h = [0.52, 0.38, 0.29][i]
+    cylinder(0.088, h, steel, x, 2.21 - h / 2, z)
+    cylinder(0.092, 0.052, i === 0 ? brass : black, x, 2.17 - h * 0.55, z)
+    cylinder(0.064, 0.08, black, x, 2.17 - h, z)
+    cylinder(0.048, 0.01, lens, x, 2.125 - h, z)
+  }
+
+  // 7. Inclined monocular observation tube & ocular eyepiece
+  const tube = new THREE.Group()
+  tube.position.set(0, 2.66, -0.08)
+  tube.rotation.x = 0.54
+  model.add(tube)
+
+  cylinder(0.25, 0.34, ivory, 0, 0.07, 0, tube)
+  cylinder(0.148, 0.65, black, 0, 0.51, 0, tube)
+  cylinder(0.176, 0.16, steel, 0, 0.86, 0, tube)
+  cylinder(0.2, 0.13, rubber, 0, 0.99, 0, tube)
+  const eyecup = mesh(new THREE.TorusGeometry(0.165, 0.044, 16, 64), rubber, 0, 1.08, 0, tube)
+  eyecup.rotation.x = Math.PI / 2
+  cylinder(0.138, 0.01, lens, 0, 1.075, 0, tube)
+  for (let i = 0; i < 8; i++) {
+    const ridge = mesh(new THREE.TorusGeometry(0.15, 0.008, 6, 48), black, 0, 0.62 + i * 0.023, 0, tube)
+    ridge.rotation.x = Math.PI / 2
+  }
+
+  // Scientific instrument plaque
+  const labelCanvas = document.createElement('canvas')
+  labelCanvas.width = 512
+  labelCanvas.height = 128
+  const context = labelCanvas.getContext('2d')!
+  context.fillStyle = '#263436'
+  context.fillRect(0, 0, 512, 128)
+  context.fillStyle = '#b7cac5'
+  context.font = '22px monospace'
+  context.fillText('RIPPLE / OPTICAL STUDY', 28, 54)
+  context.font = '16px monospace'
+  context.fillText('01   COMPOUND MICROSCOPE', 28, 92)
+  const labelTexture = new THREE.CanvasTexture(labelCanvas)
+  labelTexture.colorSpace = THREE.SRGBColorSpace
+  mesh(new THREE.PlaneGeometry(0.74, 0.18), new THREE.MeshStandardMaterial({ map: labelTexture, roughness: 0.5 }), 0, 0.24, 1.006)
+
+  // Ground contact plane & lighting
+  mesh(new THREE.PlaneGeometry(160, 160), new THREE.MeshStandardMaterial({ color: '#091013', roughness: 0.44, metalness: 0.3 }), 0, -0.005, 0, scene).rotation.x = -Math.PI / 2
+
+  const key = new THREE.DirectionalLight('#e6f0ff', 3.4)
+  key.position.set(3.2, 6.8, 4.8)
+  key.castShadow = true
+  key.shadow.mapSize.set(1024, 1024)
+  key.shadow.camera.left = -3.5
+  key.shadow.camera.right = 3.5
+  key.shadow.camera.top = 4.5
+  key.shadow.camera.bottom = -2.5
+  key.shadow.normalBias = 0.025
+  scene.add(key)
+
+  const rim = new THREE.DirectionalLight('#8ee0d4', 2.1)
+  rim.position.set(-3.8, 3.2, -3.8)
+  scene.add(rim)
+
+  // 8. Droplet: Brief B3 requires radius ~0.035 units (diameter ~5.6% of 1.25 slide width)
+  const DROP_TARGET_X = 0.28
+  const DROP_TARGET_Z = 0.24
+  const SLIDE_Y = 1.43
+
+  const drop = mesh(new THREE.SphereGeometry(0.035, 32, 24), water, DROP_TARGET_X, 2.5, DROP_TARGET_Z)
+  drop.scale.set(0.85, 1.2, 0.85)
+
+  // Small settling wet patch
+  const wet = mesh(new THREE.SphereGeometry(0.05, 32, 16), water, DROP_TARGET_X, SLIDE_Y + 0.005, DROP_TARGET_Z)
+  wet.scale.set(1, 0.1, 1)
+  wet.visible = false
+
+  // Tiny delicate impact ripple
+  const splash = mesh(new THREE.TorusGeometry(0.042, 0.0035, 8, 48), water, DROP_TARGET_X, SLIDE_Y + 0.006, DROP_TARGET_Z)
+  splash.rotation.x = Math.PI / 2
+  splash.visible = false
+
   model.updateMatrixWorld(true)
-  const ocular=tube.localToWorld(new THREE.Vector3(0,1.1,0))
-  const axis=new THREE.Vector3(0,1,0).transformDirection(tube.matrixWorld)
-  let timeline: gsap.core.Timeline | null=null, disposed=false
-  function render(){if(!disposed){camera.lookAt(target);renderer.render(scene,camera)}}
-  function resize(){const r=canvas.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix();if(!timeline){target.set(camera.aspect<.9?0:-1.15,1.45,0);camera.position.set(5.1,4.2,7.6);if(camera.aspect<.8)camera.position.multiplyScalar(1.12)}render()}
-  const observer=new ResizeObserver(resize);observer.observe(canvas);resize()
-  canvas.dataset.phase='ready';canvas.dataset.renderer='webgl'
-  function play(done:()=>void){
-    if(timeline||disposed)return
-    timeline=gsap.timeline({onUpdate:render,onComplete:done})
-      .call(()=>{canvas.dataset.phase='droplet'})
-      .to(drop.position,{y:1.56,duration:1.15,ease:'power2.in'},.15)
-      .to(drop.scale,{y:.35,x:1.5,z:1.5,duration:.13},1.28)
-      .call(()=>{drop.visible=false;wet.visible=true;splash.visible=true;canvas.dataset.phase='landed'},[],1.41)
-      .to(splash.scale,{x:2.7,y:2.7,z:2.7,duration:.55,ease:'power2.out'},1.41)
-      .call(()=>{splash.visible=false},[],1.96)
-      .call(()=>{canvas.dataset.phase='approach'},[],2.1)
-      .to(camera.position,{x:ocular.x+axis.x*2.1,y:ocular.y+axis.y*2.1,z:ocular.z+axis.z*2.1,duration:2,ease:'power2.inOut'},2.1)
-      .to(target,{x:ocular.x,y:ocular.y,z:ocular.z,duration:1.6,ease:'power2.inOut'},2.1)
-      .to(camera,{fov:42,duration:1.4,ease:'power2.inOut',onUpdate:()=>camera.updateProjectionMatrix()},4.1)
-      .call(()=>{canvas.dataset.phase='entering'},[],4.1)
-      .to(camera.position,{x:ocular.x+axis.x*.045,y:ocular.y+axis.y*.045,z:ocular.z+axis.z*.045,duration:1.4,ease:'power3.in'},4.1)
-      .to(canvas,{opacity:0,duration:.45},5.1)
+  const ocular = tube.localToWorld(new THREE.Vector3(0, 1.1, 0))
+  const axis = new THREE.Vector3(0, 1, 0).transformDirection(tube.matrixWorld)
+
+  let timeline: gsap.core.Timeline | null = null
+  let disposed = false
+
+  function render() {
+    if (!disposed) {
+      camera.lookAt(target)
+      renderer.render(scene, camera)
+    }
   }
-  return { play, dispose(){disposed=true;timeline?.kill();observer.disconnect();const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();scene.traverse(o=>{if(o instanceof THREE.Mesh){geometries.add(o.geometry);(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>materials.add(m))}});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());labelTexture.dispose();environment.dispose();renderer.dispose()} }
+
+  function resize() {
+    const r = canvas.getBoundingClientRect()
+    if (r.width === 0 || r.height === 0) return
+    renderer.setSize(r.width, r.height, false)
+    camera.aspect = r.width / r.height
+    camera.updateProjectionMatrix()
+
+    if (!timeline) {
+      // Desktop: 38/62 split, microscope positioned cleanly in right 60%
+      // Mobile: centered
+      const isMobile = camera.aspect < 0.95
+      if (isMobile) {
+        target.set(0, 1.48, 0)
+        camera.position.set(3.4, 3.1, 5.2)
+      } else {
+        target.set(-0.65, 1.48, 0)
+        camera.position.set(3.8, 3.2, 5.4)
+      }
+    }
+    render()
+  }
+
+  const observer = new ResizeObserver(resize)
+  observer.observe(canvas)
+  resize()
+
+  canvas.dataset.phase = 'ready'
+  canvas.dataset.renderer = 'webgl'
+
+  function getProjectedOcularCoords(): RevealCoords {
+    const vec = ocular.clone().project(camera)
+    return {
+      x: Math.max(0.1, Math.min(0.9, (vec.x + 1) / 2)),
+      y: Math.max(0.1, Math.min(0.9, (1 - vec.y) / 2)),
+    }
+  }
+
+  function play(done: () => void) {
+    if (timeline || disposed) return
+
+    timeline = gsap.timeline({
+      onUpdate: render,
+      onComplete: () => {
+        canvas.dataset.phase = 'complete'
+        done()
+      },
+    })
+
+    // Phase 1: Droplet fall with gravity acceleration
+    timeline
+      .call(() => { canvas.dataset.phase = 'droplet' })
+      .to(drop.position, { y: SLIDE_Y + 0.035, duration: 0.85, ease: 'power2.in' }, 0.1)
+      // Brief impact squash
+      .to(drop.scale, { x: 1.4, y: 0.35, z: 1.4, duration: 0.09 }, 0.95)
+      .call(() => {
+        drop.visible = false
+        wet.visible = true
+        splash.visible = true
+        canvas.dataset.phase = 'landed'
+      }, [], 1.04)
+      // Subtle ripple expands gently
+      .to(splash.scale, { x: 1.8, y: 1.8, z: 1.8, duration: 0.45, ease: 'power2.out' }, 1.04)
+      .to(splash.material, { opacity: 0, duration: 0.35 }, 1.15)
+      .call(() => { splash.visible = false }, [], 1.5)
+
+      // Phase 2: Camera approaches the eyepiece optics
+      .call(() => { canvas.dataset.phase = 'approach' }, [], 1.45)
+      .to(
+        camera.position,
+        {
+          x: ocular.x + axis.x * 1.6,
+          y: ocular.y + axis.y * 1.6,
+          z: ocular.z + axis.z * 1.6,
+          duration: 1.4,
+          ease: 'power2.inOut',
+        },
+        1.45
+      )
+      .to(
+        target,
+        {
+          x: ocular.x,
+          y: ocular.y,
+          z: ocular.z,
+          duration: 1.3,
+          ease: 'power2.inOut',
+        },
+        1.45
+      )
+
+      // Phase 3: Camera enters optical field, triggers circular reveal handoff
+      .call(() => {
+        canvas.dataset.phase = 'reveal'
+        const coords = getProjectedOcularCoords()
+        options?.onReveal?.(coords)
+      }, [], 2.85)
+      .to(
+        camera.position,
+        {
+          x: ocular.x + axis.x * 0.05,
+          y: ocular.y + axis.y * 0.05,
+          z: ocular.z + axis.z * 0.05,
+          duration: 0.85,
+          ease: 'power3.in',
+        },
+        2.85
+      )
+      .to(
+        camera,
+        {
+          fov: 44,
+          duration: 0.85,
+          ease: 'power2.in',
+          onUpdate: () => camera.updateProjectionMatrix(),
+        },
+        2.85
+      )
+      // Fade canvas as optical iris expands
+      .to(canvas, { opacity: 0, duration: 0.35, ease: 'power1.out' }, 3.4)
+  }
+
+  function dispose() {
+    disposed = true
+    timeline?.kill()
+    observer.disconnect()
+    const geometries = new Set<THREE.BufferGeometry>()
+    const materials = new Set<THREE.Material>()
+    scene.traverse((o) => {
+      if (o instanceof THREE.Mesh) {
+        geometries.add(o.geometry)
+        ;(Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => materials.add(m))
+      }
+    })
+    geometries.forEach((g) => g.dispose())
+    materials.forEach((m) => m.dispose())
+    labelTexture.dispose()
+    environment.dispose()
+    renderer.dispose()
+  }
+
+  return { play, dispose }
 }

@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 import { buildContaminantSummary } from '@/lib/aggregate'
 import { computeSafetyScore } from '@/lib/safety-score'
+import { isEligibleForScoring, normalizeProvenance } from '@/lib/provenance'
 import type { UtilityWithStats } from '@/lib/types'
 import type { Sample, Contaminant } from '@prisma/client'
 
@@ -55,10 +56,12 @@ export async function GET(
     (s) => s.exceedsHealthGuideline
   ).length
 
-  // Compute water safety score
-  const verifiedSamples = samples.filter((s) => (s.quality ?? 'verified') === 'verified').length
-  const provisionalSamples = samples.filter((s) => s.quality === 'provisional').length
-  const citizenSamples = samples.filter((s) => s.quality === 'citizen').length
+  // Compute water safety score using verified institutional data only
+  const verifiedSamples = samples.filter((s) => isEligibleForScoring(s)).length
+  const citizenSamples = samples.filter(
+    (s) => normalizeProvenance(s) === 'CITIZEN_CONTRIBUTED' || s.quality === 'citizen'
+  ).length
+  const provisionalSamples = samples.length - verifiedSamples - citizenSamples
   const safetyScore = computeSafetyScore({
     legalExceedances: exceedances,
     healthExceedances,
