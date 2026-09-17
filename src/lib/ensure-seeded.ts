@@ -9,96 +9,12 @@ import { db } from './db'
 // Safe to call on every API request - it only queries a count first.
 
 let seedPromise: Promise<void> | null = null
-let adminPromise: Promise<void> | null = null
-
-// Ensures the admin accounts exist and purges legacy demo data.
-// Memoized per process: this runs at most once per server start (and once
-// more only if it fails), NOT on every request. The previous per-request
-// version hashed passwords (scrypt) on every API call, which was a DoS
-// amplifier.
-//
-// Password rules:
-//  - create: uses ADMIN_DEFAULT_PASSWORD (or a local-dev fallback).
-//  - update: NEVER resets an existing password silently. Set the explicit
-//    recovery flag ADMIN_RESET_PASSWORD=true once to force a reset to
-//    ADMIN_DEFAULT_PASSWORD, then remove the flag.
-async function ensureAdminsAndCleanData(): Promise<void> {
-  const { hashPassword } = await import('./auth')
-
-  // Read admin password from env to keep it out of source control.
-  // Falls back to a default ONLY for local development.
-  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'ChangeMe!OnFirstLogin'
-
-  const admins: Array<{ email: string; name: string }> = [
-    { email: 'admin@arippleseffect.org', name: 'A Ripple Effect Initiative Admin' },
-    {
-      email: process.env.ADMIN_EMAIL_2 || 'admin2@arippleseffect.org',
-      name: process.env.ADMIN_NAME_2 || 'Admin',
-    },
-  ]
-
-  for (const a of admins) {
-    await db.user.upsert({
-      where: { email: a.email },
-      update:
-        process.env.ADMIN_RESET_PASSWORD === 'true'
-          ? {
-              password: hashPassword(process.env.ADMIN_DEFAULT_PASSWORD || adminPassword),
-              role: 'admin',
-            }
-          : {},
-      create: {
-        email: a.email,
-        name: a.name,
-        password: hashPassword(adminPassword),
-        role: 'admin',
-      },
-    })
-  }
-
-  // Purge any legacy fake/demo seed records from the database
-  try {
-    await Promise.all([
-      db.donation.deleteMany({
-        where: {
-          OR: [
-            { email: { in: ['jordan@example.com', 'hello@greenearth.example'] } },
-            { name: { in: ['Green Earth Co.', 'Jordan Lee'] } },
-            { AND: [{ name: 'Anonymous' }, { amount: { in: [25, 250] } }] },
-          ],
-        },
-      }),
-      db.report.deleteMany({
-        where: {
-          OR: [
-            { reporterName: { in: ['Maria G.', 'James R.', 'Priya K.'] } },
-            { title: 'Water tastes great', reporterName: 'Anonymous' },
-            { title: 'Strong chlorine taste', reporterName: 'Anonymous' },
-          ],
-        },
-      }),
-      db.chapter.deleteMany({
-        where: {
-          email: {
-            in: ['dev.sharma@example.edu', 'aisha.khan@example.org', 'marco.reyes@example.edu'],
-          },
-        },
-      }),
-    ])
-  } catch (e) {
-    console.error('[ensureSeeded] Failed to clean demo data:', e)
-  }
-}
 
 export async function ensureSeeded(): Promise<void> {
-  if (!adminPromise) {
-    adminPromise = ensureAdminsAndCleanData().catch((e) => {
-      // Reset the memo so a transient failure is retried on the next request.
-      adminPromise = null
-      throw e
-    })
+  // Public reads and production environments must NEVER seed or mutate data
+  if (process.env.SEED_DEMO_DATA !== 'true' || process.env.NODE_ENV === 'production') {
+    return
   }
-  await adminPromise
 
   // Quick check - does the DB have any utilities?
   const count = await db.utility.count()

@@ -32,11 +32,55 @@
 .tank-gate {
   position: fixed; inset: 0; margin: 0; width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh;
   padding: 0; border: 0; color: var(--tank-ice);
-  background: radial-gradient(ellipse at 50% 50%, #143b35, #05080a 68%);
+  background: transparent;
   overflow: hidden; z-index: 9999;
 }
-.tank-gate::backdrop { background: #05080a; }
-.tank-gate[open] { display: flex; flex-direction: column; }
+.tank-gate::backdrop { background: transparent; }
+.tank-gate[open] { display: block; }
+.gate-scene-layer {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  background: radial-gradient(ellipse at 50% 50%, #143b35, #05080a 68%);
+  display: flex; flex-direction: column; overflow: hidden;
+  z-index: 1;
+}
+.gate-scene-layer.is-leaving { pointer-events: none; }
+.gate-scene-layer.is-revealing {
+  -webkit-mask-image: radial-gradient(
+    circle at var(--iris-x, 50%) var(--iris-y, 50%),
+    transparent 0 var(--iris-r, 0px),
+    #000 calc(var(--iris-r, 0px) + 1px)
+  );
+  mask-image: radial-gradient(
+    circle at var(--iris-x, 50%) var(--iris-y, 50%),
+    transparent 0 var(--iris-r, 0px),
+    #000 calc(var(--iris-r, 0px) + 1px)
+  );
+  mask-mode: alpha;
+}
+.gate-skip-control {
+  position: absolute;
+  bottom: 28px;
+  left: 6vw;
+  z-index: 100;
+  pointer-events: auto !important;
+  cursor: pointer;
+  background: rgba(5, 8, 10, 0.7);
+  border: 1px solid rgba(180, 248, 222, 0.25);
+  border-radius: 4px;
+  padding: 8px 16px;
+  color: #8fa59a;
+  font: 11px/1 var(--font-geist-mono), monospace;
+  letter-spacing: 0.1em;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.gate-skip-control:hover,
+.gate-skip-control:focus-visible {
+  color: var(--tank-ice);
+  border-color: var(--tank-cyan);
+  background: rgba(5, 8, 10, 0.9);
+  outline: 2px solid var(--tank-cyan);
+  outline-offset: 2px;
+}
 .gate-top { display: flex; justify-content: space-between; align-items: center; padding: 28px 4vw; color: #9cb1ae; font: 10px/1.6 var(--font-geist-mono), monospace; letter-spacing: .14em; z-index: 4; }
 .gate-top button { border: 0; background: transparent; color: #9cb1ae; padding: 6px; font: inherit; cursor: pointer; }
 .gate-top button:hover { color: #e6ede8; }
@@ -47,7 +91,6 @@
 .gate-enter span { font-size: 20px; color: var(--tank-cyan); }
 .gate-skip { margin-top: 14px; padding: 4px 0; border: 0; background: transparent; color: #7f958b; font: 10px var(--font-geist-mono), monospace; letter-spacing: .1em; cursor: pointer; text-align: left; }
 .gate-skip:hover { color: #e6ede8; }
-.tank-gate.is-leaving { animation: none; pointer-events: none; }
 html.lenis { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-stopped { overflow: hidden; }

@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { ensureSeeded } from '@/lib/ensure-seeded'
 import { computeSafetyScore } from '@/lib/safety-score'
-import { isEligibleForScoring, normalizeProvenance, normalizeVerification } from '@/lib/provenance'
+import { isEligibleForScoring, normalizeProvenance, normalizeToBenchmarkUnit } from '@/lib/provenance'
 
 // GET /api/utilities/scores
 // Returns a lightweight safety score for every utility, for at-a-glance
 // display on search result cards, map tooltips, and rankings.
 export async function GET() {
-  await ensureSeeded()
 
   const utilities = await db.utility.findMany({
     select: {
@@ -19,7 +17,18 @@ export async function GET() {
           unit: true,
           quality: true,
           source: true,
-          contaminant: { select: { healthGuideline: true, legalLimit: true } },
+          provenance: true,
+          verificationStatus: true,
+          contaminantId: true,
+          contaminant: {
+            select: {
+              id: true,
+              healthGuideline: true,
+              healthGuidelineUnit: true,
+              legalLimit: true,
+              legalLimitUnit: true,
+            },
+          },
         },
       },
     },
@@ -37,7 +46,7 @@ export async function GET() {
     const contamIds = new Set<string>()
 
     for (const s of u.samples) {
-      contamIds.add(s.contaminant.healthGuideline + '|' + s.contaminant.legalLimit + '|' + s.level)
+      contamIds.add(s.contaminantId)
       const p = normalizeProvenance(s)
       const eligible = isEligibleForScoring(s)
 
@@ -51,16 +60,20 @@ export async function GET() {
 
       // Only reviewed regulatory or lab measurements can establish an exceedance
       if (eligible) {
-        const hg = s.contaminant.healthGuideline
-        const ll = s.contaminant.legalLimit
-        const key = hg + '|' + ll
-        if (hg != null && hg > 0 && s.level > hg && !seenHealth.has(key)) {
-          healthExceedances++
-          seenHealth.add(key)
+        const c = s.contaminant
+        if (c.healthGuideline != null && c.healthGuideline > 0 && !seenHealth.has(s.contaminantId)) {
+          const norm = normalizeToBenchmarkUnit(s.level, s.unit, c.healthGuidelineUnit || s.unit)
+          if (norm != null && norm > c.healthGuideline) {
+            healthExceedances++
+            seenHealth.add(s.contaminantId)
+          }
         }
-        if (ll != null && ll > 0 && s.level > ll && !seenLegal.has(key)) {
-          legalExceedances++
-          seenLegal.add(key)
+        if (c.legalLimit != null && c.legalLimit > 0 && !seenLegal.has(s.contaminantId)) {
+          const norm = normalizeToBenchmarkUnit(s.level, s.unit, c.legalLimitUnit || s.unit)
+          if (norm != null && norm > c.legalLimit) {
+            legalExceedances++
+            seenLegal.add(s.contaminantId)
+          }
         }
       }
     }

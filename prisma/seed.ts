@@ -461,9 +461,12 @@ async function main() {
     source: string
     treatmentStatus: string
     location: string
+    quality: string
+    provenance: 'ILLUSTRATIVE'
+    verificationStatus: 'UNREVIEWED'
+    notes: string
   }> = []
 
-  const sourceOptions = ['Utility CCR', 'Research Lab', 'Citizen Test', 'EPA UCMR']
   const locationOptions = ['Treatment Plant Outflow', 'Distribution Tap', 'Reservoir', 'Source Water Intake']
 
   // Build level profiles per utility x contaminant - some elevated, some clean
@@ -498,19 +501,17 @@ async function main() {
         CA3610008: 1.25, // San Diego - imported
         WA5376550: 0.7, // Seattle - pristine mountain source - lowest
         TX2200012: 1.1, // Fort Worth
-      }[pwsid] ?? 1
-    const [lo, hi] = r
-    return +(lo + rand() * (hi - lo) * mod).toFixed(3)
+      }[pwsid] ?? 1.0
+    return +(r[0] + rand() * (r[1] - r[0]) * mod).toFixed(3)
   }
 
   for (const u of utilities) {
     for (const c of contaminantsDb) {
-      // Generate 4 samples per contaminant-utility pair (quarterly-ish over 3 years)
-      const numSamples = 4
-      for (let i = 0; i < numSamples; i++) {
-        const monthsBack = 36 - i * 9 // most recent first... actually let's go forward
+      // 3-4 historical readings
+      const count = 3 + Math.floor(rand() * 2)
+      for (let i = 0; i < count; i++) {
         const date = new Date()
-        date.setMonth(date.getMonth() - (numSamples - 1 - i) * 9 - Math.floor(rand() * 2))
+        date.setMonth(date.getMonth() - (count - 1 - i) * 9 - Math.floor(rand() * 2))
         const level = levelFor(u.pwsid, c.slug)
         samples.push({
           utilityId: utilityIds[u.pwsid],
@@ -518,10 +519,14 @@ async function main() {
           level,
           unit: c.legalLimitUnit || c.healthGuidelineUnit || 'ppb',
           sampleDate: date,
-          source: sourceOptions[Math.floor(rand() * sourceOptions.length)],
+          source: 'Synthetic demo data',
           treatmentStatus: u.treatmentStatus,
           location:
             rand() < 0.5 ? 'Treatment Plant Outflow' : 'Distribution Tap',
+          quality: 'illustrative',
+          provenance: 'ILLUSTRATIVE',
+          verificationStatus: 'UNREVIEWED',
+          notes: 'Synthetic reference model for demonstration; not an authenticated compliance measurement.',
         })
       }
     }
@@ -538,9 +543,13 @@ async function main() {
       level: +(8 + rand() * 30).toFixed(2), // untreated source water typically higher
       unit: 'particles/L',
       sampleDate: date,
-      source: 'Research Lab',
+      source: 'Synthetic demo data',
       treatmentStatus: 'Untreated',
       location: 'Source Water Intake',
+      quality: 'illustrative',
+      provenance: 'ILLUSTRATIVE',
+      verificationStatus: 'UNREVIEWED',
+      notes: 'Illustrative untreated benchmark; not an authenticated compliance measurement.',
     })
   }
 

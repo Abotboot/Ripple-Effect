@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { ensureSeeded } from '@/lib/ensure-seeded'
 import { isEligibleForScoring } from '@/lib/provenance'
 
 // GET /api/stats - returns high-level platform impact numbers
 export async function GET() {
-  // Auto-seed if DB is empty (prevents "search returns nothing" bug)
-  await ensureSeeded()
 
   const [
     utilitiesCount,
@@ -49,14 +46,14 @@ export async function GET() {
   const states = new Set(utilities.map((u) => u.state))
   const populationServed = utilities.reduce((s, u) => s + u.population, 0)
 
-  // Microplastics average across treated samples
+  // Microplastics average across treated drinking water samples (null if no eligible samples)
   const mpTreated = samples.filter(
     (s) =>
       s.contaminant.slug === 'microplastics' && s.treatmentStatus === 'Treated'
   )
   const microplasticsAvg = mpTreated.length
-    ? mpTreated.reduce((s, x) => s + x.level, 0) / mpTreated.length
-    : 0
+    ? +(mpTreated.reduce((s, x) => s + x.level, 0) / mpTreated.length).toFixed(2)
+    : null
 
   // Exceedance counts + per-utility exceedance counts (for map coloring)
   // + per-contaminant exceedance flags (for map contaminant filter chips)
@@ -166,7 +163,7 @@ export async function GET() {
     donationsTotal,
     statesCovered: states.size,
     populationServed,
-    microplasticsAvg: +microplasticsAvg.toFixed(2),
+    microplasticsAvg,
     healthExceedances,
     legalExceedances,
     trackedByUsCount,

@@ -1,4 +1,4 @@
-﻿# Database Migration & Baselining Runbook: Provenance & Verification
+# Database Migration & Baselining Runbook: Provenance & Verification
 
 ## 1. Overview & Objective
 This runbook guides safe deployment of the additive schema enhancements introduced in `agent/cinematic-water-v2` for `A Ripple Effect Initiative`.
@@ -101,17 +101,7 @@ check().finally(() => prisma.$disconnect());
 
 ## 5. Rollback Plan
 
-Because all column additions are nullable or provide backwards-compatible defaults, rolling back the application code requires **zero database downtime**:
-1. Revert application deployment to previous release tag.
-2. Older code ignores the newly added columns (`provenance`, `verificationStatus`, etc.) and reads existing columns (`source`, `quality`).
-3. If database columns must be dropped after full rollback:
-```sql
-ALTER TABLE "Sample"
-  DROP COLUMN IF EXISTS "provenance",
-  DROP COLUMN IF EXISTS "verificationStatus",
-  DROP COLUMN IF EXISTS "sourceUrl",
-  DROP COLUMN IF EXISTS "sourceRecordId",
-  DROP COLUMN IF EXISTS "reportingPeriod",
-  DROP COLUMN IF EXISTS "method",
-  DROP COLUMN IF EXISTS "verifiedAt";
-```
+Because all column additions are strictly additive, nullable, or carry safe backwards-compatible defaults, rollback follows the Expand/Contract migration discipline:
+1. **Zero-downtime application rollback**: Revert application deployment to previous release tag.
+2. **Database stability**: Retain additive columns in the database. Older code continues to read `source` and `quality` normally and ignores additive columns. No destructive `DROP COLUMN` operations during routine rollback.
+3. If schema contraction is ever desired in the future, it must be planned as a separate, independently tested migration cycle after verified deprecation.

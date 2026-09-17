@@ -128,7 +128,15 @@ ${score && score.score !== null ? `<div class="score" style="background: ${score
 <table>
 <tr><th>Contaminant</th><th>Latest Level</th><th>Unit</th><th>Health Guideline</th><th>Legal Limit</th><th>Status</th></tr>
 ${utility.contaminantSummaries.map((s) => {
-  const status = s.exceedsLegalLimit ? '<span class="danger">Above legal limit</span>' : s.exceedsHealthGuideline ? '<span class="warning">Above health guideline</span>' : '<span class="ok">Within guidelines</span>'
+  const status = s.legalBenchmarkStatus === 'above_benchmark'
+    ? '<span class="danger">Above legal limit</span>'
+    : s.healthBenchmarkStatus === 'above_benchmark'
+    ? '<span class="warning">Above health guideline</span>'
+    : (s.healthBenchmarkStatus === 'below_benchmark' || s.legalBenchmarkStatus === 'below_benchmark')
+    ? '<span class="ok">Within guidelines</span>'
+    : (s.healthBenchmarkStatus === 'illustrative' || s.legalBenchmarkStatus === 'illustrative')
+    ? '<span class="neutral">Illustrative data</span>'
+    : '<span class="neutral">Unreviewed data</span>'
   const lvl = s.latestLevel != null ? s.latestLevel.toFixed(2) : '—'
   return `<tr><td>${escapeHtml(s.contaminant.name)}</td><td>${lvl}</td><td>${escapeHtml(s.unit)}</td><td>${escapeHtml(s.contaminant.healthGuideline ?? '—')}</td><td>${escapeHtml(s.contaminant.legalLimit ?? 'None')}</td><td>${status}</td></tr>`
 }).join('')}
@@ -328,20 +336,47 @@ function ContaminantDetailCard({
 }: {
   summary: UtilityWithStats['contaminantSummaries'][number]
 }) {
-  const { contaminant: c, latestLevel, unit, exceedsHealthGuideline, exceedsLegalLimit, healthRatio } = summary
+  const {
+    contaminant: c,
+    latestLevel,
+    unit,
+    healthRatio,
+    healthBenchmarkStatus,
+    legalBenchmarkStatus,
+    quality,
+    provenance,
+    verificationStatus,
+    source,
+    robot,
+  } = summary
 
-  const status = exceedsLegalLimit
-    ? { label: 'Above legal limit', tone: 'danger' as const }
-    : exceedsHealthGuideline
-    ? { label: 'Above health guideline', tone: 'warning' as const }
-    : { label: 'Within guidelines', tone: 'ok' as const }
+  let status: { label: string; tone: 'danger' | 'warning' | 'ok' | 'neutral' } = {
+    label: 'No benchmark',
+    tone: 'neutral',
+  }
+
+  if (legalBenchmarkStatus === 'above_benchmark') {
+    status = { label: 'Above legal limit', tone: 'danger' }
+  } else if (healthBenchmarkStatus === 'above_benchmark') {
+    status = { label: 'Above health guideline', tone: 'warning' }
+  } else if (healthBenchmarkStatus === 'below_benchmark' || legalBenchmarkStatus === 'below_benchmark') {
+    status = { label: 'Within guidelines', tone: 'ok' }
+  } else if (healthBenchmarkStatus === 'illustrative' || legalBenchmarkStatus === 'illustrative') {
+    status = { label: 'Illustrative benchmark', tone: 'neutral' }
+  } else if (healthBenchmarkStatus === 'unreviewed' || legalBenchmarkStatus === 'unreviewed') {
+    status = { label: 'Unreviewed data', tone: 'neutral' }
+  } else if (healthBenchmarkStatus === 'incompatible_units' || legalBenchmarkStatus === 'incompatible_units') {
+    status = { label: 'Unit mismatch', tone: 'neutral' }
+  }
 
   const statusCls =
     status.tone === 'danger'
       ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300'
       : status.tone === 'warning'
       ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
-      : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
+      : status.tone === 'ok'
+      ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
+      : 'border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300'
 
   // Health ratio progress (capped at 1000x for display)
   const ratioForBar = healthRatio ? Math.min(Math.log10(Math.max(healthRatio, 1)) * 33, 100) : null
@@ -358,8 +393,14 @@ function ContaminantDetailCard({
                   Unregulated
                 </Badge>
               )}
-              <QualityBadge quality={summary.quality} size="xs" />
-              <SourceBadge source={summary.source} robot={summary.robot} size="xs" />
+              <QualityBadge
+                quality={quality}
+                provenance={provenance}
+                verificationStatus={verificationStatus}
+                source={source}
+                size="xs"
+              />
+              <SourceBadge source={source} robot={robot} size="xs" />
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {c.category}

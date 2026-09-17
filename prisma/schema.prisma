@@ -65,6 +65,20 @@ model Contaminant {
   alertSubs       AlertSubscription[]
 }
 
+enum SampleProvenance {
+  UNKNOWN
+  ILLUSTRATIVE
+  CITIZEN_CONTRIBUTED
+  REGULATORY_REPORTED
+  LAB_REPORTED
+}
+
+enum SampleVerification {
+  UNREVIEWED
+  VERIFIED
+  REJECTED
+}
+
 // A single measurement of one contaminant at one utility on one date.
 model Sample {
   id            String   @id @default(cuid())
@@ -78,6 +92,13 @@ model Sample {
   treatmentStatus    String    @default("Treated") // Treated / Untreated (lets us compare)
   location           String?   // tap, stream, reservoir, treatment plant outflow...
   quality            String    @default("unreviewed") // unreviewed / verified / provisional / citizen / illustrative
+  provenance         SampleProvenance   @default(UNKNOWN)
+  verificationStatus SampleVerification @default(UNREVIEWED)
+  sourceUrl          String?
+  sourceRecordId     String?
+  reportingPeriod    String?
+  method             String?
+  verifiedAt         DateTime?
   notes              String?
   createdAt          DateTime  @default(now())
 

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { ensureSeeded } from '@/lib/ensure-seeded'
 
 // GET /api/leaderboard
 // Returns a chapter leaderboard: which chapters have submitted the most
@@ -9,7 +8,6 @@ import { ensureSeeded } from '@/lib/ensure-seeded'
 // we rank by a blended score: reports filed from their region + their
 // onboarding status + donations attributed. This is a starting point.
 export async function GET() {
-  await ensureSeeded()
 
   const chapters = await db.chapter.findMany({
     orderBy: { createdAt: 'desc' },

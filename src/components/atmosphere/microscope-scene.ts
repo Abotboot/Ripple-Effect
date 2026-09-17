@@ -1,4 +1,4 @@
-﻿import * as THREE from 'three'
+import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 import { gsap } from 'gsap'
@@ -318,10 +318,12 @@ export function createMicroscopeScene(
   canvas.dataset.renderer = 'webgl'
 
   function getProjectedOcularCoords(): RevealCoords {
+    camera.updateMatrixWorld()
+    camera.updateProjectionMatrix()
     const vec = ocular.clone().project(camera)
     return {
-      x: Math.max(0.1, Math.min(0.9, (vec.x + 1) / 2)),
-      y: Math.max(0.1, Math.min(0.9, (1 - vec.y) / 2)),
+      x: (vec.x + 1) / 2,
+      y: (1 - vec.y) / 2,
     }
   }
 

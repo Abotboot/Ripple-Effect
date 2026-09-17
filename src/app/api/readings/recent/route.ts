@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { ensureSeeded } from '@/lib/ensure-seeded'
 
 // GET /api/readings/recent
 // Returns recent citizen-submitted readings for the public home feed.
@@ -8,7 +7,6 @@ import { ensureSeeded } from '@/lib/ensure-seeded'
 // already shown in other feeds). Includes the contaminant + utility info
 // for display, and parses the reporter name out of the notes field.
 export async function GET() {
-  await ensureSeeded()
 
   const readings = await db.sample.findMany({
     where: { quality: 'citizen' },

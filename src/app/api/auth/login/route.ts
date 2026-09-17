@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { verifyPassword, needsRehash, hashPassword, createSession, SESSION_COOKIE_NAME, SESSION_COOKIE_MAX_AGE } from '@/lib/auth'
-import { ensureSeeded } from '@/lib/ensure-seeded'
 
 // Simple in-memory rate limiting for login attempts.
 // Tracks attempts per IP address. Max 5 attempts per 15 minutes.
@@ -39,8 +38,6 @@ function getClientIp(req: NextRequest): string {
 
 // POST /api/auth/login { email, password }
 export async function POST(req: NextRequest) {
-  await ensureSeeded()
-
   // Rate limit check by IP
   const ip = getClientIp(req)
   const ipCheck = checkRateLimit(`ip:${ip}`)

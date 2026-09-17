@@ -1,4 +1,4 @@
-.tank-gate { background: #060909; isolation: isolate; overflow-x: hidden; }
+.tank-gate { background: transparent; isolation: isolate; overflow: hidden; }
 .tank-gate .gate-top, .tank-gate .gate-bottom { position: relative; z-index: 3; }
 .microscope-viewport { position: absolute; inset: 0; pointer-events: none; }
 .microscope-model { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -10,7 +10,6 @@
 .microscope-copy .gate-enter { margin-top: 30px; background: #07120fe6; }
 .gate-skip { margin-top: 14px; padding: 4px 0; border: 0; background: transparent; color: #7f958b; font: 10px var(--font-geist-mono), monospace; letter-spacing: .1em; }
 .gate-skip:hover { color: #e6ede8; }
-.tank-gate.is-leaving { animation: none; pointer-events: none; }
 @media (max-width: 860px) {
  .microscope-copy { backdrop-filter: blur(2px); }
  .microscope-model { width: min(118vw, 62vh); right: 50%; transform: translateX(50%); bottom: auto; top: 12vh; }

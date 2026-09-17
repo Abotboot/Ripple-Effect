@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { useRef, useState, useCallback, useEffect } from 'react'
 import { cn } from '@/lib/utils'
@@ -45,9 +45,11 @@ export function CinematicPanel({
     }
   }, [])
 
+  const [hasInputFocus, setHasInputFocus] = useState(false)
+
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (disabledRef.current) return
+      if (disabledRef.current || hasInputFocus) return
       const el = ref.current
       if (!el) return
 
@@ -67,21 +69,40 @@ export function CinematicPanel({
         })
       }
     },
-    [maxTilt, glare]
+    [maxTilt, glare, hasInputFocus]
   )
 
   const handlePointerEnter = useCallback(() => {
-    if (disabledRef.current) return
+    if (disabledRef.current || hasInputFocus) return
     setIsHovered(true)
-  }, [])
+  }, [hasInputFocus])
 
   const handlePointerLeave = useCallback(() => {
     setIsHovered(false)
-    setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)')
-    if (glare) {
+    if (!hasInputFocus) {
+      setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)')
+      if (glare) {
+        setGlareStyle({ opacity: 0 })
+      }
+    }
+  }, [glare, hasInputFocus])
+
+  const handleFocusIn = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement
+    if (target && target.matches('input, textarea, select')) {
+      setHasInputFocus(true)
+      setIsHovered(false)
+      setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)')
       setGlareStyle({ opacity: 0 })
     }
-  }, [glare])
+  }, [])
+
+  const handleFocusOut = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    const nextTarget = e.relatedTarget as HTMLElement | null
+    if (!nextTarget || !nextTarget.matches('input, textarea, select')) {
+      setHasInputFocus(false)
+    }
+  }, [])
 
   return (
     <div
@@ -96,6 +117,8 @@ export function CinematicPanel({
       onPointerMove={handlePointerMove}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
+      onFocus={handleFocusIn}
+      onBlur={handleFocusOut}
       {...props}
     >
       {children}

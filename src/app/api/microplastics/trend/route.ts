@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { ensureSeeded } from '@/lib/ensure-seeded'
 
 // GET /api/microplastics/trend
 // Returns microplastics levels over time (avg per quarter) for treated
 // vs untreated water, so we can visualize whether levels are changing.
 export async function GET() {
-  await ensureSeeded()
 
   const mp = await db.contaminant.findUnique({ where: { slug: 'microplastics' } })
   if (!mp) {

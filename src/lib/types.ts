@@ -87,6 +87,8 @@ export type ContaminantSummary = {
   exceedsLegalLimit: boolean
   healthRatio: number | null
   legalRatio: number | null
+  healthBenchmarkStatus?: import('./provenance').BenchmarkStatus
+  legalBenchmarkStatus?: import('./provenance').BenchmarkStatus
   trend: Array<{
     date: string
     level: number
@@ -191,7 +193,7 @@ export type Stats = {
   donationsTotal: number
   statesCovered: number
   populationServed: number
-  microplasticsAvg: number
+  microplasticsAvg: number | null
   healthExceedances: number
   legalExceedances: number
   trackedByUsCount: number

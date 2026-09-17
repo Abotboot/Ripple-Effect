@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { ensureSeeded } from '@/lib/ensure-seeded'
 import { computeSafetyScore } from '@/lib/safety-score'
 import { isEligibleForScoring, normalizeProvenance } from '@/lib/provenance'
 
@@ -9,7 +8,6 @@ import { isEligibleForScoring, normalizeProvenance } from '@/lib/provenance'
 // stats dashboard: safety score distribution, top exceedance contaminants,
 // state rankings, and quality breakdown.
 export async function GET() {
-  await ensureSeeded()
 
   const [utilities, samples, contaminants] = await Promise.all([
     db.utility.findMany({

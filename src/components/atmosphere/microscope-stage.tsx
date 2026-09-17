@@ -40,14 +40,33 @@ export function MicroscopeStage({
       done.current()
       return
     }
-    const instance = createMicroscopeScene(c, {
-      onReveal: (coords) => revealCb.current?.(coords),
-    })
+
+    let instance: ReturnType<typeof createMicroscopeScene> | null = null
+    try {
+      instance = createMicroscopeScene(c, {
+        onReveal: (coords) => revealCb.current?.(coords),
+      })
+    } catch {
+      done.current()
+      return
+    }
     scene.current = instance
-    onReady(() => instance.play(done.current))
+
+    const handleContextLost = (e: Event) => {
+      e.preventDefault()
+      try {
+        instance?.dispose()
+      } catch {}
+      done.current()
+    }
+    c.addEventListener('webglcontextlost', handleContextLost)
+
+    onReady(() => instance?.play(() => done.current()))
+
     return () => {
+      c.removeEventListener('webglcontextlost', handleContextLost)
       onReady(null)
-      instance.dispose()
+      instance?.dispose()
     }
   }, [onReady])
   return <canvas ref={canvas} className="microscope-model" aria-hidden="true" />

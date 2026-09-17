@@ -20,8 +20,18 @@ export function TankHero({ children }: { children: React.ReactNode }) {
   const entryMotion = useRef<gsap.core.Timeline | null>(null)
   const microscopePlay = useRef<(() => void) | null>(null)
   const dialog = useRef<HTMLDialogElement>(null)
+  const sceneLayerRef = useRef<HTMLDivElement>(null)
+  const finishedRef = useRef(false)
+
+  const handleMicroscopeReady = useCallback((play: (() => void) | null) => {
+    microscopePlay.current = play
+  }, [])
 
   const finishEntry = useCallback((shouldFocusSearch = false) => {
+    if (finishedRef.current) return
+    finishedRef.current = true
+    entryMotion.current?.kill()
+    entryMotion.current = null
     if (dialog.current?.open) {
       dialog.current.close()
     }
@@ -51,6 +61,7 @@ export function TankHero({ children }: { children: React.ReactNode }) {
       const hasEnteredSession = sessionStorage.getItem('ripple-entered')
       const hasHash = !!window.location.hash
       if (!hasIntroQuery && (hasEnteredSession || hasHash)) {
+        finishedRef.current = true
         setEntered(true)
         return
       }
@@ -59,6 +70,7 @@ export function TankHero({ children }: { children: React.ReactNode }) {
     }
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      finishedRef.current = true
       setEntered(true)
       return
     }
@@ -109,31 +121,65 @@ export function TankHero({ children }: { children: React.ReactNode }) {
 
   const handleReveal = (coords: { x: number; y: number }) => {
     setRevealing(true)
-    // Scatter homepage particles outward from projected ocular lens origin
-    canvasRef.current?.triggerImpulse(coords.x, coords.y, 1.8)
+    const sceneLayer = sceneLayerRef.current
+    const canvasEl = dialog.current?.querySelector<HTMLCanvasElement>('.microscope-model')
+    let sceneX = window.innerWidth * 0.65
+    let sceneY = window.innerHeight * 0.45
 
-    const gate = dialog.current
-    if (!gate) {
+    if (canvasEl && sceneLayer) {
+      const cRect = canvasEl.getBoundingClientRect()
+      const sRect = sceneLayer.getBoundingClientRect()
+      const viewportX = cRect.left + coords.x * cRect.width
+      const viewportY = cRect.top + coords.y * cRect.height
+      sceneX = viewportX - sRect.left
+      sceneY = viewportY - sRect.top
+
+      const tankCanvasEl = canvasRef.current?.getCanvasElement?.()
+      if (tankCanvasEl) {
+        const tRect = tankCanvasEl.getBoundingClientRect()
+        const tankNormX = (viewportX - tRect.left) / tRect.width
+        const tankNormY = (viewportY - tRect.top) / tRect.height
+        canvasRef.current?.triggerImpulse(tankNormX, tankNormY, 1.8)
+      } else {
+        canvasRef.current?.triggerImpulse(coords.x, coords.y, 1.8)
+      }
+    } else {
+      canvasRef.current?.triggerImpulse(coords.x, coords.y, 1.8)
+    }
+
+    if (!sceneLayer) {
       finishEntry(true)
       return
     }
 
-    gate.classList.add('is-revealing')
-    const px = (coords.x * 100).toFixed(1)
-    const py = (coords.y * 100).toFixed(1)
+    const sWidth = sceneLayer.clientWidth || window.innerWidth
+    const sHeight = sceneLayer.clientHeight || window.innerHeight
+    const maxRadius = Math.max(
+      Math.hypot(sceneX, sceneY),
+      Math.hypot(sWidth - sceneX, sceneY),
+      Math.hypot(sceneX, sHeight - sceneY),
+      Math.hypot(sWidth - sceneX, sHeight - sceneY)
+    ) + 16
 
-    gsap.fromTo(
-      gate,
-      { clipPath: `circle(0% at ${px}% ${py}%)` },
-      {
-        clipPath: `circle(150% at ${px}% ${py}%)`,
-        duration: 0.85,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          finishEntry(true)
-        },
-      }
-    )
+    sceneLayer.style.setProperty('--iris-x', `${sceneX}px`)
+    sceneLayer.style.setProperty('--iris-y', `${sceneY}px`)
+    sceneLayer.style.setProperty('--iris-r', '0px')
+    sceneLayer.classList.add('is-revealing')
+
+    const animObj = { r: 0 }
+    entryMotion.current?.kill()
+    entryMotion.current = gsap.timeline({
+      onComplete: () => {
+        finishEntry(true)
+      },
+    }).to(animObj, {
+      r: maxRadius,
+      duration: 0.95,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        sceneLayer.style.setProperty('--iris-r', `${animObj.r}px`)
+      },
+    })
   }
 
   return (
@@ -193,32 +239,33 @@ export function TankHero({ children }: { children: React.ReactNode }) {
           }}
           aria-labelledby="gate-title"
         >
-          <div className="gate-top">
-            <span>RIPPLE EFFECT</span>
+          <div ref={sceneLayerRef} className={`gate-scene-layer${leaving ? ' is-leaving' : ''}${revealing ? ' is-revealing' : ''}`}>
+            <div className="gate-top">
+              <span>RIPPLE EFFECT</span>
+            </div>
+
+            <div className="microscope-viewport">
+              <MicroscopeStage
+                onComplete={() => finishEntry(true)}
+                onReveal={handleReveal}
+                onReady={handleMicroscopeReady}
+              />
+            </div>
+
+            <div className="gate-center microscope-copy">
+              <p className="tank-eyebrow">LOOK BENEATH THE SURFACE</p>
+              <h2 id="gate-title">
+                A closer<br /><em>look changes everything.</em>
+              </h2>
+              <button type="button" className="gate-enter" onClick={enter}>
+                ENTER THE CURRENT <span aria-hidden="true">↗</span>
+              </button>
+            </div>
           </div>
 
-          <div className="microscope-viewport">
-            <MicroscopeStage
-              onComplete={() => finishEntry(true)}
-              onReveal={handleReveal}
-              onReady={(play) => {
-                microscopePlay.current = play
-              }}
-            />
-          </div>
-
-          <div className="gate-center microscope-copy">
-            <p className="tank-eyebrow">LOOK BENEATH THE SURFACE</p>
-            <h2 id="gate-title">
-              A closer<br /><em>look changes everything.</em>
-            </h2>
-            <button type="button" className="gate-enter" onClick={enter}>
-              ENTER THE CURRENT <span aria-hidden="true">↗</span>
-            </button>
-            <button type="button" className="gate-skip" onClick={skip}>
-              SKIP INTRO ↗
-            </button>
-          </div>
+          <button type="button" className="gate-skip-control gate-skip" onClick={skip}>
+            SKIP INTRO ↗
+          </button>
         </dialog>
       )}
     </section>

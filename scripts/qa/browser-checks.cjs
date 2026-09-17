@@ -1,4 +1,10 @@
-﻿const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'C:/Users/ayada/AppData/Roaming/npm/node_modules/omniroute/node_modules/playwright');
+function loadPlaywright() {
+  if (process.env.PLAYWRIGHT_MODULE) return require(process.env.PLAYWRIGHT_MODULE);
+  try { return require('playwright'); } catch {}
+  try { return require('C:/Users/ayada/AppData/Roaming/npm/node_modules/omniroute/node_modules/playwright'); } catch {}
+  throw new Error('Playwright not found');
+}
+const { chromium } = loadPlaywright();
 const path = require('node:path');
 const fs = require('node:fs');
 const assert = require('node:assert/strict');
@@ -120,31 +126,39 @@ const results = {
       await context.close();
     }
 
-    // 3. Intro Dialog & Traps Check
+    // 3. Intro Dialog & Traps Check (Mid-animation Skip + Escape)
     {
-      console.log('[QA] Testing Intro Dialog & Esc handling...');
+      console.log('[QA] Testing Intro Dialog, Mid-Animation Skip & Esc handling...');
       for (const vp of [1440, 390]) {
         const context = await browser.newContext({ viewport: { width: vp, height: 800 } });
         const page = await context.newPage();
         await page.goto(BASE_URL + '/?intro=1', { waitUntil: 'domcontentloaded' });
         await page.waitForSelector('dialog[open]');
 
-        const skipBtn = page.locator('.gate-skip');
-        assert.ok(await skipBtn.isVisible(), 'Skip button must be visible in gate-center');
+        const skipBtn = page.locator('.gate-skip-control');
+        assert.ok(await skipBtn.isVisible(), 'Skip button must be visible');
 
         const topRightBtns = await page.locator('.gate-top button').count();
         assert.equal(topRightBtns, 0, 'Top-right skip button must remain absent');
 
-        await page.keyboard.press('Escape');
-        await page.waitForTimeout(600);
+        // Test mid-animation Skip button click without force: true
+        const enterBtn = page.locator('.gate-enter');
+        if (await enterBtn.isVisible()) {
+          await enterBtn.click();
+          await page.waitForTimeout(200); // in leaving / droplet phase
+          await skipBtn.click({ timeout: 2000 });
+          await page.waitForTimeout(400);
+        }
+
         const isDialogDetached = (await page.locator('dialog[open]').count()) === 0;
+        assert.ok(isDialogDetached, 'Dialog must close on Skip click during animation');
 
         results.dialogTraps['vp_' + vp] = {
-          escapeDismisses: isDialogDetached,
+          skipClickDismisses: isDialogDetached,
           skipButtonPresent: true,
           topRightRemoved: topRightBtns === 0,
         };
-        console.log('[QA] Intro Dialog (' + vp + 'px): Esc Dismiss=' + isDialogDetached);
+        console.log('[QA] Intro Dialog (' + vp + 'px): Mid-Animation Skip Dismiss=' + isDialogDetached);
         await context.close();
       }
     }

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { timingSafeEqual } from 'crypto'
 import { db } from '@/lib/db'
-import { ensureSeeded } from '@/lib/ensure-seeded'
 import { sendDiscordReadingWebhook, sendDiscordAlertWebhook } from '@/lib/discord-webhook'
 import { checkRateLimit } from '@/lib/rate-limit'
 
@@ -27,7 +26,6 @@ function robotKeyMatches(presented: string | null, expected: string | undefined)
 //  - rate-limits by IP and reporter email (max 10 pending readings per email)
 
 export async function POST(req: NextRequest) {
-  await ensureSeeded()
 
   const body = await req.json().catch(() => null)
   if (!body) {

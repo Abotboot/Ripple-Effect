@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { ensureSeeded } from '@/lib/ensure-seeded'
 
 // GET /api/activity - recent activity across the platform.
 // Returns a unified feed of the latest samples, reports, chapter signups,
 // and donations - sorted by date, newest first. Used by the home page
 // "Recent activity" feed to show the site is alive.
 export async function GET() {
-  await ensureSeeded()
 
   const [samples, reports, chapters, donations] = await Promise.all([
     db.sample.findMany({

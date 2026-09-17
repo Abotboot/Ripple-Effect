@@ -7,6 +7,7 @@ export type ParticleFilter = 'all' | 'fibers' | 'fragments' | 'granules'
 
 export interface TankCanvasHandle {
   triggerImpulse: (nx: number, ny: number, strength?: number) => void
+  getCanvasElement: () => HTMLCanvasElement | null
 }
 
 interface TankCanvasProps {
@@ -28,6 +29,7 @@ export const TankCanvas = forwardRef<TankCanvasHandle, TankCanvasProps>(function
     triggerImpulse: (nx: number, ny: number, strength?: number) => {
       impulseRef.current?.(nx, ny, strength)
     },
+    getCanvasElement: () => canvasRef.current,
   }))
 
   useEffect(() => {
@@ -64,6 +66,10 @@ export const TankCanvas = forwardRef<TankCanvasHandle, TankCanvasProps>(function
     const draw = (time: number, delta = 0) => {
       ctx.clearRect(0, 0, width, height)
       ctx.globalCompositeOperation = 'source-over'
+      if (typeof window !== 'undefined') {
+        const w = window as unknown as { __tankCanvasDrawn?: number }
+        w.__tankCanvasDrawn = (w.__tankCanvasDrawn || 0) + 1
+      }
       for (const p of particles) {
         if (!reduced.matches && delta > 0) {
           if (typeof window !== 'undefined') {
@@ -105,6 +111,10 @@ export const TankCanvas = forwardRef<TankCanvasHandle, TankCanvasProps>(function
       draw(time, delta)
       if (shouldRun()) {
         raf = requestAnimationFrame(tick)
+        if (typeof window !== 'undefined') {
+          const w = window as unknown as { __tankCanvasScheduled?: number }
+          w.__tankCanvasScheduled = (w.__tankCanvasScheduled || 0) + 1
+        }
         canvas?.setAttribute('data-tank-raf', 'active')
       } else {
         canvas?.setAttribute('data-tank-raf', 'idle')
@@ -120,6 +130,10 @@ export const TankCanvas = forwardRef<TankCanvasHandle, TankCanvasProps>(function
       if (raf === null) {
         last = 0
         raf = requestAnimationFrame(tick)
+        if (typeof window !== 'undefined') {
+          const w = window as unknown as { __tankCanvasScheduled?: number }
+          w.__tankCanvasScheduled = (w.__tankCanvasScheduled || 0) + 1
+        }
         canvas?.setAttribute('data-tank-raf', 'active')
       }
     }
@@ -163,6 +177,10 @@ export const TankCanvas = forwardRef<TankCanvasHandle, TankCanvasProps>(function
     // Scoped pointer stirring on hero container instead of tracking entire window
     const container = canvas.closest('.tank-hero') || canvas
     const move = (event: PointerEvent | MouseEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target && target.closest('button, a, input, select, textarea, [role="button"], dialog, .tank-gate')) {
+        return
+      }
       const rect = canvas.getBoundingClientRect()
       const x = event.clientX - rect.left
       const y = event.clientY - rect.top
@@ -178,6 +196,10 @@ export const TankCanvas = forwardRef<TankCanvasHandle, TankCanvasProps>(function
     }
 
     const pointerDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target && target.closest('button, a, input, select, textarea, [role="button"], dialog, .tank-gate')) {
+        return
+      }
       const rect = canvas.getBoundingClientRect()
       const x = event.clientX - rect.left
       const y = event.clientY - rect.top

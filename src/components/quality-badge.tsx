@@ -2,6 +2,7 @@
 
 import { ShieldCheck, FlaskConical, Users, HelpCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getProvenancePresentation } from '@/lib/provenance'
 
 export type SampleQuality = 'verified' | 'provisional' | 'citizen' | 'unreviewed' | 'illustrative'
 
@@ -43,15 +44,27 @@ const QUALITY_CONFIG: Record<
 
 export function QualityBadge({
   quality,
+  provenance,
+  verificationStatus,
+  source,
   size = 'sm',
   showIcon = true,
 }: {
   quality: string
+  provenance?: string | null
+  verificationStatus?: string | null
+  source?: string | null
   size?: 'xs' | 'sm' | 'md'
   showIcon?: boolean
 }) {
-  const q = (quality in QUALITY_CONFIG ? quality : 'unreviewed') as SampleQuality
-  const config = QUALITY_CONFIG[q]
+  const presentation = getProvenancePresentation({
+    quality,
+    provenance,
+    verificationStatus,
+    source,
+  })
+  const q = presentation.badgeVariant
+  const config = QUALITY_CONFIG[q] || QUALITY_CONFIG.unreviewed
   const Icon = config.icon
   const sizeCls =
     size === 'xs'
@@ -63,7 +76,7 @@ export function QualityBadge({
 
   return (
     <span
-      title={config.title}
+      title={presentation.description}
       className={cn(
         'inline-flex items-center rounded-md border font-medium',
         sizeCls,
@@ -71,7 +84,7 @@ export function QualityBadge({
       )}
     >
       {showIcon && <Icon className={iconCls} />}
-      {config.label}
+      {presentation.badgeLabel}
     </span>
   )
 }

@@ -19,7 +19,9 @@ export function LiveTicker() {
     { icon: Droplets, text: `${stats.utilitiesCount} utilities tracked across ${stats.statesCovered} states` },
     { icon: FlaskConical, text: `${stats.contaminantsCount} contaminants catalogued including microplastics` },
     { icon: AlertTriangle, text: `${stats.healthExceedances} measurements above EWG health guidelines` },
-    { icon: Droplets, text: `Microplastics avg: ${stats.microplasticsAvg} particles/L in untreated freshwater` },
+    ...(stats.microplasticsAvg != null
+      ? [{ icon: Droplets, text: `Microplastics avg: ${stats.microplasticsAvg} particles/L in treated drinking water` }]
+      : []),
     { icon: MapPin, text: `${stats.reportsCount} community reports filed` },
     { icon: AlertTriangle, text: `${stats.legalExceedances} measurements above EPA legal limits` },
   ]
