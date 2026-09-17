@@ -57,7 +57,7 @@ export function AdminSection() {
   }
 
   return (
-    <div className="min-h-[80vh] bg-water-hero">
+    <div className="admin-workbench min-h-[80vh] bg-water-hero">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Admin header */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -171,7 +171,7 @@ function LoginScreen({ onLogin }: { onLogin: (u: AdminUser) => void }) {
   }
 
   return (
-    <div className="flex min-h-[80vh] items-center justify-center bg-water-hero px-4">
+    <div className="admin-workbench flex min-h-[80vh] items-center justify-center bg-water-hero px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -470,18 +470,17 @@ function UtilityFormDialog({
   onClose: () => void
   onSaved: () => void
 }) {
-  const [form, setForm] = useState<Partial<Utility>>({})
+  const [form, setForm] = useState<Partial<Utility>>(() => ({
+    pwsid: '', name: '', city: '', state: '', zipCodes: '', county: '',
+    population: 0, systemType: 'Community', sourceType: 'Surface',
+    treatmentStatus: 'Treated', latitude: null, longitude: null,
+    website: '', notes: '',
+  }))
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
 
-  useEffect(() => {
-    setForm(utility ?? {
-      pwsid: '', name: '', city: '', state: '', zipCodes: '', county: '',
-      population: 0, systemType: 'Community', sourceType: 'Surface',
-      treatmentStatus: 'Treated', latitude: null, longitude: null,
-      website: '', notes: '',
-    })
-  }, [utility, open])
+  // Reset the draft on open via the dialog's onOpenChange below (event-driven).
+
 
   const save = async () => {
     if (!form.pwsid || !form.name || !form.state) {
@@ -510,7 +509,7 @@ function UtilityFormDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={open} onOpenChange={(o) => { if (o) setForm(utility ?? { pwsid: '', name: '', city: '', state: '', zipCodes: '', county: '', population: 0, systemType: 'Community', sourceType: 'Surface', treatmentStatus: 'Treated', latitude: null, longitude: null, website: '', notes: '' }); else onClose() }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{utility ? 'Edit utility' : 'Add utility'}</DialogTitle>
@@ -1069,7 +1068,14 @@ function DonationsAdmin() {
       load()
     }
   }
-  useEffect(() => { syncHcb() }, [])
+  useEffect(() => {
+    let cancelled = false
+    const timer = setTimeout(() => {
+      if (!cancelled) syncHcb()
+    }, 0)
+    return () => { cancelled = true; clearTimeout(timer) }
+  }, [])
+
 
   const setStatus = async (id: string, status: string) => {
     try {

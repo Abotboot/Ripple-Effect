@@ -135,15 +135,14 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
   useEffect(() => {
     if (typeof window === 'undefined') return
     const pending = sessionStorage.getItem('pendingSearch')
-    if (pending) {
-      sessionStorage.removeItem('pendingSearch')
-      setQ(pending)
-      setTimeout(() => doSearch(pending), 50)
-    }
+    if (!pending) return
+    sessionStorage.removeItem('pendingSearch')
+    const timer = setTimeout(() => { setQ(pending); doSearch(pending) }, 0)
+    return () => clearTimeout(timer)
   }, [doSearch])
 
   return (
-    <div>
+    <div className="home-data">
       <Hero
         q={q}
         setQ={setQ}

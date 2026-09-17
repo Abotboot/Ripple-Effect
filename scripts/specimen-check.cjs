@@ -8,6 +8,7 @@ const assert = require('node:assert/strict');
     await page.goto(process.env.QA_URL || 'http://localhost:3015', {waitUntil:'domcontentloaded'});
     const stage = page.locator('.specimen-stage');
     const canvas = stage.locator('canvas');
+    await stage.scrollIntoViewIfNeeded();
     await page.waitForFunction(() => document.querySelector('.specimen-stage canvas')?.dataset.rendered === 'macro');
     const before = await canvas.evaluate(c => c.toDataURL());
     const readout = await stage.locator('.specimen-readout').innerText();

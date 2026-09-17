@@ -1,0 +1,35 @@
+/* Shared surfaces include portals: dialogs and menus inherit the same palette. */
+.dark {
+  --background: #05080a; --foreground: #dcebe5;
+  --card: #0b1417; --card-foreground: #dcebe5;
+  --popover: #0b1417; --popover-foreground: #dcebe5;
+  --primary: #1df2b3; --primary-foreground: #05110c;
+  --secondary: #182a24; --secondary-foreground: #dcebe5;
+  --muted: #14221e; --muted-foreground: #a4bdb3;
+  --accent: #203c32; --accent-foreground: #e4fff4;
+  --border: #345148; --input: #49665c; --ring: #1df2b3;
+}
+.dark .bg-water-hero { background: radial-gradient(ellipse at 90% 0, #123127, transparent 65%), #05080a; }
+.dark .bg-water-surface { background: #15382d; animation: none; }
+.home-data > section:not(.tank-hero):not(.specimen-stage):not(.water-narrative), .legal-page { color: var(--foreground); }
+.home-data > section:not(.tank-hero):not(.specimen-stage):not(.water-narrative) h2, .legal-page h1, .legal-page h2, .admin-workbench [data-slot=card-title] { font-family: var(--font-tank-display), serif; font-weight: 400; letter-spacing: -.025em; }
+.home-data > section:not(.tank-hero):not(.specimen-stage):not(.water-narrative) h2 { font-size: clamp(32px, 4vw, 56px); line-height: 1.1; }
+.home-data [data-slot=card], .admin-workbench [data-slot=card], [data-slot=dialog-content] { border-radius: 3px; box-shadow: none; }
+.home-data [data-slot=card] { border-top: 1px solid var(--border); background: var(--card); }
+.home-data #search { padding-block: clamp(56px, 7vw, 100px); }
+.home-data #search > div:first-child { border-bottom: 1px solid var(--border); padding-bottom: 28px; }
+.legal-page h1 { font-size: clamp(42px, 5vw, 76px); line-height: 1.05; }
+.legal-page h2 { font-size: 29px; line-height: 1.2; }
+.legal-page p, .legal-page li { line-height: 1.9; }
+.legal-page > div:first-child { padding-bottom: 36px; border-bottom: 1px solid var(--border); }
+.legal-page > div:first-child > div { flex-wrap: wrap; }
+.admin-workbench [data-slot=card-title] { font-size: 34px; }
+.admin-workbench :is(input,button) { min-height: 44px; }
+.admin-workbench label { font: 11px/1.8 var(--font-geist-mono), monospace; }
+[data-slot=dialog-title] { font-family: var(--font-tank-display), serif; font-size: 30px; }
+[data-slot=dialog-content] :is(input,button,[role=combobox]) { min-height: 40px; }
+@media (max-width: 767px) {
+  /* Header menu already exposes search; floating keyboard hint obscures touch CTAs. */
+  button[aria-label="Open search"] { display: none; }
+  .home-data .grid > *, .admin-workbench .grid > * { min-width: 0; }
+}

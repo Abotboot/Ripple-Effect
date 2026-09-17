@@ -9,8 +9,37 @@ export function SpecimenInspector() {
   const canvas = useRef<HTMLCanvasElement>(null)
   const [uv, setUv] = useState(false)
   const [angle, setAngle] = useState(0)
+  const [fallback, setFallback] = useState(false)
+  const scene = useRef<ReturnType<typeof import('./bottle-scene').createBottleScene> | null>(null)
+  const view = useRef({ uv, angle })
 
   useEffect(() => {
+    view.current = { uv, angle }
+    scene.current?.update(uv, angle)
+  }, [uv, angle])
+
+  useEffect(() => {
+    if (fallback) return
+    let cancelled = false
+    const element = canvas.current
+    if (!element) return
+    const observer = new IntersectionObserver(entries => {
+      if (!entries.some(entry => entry.isIntersecting)) return
+      observer.disconnect()
+      import('./bottle-scene').then(({ createBottleScene }) => {
+        if (cancelled) return
+        try {
+          scene.current = createBottleScene(element)
+          scene.current.update(view.current.uv, view.current.angle)
+        } catch { setFallback(true) }
+      }).catch(() => { if (!cancelled) setFallback(true) })
+    }, { rootMargin: '400px' })
+    observer.observe(element)
+    return () => { cancelled = true; observer.disconnect(); scene.current?.dispose(); scene.current = null }
+  }, [fallback])
+
+  useEffect(() => {
+    if (!fallback) return
     const element = canvas.current
     const context = element?.getContext('2d')
     if (!element || !context) return
@@ -85,7 +114,7 @@ export function SpecimenInspector() {
     const observer = new ResizeObserver(draw)
     observer.observe(element); draw()
     return () => observer.disconnect()
-  }, [uv, angle])
+  }, [uv, angle, fallback])
 
   return <section className="specimen-stage" aria-labelledby="specimen-title" data-mode={uv ? 'uv' : 'macro'}>
     <div className="specimen-copy">
@@ -107,7 +136,7 @@ export function SpecimenInspector() {
     </div>
     <div className="specimen-chamber">
       <div className="specimen-chamber-label"><span>VESSEL / PET ILLUSTRATION</span><span>{uv ? 'UV / CONCEPT' : 'MACRO / EXTERIOR'}</span></div>
-      <canvas ref={canvas} role="img" aria-label={uv ? 'Illustrated bottle with colored particle and fiber markers, not measurement data' : 'Illustrated clear ribbed water bottle with a pale label'}>Illustrated water bottle. Use the view buttons for accompanying text descriptions.</canvas>
+      <canvas key={fallback ? 'fallback' : 'webgl'} ref={canvas} role="img" aria-label={uv ? 'Illustrated bottle with colored particle and fiber markers, not measurement data' : 'Illustrated clear ribbed water bottle with a pale label'}>Illustrated water bottle. Use the view buttons for accompanying text descriptions.</canvas>
       <label className="specimen-rotation">Rotate specimen <output>{angle}°</output>
         <input type="range" min="-180" max="180" step="5" value={angle} aria-label="Rotate specimen" aria-valuetext={`${angle} degrees`} onChange={event => setAngle(Number(event.target.value))} />
       </label>

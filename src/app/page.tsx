@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import '@/components/site/tank-system.css'
 import { SmoothCurrent } from '@/components/atmosphere/smooth-current'
 import { FluidCursor } from '@/components/atmosphere/fluid-cursor'
 import { SiteHeader, type Section } from '@/components/site/site-header'
