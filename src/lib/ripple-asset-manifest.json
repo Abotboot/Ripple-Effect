@@ -1,0 +1,196 @@
+{
+  "version": 1,
+  "sourceArchive": "ripple-phase-a-deliverables.zip",
+  "sourceSHA256": "43c67a50ca5e3dd55bb53d606cc4817b916a4e30d3b5201a98ee520ed85b7e28",
+  "reviewedRepositoryCommit": "9ca9db122229d4054293a98572e94b38af577072",
+  "assets": [
+    {
+      "original": "01-particle-world-master.png",
+      "sourceDimensions": [
+        1672,
+        941
+      ],
+      "originalBytes": 1376650,
+      "originalSHA256": "39a5845b2899fd69fa0901383d5f0b1dcf1592282a07d3368d25dc1e59aee367",
+      "src": "/media/ripple/particle-world-master.webp",
+      "bytes": 54518,
+      "variants": [
+        {
+          "src": "/media/ripple/particle-world-master-1024.webp",
+          "width": 1024,
+          "height": 576,
+          "bytes": 27702,
+          "sha256": "2f4025d835ba70ab0a6b263a8ae41e3d9fd617d032514faeb7d68632c8cdace1"
+        },
+        {
+          "src": "/media/ripple/particle-world-master-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 54518,
+          "sha256": "709915746e83fbaedd748066d71a9dcefac11dad0bf825af5a6ebdba9f789616"
+        }
+      ],
+      "status": "STILL_READY_FOR_INTEGRATION"
+    },
+    {
+      "original": "02-fibers-card.png",
+      "sourceDimensions": [
+        1254,
+        1254
+      ],
+      "originalBytes": 1374123,
+      "originalSHA256": "6a6f404cbdae7d2f743f5bd82b7b777145a67c6d7094b3d97bb8cbb726187e9e",
+      "src": "/media/ripple/fibers-card.webp",
+      "bytes": 40348,
+      "variants": [
+        {
+          "src": "/media/ripple/fibers-card-384.webp",
+          "width": 384,
+          "height": 384,
+          "bytes": 7272,
+          "sha256": "48d174744d9babc42cb8e123a0dc726459036bda57d20b1884cfb54cdbbbf3fc"
+        },
+        {
+          "src": "/media/ripple/fibers-card-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 19990,
+          "sha256": "eaf603bfee9fff52e9f4b876f29371a8e434ef2756f2f9d658e3e7c11c5b1d85"
+        },
+        {
+          "src": "/media/ripple/fibers-card-1254.webp",
+          "width": 1254,
+          "height": 1254,
+          "bytes": 40348,
+          "sha256": "d3dc8b1fa76a01dcccbd9a51fd149708dab6e155c6b00dd051ed8b3572e342d5"
+        }
+      ],
+      "status": "STILL_READY_FOR_INTEGRATION"
+    },
+    {
+      "original": "03-fragments-card.png",
+      "sourceDimensions": [
+        1254,
+        1254
+      ],
+      "originalBytes": 1483209,
+      "originalSHA256": "bb5967124d41968afc61a538dd44fb4811be9b56dd203eaffa0e8d89faa35e73",
+      "src": "/media/ripple/fragments-card.webp",
+      "bytes": 62376,
+      "variants": [
+        {
+          "src": "/media/ripple/fragments-card-384.webp",
+          "width": 384,
+          "height": 384,
+          "bytes": 10630,
+          "sha256": "768d5d9aed71dcf99025a55ad19fccc7eeaad656b612faff47715ba9f65e12b8"
+        },
+        {
+          "src": "/media/ripple/fragments-card-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 30206,
+          "sha256": "d9a93ba51451f58dbe5986b22baa331cbbe5b743763597bc83cfc275d82a69f4"
+        },
+        {
+          "src": "/media/ripple/fragments-card-1254.webp",
+          "width": 1254,
+          "height": 1254,
+          "bytes": 62376,
+          "sha256": "a0ed861e87f0155871a22c6c9939b6dcdbc3b1d4add02e3c70b968ada23df90b"
+        }
+      ],
+      "status": "STILL_READY_FOR_INTEGRATION"
+    },
+    {
+      "original": "04-granules-card.png",
+      "sourceDimensions": [
+        1254,
+        1254
+      ],
+      "originalBytes": 1340542,
+      "originalSHA256": "a254005de6a7cbfebcfbd30571a6898931edfcbca6264262a29465ccfe391482",
+      "src": "/media/ripple/granules-card.webp",
+      "bytes": 42510,
+      "variants": [
+        {
+          "src": "/media/ripple/granules-card-384.webp",
+          "width": 384,
+          "height": 384,
+          "bytes": 8078,
+          "sha256": "364099fa78e8df86b75f0d4715d510d91707bfdecb1678d94e04afcf4df9fd75"
+        },
+        {
+          "src": "/media/ripple/granules-card-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 21394,
+          "sha256": "125a881ac089c3bc902e622483d207b1740c672980c75e774fc8a0248defbb2b"
+        },
+        {
+          "src": "/media/ripple/granules-card-1254.webp",
+          "width": 1254,
+          "height": 1254,
+          "bytes": 42510,
+          "sha256": "50744c54a5bb42227975bfb75fbb4a2a710a260aecbfb9ebcf146a6713473a3f"
+        }
+      ],
+      "status": "STILL_READY_FOR_INTEGRATION"
+    },
+    {
+      "original": "05-sample-study-panel.png",
+      "sourceDimensions": [
+        1122,
+        1402
+      ],
+      "originalBytes": 1454734,
+      "originalSHA256": "383e3a430aa43b16c522ae9afd141877222e9692573f978d65aa95fe1805dd26",
+      "src": "/media/ripple/sample-study-panel.webp",
+      "bytes": 59828,
+      "variants": [
+        {
+          "src": "/media/ripple/sample-study-panel-640.webp",
+          "width": 640,
+          "height": 800,
+          "bytes": 25344,
+          "sha256": "cb4b4339f7c292a37f6bab7c4572e7208f7d48e29ee0a4ec18544739c1679420"
+        },
+        {
+          "src": "/media/ripple/sample-study-panel-1122.webp",
+          "width": 1122,
+          "height": 1402,
+          "bytes": 59828,
+          "sha256": "6a7ce2863a84c5b55f2dcc215e61a5ffefbec2092fd886c8354f08d51bef07aa"
+        }
+      ],
+      "status": "STILL_READY_FOR_INTEGRATION"
+    }
+  ],
+  "sequence": {
+    "status": "TIMING_PROOF_NOT_FINAL_ART",
+    "src": "/media/ripple/intro-proof-1080.mp4",
+    "fps": 30,
+    "frameCount": 258,
+    "durationSeconds": 8.6,
+    "microscopeFramesInclusive": [
+      0,
+      141
+    ],
+    "continuationFramesInclusive": [
+      4,
+      119
+    ],
+    "spliceAtSeconds": 4.733333333333333,
+    "continuationSourceOffsetSeconds": 0.13333333333333333,
+    "terminalFrameIndex": 257,
+    "terminalFramePTS": 8.566666666666666,
+    "retiming": false,
+    "contentChanges": "Removed only 8 trailing near-black microscope frames and 4 leading near-black continuation frames; normalized the delivery encode to limited-range BT.709 yuv420p. No effects added.",
+    "poster": "/media/ripple/microscope-poster.webp",
+    "terminalPoster": "/media/ripple/continuation-terminal-proof.webp",
+    "targetMaster": "/media/ripple/particle-world-master.webp",
+    "terminalMatchesMaster": false,
+    "bytes": 2314933,
+    "sha256": "991bb429be3776bcdfe0b1e5721688458e713edff287f7b5f325f5f2641363ba"
+  }
+}

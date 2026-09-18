@@ -31,6 +31,7 @@ import { AnimatedCounter as BaseAnimatedCounter } from '@/components/ui/animated
 import { ContaminantSpectrumChart } from '@/components/d3/contaminant-spectrum-chart'
 import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
 import { CinematicPanel } from '@/components/ui/cinematic-panel'
+import { ParticleAtlas } from '@/components/sections/particle-atlas'
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
 
@@ -295,16 +296,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
         </div>
       </section>
 
-      {/* Visual story transition anchor */}
-      <div className="mx-auto max-w-7xl px-4 py-4 text-center sm:px-6 lg:px-8">
-        <a
-          href="#specimen-study"
-          className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/60 px-4 py-1.5 text-xs font-mono tracking-wider text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-        >
-          <span>Explore specimen study &amp; water narrative</span>
-          <span aria-hidden="true">↓</span>
-        </a>
-      </div>
+      <ParticleAtlas />
 
       <div id="specimen-study">
         <SpecimenInspector />

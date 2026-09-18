@@ -12,6 +12,14 @@
 .particle-stage { border-top: 1px solid #26413e; background: radial-gradient(ellipse at 90% 60%, #271020 0, transparent 60%), #080d10; min-height: 680px; }
 .particle-stage h2 { font: 400 clamp(34px, 4.5vw, 72px)/1.05 var(--font-tank-display), serif; letter-spacing: -.025em; }
 .particle-stage h2 em { color: #adcac0; }
+.sample-examination-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 88px); align-items: center; max-width: 1200px; margin-bottom: 56px; }
+.sample-examination-art { margin: 0; max-width: 500px; }
+.sample-examination-art img { display: block; width: 100%; height: auto; border: 1px solid #2c4943; }
+.sample-examination-art figcaption { color: #a3b8b0; font-size: 12px; line-height: 1.7; margin-top: 14px; }
+.sample-examination-copy { min-width: 0; }
+.sample-examination-copy h2 { margin-block: 20px 28px; }
+.sample-examination-copy p { color: #b6ccc6; font-size: 15px; line-height: 1.8; max-width: 480px; margin-top: 16px; }
+.particle-study-title { font: 400 clamp(27px, 3vw, 42px)/1.2 var(--font-tank-display), serif; letter-spacing: -.02em; }
 .particle-number { display: flex; align-items: baseline; gap: 32px; margin: 28px 0; }
 .particle-number > span:first-child { font: 400 clamp(68px, 13vw, 210px)/1 var(--font-tank-display), serif; font-variant-numeric: lining-nums tabular-nums; color: #ff729b; letter-spacing: -.035em; }
 .particle-unit { color: #ffb1c8; }
@@ -58,6 +66,8 @@
 @media (prefers-reduced-motion: reduce) { .countermeasure-action { transition: none; } }
 @media (max-width: 899px) {
   .countermeasure-layout { grid-template-columns: 1fr; }
+  .sample-examination-layout { grid-template-columns: 1fr; gap: 32px; }
+  .sample-examination-art { max-width: 500px; width: 100%; }
   .water-narrative section { padding: 64px 6vw; }
   .illusion-bottom, .particle-context { grid-template-columns: 1fr; gap: 24px; }
   .illusion-bottom { margin: 40px 0 20px; }

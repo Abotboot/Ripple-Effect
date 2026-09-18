@@ -4,6 +4,8 @@ import { useEffect, useRef, useId, type CSSProperties } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import SplitType from 'split-type'
+import Image from 'next/image'
+import { rippleAssets } from '@/lib/ripple-assets'
 import './water-narrative.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -98,7 +100,26 @@ export function WaterNarrative() {
     </section>
     <section className="particle-stage" aria-labelledby="particle-title">
       <div className="narrative-label">02 / THE INVISIBLE CONTENTS</div>
-      <h2 id="particle-title">One liter.<br /><em>A smaller world inside.</em></h2>
+      <div className="sample-examination-layout">
+        <figure className="sample-examination-art">
+          <Image
+            src={rippleAssets.sample.src}
+            alt={rippleAssets.sample.alt}
+            width={rippleAssets.sample.width}
+            height={rippleAssets.sample.height}
+            sizes="(max-width: 899px) 88vw, (max-width: 1399px) 36vw, 500px"
+            loading="lazy"
+          />
+          <figcaption>Illustrative sample setup—not a laboratory result.</figcaption>
+        </figure>
+        <div className="sample-examination-copy">
+          <span className="narrative-coordinate">SAMPLE / EXAMINATION</span>
+          <h2 id="particle-title">A sample.<br /><em>A closer look.</em></h2>
+          <p>Appearance is a starting point. Identifying a particle requires analytical methods, with the sample, method and limitations reported alongside the result.</p>
+          <p>The bottled-water study below describes the samples it tested, not the illustrated bead or your local water. Keep that distinction in view when exploring its findings.</p>
+        </div>
+      </div>
+      <h3 className="particle-study-title">One liter. A smaller world inside.</h3>
       <div className="particle-number" aria-label="Approximately 240,000 particles per liter on average in the study">
         <span ref={count} aria-hidden="true">240,000</span><span className="particle-unit" aria-hidden="true">PARTICLES / LITER</span>
       </div>
