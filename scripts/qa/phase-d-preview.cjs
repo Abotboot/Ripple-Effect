@@ -84,6 +84,18 @@ async function main() {
   }
   await get('/api/readings/recent')
   await get('/api/activity')
+  const dashboard = await get('/api/dashboard')
+  assert.equal(dashboard.totalUtilities, utilities.length)
+  assert.equal(dashboard.totalSamples, samples.length)
+  assert.equal(Object.values(dashboard.qualityBreakdown).reduce((sum, n) => sum + n, 0), samples.length)
+  if (legacy) {
+    assert.equal(dashboard.bestUtility, null); assert.equal(dashboard.worstUtility, null)
+    assert.equal(Object.values(dashboard.scoreDistribution).reduce((sum, n) => sum + n, 0), 0)
+  }
+  const nearby = await get('/api/utilities/near?lat=41.8781&lng=-87.6298&radius=300')
+  assert.equal(nearby.count, nearby.utilities.length)
+  assert(nearby.utilities.every((u, index, all) => utilities.some(source => source.id === u.id) && Number.isFinite(u.distanceMiles) &&
+    u.distanceMiles >= 0 && u.distanceMiles <= 300 && (index === 0 || u.distanceMiles >= all[index - 1].distanceMiles)))
   report.checks.push({ name: 'Detail, compare, contaminant, trend and recent public reads', passed: true })
   save()
 
@@ -113,6 +125,10 @@ async function main() {
         await page.getByTestId('utility-map-marker').first().focus()
         await page.keyboard.press('Enter')
         await page.getByRole('dialog').waitFor()
+        await page.waitForFunction(() => {
+          const element = document.querySelector('[data-testid="utility-detail-dialog"]')
+          return element && +getComputedStyle(element).opacity > 0.999 && +getComputedStyle(element.parentElement).opacity > 0.999
+        })
         if (legacy) {
           await page.getByTestId('unassessed-score').waitFor()
           assert.equal(await page.getByRole('dialog').getByText('Not assessed', { exact: true }).count(), 2)
@@ -123,6 +139,7 @@ async function main() {
         await page.goto(base + '/#about', { waitUntil: 'domcontentloaded' })
         const kenny = page.getByText('Kenny', { exact: true })
         await kenny.waitFor(); await kenny.scrollIntoViewIfNeeded()
+        await page.waitForTimeout(500)
         assert.equal(await page.getByText('Aryash', { exact: true }).count(), 0)
         await page.screenshot({ path: path.join(out, `${width}-kenny-finance.png`) })
         await page.goto(base + '/motion-study', { waitUntil: 'domcontentloaded' })
@@ -146,6 +163,7 @@ async function main() {
         assert.equal(await page.locator('iframe[title="Netlify Drawer"]').count(), 0)
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false)
         assert.deepEqual(writes, []); assert.deepEqual(pageErrors, [])
+        assert.deepEqual(consoleErrors, [], 'No console errors, including broken headshot requests')
         const apiFailures = failedResponses.filter(r => r.path.startsWith('/api/'))
         assert.deepEqual(apiFailures, [])
         report.browser.push({ width, height, passed: true, markers, kenny: true, newMicroscope: true, specimen: true,

@@ -322,7 +322,7 @@ export function MapSection() {
           </span>
           {([
             { id: 'all', label: 'All', count: locations ? mapUtilities.length : null, Icon: null as null | typeof Microscope },
-            { id: 'microplastics', label: 'Microplastics recorded', count: contaminantCounts.microplastics, Icon: Microscope },
+            { id: 'microplastics', label: 'Reviewed microplastics detected', count: contaminantCounts.microplastics, Icon: Microscope },
             { id: 'pfas', label: 'PFAS above guideline', count: contaminantCounts.pfas, Icon: FlaskConical },
             { id: 'lead', label: 'Lead above guideline', count: contaminantCounts.lead, Icon: Droplets },
             { id: 'dbp', label: 'DBPs above guideline', count: contaminantCounts.dbp, Icon: Beaker },

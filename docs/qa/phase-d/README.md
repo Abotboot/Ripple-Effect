@@ -120,3 +120,10 @@ longer displays a 0–100 gauge or a faux deduction breakdown. The printable
 summary likewise distinguishes unassessed comparisons and prints benchmark units.
 Two local UI cases using the actual read-only preview records pass at desktop
 and mobile sizes (`detail/results.json`); the nine build/fixture gates pass again.
+
+The About Us review also found nine hardcoded headshot URLs with no matching
+assets in `public/team`; those requests are removed and the existing initials
+avatars are used. No portrait is invented or reassigned. The About copy no longer
+claims the entire live dataset is on GitHub or that the records are calibrated to
+agencies. The map's positive microplastic filter is explicitly labeled **Reviewed
+microplastics detected** so its zero does not imply absence from unreviewed records.

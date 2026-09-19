@@ -179,7 +179,7 @@ export async function GET(req?: NextRequest) {
     if (eligible) { eligibleSampleCount++; cur.eligibleSampleCount++ }
     if (slug === 'microplastics') {
       const normalized = normalizeToBenchmarkUnit(s.level, s.unit, 'particles/l')
-      if (eligible && normalized != null && normalized > 0) cur.microplastics = true
+      if (eligible && normalized != null && Number.isFinite(normalized) && normalized > 0) cur.microplastics = true
     } else if (PFAS_SLUGS.has(slug)) {
       if (healthExceeded) cur.pfas = true
     } else if (slug === 'lead') {

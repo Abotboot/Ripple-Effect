@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-09-19T07:45:26.420Z",
+  "createdAt": "2026-09-19T07:53:47.116Z",
   "baseline": "be0f622eece788684de60c9e5de17be010363e0f",
   "checks": [
     {
@@ -83,8 +83,10 @@
         "docs/qa/phase-d/specimen/typecheck-specimen.cjs",
         "scripts/qa/phase-d-checks.cjs",
         "scripts/qa/phase-d-counter.cjs",
+        "scripts/qa/phase-d-detail.cjs",
         "scripts/qa/phase-d-integration.cjs",
         "scripts/qa/phase-d-microscope.cjs",
+        "scripts/qa/phase-d-preview.cjs",
         "src/app/api/activity/route.ts",
         "src/app/api/contaminants/[id]/route.ts",
         "src/app/api/dashboard/route.ts",
@@ -113,9 +115,7 @@
         "src/lib/sample-read-cohort.ts",
         "src/lib/sample-read-model.ts",
         "src/lib/sample-read.ts",
-        "src/lib/types.ts",
-        "scripts/qa/phase-d-detail.cjs",
-        "scripts/qa/phase-d-preview.cjs"
+        "src/lib/types.ts"
       ],
       "passed": true,
       "exitCode": 0
@@ -132,5 +132,5 @@
     }
   ],
   "success": true,
-  "completedAt": "2026-09-19T07:46:05.166Z"
+  "completedAt": "2026-09-19T07:54:28.602Z"
 }
