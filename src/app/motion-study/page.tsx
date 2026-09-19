@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { TankHero } from '@/components/atmosphere/tank-hero'
 import { WaterNarrative } from '@/components/atmosphere/water-narrative'
-import { SpecimenInspector } from '@/components/atmosphere/specimen-inspector'
 import { ParticleAtlas } from '@/components/sections/particle-atlas'
 import './motion-study.css'
 
@@ -20,14 +19,14 @@ export default function MotionStudy() {
           <input id="study-search" value={query} onChange={event => { setQuery(event.target.value); setSubmitted(false) }} placeholder="ZIP, city, or utility" />
           <button type="submit">Try search</button>
         </form>
-        <div className="tank-search-links"><a href="#specimen-study">Explore the specimen</a><a href="#sample-study">Examine a sample</a></div>
+        <div className="tank-search-links"><a href="#particle-atlas">Compare particles</a><a href="#sample-study">Examine a sample</a></div>
       </TankHero>
       <section id="search" className="motion-study-results" aria-live="polite">
         <h2>Try the search interaction</h2>
         <p>{submitted ? `Input preserved: “${query || '(empty)'}”. This isolated study makes no data request.` : 'This field study demonstrates the experience without requesting water records. Use Water search for the main application.'}</p>
       </section>
       <ParticleAtlas />
-      <div id="specimen-study"><SpecimenInspector /><WaterNarrative contributeHref="/#submit" /></div>
+      <div id="specimen-study"><WaterNarrative contributeHref="/#submit" /></div>
     </main>
   )
 }

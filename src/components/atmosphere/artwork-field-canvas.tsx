@@ -11,8 +11,6 @@ type Props = {
   category: ArtworkCategory
   onReady: () => void
   onError: () => void
-  onReveal: () => void
-  onSettled: () => void
 }
 
 /** Owns one visible-only clock. The renderer itself never queues a frame. */
@@ -34,8 +32,6 @@ export function ArtworkFieldCanvas(props: Props) {
     let lastDraw = 0
     let draws = 0
     let previousPhase: ArtworkPhase = options.current.phase
-    let revealed = false
-    let settled = false
     let field: ReturnType<typeof import('@/lib/artwork-field').createArtworkField> | null = null
     let pointer: { x: number; y: number } | null = null
     let impulse: { x: number; y: number; started: number } | null = null
@@ -54,10 +50,12 @@ export function ArtworkFieldCanvas(props: Props) {
       if (!field || disposed) return
       const current = options.current
       if (current.phase !== previousPhase) {
-        if (current.phase === 'entering' || current.phase === 'video') { clock = 0; revealed = false; settled = false; impulse = null; pointer = null }
+        if (current.phase === 'entering' || current.phase === 'video') { clock = 0; impulse = null; pointer = null }
         previousPhase = current.phase
       }
-      const entrance = current.phase === 'video' ? 0 : current.phase === 'entering' ? Math.min(1, clock / artworkJourney.entranceSeconds) : 1
+      // The DOM terminal layer owns the dissolve. Keep the field at its final
+      // camera framing so the handoff never adds a second zoom or lens crop.
+      const entrance = 1
       const strength = impulse ? Math.max(0, 1 - (clock - impulse.started) / 1.5) : 0
       try {
         field.render({ time: current.reduced ? 0 : clock, entrance, category: current.category,
@@ -73,10 +71,6 @@ export function ArtworkFieldCanvas(props: Props) {
       canvas.dataset.fieldTime = clock.toFixed(4)
       canvas.dataset.entrance = entrance.toFixed(4)
       canvas.dataset.category = current.category
-      if (current.phase === 'entering') {
-        if (!revealed && entrance >= artworkJourney.revealProgress) { revealed = true; current.onReveal() }
-        if (!settled && entrance >= 1) { settled = true; current.onSettled() }
-      }
     }
     const tick = (now: number) => {
       frame = null

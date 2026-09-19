@@ -3,7 +3,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  X, Building2, MapPin, Users, Globe, AlertTriangle, ShieldCheck,
+  X, Building2, MapPin, Globe, AlertTriangle, ShieldCheck,
   TrendingUp, FlaskConical, Info, Download, Share2, Printer,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -52,7 +52,6 @@ export function UtilityDetailDialog({
   const closeButton = useRef<HTMLButtonElement>(null)
   const handlers = useRef({ onClose, shareCardOpen })
   const headingId = useId()
-  const descriptionId = useId()
   const utilityId = utility?.id
   useLayoutEffect(() => { handlers.current = { onClose, shareCardOpen } }, [onClose, shareCardOpen])
   useEffect(() => {
@@ -93,6 +92,7 @@ export function UtilityDetailDialog({
       <AnimatePresence>
         {utility && (
           <motion.div
+            data-lenis-prevent
             className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -104,7 +104,6 @@ export function UtilityDetailDialog({
               role="dialog"
               aria-modal="true"
               aria-labelledby={headingId}
-              aria-describedby={descriptionId}
               tabIndex={-1}
               data-testid="utility-detail-dialog"
               className="relative flex max-h-[92vh] sm:max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:max-w-4xl sm:rounded-2xl"
@@ -166,12 +165,11 @@ export function UtilityDetailDialog({
   @media print { body { margin: 0; } }
 </style></head><body>
 <h1>${name}</h1>
-<div class="meta">${city}, ${state} · PWSID: ${pwsid} · Population served: ${utility.population.toLocaleString()}<br>
+<div class="meta">${city}, ${state} · PWSID: ${pwsid}<br>
 Source: ${sourceType} · Treatment: ${treatmentStatus}</div>
 ${hasPublishedScore(score) ? `<div class="score">Water Safety Score: ${score.score}/100 (Grade ${escapeHtml(score.grade)}, ${escapeHtml(score.label)})</div>` : '<div class="score neutral">Safety score not assessed</div>'}
 <h2>Summary</h2>
 <p>Contaminants tracked: ${utility.contaminantSummaries.length} · Samples: ${utility.totalSamples} · Above health guideline: ${healthCompared ? `${healthAbove} / ${healthCompared} compared` : 'Not assessed'} · Above legal limit: ${legalCompared ? `${legalAbove} / ${legalCompared} compared` : 'Not assessed'}</p>
-${utility.dataStatus?.status === 'degraded' ? '<p>Historical observations are available; verification metadata is unavailable. No safety conclusion is established from those records.</p>' : ''}
 <h2>Contaminant Breakdown</h2>
 <table>
 <tr><th>Contaminant</th><th>Latest measurement</th><th>Health comparison</th><th>Legal comparison</th></tr>
@@ -223,17 +221,12 @@ Learn more at https://arippleeffectinitiative.org
                 <Badge className="bg-white/20 text-white hover:bg-white/20">
                   {utility.treatmentStatus}
                 </Badge>
-                <Badge className="bg-white/20 text-white hover:bg-white/20">
-                  <Users className="mr-1 h-3 w-3" />
-                  {utility.population.toLocaleString()} residents served
-                </Badge>
               </div>
             </div>
 
             {/* Body */}
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain" tabIndex={0} role="region" aria-label="Utility measurements" data-testid="utility-detail-scroll">
               <div className="space-y-6 p-5 sm:p-7 pb-12">
-                <p id={descriptionId} className="text-sm leading-relaxed text-muted-foreground" data-testid="utility-assessment-notice">{utility.dataStatus?.status === 'degraded' ? 'Historical observations are shown with their original source labels. Verification metadata is unavailable in this database version; these records do not establish a safety score or a reviewed benchmark comparison.' : 'Read the source, date, units and review status alongside each observation. Missing comparisons are not evidence of safe water.'}</p>
                 {/* Summary stats */}
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   <StatTile

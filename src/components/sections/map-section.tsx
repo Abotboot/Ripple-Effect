@@ -257,10 +257,6 @@ export function MapSection() {
           <p>{assessmentError}</p>
           <Button variant="outline" onClick={retryData}>Retry comparisons</Button>
         </div>}
-        {stats?.dataStatus?.status === 'degraded' && <p role="status" className="mb-4 rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
-          Historical sample records are available, but their verification metadata is unavailable.
-          These records remain unreviewed and do not establish safety or benchmark compliance.
-        </p>}
         {detailError && <div role="alert" className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4">
           <p>Records for {detailError.name} could not be loaded.</p>
           <Button variant="outline" onClick={() => openUtility(detailError)}>Retry utility records</Button>
@@ -636,7 +632,7 @@ export function MapSection() {
                     <div className="text-sm font-semibold text-foreground">{hovered.name}</div>
                   </div>
                     <div className="mt-0.5 text-xs text-muted-foreground">
-                      {hovered.city}, {hovered.state} · pop. {hovered.population.toLocaleString()}
+                      {hovered.city}, {hovered.state}
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">{tierFor(hovered).label}</div>
                     <div className="mt-1.5 flex flex-wrap gap-1.5 text-[10px]">
@@ -714,7 +710,7 @@ export function MapSection() {
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium text-foreground">{u.name}</div>
                       <div className="text-xs text-muted-foreground">
-                        {u.city}, {u.state} · pop. {u.population.toLocaleString()}
+                        {u.city}, {u.state}
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
@@ -759,7 +755,7 @@ export function MapSection() {
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-sm font-medium text-foreground">{u.name}</div>
                           <div className="text-xs text-muted-foreground">
-                            {u.city}, {u.state} · {u.population.toLocaleString()} residents served
+                            {u.city}, {u.state}
                           </div>
                           <div className="mt-1 text-xs text-muted-foreground">{tier.label}</div>
                         </div>

@@ -18,7 +18,6 @@ import type { Utility, Stats, UtilityWithStats } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
 import { TankHero } from '@/components/atmosphere/tank-hero'
 import { WaterNarrative } from '@/components/atmosphere/water-narrative'
-import { SpecimenInspector } from '@/components/atmosphere/specimen-inspector'
 import type { Section } from '@/components/site/site-header'
 import { Microscope, HandHeart, Database, Github, Info } from 'lucide-react'
 import { useCountUp, formatCount } from '@/hooks/use-count-up'
@@ -214,7 +213,6 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
           </Button>
         </div>
       )}
-      {stats?.dataStatus?.status === 'degraded' && <div className="mx-auto max-w-7xl border-b border-border px-4 py-4 text-sm leading-relaxed text-muted-foreground sm:px-6 lg:px-8" role="status" data-testid="legacy-data-notice"><strong className="font-medium text-foreground">Historical records are available.</strong> Their verification metadata is not available in this database version. Locations and original observations are shown; safety scores and reviewed comparisons are withheld until that evidence can be verified.</div>}
 
       {/* Polite live region for screen readers */}
       <div aria-live="polite" className="sr-only">
@@ -357,7 +355,6 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
       <ParticleAtlas onMethodology={() => onNavigate?.('sources')} />
 
       <div id="specimen-study">
-        <SpecimenInspector />
         <WaterNarrative onMethodology={() => onNavigate?.('sources')} />
       </div>
 
@@ -685,11 +682,7 @@ function UtilityCard({
           </div>
         )}
 
-        <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <Users className="h-3 w-3" />
-            {utility.population.toLocaleString()} residents served
-          </span>
+        <div className="mt-4 flex items-center justify-end border-t border-border/60 pt-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
             {onShare && (
               <Button
@@ -1077,10 +1070,6 @@ function RecentlyAddedAndQuality({
                             {u.city}, {u.state}
                           </div>
                           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-                            <span className="inline-flex items-center gap-0.5">
-                              <Users className="h-2.5 w-2.5" />
-                              {u.population.toLocaleString()}
-                            </span>
                             <span className="inline-flex items-center gap-0.5">
                               <Beaker className="h-2.5 w-2.5" />
                               {u.sampleCount} samples

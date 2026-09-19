@@ -449,7 +449,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                 <span className="font-medium text-foreground">About this data: </span>
                 City observations retain their recorded source and review status; they are not safety findings.
                 Averages include only compatible, reviewed institutional measurements, normalized to particles per liter.
-                {data?.dataStatus?.status === 'degraded' && ' Verification metadata is unavailable for historical records, so these remain unreviewed.'}{' '}
+                {' '}
                 <button
                   onClick={() => onNavigate?.('sources')}
                   className="font-medium text-primary hover:underline"

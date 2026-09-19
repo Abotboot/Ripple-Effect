@@ -29,7 +29,7 @@ body :is([data-slot=button], [data-slot=card], [data-slot=input], [data-slot=tex
 .dark .site-header > [aria-hidden=true] { background: #a9cdc4; }
 .dark .bg-water-hero { background: #101c1d; }
 .dark .bg-water-surface { background: #223c37; animation: none; }
-.home-data > section:not(.tank-hero):not(.specimen-stage):not(.water-narrative):not([aria-labelledby="particle-atlas-title"]), .legal-page { color: var(--foreground); }
+.home-data > section:not(.tank-hero):not(.water-narrative):not([aria-labelledby="particle-atlas-title"]), .legal-page { color: var(--foreground); }
 .home-data > section:not(.tank-hero):not([aria-labelledby="particle-atlas-title"]) h2 { font-family: var(--font-geist-sans), sans-serif; font-size: clamp(26px, 2.8vw, 38px); font-weight: 500; line-height: 1.2; letter-spacing: -.025em; }
 .legal-page h1, .admin-workbench [data-slot=card-title] { font-family: var(--font-tank-display), serif; font-weight: 400; letter-spacing: -.025em; }
 .legal-page h2 { font-family: var(--font-geist-sans), sans-serif; font-weight: 500; letter-spacing: -.02em; }
