@@ -135,5 +135,8 @@ The release gate remains:
 
 After exact-SHA preview review approval, merge commit message into main must be EXACTLY `I've become the founder thanks to SiddhantJ123` with no additional body or standard merge boilerplate.
 
-- Final commit SHA: **[PENDING — fill after prime commits]**
-- Netlify preview URL/status: **[PENDING — fill after PR #3 preview is available]**
+- Final commit SHA: `0104bfda6edf7ebe1cd3ab22a6acb099d4bbef44` (verified application revision; subsequent evidence-only commit records this handoff)
+- Netlify preview URL/status: https://deploy-preview-3--rippleeffecter.netlify.app/ — Netlify success for the verified application revision; 16 actual GETs pass, all nine deployed media files match local SHA-256; 30 utilities and 3,073 records reconcile with export.
+
+## Final Codex review
+User authorized direct release commands. Final source and saved browser evidence reviewed. Preview actual stats, map, scores, samples/export, activity/recent readings all return 200. Missing metadata remains UNKNOWN/UNREVIEWED, not verified. All five images, approved MP4, posters and specimen match deployed bytes. Preview evidence: PREVIEW_RELEASE_CHECK.json. Review passed; proceed with the already-authorized merge and exact user message. Production deploy remains subject to the post-merge check.
