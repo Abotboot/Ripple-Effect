@@ -1,176 +1,83 @@
-'use client'
-
-import { useEffect, useRef, useId, type CSSProperties } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import SplitType from 'split-type'
 import Image from 'next/image'
 import { rippleAssets } from '@/lib/ripple-assets'
 import './water-narrative.css'
 
-gsap.registerPlugin(ScrollTrigger)
-
-const SIPHON_WAYPOINTS = [
-  {
-    id: 'siphon-ingestion',
-    index: '01',
-    name: 'INGESTION',
-    body: 'The bottle empties. Exposure begins where visibility ends.',
-    note: 'Plastic particles have been detected in bottled water. A study average does not measure your exposure.',
-  },
-  {
-    id: 'siphon-contact',
-    index: '02',
-    name: 'CONTACT',
-    body: 'Below the visible scale, size changes the question.',
-    note: 'NIH describes nanoplastics as small enough to enter cells and tissues. This is not a prediction for every particle.',
-  },
-  {
-    id: 'siphon-transit',
-    index: '03',
-    name: 'TRANSIT',
-    body: 'Researchers have reported plastic particles in human blood, lungs and placenta.',
-    note: 'Detection does not establish a route from a particular bottle, dose or health effect.',
-  },
-  {
-    id: 'siphon-unknown',
-    index: '04',
-    name: 'THE UNSETTLED',
-    body: 'A finding is not a forecast. Health effects remain under investigation.',
-    note: 'Exposure, transport and health outcomes are different questions. Uncertainty belongs in the picture.',
-  },
-]
+const researchSource = 'https://www.nih.gov/news-events/nih-research-matters/plastic-particles-bottled-water'
 
 export function WaterNarrative({ contributeHref = '#submit' }: { contributeHref?: string } = {}) {
-  const refractionId = useId().replace(/:/g, "")
-  const root = useRef<HTMLDivElement>(null)
-  const count = useRef<HTMLSpanElement>(null)
-  const track = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const element = root.current
-    if (!element) return
-    const media = gsap.matchMedia()
-    media.add({ motion: '(prefers-reduced-motion: no-preference)', desktop: '(min-width: 900px) and (min-height: 900px)' }, (context) => {
-      if (!context.conditions?.motion) return
-      const heading = element.querySelector<HTMLElement>('[data-split]')!
-      const split = new SplitType(heading, { types: 'words' })
-      gsap.from(split.words, {
-        opacity: 0.2, y: 24, stagger: 0.1, ease: 'none',
-        scrollTrigger: { trigger: heading, start: 'top 85%', end: 'bottom 45%', scrub: true },
-      })
-      const stage = element.querySelector<HTMLElement>('.particle-stage')!
-      const meter = { value: 0 }
-      const render = () => { if (count.current) count.current.textContent = Math.round(meter.value).toLocaleString('en-US') }
-      gsap.fromTo(meter, { value: 0 }, {
-        value: 240000, duration: 2.2, ease: 'power2.out', onUpdate: render,
-        // Reveal once, then keep the study average fixed even when scrolling back.
-        scrollTrigger: { trigger: count.current, start: 'top 88%', once: true },
-      })
-      // Stage 03: pinned horizontal scrub across the anatomic waypoints.
-      if (context.conditions?.desktop && track.current) {
-        const inner = track.current
-        const distance = () => Math.max(0, inner.scrollWidth - inner.parentElement!.clientWidth)
-        gsap.to(inner, {
-          x: () => -distance(), ease: 'none',
-          scrollTrigger: {
-            trigger: element.querySelector('.siphon-stage')!,
-            start: 'top 76px', end: '+=1500', scrub: true, pin: true,
-            invalidateOnRefresh: true,
-          },
-        })
-        // matchMedia owns the tween and restores its transform on cleanup.
-      }
-      return () => { split.revert(); if (count.current) count.current.textContent = '240,000' }
-    }, element)
-    let active = true
-    document.fonts.ready.then(() => { if (active) ScrollTrigger.refresh() })
-    return () => { active = false; media.revert() }
-  }, [])
-
-  return <div className="water-narrative" ref={root}>
-    <section className="illusion-stage" aria-labelledby="illusion-title">
-      <div className="narrative-label">01 / THE ILLUSION OF CLEAR WATER</div>
-      <h2 id="illusion-title" aria-label="Transparency is not purity."><span aria-hidden="true" data-split>Transparency is not purity.</span></h2>
-      <div className="illusion-bottom">
-        <span className="narrative-coordinate" aria-hidden="true">H₂O / BEYOND THE VISIBLE</span>
-        <p>A sealed bottle. A pristine label. A promise you can see straight through. Clear water tells us what our eyes can detect. Not everything it contains.</p>
-      </div>
-      <a className="narrative-link" href="#search">Skip to your water data <span aria-hidden="true">↓</span></a>
-    </section>
+  return <div className="water-narrative">
     <section id="sample-study" className="particle-stage" aria-labelledby="particle-title">
-      <div className="narrative-label">02 / THE INVISIBLE CONTENTS</div>
-      <div className="sample-examination-layout">
+      <div className="narrative-inner sample-examination-layout">
         <figure className="sample-examination-art">
           <Image
             src={rippleAssets.sample.src}
             alt={rippleAssets.sample.alt}
             width={rippleAssets.sample.width}
             height={rippleAssets.sample.height}
-            sizes="(max-width: 899px) 88vw, (max-width: 1399px) 36vw, 500px"
+            sizes="(max-width: 699px) 88vw, (max-width: 1199px) 36vw, 390px"
             loading="lazy"
           />
-          <figcaption>Illustrative sample setup—not a laboratory result.</figcaption>
+          <figcaption>Illustrated specimen slide and water bead. No laboratory result is shown.</figcaption>
         </figure>
         <div className="sample-examination-copy">
-          <span className="narrative-coordinate">SAMPLE / EXAMINATION</span>
-          <h2 id="particle-title">A sample.<br /><em>A closer look.</em></h2>
-          <p>Appearance is a starting point. Identifying a particle requires analytical methods, with the sample, method and limitations reported alongside the result.</p>
-          <p>The bottled-water study below describes the samples it tested, not the illustrated bead or your local water. Keep that distinction in view when exploring its findings.</p>
-        </div>
-      </div>
-      <h3 className="particle-study-title">One liter. A smaller world inside.</h3>
-      <div className="particle-number" aria-label="Approximately 240,000 particles per liter on average in the study">
-        <span ref={count} aria-hidden="true">240,000</span><span className="particle-unit" aria-hidden="true">PARTICLES / LITER</span>
-      </div>
-      <div className="particle-context">
-        <p>A 2024 study of three bottled-water brands found an average of approximately 240,000 micro- and nanoplastic particles per liter. About 90% were nanoplastics.</p>
-        <div><p>Study average, not a measurement of your water or a personal ingestion count. Concentrations varied across tested samples. Health implications remain under investigation.</p>
-          <a className="narrative-link" href="https://www.nih.gov/news-events/nih-research-matters/plastic-particles-bottled-water" target="_blank" rel="noopener noreferrer">Read the NIH research summary <span aria-hidden="true">↗</span></a>
+          <p className="narrative-label">From image to evidence</p>
+          <h2 id="particle-title">Sample examination</h2>
+          <p>Appearance is a starting point. Identifying a particle requires an analytical method and a result that can be traced to the sample.</p>
+          <dl className="sample-record">
+            <div><dt>Sample</dt><dd>Where the water came from and when it was collected.</dd></div>
+            <div><dt>Method</dt><dd>How it was examined and what was measured.</dd></div>
+            <div><dt>Result</dt><dd>The reported value, units, source, and limitations.</dd></div>
+          </dl>
+          <p className="sample-boundary">The illustrated bead has no measured particle count. The study below describes different samples.</p>
+          <a className="narrative-link" href="#search">Return to water search <span aria-hidden="true">↑</span></a>
         </div>
       </div>
     </section>
-    <section className="siphon-stage" aria-labelledby="siphon-title">
-      <div className="siphon-head">
-        <div className="narrative-label">03 / THE ANATOMIC SIPHON</div>
-        <h2 id="siphon-title">Inside <em>the body.</em><br />At the edge of what we know.</h2>
-      </div>
-      <div className="siphon-viewport">
-        <div className="siphon-track" ref={track}>
-          {SIPHON_WAYPOINTS.map((waypoint) => (
-            <article className="siphon-stop" key={waypoint.id} aria-labelledby={`${waypoint.id}-name`}>
-              <span className="siphon-index" aria-hidden="true">{waypoint.index}</span>
-              <h3 id={`${waypoint.id}-name`}>{waypoint.name}</h3>
-              <p className="siphon-body">{waypoint.body}</p>
-              <p className="siphon-note">{waypoint.note}</p>
-            </article>
-          ))}
+
+    <section className="research-stage" aria-labelledby="siphon-title">
+      <div className="narrative-inner">
+        <div className="research-heading">
+          <div>
+            <p className="narrative-label">Research context</p>
+            <h2 id="siphon-title">What the research establishes</h2>
+          </div>
+          <a className="narrative-link" href={researchSource} target="_blank" rel="noopener noreferrer">Read the NIH research summary <span aria-hidden="true">↗</span></a>
+        </div>
+        <div className="research-layout">
+          <div className="research-finding">
+            <h3 className="particle-study-title">Bottled-water study · 2024</h3>
+            <div className="particle-number" aria-label="Approximately 240,000 particles per liter on average in the study">
+              <span aria-hidden="true">≈240,000</span>
+              <span className="particle-unit" aria-hidden="true">particles per liter, on average</span>
+            </div>
+            <p>The study examined three bottled-water brands. About 90% of the detected particles were nanoplastics.</p>
+            <p className="research-context-note">A reported study average for micro- and nanoplastic particles. Concentrations varied across the tested samples.</p>
+          </div>
+          <div className="research-limits">
+            <h3>What it does not establish</h3>
+            <dl>
+              <div><dt>Your water</dt><dd>This is not a measurement of your utility, the illustrated bottle, or the water bead above.</dd></div>
+              <div><dt>Your exposure</dt><dd>A concentration in tested samples is not a personal ingestion count or a route through the body.</dd></div>
+              <div><dt>Health effects</dt><dd>Detection alone does not establish a health outcome. Health implications remain under investigation.</dd></div>
+            </dl>
+          </div>
         </div>
       </div>
-      <div className="siphon-disclaimer"><p>ILLUSTRATIVE RESEARCH SEQUENCE, NOT A PROVEN ROUTE THROUGH THE BODY OR A MEDICAL SIMULATION.</p><a className="narrative-link" href="https://www.nih.gov/news-events/nih-research-matters/plastic-particles-bottled-water" target="_blank" rel="noopener noreferrer">Evidence and limits / NIH <span aria-hidden="true">↗</span></a></div>
     </section>
+
     <section className="countermeasure-stage" aria-labelledby="countermeasure-title">
-      <div className="narrative-label">04 / THE COUNTER-MEASURE</div>
-      <div className="countermeasure-layout">
+      <div className="narrative-inner countermeasure-layout">
         <div>
-          <h2 id="countermeasure-title">Break <em>the tank.</em><br />Not the conversation.</h2>
-          <p className="countermeasure-intro">Uncertainty is not a reason to look away. Help turn scattered observations into evidence we can examine together.</p>
+          <p className="narrative-label">Community observations</p>
+          <h2 id="countermeasure-title">Contribute a reading</h2>
+          <p className="countermeasure-intro">Have a water reading? Include the source, collection location, date, method, and units so someone else can understand the result.</p>
         </div>
         <div className="countermeasure-panel">
-          <span className="narrative-coordinate">FIELDWORK / OPEN TO EVERYONE</span>
-          <h3>Make your observation count.</h3>
-          <p>Have a water reading? Share its source, location and method. Contributions are labeled as citizen readings. A single reading is not a safety verdict.</p>
-          <svg className="countermeasure-filter" aria-hidden="true" width="0" height="0" focusable="false">
-            <defs><filter id={refractionId} x="-10%" y="-30%" width="120%" height="160%" colorInterpolationFilters="sRGB">
-              <feTurbulence type="fractalNoise" baseFrequency="0.015 0.09" numOctaves="1" seed="8" result="ripple" />
-              <feDisplacementMap in="SourceGraphic" in2="ripple" scale="3" xChannelSelector="R" yChannelSelector="G" />
-            </filter></defs>
-          </svg>
-          <a className="countermeasure-action" href={contributeHref} style={{ '--label-refraction': `url("#${refractionId}")` } as CSSProperties}><span className="countermeasure-label">Contribute a reading</span> <span aria-hidden="true">↗</span></a>
-          <a className="narrative-link" href="#search">Explore existing water data <span aria-hidden="true">↓</span></a>
+          <p>Contributions are labeled as citizen readings. A single reading is not a safety verdict.</p>
+          <a className="countermeasure-action" href={contributeHref}>Contribute a reading <span aria-hidden="true">↗</span></a>
+          <a className="narrative-link" href="#search">Explore existing water data <span aria-hidden="true">↑</span></a>
         </div>
       </div>
-      <p className="countermeasure-footnote">BETTER QUESTIONS. TRACEABLE SOURCES. A SHARED PICTURE.</p>
     </section>
   </div>
 }

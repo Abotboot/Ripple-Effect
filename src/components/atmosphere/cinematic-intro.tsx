@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { rippleSequence } from '@/lib/ripple-assets'
+import { artworkJourney } from '@/lib/artwork-journey'
 
 export type IntroOutcome = 'complete' | 'skip' | 'reduced-motion' | 'error'
 type Phase = 'loading' | 'playing' | 'paused' | 'handoff' | 'error'
@@ -58,7 +58,7 @@ export function CinematicIntro({ onComplete, onReveal }: { onComplete: (outcome:
       if (disposed || completed) return
       video.dataset.mediaTime = mediaTime.toFixed(3)
       if (mediaTime > lastTime) { lastTime = mediaTime; lastProgress = performance.now() }
-      if (!revealed && mediaTime >= rippleSequence.textRevealAtSeconds) { revealed = true; callbacks.current.onReveal() }
+      if (!revealed && mediaTime >= artworkJourney.textRevealAtSeconds) { revealed = true; callbacks.current.onReveal() }
     }
     const scheduleFrame = () => {
       cancelFrame()
@@ -134,7 +134,7 @@ export function CinematicIntro({ onComplete, onReveal }: { onComplete: (outcome:
     }, 500)
     skipRef.current?.focus({ preventScroll: true })
     if (preference.matches) finish('reduced-motion')
-    else { video.src = rippleSequence.src; play() }
+    else { video.src = artworkJourney.src; play() }
     return () => {
       disposed = true; completed = true
       clearInterval(watchdog); observer.disconnect()
@@ -153,11 +153,11 @@ export function CinematicIntro({ onComplete, onReveal }: { onComplete: (outcome:
   const skip = useCallback(() => finishRef.current('skip'), [])
   return (
     <div className="ripple-intro" data-testid="cinematic-intro" data-state={phase}>
-      <video ref={videoRef} className="ripple-intro-video" data-testid="journey-video" muted playsInline preload="none" poster={rippleSequence.poster} aria-label="Microscope journey timing proof">Your browser cannot play this journey. Use Skip intro to explore the water search.</video>
+      <video ref={videoRef} className="ripple-intro-video" data-testid="journey-video" muted playsInline preload="none" poster={artworkJourney.poster} aria-label="Microscope camera journey">Your browser cannot play this journey. Use Skip intro to explore the water search.</video>
       <div className="ripple-player-controls" role="group" aria-label="Journey controls">
         <button type="button" ref={skipRef} className="ripple-motion-button" data-testid="journey-skip" onClick={skip}>Skip intro</button>
         <button type="button" className="ripple-motion-button" data-testid="journey-pause" onClick={() => pauseRef.current()} aria-pressed={paused}>{paused ? 'Resume journey' : 'Pause journey'}</button>
-        <span className="ripple-player-status" role="status">{phase === 'loading' ? 'Loading journey…' : phase === 'paused' ? 'Journey paused' : 'Timing proof · 8.6 seconds'}</span>
+        <span className="ripple-player-status" role="status">{phase === 'loading' ? 'Loading microscope…' : phase === 'paused' ? 'Journey paused' : 'Through the microscope'}</span>
       </div>
     </div>
   )

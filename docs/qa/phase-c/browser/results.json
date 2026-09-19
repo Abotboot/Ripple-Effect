@@ -1,0 +1,563 @@
+{
+  "createdAt": "2026-09-19T04:38:09.341Z",
+  "base": "http://localhost:3020",
+  "success": true,
+  "checks": [
+    {
+      "name": "layout-1440",
+      "passed": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "api": [],
+      "detail": {
+        "geometry": {
+          "video": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 810,
+            "bottom": 810
+          },
+          "canvas": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 810,
+            "bottom": 810
+          },
+          "controls": [
+            {
+              "x": 1222.25,
+              "y": 16,
+              "width": 84.65625,
+              "height": 44,
+              "bottom": 60,
+              "hit": true
+            },
+            {
+              "x": 1314.90625,
+              "y": 16,
+              "width": 109.09375,
+              "height": 44,
+              "bottom": 60,
+              "hit": true
+            }
+          ],
+          "height": 900
+        },
+        "allFiveAssets": true,
+        "atlasKeyboard": true,
+        "noHarnessWatchScroll": true
+      }
+    },
+    {
+      "name": "layout-1024",
+      "passed": true,
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "api": [],
+      "detail": {
+        "geometry": {
+          "video": {
+            "x": 0,
+            "y": 0,
+            "width": 1024,
+            "height": 576,
+            "bottom": 576
+          },
+          "canvas": {
+            "x": 0,
+            "y": 0,
+            "width": 1024,
+            "height": 576,
+            "bottom": 576
+          },
+          "controls": [
+            {
+              "x": 806.25,
+              "y": 16,
+              "width": 84.65625,
+              "height": 44,
+              "bottom": 60,
+              "hit": true
+            },
+            {
+              "x": 898.90625,
+              "y": 16,
+              "width": 109.09375,
+              "height": 44,
+              "bottom": 60,
+              "hit": true
+            }
+          ],
+          "height": 768
+        },
+        "allFiveAssets": true,
+        "atlasKeyboard": true,
+        "noHarnessWatchScroll": true
+      }
+    },
+    {
+      "name": "layout-768",
+      "passed": true,
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "api": [],
+      "detail": {
+        "geometry": {
+          "video": {
+            "x": 0,
+            "y": 0,
+            "width": 768,
+            "height": 432,
+            "bottom": 432
+          },
+          "canvas": {
+            "x": 0,
+            "y": 0,
+            "width": 768,
+            "height": 432,
+            "bottom": 432
+          },
+          "controls": [
+            {
+              "x": 580.25,
+              "y": 8,
+              "width": 74.65625,
+              "height": 44,
+              "bottom": 52,
+              "hit": true
+            },
+            {
+              "x": 660.90625,
+              "y": 8,
+              "width": 99.09375,
+              "height": 44,
+              "bottom": 52,
+              "hit": true
+            }
+          ],
+          "height": 1024
+        },
+        "allFiveAssets": true,
+        "atlasKeyboard": true,
+        "noHarnessWatchScroll": true
+      }
+    },
+    {
+      "name": "layout-390",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "api": [],
+      "detail": {
+        "geometry": {
+          "video": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 219.375,
+            "bottom": 219.375
+          },
+          "canvas": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 219.375,
+            "bottom": 219.375
+          },
+          "controls": [
+            {
+              "x": 202.25,
+              "y": 8,
+              "width": 74.65625,
+              "height": 44,
+              "bottom": 52,
+              "hit": true
+            },
+            {
+              "x": 282.90625,
+              "y": 8,
+              "width": 99.09375,
+              "height": 44,
+              "bottom": 52,
+              "hit": true
+            }
+          ],
+          "height": 844
+        },
+        "allFiveAssets": true,
+        "atlasKeyboard": true,
+        "noHarnessWatchScroll": true
+      }
+    },
+    {
+      "name": "layout-320",
+      "passed": true,
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "api": [],
+      "detail": {
+        "geometry": {
+          "video": {
+            "x": 0,
+            "y": 0,
+            "width": 320,
+            "height": 180,
+            "bottom": 180
+          },
+          "canvas": {
+            "x": 0,
+            "y": 0,
+            "width": 320,
+            "height": 180,
+            "bottom": 180
+          },
+          "controls": [
+            {
+              "x": 132.25,
+              "y": 8,
+              "width": 74.65625,
+              "height": 44,
+              "bottom": 52,
+              "hit": true
+            },
+            {
+              "x": 212.90625,
+              "y": 8,
+              "width": 99.09375,
+              "height": 44,
+              "bottom": 52,
+              "hit": true
+            }
+          ],
+          "height": 568
+        },
+        "allFiveAssets": true,
+        "atlasKeyboard": true,
+        "noHarnessWatchScroll": true
+      }
+    },
+    {
+      "name": "journey-desktop",
+      "passed": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "api": [],
+      "detail": {
+        "evidence": {
+          "events": [
+            {
+              "type": "playing",
+              "time": 0.000483,
+              "rate": 1,
+              "wall": 825.2999999821186
+            },
+            {
+              "type": "ended",
+              "trusted": true,
+              "time": 5,
+              "duration": 5,
+              "rate": 1,
+              "wall": 5968.4000000059605
+            }
+          ],
+          "boundary": {
+            "entrance": 0,
+            "time": 0
+          },
+          "sameCanvas": true
+        },
+        "nativeVideoEndAndFirstCanvasBlack": true,
+        "recording": "unedited; native rate1; no seeking; live artwork and category response"
+      }
+    },
+    {
+      "name": "journey-mobile",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "api": [],
+      "detail": {
+        "evidence": {
+          "events": [
+            {
+              "type": "playing",
+              "time": 0.000535,
+              "rate": 1,
+              "wall": 755.2000000178814
+            },
+            {
+              "type": "ended",
+              "trusted": true,
+              "time": 5,
+              "duration": 5,
+              "rate": 1,
+              "wall": 5796.700000017881
+            }
+          ],
+          "boundary": {
+            "entrance": 0,
+            "time": 0
+          },
+          "sameCanvas": true
+        },
+        "nativeVideoEndAndFirstCanvasBlack": true,
+        "recording": "unedited; native rate1; no seeking; live artwork and category response"
+      }
+    },
+    {
+      "name": "field-lifecycle",
+      "passed": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "api": [],
+      "detail": {
+        "manualPauseStopsDraws": true,
+        "filterWorksPaused": true,
+        "offscreenStopsDraws": true,
+        "tapImpulse": true
+      }
+    },
+    {
+      "name": "pause-skip-entry",
+      "passed": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "api": [],
+      "detail": {
+        "videoPause": true,
+        "entryPause": true,
+        "escape": true,
+        "inputPreserved": true
+      }
+    },
+    {
+      "name": "reduced",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "api": [],
+      "detail": {
+        "noVideo": true,
+        "noLoop": true
+      }
+    },
+    {
+      "name": "reduced-during-entry",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "api": [],
+      "detail": {
+        "recovery": true
+      }
+    },
+    {
+      "name": "blocked-storage",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "api": [],
+      "detail": {
+        "recovery": true
+      }
+    },
+    {
+      "name": "rejected-play",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "api": [],
+      "detail": {
+        "recovery": true
+      }
+    },
+    {
+      "name": "late-play",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "api": [],
+      "detail": {
+        "recovery": true
+      }
+    },
+    {
+      "name": "failed-video",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "api": [],
+      "detail": {
+        "recovery": true
+      }
+    },
+    {
+      "name": "failed-artwork",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "api": [],
+      "detail": {
+        "fallback": "usable static artwork and HTML"
+      }
+    },
+    {
+      "name": "no-canvas",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "api": [],
+      "detail": {
+        "fallback": "usable static artwork and HTML"
+      }
+    },
+    {
+      "name": "home-search-1440",
+      "passed": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "api": [
+        {
+          "path": "/api/activity",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/scores",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities",
+          "method": "GET"
+        }
+      ],
+      "detail": {
+        "realForm": true,
+        "failedServiceNotWaterFinding": true,
+        "retry": true,
+        "noFabricatedData": true
+      }
+    },
+    {
+      "name": "home-search-390",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "api": [
+        {
+          "path": "/api/activity",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/scores",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities",
+          "method": "GET"
+        }
+      ],
+      "detail": {
+        "realForm": true,
+        "failedServiceNotWaterFinding": true,
+        "retry": true,
+        "noFabricatedData": true
+      }
+    }
+  ],
+  "recordings": [
+    {
+      "name": "journey-desktop",
+      "path": "recordings\\desktop-live-journey.webm",
+      "bytes": 1390757,
+      "sha256": "42a0db66100d4ce0ab2a0e7aa79b0d03d2d09767d17cf30f7cc180a5a2501dbe"
+    },
+    {
+      "name": "journey-mobile",
+      "path": "recordings\\mobile-live-journey.webm",
+      "bytes": 997880,
+      "sha256": "c600c32e1e4afeaef0237a2a53d4286325725c37a537125fd24b7df35817764b"
+    }
+  ],
+  "browser": "152.0.7977.83",
+  "completedAt": "2026-09-19T04:39:20.980Z"
+}

@@ -1,0 +1,590 @@
+{
+  "createdAt": "2026-09-19T04:22:34.481Z",
+  "base": "http://localhost:3020",
+  "checks": [
+    {
+      "name": "study-1440",
+      "success": true,
+      "apiPolicy": "Zero API requests; unexpected endpoints intercepted",
+      "api": [],
+      "media": [
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/live/microscope-terminal.webp",
+          "status": 404
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=640&q=75",
+          "status": 200
+        }
+      ],
+      "images": [
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "naturalWidth": 370,
+          "naturalHeight": 370
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "naturalWidth": 370,
+          "naturalHeight": 370
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "naturalWidth": 370,
+          "naturalHeight": 370
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=640&q=75",
+          "naturalWidth": 390,
+          "naturalHeight": 487
+        }
+      ],
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "clipped": [],
+        "atlasHeight": 1041.140625,
+        "narrativeHeight": 1591.671875,
+        "controls": [
+          {
+            "name": "FibersView notesLong, fine strands",
+            "height": 450.484375
+          },
+          {
+            "name": "FragmentsSelectedIrregular flakes and chips",
+            "height": 450.484375
+          },
+          {
+            "name": "GranulesView notesCompact, rounded pieces",
+            "height": 450.484375
+          },
+          {
+            "name": "Try the specimen controls ↓",
+            "height": 44
+          },
+          {
+            "name": "Return to water search ↑",
+            "height": 44
+          },
+          {
+            "name": "Read the NIH research summary ↗",
+            "height": 44
+          },
+          {
+            "name": "Contribute a reading ↗",
+            "height": 49
+          },
+          {
+            "name": "Explore existing water data ↑",
+            "height": 44
+          }
+        ]
+      },
+      "keyboard": "ArrowRight, ArrowLeft, Home, End, wrap, Tab to panel",
+      "pointerSelection": "Fragments",
+      "anchorsPreserved": true
+    },
+    {
+      "name": "study-768",
+      "success": true,
+      "apiPolicy": "Zero API requests; unexpected endpoints intercepted",
+      "api": [],
+      "media": [
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/live/microscope-terminal.webp",
+          "status": 404
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "status": 200
+        }
+      ],
+      "images": [
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=256&q=75",
+          "naturalWidth": 215,
+          "naturalHeight": 215
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=256&q=75",
+          "naturalWidth": 215,
+          "naturalHeight": 215
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=256&q=75",
+          "naturalWidth": 215,
+          "naturalHeight": 215
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "naturalWidth": 276,
+          "naturalHeight": 345
+        }
+      ],
+      "geometry": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "clipped": [],
+        "atlasHeight": 888.59375,
+        "narrativeHeight": 1475.578125,
+        "controls": [
+          {
+            "name": "FibersView notesLong, fine strands",
+            "height": 295.75
+          },
+          {
+            "name": "FragmentsSelectedIrregular flakes and chips",
+            "height": 295.75
+          },
+          {
+            "name": "GranulesView notesCompact, rounded pieces",
+            "height": 295.75
+          },
+          {
+            "name": "Try the specimen controls ↓",
+            "height": 44
+          },
+          {
+            "name": "Return to water search ↑",
+            "height": 44
+          },
+          {
+            "name": "Read the NIH research summary ↗",
+            "height": 44
+          },
+          {
+            "name": "Contribute a reading ↗",
+            "height": 49
+          },
+          {
+            "name": "Explore existing water data ↑",
+            "height": 44
+          }
+        ]
+      },
+      "keyboard": "ArrowRight, ArrowLeft, Home, End, wrap, Tab to panel",
+      "pointerSelection": "Fragments",
+      "anchorsPreserved": true
+    },
+    {
+      "name": "study-390",
+      "success": true,
+      "apiPolicy": "Zero API requests; unexpected endpoints intercepted",
+      "api": [],
+      "media": [
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/live/microscope-terminal.webp",
+          "status": 404
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "status": 200
+        }
+      ],
+      "images": [
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=256&q=75",
+          "naturalWidth": 109,
+          "naturalHeight": 109
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=256&q=75",
+          "naturalWidth": 109,
+          "naturalHeight": 109
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=256&q=75",
+          "naturalWidth": 109,
+          "naturalHeight": 109
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "naturalWidth": 343,
+          "naturalHeight": 429
+        }
+      ],
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "clipped": [],
+        "atlasHeight": 1031.015625,
+        "narrativeHeight": 2548.71875,
+        "controls": [
+          {
+            "name": "FibersView notesLong, fine strands",
+            "height": 174.46875
+          },
+          {
+            "name": "FragmentsSelectedIrregular flakes and chips",
+            "height": 174.46875
+          },
+          {
+            "name": "GranulesView notesCompact, rounded pieces",
+            "height": 174.46875
+          },
+          {
+            "name": "Try the specimen controls ↓",
+            "height": 44
+          },
+          {
+            "name": "Return to water search ↑",
+            "height": 44
+          },
+          {
+            "name": "Read the NIH research summary ↗",
+            "height": 44
+          },
+          {
+            "name": "Contribute a reading ↗",
+            "height": 49
+          },
+          {
+            "name": "Explore existing water data ↑",
+            "height": 44
+          }
+        ]
+      },
+      "keyboard": "ArrowRight, ArrowLeft, Home, End, wrap, Tab to panel",
+      "pointerSelection": "Fragments",
+      "anchorsPreserved": true
+    },
+    {
+      "name": "study-320",
+      "success": true,
+      "apiPolicy": "Zero API requests; unexpected endpoints intercepted",
+      "api": [],
+      "media": [
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/live/microscope-terminal.webp",
+          "status": 404
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "status": 200
+        }
+      ],
+      "images": [
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=256&q=75",
+          "naturalWidth": 89,
+          "naturalHeight": 89
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=256&q=75",
+          "naturalWidth": 89,
+          "naturalHeight": 89
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=256&q=75",
+          "naturalWidth": 89,
+          "naturalHeight": 89
+        },
+        {
+          "src": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "naturalWidth": 281,
+          "naturalHeight": 352
+        }
+      ],
+      "geometry": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "clipped": [],
+        "atlasHeight": 1139.03125,
+        "narrativeHeight": 2619.078125,
+        "controls": [
+          {
+            "name": "FibersView notesLong, fine strands",
+            "height": 153.9375
+          },
+          {
+            "name": "FragmentsSelectedIrregular flakes and chips",
+            "height": 153.9375
+          },
+          {
+            "name": "GranulesView notesCompact, rounded pieces",
+            "height": 153.9375
+          },
+          {
+            "name": "Try the specimen controls ↓",
+            "height": 44
+          },
+          {
+            "name": "Return to water search ↑",
+            "height": 44
+          },
+          {
+            "name": "Read the NIH research summary ↗",
+            "height": 44
+          },
+          {
+            "name": "Contribute a reading ↗",
+            "height": 49
+          },
+          {
+            "name": "Explore existing water data ↑",
+            "height": 44
+          }
+        ]
+      },
+      "keyboard": "ArrowRight, ArrowLeft, Home, End, wrap, Tab to panel",
+      "pointerSelection": "Fragments",
+      "anchorsPreserved": true
+    },
+    {
+      "name": "study-reduced-motion",
+      "success": true,
+      "apiPolicy": "Zero API requests; unexpected endpoints intercepted",
+      "api": [],
+      "media": [
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        }
+      ],
+      "transition": "0s",
+      "animations": 0,
+      "studyNumber": "≈240,000particles per liter, on average",
+      "videoCount": 0
+    },
+    {
+      "name": "home-dark",
+      "success": true,
+      "apiPolicy": "Every API request intercepted with empty fixtures; no real backend access",
+      "api": [
+        {
+          "url": "http://localhost:3020/api/activity",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/scores",
+          "method": "GET"
+        }
+      ],
+      "media": [
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/live/microscope-terminal.webp",
+          "status": 404
+        }
+      ],
+      "colors": {
+        "rootPrimary": "#1df2b3",
+        "headerPrimary": "#a9cdc4",
+        "searchPrimary": "#a9cdc4",
+        "benchmarkPrimary": "#1df2b3",
+        "benchmarkRose": "lab(57.0602% 70.5855 33.7266)",
+        "atlasHeading": "rgb(238, 234, 225)",
+        "atlasBackground": "rgb(12, 18, 20)"
+      }
+    },
+    {
+      "name": "home-light",
+      "success": true,
+      "apiPolicy": "Every API request intercepted with empty fixtures; no real backend access",
+      "api": [
+        {
+          "url": "http://localhost:3020/api/activity",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/scores",
+          "method": "GET"
+        }
+      ],
+      "media": [
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/particle-world-master.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/live/microscope-terminal.webp",
+          "status": 404
+        }
+      ],
+      "colors": {
+        "rootPrimary": "lab(49.1646% -42.5925 -12.6322)",
+        "headerPrimary": "lab(49.1646% -42.5925 -12.6322)",
+        "searchPrimary": "lab(49.1646% -42.5925 -12.6322)",
+        "benchmarkPrimary": "lab(49.1646% -42.5925 -12.6322)",
+        "benchmarkRose": "lab(57.0602% 70.5855 33.7266)",
+        "atlasHeading": "rgb(238, 234, 225)",
+        "atlasBackground": "rgb(12, 18, 20)"
+      }
+    }
+  ],
+  "errors": [],
+  "success": true,
+  "browser": "152.0.7977.83",
+  "completedAt": "2026-09-19T04:22:58.418Z"
+}

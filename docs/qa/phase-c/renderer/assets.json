@@ -1,0 +1,63 @@
+{
+  "status": "original preserved; exact decoded RGB endpoint posters",
+  "source": "public/media/ripple/live/microscope-original.mp4",
+  "sourceSHA256": "122d925177afe1267ca1a038dccd352385ebddefe409b65bcdf0d1388e0de9d3",
+  "expectedBytes": 1653270,
+  "video": {
+    "file": "public/media/ripple/live/microscope-original.mp4",
+    "bytes": 1653270,
+    "sha256": "122d925177afe1267ca1a038dccd352385ebddefe409b65bcdf0d1388e0de9d3"
+  },
+  "videoStream": {
+    "codec_name": "h264",
+    "width": 1920,
+    "height": 1080,
+    "pix_fmt": "yuvj420p",
+    "color_range": "pc",
+    "color_space": "bt470bg",
+    "avg_frame_rate": "30/1",
+    "duration": "5.000000",
+    "nb_read_frames": "150",
+    "side_data_list": [
+      {}
+    ]
+  },
+  "durationSeconds": 5,
+  "frameCount": 150,
+  "fps": 30,
+  "posters": [
+    {
+      "file": "public/media/ripple/live/microscope-opening.webp",
+      "bytes": 223534,
+      "sha256": "57d9574531e4c799efefed6275544a135433a2468935976b2d38a16393bbc3a0",
+      "frame": 0,
+      "ptsSeconds": 0,
+      "rgbSHA256": "857f10dbc97eb89bd256fdb77431f4e4ffa6bcac9ed76b865f5873e33a70bd3a",
+      "stats": {
+        "minChannel": 0,
+        "maxChannel": 255,
+        "meanChannel": 54.28220695087449
+      }
+    },
+    {
+      "file": "public/media/ripple/live/microscope-terminal.webp",
+      "bytes": 128,
+      "sha256": "6cc2fa7eb65baffe8bd50886669f7661fb1eb813ad81ab328edf89a4ac6a3889",
+      "frame": 149,
+      "ptsSeconds": 4.966666666666667,
+      "rgbSHA256": "1f56bd4f609fab80a2b9cce7487d5c08de2768476849e1353881ca748d8d3b6a",
+      "stats": {
+        "minChannel": 0,
+        "maxChannel": 0,
+        "meanChannel": 0
+      }
+    }
+  ],
+  "ffmpeg": "ffmpeg version 9.0-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+  "master": {
+    "file": "public/media/ripple/particle-world-master.webp",
+    "sha256": "709915746e83fbaedd748066d71a9dcefac11dad0bf825af5a6ebdba9f789616"
+  },
+  "colorNote": "FFmpeg default decode to RGB24; WebP encodes that RGB losslessly. No MP4 retiming, re-encoding, tag changes or audio changes.",
+  "limitation": "FFmpeg-decoder poster equality is separate from browser video-decoder/color-management equality."
+}

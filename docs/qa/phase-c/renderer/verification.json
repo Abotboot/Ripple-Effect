@@ -1,0 +1,374 @@
+{
+  "status": "passed",
+  "implementationSHA256": "ef7e3e905a40b7bef9d4aa50bc61ee5aeea192dc7721b220e2d30d006ef0924a",
+  "browserVersion": "152.0.7977.83",
+  "playwrightVersion": "1.63.0",
+  "renderer": "Canvas2D artwork patches; no triangle geometry, generated particles or volumetric simulation",
+  "boundaryFixture": "public/media/ripple/live/microscope-terminal.webp",
+  "boundaryFixtureSHA256": "6cc2fa7eb65baffe8bd50886669f7661fb1eb813ad81ab328edf89a4ac6a3889",
+  "approvedVideoBoundaryUsed": true,
+  "masterSHA256": "709915746e83fbaedd748066d71a9dcefac11dad0bf825af5a6ebdba9f789616",
+  "setup": {
+    "internalRafCalls": 0,
+    "nativeBoundary": {
+      "changedPixels": 0,
+      "meanAbsoluteChannelDifference": 0,
+      "maxChannelDifference": 0
+    }
+  },
+  "reports": [
+    {
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 810,
+      "dpr": 1,
+      "boundary": {
+        "changedPixels": 0,
+        "meanAbsoluteChannelDifference": 0,
+        "maxChannelDifference": 0
+      },
+      "master": {
+        "changedPixels": 0,
+        "meanAbsoluteChannelDifference": 0,
+        "maxChannelDifference": 0
+      },
+      "drift": {
+        "changedPixels": 129635,
+        "meanAbsoluteChannelDifference": 1.0449056927297669,
+        "maxChannelDifference": 218
+      },
+      "pointerEffect": {
+        "changedPixels": 91801,
+        "meanAbsoluteChannelDifference": 0.9315003429355281,
+        "maxChannelDifference": 233
+      },
+      "impulseEffect": {
+        "changedPixels": 169626,
+        "meanAbsoluteChannelDifference": 2.2772828074988567,
+        "maxChannelDifference": 245
+      },
+      "fragments": {
+        "changedPixels": 1038547,
+        "meanAbsoluteChannelDifference": 7.663178155006858,
+        "maxChannelDifference": 154
+      },
+      "repeated": {
+        "changedPixels": 0,
+        "meanAbsoluteChannelDifference": 0,
+        "maxChannelDifference": 0
+      },
+      "pointerRGBA": "b59d60d6b8aa39ef8d8a5fb3208a27db4a1d8c1c28294931ce25b96b653914bd",
+      "entry": {
+        "cameraScale": 0.9497848,
+        "uniqueLocalOffsets": 17,
+        "derivatives": {
+          "startFirst": 9.998500059999999e-8,
+          "endFirst": 9.999445715891397e-8,
+          "startSecond": 0.00599790018,
+          "endSecond": -0.0059978133570837144
+        }
+      },
+      "performance": {
+        "measuredFrames": 30,
+        "submissionMedianMs": 0.4000000059604645,
+        "submissionP95Ms": 0.5999999940395355,
+        "ownerRafMedianMs": 16.700000000000045,
+        "ownerRafP95Ms": 16.899999999999864,
+        "resources": {
+          "renderer": "canvas2d-interactive-artwork",
+          "disposed": false,
+          "regionCount": 17,
+          "backingWidth": 1440,
+          "backingHeight": 810,
+          "effectiveDpr": 1,
+          "ownedCanvasCount": 35,
+          "approximateCacheBytes": 7227912,
+          "frameCount": 32,
+          "lastRenderMs": 0.4000000059604645,
+          "maxRenderMs": 0.5999999940395355,
+          "lastMaxDisplacementCssPx": 3.637318853727401,
+          "lastCameraScale": 1,
+          "lastRegionOffsets": [
+            {
+              "id": "fiber-upper-blue",
+              "x": 0.16945228584329244,
+              "y": 2.0052496240599536
+            },
+            {
+              "id": "fiber-left-silver",
+              "x": 0.4620703634454612,
+              "y": 1.1581477455638831
+            },
+            {
+              "id": "fiber-lower-blue",
+              "x": -2.680328282624249,
+              "y": 1.7753383708745276
+            },
+            {
+              "id": "fiber-upper-fine",
+              "x": 0.6443878668632891,
+              "y": -0.5310528005815509
+            },
+            {
+              "id": "fiber-right-blue",
+              "x": -1.4249663328174187,
+              "y": 1.4395555901593537
+            },
+            {
+              "id": "fiber-right-silver",
+              "x": -0.35486485406233537,
+              "y": -1.9160808602195165
+            },
+            {
+              "id": "fragment-upper-clear",
+              "x": 3.616158422891272,
+              "y": 2.054410710620494
+            },
+            {
+              "id": "fragment-blue",
+              "x": -0.2706474021487009,
+              "y": 0.5279963354697824
+            },
+            {
+              "id": "fragment-middle-clear",
+              "x": -0.9855165374779787,
+              "y": -0.6796900080259423
+            },
+            {
+              "id": "fragment-lower-clear",
+              "x": -3.557022329652115,
+              "y": -2.276866205468345
+            },
+            {
+              "id": "granule-center-pale",
+              "x": 1.7663908332788147,
+              "y": 0.8730422387349309
+            },
+            {
+              "id": "granule-upper-cluster",
+              "x": -1.1603975957802524,
+              "y": 1.5176666883449763
+            },
+            {
+              "id": "granule-middle-cluster",
+              "x": -1.6800645440084845,
+              "y": -1.3733928175072705
+            },
+            {
+              "id": "granule-lower-cluster",
+              "x": -1.7832924613966983,
+              "y": -2.0775337630903277
+            },
+            {
+              "id": "granule-upper-right",
+              "x": -1.4896215450378778,
+              "y": 0.6955290485121135
+            },
+            {
+              "id": "granule-far-right",
+              "x": 0.17087222659939785,
+              "y": 0.8257723169593537
+            },
+            {
+              "id": "granule-upper-pale",
+              "x": -0.9572745627229496,
+              "y": 0.8876403985105837
+            }
+          ],
+          "lastEntrance": 1,
+          "lastCategory": "all"
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "dpr": 1.5,
+      "boundary": {
+        "changedPixels": 0,
+        "meanAbsoluteChannelDifference": 0,
+        "maxChannelDifference": 0
+      },
+      "master": {
+        "changedPixels": 0,
+        "meanAbsoluteChannelDifference": 0,
+        "maxChannelDifference": 0
+      },
+      "drift": {
+        "changedPixels": 193149,
+        "meanAbsoluteChannelDifference": 3.034765486108298,
+        "maxChannelDifference": 228
+      },
+      "pointerEffect": {
+        "changedPixels": 157259,
+        "meanAbsoluteChannelDifference": 2.901550973746866,
+        "maxChannelDifference": 230
+      },
+      "impulseEffect": {
+        "changedPixels": 236688,
+        "meanAbsoluteChannelDifference": 6.473862986817173,
+        "maxChannelDifference": 237
+      },
+      "fragments": {
+        "changedPixels": 687328,
+        "meanAbsoluteChannelDifference": 12.607556833781162,
+        "maxChannelDifference": 153
+      },
+      "repeated": {
+        "changedPixels": 0,
+        "meanAbsoluteChannelDifference": 0,
+        "maxChannelDifference": 0
+      },
+      "pointerRGBA": "25fd296f92d7849253cb1ea08faef86a1a7cbfbef57e9658f84224aa10f3edef",
+      "entry": {
+        "cameraScale": 0.9497848,
+        "uniqueLocalOffsets": 17,
+        "derivatives": {
+          "startFirst": 9.998500059999999e-8,
+          "endFirst": 9.999445715891397e-8,
+          "startSecond": 0.00599790018,
+          "endSecond": -0.0059978133570837144
+        }
+      },
+      "performance": {
+        "measuredFrames": 30,
+        "submissionMedianMs": 0.4000000059604645,
+        "submissionP95Ms": 0.6000000238418579,
+        "ownerRafMedianMs": 16.699999999999818,
+        "ownerRafP95Ms": 16.800000000000182,
+        "resources": {
+          "renderer": "canvas2d-interactive-artwork",
+          "disposed": false,
+          "regionCount": 17,
+          "backingWidth": 585,
+          "backingHeight": 1266,
+          "effectiveDpr": 1.5,
+          "ownedCanvasCount": 35,
+          "approximateCacheBytes": 5524752,
+          "frameCount": 32,
+          "lastRenderMs": 0.4000000059604645,
+          "maxRenderMs": 0.800000011920929,
+          "lastMaxDisplacementCssPx": 3.787982622045688,
+          "lastCameraScale": 1,
+          "lastRegionOffsets": [
+            {
+              "id": "fiber-upper-blue",
+              "x": 0.16945228584329244,
+              "y": 2.0052496240599536
+            },
+            {
+              "id": "fiber-left-silver",
+              "x": 0.4620703634454612,
+              "y": 1.1581477455638831
+            },
+            {
+              "id": "fiber-lower-blue",
+              "x": -2.680328282624249,
+              "y": 1.7753383708745276
+            },
+            {
+              "id": "fiber-upper-fine",
+              "x": 0.6443878668632891,
+              "y": -0.5310528005815509
+            },
+            {
+              "id": "fiber-right-blue",
+              "x": -1.4249663328174187,
+              "y": 1.4395555901593537
+            },
+            {
+              "id": "fiber-right-silver",
+              "x": -0.35486485406233537,
+              "y": -1.9160808602195165
+            },
+            {
+              "id": "fragment-upper-clear",
+              "x": 3.616158422891272,
+              "y": 2.054410710620494
+            },
+            {
+              "id": "fragment-blue",
+              "x": -0.2706474021487009,
+              "y": 0.5279963354697824
+            },
+            {
+              "id": "fragment-middle-clear",
+              "x": -0.9855165374779787,
+              "y": -0.6796900080259423
+            },
+            {
+              "id": "fragment-lower-clear",
+              "x": -3.557022329652115,
+              "y": -2.276866205468345
+            },
+            {
+              "id": "granule-center-pale",
+              "x": 1.7663908332788147,
+              "y": 0.8730422387349309
+            },
+            {
+              "id": "granule-upper-cluster",
+              "x": -1.1603975957802524,
+              "y": 1.5176666883449763
+            },
+            {
+              "id": "granule-middle-cluster",
+              "x": -1.6800645440084845,
+              "y": -1.3733928175072705
+            },
+            {
+              "id": "granule-lower-cluster",
+              "x": -1.7832924613966983,
+              "y": -2.0775337630903277
+            },
+            {
+              "id": "granule-upper-right",
+              "x": -1.4896215450378778,
+              "y": 0.6955290485121135
+            },
+            {
+              "id": "granule-far-right",
+              "x": 0.17087222659939785,
+              "y": 0.8257723169593537
+            },
+            {
+              "id": "granule-upper-pale",
+              "x": -0.9572745627229496,
+              "y": 0.8876403985105837
+            }
+          ],
+          "lastEntrance": 1,
+          "lastCategory": "all"
+        }
+      }
+    }
+  ],
+  "lifecycle": {
+    "invalidTime": true,
+    "invalidPointer": true,
+    "invalidResize": true,
+    "doubleDisposeSafe": true,
+    "releasedCaches": true,
+    "rejectsAfterDispose": true
+  },
+  "nonblackBoundary": {
+    "fixture": "public/media/ripple/live/microscope-opening.webp",
+    "initial": {
+      "changedPixels": 0,
+      "meanAbsoluteChannelDifference": 0,
+      "maxChannelDifference": 0
+    },
+    "returned": {
+      "changedPixels": 0,
+      "meanAbsoluteChannelDifference": 0,
+      "maxChannelDifference": 0
+    }
+  },
+  "errors": [],
+  "limitations": [
+    "Same local browser runtime; cross-browser decode/color equality is not proven.",
+    "Timing reports JS draw submission and the owner RAF interval, not GPU completion or a production performance guarantee.",
+    "Fixed art regions are annotations and may include surrounding water; no segmentation or scientific measurement is claimed."
+  ]
+}

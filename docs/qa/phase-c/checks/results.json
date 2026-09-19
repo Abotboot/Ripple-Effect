@@ -1,0 +1,253 @@
+{
+  "createdAt": "2026-09-19T04:38:46.315Z",
+  "baseline": "e7269d80291e4fbb9588ed1a27eb2bea2ce04f1f",
+  "node": "v24.19.0",
+  "checks": [
+    {
+      "name": "original-artwork-integrity",
+      "command": [
+        "node",
+        "--test",
+        "scripts/qa/phase-b-assets.mjs"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "original-microscope-and-posters",
+      "command": [
+        "node",
+        "scripts/phase-c-artwork-assets.cjs",
+        "--check"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "provenance",
+      "command": [
+        "node",
+        "scripts/qa/run-regression.cjs",
+        "provenance"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "public-read-safety",
+      "command": [
+        "node",
+        "scripts/qa/run-regression.cjs",
+        "read-path"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "data-regressions",
+      "command": [
+        "node",
+        "scripts/qa/run-regression.cjs",
+        "remaining"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "typescript",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "scoped-lint",
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "src/lib/artwork-field.ts",
+        "src/lib/artwork-journey.ts",
+        "src/components/atmosphere/artwork-field-canvas.tsx",
+        "src/components/atmosphere/cinematic-intro.tsx",
+        "src/components/atmosphere/tank-hero.tsx",
+        "src/components/atmosphere/water-narrative.tsx",
+        "src/components/sections/home-section.tsx",
+        "src/components/sections/particle-atlas.tsx",
+        "src/app/motion-study/page.tsx",
+        "scripts/phase-c-artwork-assets.cjs",
+        "scripts/qa/phase-c-browser.cjs",
+        "scripts/qa/phase-c-checks.cjs",
+        "docs/qa/phase-c/renderer/check.cjs",
+        "docs/qa/phase-c/design/review-design.cjs"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "production-build",
+      "command": [
+        "node",
+        "node_modules/next/dist/bin/next",
+        "build"
+      ],
+      "passed": true,
+      "exitCode": 0
+    }
+  ],
+  "fullLint": {
+    "errors": 61,
+    "warnings": 3,
+    "allDiagnosticsInUnchangedFiles": true,
+    "files": [
+      {
+        "file": "scripts/acceptance.cjs",
+        "errors": 2,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/chrome-reskin-check.cjs",
+        "errors": 2,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/cursor-check.cjs",
+        "errors": 2,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/info-reskin-check.cjs",
+        "errors": 2,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/microscope-check.cjs",
+        "errors": 2,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/qa/browser-checks.cjs",
+        "errors": 6,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/qa/read-path-safety.cjs",
+        "errors": 9,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/qa/record-intro-transitions.cjs",
+        "errors": 5,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/qa/remaining-regressions.cjs",
+        "errors": 7,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/qa/resource-audit.cjs",
+        "errors": 5,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/reading-unit-check.cjs",
+        "errors": 2,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/refraction-check.cjs",
+        "errors": 2,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/rest-reskin-check.cjs",
+        "errors": 2,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/scroll-review-check.cjs",
+        "errors": 2,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/specimen-check.cjs",
+        "errors": 2,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "scripts/submit-reskin-check.cjs",
+        "errors": 2,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "src/components/3d/water-drop-scene.tsx",
+        "errors": 3,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "src/components/3d/water-drop.tsx",
+        "errors": 1,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "src/components/sections/about-section.tsx",
+        "errors": 0,
+        "warnings": 1,
+        "unchanged": true
+      },
+      {
+        "file": "src/components/sections/donate-section.tsx",
+        "errors": 0,
+        "warnings": 1,
+        "unchanged": true
+      },
+      {
+        "file": "src/components/sections/partnerships-section.tsx",
+        "errors": 0,
+        "warnings": 1,
+        "unchanged": true
+      },
+      {
+        "file": "src/components/site/theme-toggle.tsx",
+        "errors": 1,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "src/components/ui/carousel.tsx",
+        "errors": 1,
+        "warnings": 0,
+        "unchanged": true
+      },
+      {
+        "file": "src/hooks/use-mobile.ts",
+        "errors": 1,
+        "warnings": 0,
+        "unchanged": true
+      }
+    ]
+  },
+  "success": true,
+  "completedAt": "2026-09-19T04:39:30.823Z"
+}

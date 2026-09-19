@@ -13,24 +13,30 @@ body :is([data-slot=button], [data-slot=card], [data-slot=input], [data-slot=tex
   border-radius: 0;
 }
 .dark {
-  --background: #05080a; --foreground: #dcebe5;
-  --card: #0b1417; --card-foreground: #dcebe5;
-  --popover: #0b1417; --popover-foreground: #dcebe5;
+  --background: #090e10; --foreground: #eeeae1;
+  --card: #11191c; --card-foreground: #eeeae1;
+  --popover: #11191c; --popover-foreground: #eeeae1;
+  /* Data markers still inherit the original primary hue. Chrome is scoped below. */
   --primary: #1df2b3; --primary-foreground: #05110c;
-  --secondary: #182a24; --secondary-foreground: #dcebe5;
-  --muted: #14221e; --muted-foreground: #a4bdb3;
-  --accent: #203c32; --accent-foreground: #e4fff4;
-  --border: #345148; --input: #49665c; --ring: #1df2b3;
+  --secondary: #1c2929; --secondary-foreground: #eeeae1;
+  --muted: #1a2627; --muted-foreground: #b6c0bd;
+  --accent: #283a36; --accent-foreground: #e6efea;
+  --border: #3b4b48; --input: #657c75; --ring: #a9cdc4;
 }
-.dark .bg-water-hero { background: radial-gradient(ellipse at 90% 0, #123127, transparent 65%), #05080a; }
-.dark .bg-water-surface { background: #15382d; animation: none; }
-.home-data > section:not(.tank-hero):not(.specimen-stage):not(.water-narrative), .legal-page { color: var(--foreground); }
-.home-data > section:not(.tank-hero):not(.specimen-stage):not(.water-narrative) h2, .legal-page h1, .legal-page h2, .admin-workbench [data-slot=card-title] { font-family: var(--font-tank-display), serif; font-weight: 400; letter-spacing: -.025em; }
-.home-data > section:not(.tank-hero):not(.specimen-stage):not(.water-narrative) h2 { font-size: clamp(32px, 4vw, 56px); line-height: 1.1; }
+/* Navigation and search accents are decorative; benchmark, warning, map, and
+   quality colors outside these surfaces retain their semantic tokens. */
+.dark :is(.site-header, .site-footer, .home-data > #search) { --primary: #a9cdc4; --primary-foreground: #0b1815; }
+.dark .site-header > [aria-hidden=true] { background: #a9cdc4; }
+.dark .bg-water-hero { background: #101c1d; }
+.dark .bg-water-surface { background: #223c37; animation: none; }
+.home-data > section:not(.tank-hero):not(.specimen-stage):not(.water-narrative):not([aria-labelledby="particle-atlas-title"]), .legal-page { color: var(--foreground); }
+.home-data > section:not(.tank-hero):not([aria-labelledby="particle-atlas-title"]) h2 { font-family: var(--font-geist-sans), sans-serif; font-size: clamp(26px, 2.8vw, 38px); font-weight: 500; line-height: 1.2; letter-spacing: -.025em; }
+.legal-page h1, .admin-workbench [data-slot=card-title] { font-family: var(--font-tank-display), serif; font-weight: 400; letter-spacing: -.025em; }
+.legal-page h2 { font-family: var(--font-geist-sans), sans-serif; font-weight: 500; letter-spacing: -.02em; }
 .home-data [data-slot=card], .admin-workbench [data-slot=card], [data-slot=dialog-content] { border-radius: 0; box-shadow: none; }
 .home-data [data-slot=card] { border-top: 1px solid var(--border); background: var(--card); }
-.home-data #search { padding-block: clamp(56px, 7vw, 100px); }
-.home-data #search > div:first-child { border-bottom: 1px solid var(--border); padding-bottom: 28px; }
+.home-data #search { padding-block: clamp(36px, 5vw, 64px); }
+.home-data #search > div:first-child { border-bottom: 1px solid var(--border); padding-bottom: 22px; }
 .legal-page.editorial-page h1 { font-size: clamp(42px, 5vw, 76px); line-height: 1.05; }
 .legal-page h2 { font-size: 29px; line-height: 1.2; }
 .legal-page p, .legal-page li { line-height: 1.9; }

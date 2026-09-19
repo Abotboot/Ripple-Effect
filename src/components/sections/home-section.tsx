@@ -16,7 +16,6 @@ import { useToast } from '@/hooks/use-toast'
 import { api } from '@/lib/api'
 import type { Utility, Stats, UtilityWithStats } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
-import { LiveTicker } from '@/components/site/live-ticker'
 import { TankHero } from '@/components/atmosphere/tank-hero'
 import { WaterNarrative } from '@/components/atmosphere/water-narrative'
 import { SpecimenInspector } from '@/components/atmosphere/specimen-inspector'
@@ -42,6 +41,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
   const [submittedQuery, setSubmittedQuery] = useState('')
   const [results, setResults] = useState<Utility[] | null>(null)
   const [loading, setLoading] = useState(false)
+  const [searchFailed, setSearchFailed] = useState(false)
   const [stats, setStats] = useState<Stats | null>(null)
   const [scores, setScores] = useState<Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> | null>(null)
   const [selected, setSelected] = useState<UtilityWithStats | null>(null)
@@ -57,6 +57,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
       .then((r) => {
         const map: Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> = {}
         for (const s of r.scores) {
+          if (typeof s.score !== 'number' || !Number.isFinite(s.score)) continue
           map[s.id] = { score: s.score, grade: s.grade, label: s.label, color: s.color, bgColor: s.bgColor }
         }
         setScores(map)
@@ -72,6 +73,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
       const reqId = ++searchRequestId.current
       setSubmittedQuery(trimmed)
       setLoading(true)
+      setSearchFailed(false)
       setResults(null)
 
       const isReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -94,6 +96,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
         }
       } catch (e) {
         if (searchRequestId.current !== reqId) return
+        setSearchFailed(true)
         toast({
           title: 'Search failed',
           description: e instanceof Error ? e.message : 'Unknown error',
@@ -114,6 +117,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
     setSubmittedQuery('')
     setQ('')
     setLoading(false)
+    setSearchFailed(false)
   }, [])
 
   const openUtility = useCallback(
@@ -179,9 +183,6 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
         onNavigate={onNavigate}
       />
 
-      {/* Live ticker - animated stats marquee */}
-      <LiveTicker />
-
       {/* Stats bar */}
       <StatsBar stats={stats} />
 
@@ -203,7 +204,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                 : 'Try a popular ZIP code or search by utility name, city, or state.'}
             </p>
           </div>
-          {results && (
+          {(results || searchFailed) && (
             <Button
               variant="ghost"
               size="sm"
@@ -253,6 +254,12 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                 </Card>
               ))}
             </div>
+          ) : searchFailed ? (
+            <div className="border border-border bg-card p-6" role="alert" data-testid="water-search-error">
+              <h3 className="text-lg font-semibold">Water records are temporarily unavailable</h3>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Your search for “{submittedQuery}” could not be completed. This is a service error, not a finding about your water.</p>
+              <Button type="button" variant="outline" className="mt-4" onClick={() => doSearch(submittedQuery)}>Try again</Button>
+            </div>
           ) : results && results.length > 0 ? (
             <motion.div
               className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
@@ -297,7 +304,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
             </motion.div>
           ) : !results ? (
             <EmptyBrowse onSearch={doSearch} />
-          ) : null}
+          ) : <div className="border border-border bg-card p-6" data-testid="water-search-empty"><h3 className="text-lg font-semibold">No matching utility records</h3><p className="mt-2 text-sm text-muted-foreground">Try a city, another ZIP code, or your utility’s name. Missing records are not evidence that water is contaminant-free.</p></div>}
         </div>
       </section>
 
@@ -326,32 +333,27 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <button
           onClick={() => onNavigate?.('microplastics')}
-          className="group relative w-full overflow-hidden rounded-2xl border border-amber-300/60 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 p-6 text-left transition-all hover:shadow-lg hover:shadow-amber-500/10 dark:border-amber-500/30 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-amber-950/30"
+          className="group relative w-full overflow-hidden border border-border bg-card p-6 text-left transition-colors hover:border-primary"
         >
 
-          <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-amber-400/20 blur-3xl" />
           <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/30">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border text-primary">
                 <Microscope className="h-6 w-6" />
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-lg font-bold text-foreground sm:text-xl">
-                    Almost no public water database tracks microplastics.
+                    Explore microplastics research and records
                   </h3>
-                  <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-                    We do
-                  </span>
                 </div>
                 <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-                  The EPA has no legal limit for microplastics. EWG, most state
-                  portals, and your utility&apos;s report don&apos;t include it.
-                  A Ripple Effect Initiative tracks microplastics anyway. See the data.
+                  Review available observations, methods and limitations.
+                  A missing record is not evidence of absence.
                                   </p>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-1.5 self-end text-sm font-semibold text-amber-700 dark:text-amber-400 sm:self-center">
+            <div className="flex shrink-0 items-center gap-1.5 self-end text-sm font-semibold text-primary sm:self-center">
               Explore microplastics
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </div>
@@ -361,34 +363,28 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
 
       {/* Donate pop banner */}
       <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-2xl border border-rose-300/60 bg-gradient-to-br from-rose-500 via-rose-600 to-pink-600 p-6 shadow-xl shadow-rose-500/20 sm:p-8">
-          <div className="pointer-events-none absolute inset-0 opacity-30">
-            <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/20 blur-3xl" />
-            <div className="absolute -bottom-12 left-1/4 h-40 w-40 rounded-full bg-pink-300/30 blur-3xl" />
-          </div>
+        <div className="relative overflow-hidden border border-border bg-card p-6 sm:p-8">
           <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-white backdrop-blur-sm">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center border border-border text-primary">
                 <HandHeart className="h-7 w-7" />
               </div>
-              <div className="text-white">
+              <div className="text-foreground">
                 <h3 className="text-xl font-extrabold tracking-tight sm:text-2xl">
-                  Help us ship the microplastics identifier
+                  Support the microplastics identifier
                 </h3>
-                <p className="mt-1 max-w-xl text-sm text-white/90">
-                  We&apos;re crowdfunding a low-cost identifier that volunteers
-                  dip into local rivers, lakes, and streams. Every dollar buys
-                  parts, kits, and testing supplies. Join the founding crew of
-                  supporters.
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                  Learn about the fieldwork project, its goals, and ways to contribute.
+                  Read the project details before deciding how to help.
                 </p>
               </div>
             </div>
             <button
               onClick={() => onNavigate?.('donate')}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-6 py-3 text-base font-bold text-rose-600 shadow-lg transition-transform hover:scale-105 active:scale-95"
+              className="inline-flex min-h-11 shrink-0 items-center gap-2 border border-primary px-5 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
             >
               <HandHeart className="h-5 w-5" />
-              Donate now
+              View the project
             </button>
           </div>
         </div>

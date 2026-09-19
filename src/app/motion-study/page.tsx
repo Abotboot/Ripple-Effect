@@ -13,7 +13,7 @@ export default function MotionStudy() {
   const [submitted, setSubmitted] = useState(false)
   return (
     <main className="motion-study">
-      <header className="motion-study-heading"><Link href="/">← Water search</Link><p>Motion study · provisional timing proof · no backend requests</p></header>
+      <header className="motion-study-heading"><Link href="/">← Water search</Link><p>Interactive field study · no backend requests</p></header>
       <TankHero>
         <form onSubmit={event => { event.preventDefault(); setSubmitted(true) }}>
           <label className="sr-only" htmlFor="study-search">ZIP, city, or utility</label>
@@ -23,8 +23,8 @@ export default function MotionStudy() {
         <div className="tank-search-links"><a href="#specimen-study">Explore the specimen</a><a href="#sample-study">Examine a sample</a></div>
       </TankHero>
       <section id="search" className="motion-study-results" aria-live="polite">
-        <h2>Search interaction preview</h2>
-        <p>{submitted ? `Input preserved: “${query || '(empty)'}”. This isolated study makes no data request.` : 'The real HTML field remains in place during playback. Try it after the journey; no results are fabricated.'}</p>
+        <h2>Try the search interaction</h2>
+        <p>{submitted ? `Input preserved: “${query || '(empty)'}”. This isolated study makes no data request.` : 'This field study demonstrates the experience without requesting water records. Use Water search for the main application.'}</p>
       </section>
       <ParticleAtlas />
       <div id="specimen-study"><SpecimenInspector /><WaterNarrative contributeHref="/#submit" /></div>
