@@ -1,7 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useRef, useState, type KeyboardEvent } from 'react'
 import Image from 'next/image'
+import { particlePhotographs } from '@/lib/particle-photographs'
+import { PhotographCredit } from './photograph-credit'
+import { PhotoParticleScene } from './photo-particle-scene'
 import styles from './particle-atlas.module.css'
 
 const categories = [
@@ -25,17 +28,7 @@ const categories = [
 export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } = {}) {
   const [selected, setSelected] = useState(0)
   const [paused, setPaused] = useState(false)
-  const [visible, setVisible] = useState(false)
-  const atlas = useRef<HTMLElement>(null)
   const tabs = useRef<Array<HTMLButtonElement | null>>([])
-  useEffect(() => {
-    let intersecting = false
-    const update = () => setVisible(intersecting && !document.hidden)
-    const observer = new IntersectionObserver(([entry]) => { intersecting = entry.isIntersecting; update() })
-    if (atlas.current) observer.observe(atlas.current)
-    document.addEventListener('visibilitychange', update)
-    return () => { observer.disconnect(); document.removeEventListener('visibilitychange', update) }
-  }, [])
 
   const moveSelection = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     let next: number
@@ -52,14 +45,14 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
   }
 
   return (
-    <section ref={atlas} id="particle-atlas" className={styles.atlas} aria-labelledby="particle-atlas-title" data-testid="particle-atlas" data-motion={visible && !paused}>
+    <section id="particle-atlas" className={styles.atlas} aria-labelledby="particle-atlas-title" data-testid="particle-atlas">
       <div className={styles.inner}>
         <div className={styles.heading}>
           <div>
             <p className={styles.eyebrow}>Particle atlas</p>
             <h2 id="particle-atlas-title">Compare particle forms</h2>
           </div>
-          <div><p className={styles.intro}>Three forms. Take a closer look.</p><button type="button" className={styles.motionToggle} aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume motion' : 'Pause motion'}</button></div>
+          <div><p className={styles.intro}>Photo-derived particles. Three forms to explore.</p><button className={styles.motionToggle} type="button" aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume motion' : 'Pause motion'}</button></div>
         </div>
         <div className={styles.grid} role="tablist" aria-label="Particle form" aria-orientation="horizontal">
           {categories.map(({ id, title, description }, index) => (
@@ -76,19 +69,9 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
               className={styles.card}
               onClick={() => setSelected(index)}
               onKeyDown={event => moveSelection(event, index)}
-              onPointerMove={event => {
-                if (event.pointerType !== 'mouse') return
-                const box = event.currentTarget.getBoundingClientRect()
-                event.currentTarget.style.setProperty('--look-x', `${((event.clientX - box.left) / box.width - .5) * 12}px`)
-                event.currentTarget.style.setProperty('--look-y', `${((event.clientY - box.top) / box.height - .5) * 12}px`)
-              }}
-              onPointerLeave={event => { event.currentTarget.style.setProperty('--look-x', '0px'); event.currentTarget.style.setProperty('--look-y', '0px') }}
             >
-              <span className={styles.scene} data-form={id} aria-hidden="true">
-                <span className={styles.light} />
-                <span className={styles.depth}>
-                  {[0, 1, 2].map(layer => <span key={layer} className={styles.particle} data-layer={layer}><Image src={`/media/ripple/layers/${id === 'fibers' ? 'fiber' : id === 'fragments' ? 'fragment' : 'granule'}.png`} alt="" width={1280} height={1280} sizes="(max-width: 699px) 28vw, 300px" loading="lazy" /></span>)}
-                </span>
+              <span className={styles.scene} data-form={id}>
+                <PhotoParticleScene subject={id} selected={selected === index ? id : 'all'} paused={paused} />
               </span>
               <span className={styles.cardLabel}>
                 <span id={`atlas-label-${id}`} className={styles.cardTitle}>{title}</span>
@@ -113,11 +96,14 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
               <h3>{title}</h3>
               <span>{description}</span>
             </div>
-            <p className={styles.features}>{id === 'fibers' ? 'Follow the curve and fine strands along its edge.' : id === 'fragments' ? 'Look for folded surfaces, sharp edges and uneven thickness.' : 'Compare the rounded outlines and rough surfaces.'}</p>
+            <div className={styles.detail}>
+              <Image src={particlePhotographs[id].src} alt={particlePhotographs[id].alt} width={particlePhotographs[id].width} height={particlePhotographs[id].height} sizes="(max-width: 699px) 80vw, 480px" loading="lazy" unoptimized />
+              <div><p className={styles.features}>{particlePhotographs[id].caption}</p><p className={styles.note}><PhotographCredit photo={particlePhotographs[id]} /></p></div>
+            </div>
           </div>
         ))}
         <div className={styles.footer}>
-          <p className={styles.note}>Particle illustrations. Identification requires a sample test.</p>
+          <p className={styles.note}>Photo-derived artwork. Source photo shown for each form.</p>
           <div className={styles.footerLinks}>
             {onMethodology && <button type="button" className={styles.link} onClick={onMethodology}>Methodology &amp; sources <span aria-hidden="true">↗</span></button>}
             <a className={styles.link} href="#sample-study">Examine a sample <span aria-hidden="true">↓</span></a>
