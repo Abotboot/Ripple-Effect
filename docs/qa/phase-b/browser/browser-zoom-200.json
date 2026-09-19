@@ -1,0 +1,44 @@
+{
+  "createdAt": "2026-09-19T03:52:52.179Z",
+  "base": "http://localhost:3020",
+  "success": true,
+  "method": "Installed Chromium extension chrome.tabs.setZoom(tabId, 2), temporary profile",
+  "api": [],
+  "errors": [],
+  "screenshotMethod": "Playwright CDP Page.captureScreenshot; full browser surface, no clip or zoom override",
+  "geometry": {
+    "innerWidth": 709,
+    "innerHeight": 401,
+    "outerWidth": 1440,
+    "dpr": 2,
+    "visualViewportScale": 1,
+    "scrollWidth": 709,
+    "cssZoom": "1"
+  },
+  "during": {
+    "x": 0,
+    "y": 0,
+    "width": 709,
+    "height": 398.8125
+  },
+  "controls": [
+    {
+      "id": "journey-skip",
+      "x": 521.2578125,
+      "y": 8,
+      "width": 74.6484375,
+      "height": 44,
+      "hit": true
+    },
+    {
+      "id": "journey-pause",
+      "x": 601.90625,
+      "y": 8,
+      "width": 99.09375,
+      "height": 44,
+      "hit": true
+    }
+  ],
+  "watchHarnessScroll": false,
+  "keyboardPauseEscapeSearch": "pass"
+}

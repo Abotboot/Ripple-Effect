@@ -1,0 +1,1 @@
+chrome.tabs.onUpdated.addListener((id, info, tab) => { if (info.status === 'complete' && tab.url?.startsWith("http://localhost:3020")) chrome.tabs.setZoom(id, 2); });

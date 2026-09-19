@@ -1,0 +1,2 @@
+{"name":"opening","frameIndex":0,"poster":"/media/ripple/microscope-poster.webp","width":1920,"height":1080,"mismatchedChannels":0,"maximumDifference":0,"meanAbsoluteDifference":0,"exact":true}
+{"name":"terminal","frameIndex":257,"poster":"/media/ripple/continuation-terminal-proof.webp","width":1920,"height":1080,"mismatchedChannels":0,"maximumDifference":0,"meanAbsoluteDifference":0,"exact":true}

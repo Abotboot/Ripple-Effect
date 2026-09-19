@@ -1,0 +1,266 @@
+{
+  "base": "http://localhost:3020",
+  "createdAt": "2026-09-19T03:40:28.935Z",
+  "success": false,
+  "filter": [
+    "layout-assets-skip-320",
+    "mocked-home"
+  ],
+  "checks": [
+    {
+      "name": "layout-assets-skip-320x568",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'http://localhost:3020/media/ripple/continuation-terminal-proof.webp'\n- '/media/ripple/continuation-terminal-proof.webp'\n\n    at staticTerminal (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:67:10)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:270:7\n    at async run (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:218:23)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:245:42",
+      "browserErrors": [],
+      "apiRequests": []
+    },
+    {
+      "name": "mocked-home-1440x900",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'http://localhost:3020/media/ripple/continuation-terminal-proof.webp'\n- '/media/ripple/continuation-terminal-proof.webp'\n\n    at staticTerminal (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:67:10)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:300:7\n    at async run (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:218:23)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:282:62",
+      "browserErrors": [],
+      "apiRequests": [
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/activity",
+        "http://localhost:3020/api/utilities/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/readings/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/utilities/scores"
+      ]
+    },
+    {
+      "name": "mocked-home-390x844",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'http://localhost:3020/media/ripple/continuation-terminal-proof.webp'\n- '/media/ripple/continuation-terminal-proof.webp'\n\n    at staticTerminal (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:67:10)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:300:7\n    at async run (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:218:23)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:282:62",
+      "browserErrors": [],
+      "apiRequests": [
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/activity",
+        "http://localhost:3020/api/utilities/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/readings/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/utilities/scores"
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "name": "layout-assets-skip-320x568",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "mocked-home-1440x900",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=1920&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "reason": "net::ERR_ABORTED"
+        }
+      ],
+      "api": [
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/activity",
+        "http://localhost:3020/api/utilities/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/readings/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/utilities/scores"
+      ],
+      "intercepted": [
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/activity",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/scores",
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "name": "mocked-home-390x844",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/activity",
+        "http://localhost:3020/api/utilities/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/readings/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/utilities/scores"
+      ],
+      "intercepted": [
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/activity",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/scores",
+          "method": "GET"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "name": "layout-assets-skip-320x568",
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'http://localhost:3020/media/ripple/continuation-terminal-proof.webp'\n- '/media/ripple/continuation-terminal-proof.webp'\n\n    at staticTerminal (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:67:10)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:270:7\n    at async run (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:218:23)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:245:42"
+    },
+    {
+      "name": "mocked-home-1440x900",
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'http://localhost:3020/media/ripple/continuation-terminal-proof.webp'\n- '/media/ripple/continuation-terminal-proof.webp'\n\n    at staticTerminal (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:67:10)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:300:7\n    at async run (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:218:23)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:282:62"
+    },
+    {
+      "name": "mocked-home-390x844",
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'http://localhost:3020/media/ripple/continuation-terminal-proof.webp'\n- '/media/ripple/continuation-terminal-proof.webp'\n\n    at staticTerminal (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:67:10)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:300:7\n    at async run (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:218:23)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:282:62"
+    }
+  ],
+  "recordings": [],
+  "browser": "152.0.7977.83",
+  "completedAt": "2026-09-19T03:40:46.037Z"
+}

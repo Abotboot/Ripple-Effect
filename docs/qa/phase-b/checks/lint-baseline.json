@@ -1,0 +1,225 @@
+{
+  "createdAt": "2026-09-19T03:53:55.027Z",
+  "reviewedCommit": "9ca9db122229d4054293a98572e94b38af577072",
+  "errors": 61,
+  "warnings": 3,
+  "allDiagnosticsInUnchangedFiles": true,
+  "files": [
+    {
+      "file": "scripts/acceptance.cjs",
+      "errors": 2,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/chrome-reskin-check.cjs",
+      "errors": 2,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/cursor-check.cjs",
+      "errors": 2,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/info-reskin-check.cjs",
+      "errors": 2,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/microscope-check.cjs",
+      "errors": 2,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/qa/browser-checks.cjs",
+      "errors": 6,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/qa/read-path-safety.cjs",
+      "errors": 9,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/qa/record-intro-transitions.cjs",
+      "errors": 5,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/qa/remaining-regressions.cjs",
+      "errors": 7,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/qa/resource-audit.cjs",
+      "errors": 5,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/reading-unit-check.cjs",
+      "errors": 2,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/refraction-check.cjs",
+      "errors": 2,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/rest-reskin-check.cjs",
+      "errors": 2,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/scroll-review-check.cjs",
+      "errors": 2,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/specimen-check.cjs",
+      "errors": 2,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "scripts/submit-reskin-check.cjs",
+      "errors": 2,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "@typescript-eslint/no-require-imports"
+      ]
+    },
+    {
+      "file": "src/components/3d/water-drop-scene.tsx",
+      "errors": 3,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "react-hooks/refs"
+      ]
+    },
+    {
+      "file": "src/components/3d/water-drop.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "react-hooks/set-state-in-effect"
+      ]
+    },
+    {
+      "file": "src/components/sections/about-section.tsx",
+      "errors": 0,
+      "warnings": 1,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        null
+      ]
+    },
+    {
+      "file": "src/components/sections/donate-section.tsx",
+      "errors": 0,
+      "warnings": 1,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        null
+      ]
+    },
+    {
+      "file": "src/components/sections/partnerships-section.tsx",
+      "errors": 0,
+      "warnings": 1,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        null
+      ]
+    },
+    {
+      "file": "src/components/site/theme-toggle.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "react-hooks/set-state-in-effect"
+      ]
+    },
+    {
+      "file": "src/components/ui/carousel.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "react-hooks/set-state-in-effect"
+      ]
+    },
+    {
+      "file": "src/hooks/use-mobile.ts",
+      "errors": 1,
+      "warnings": 0,
+      "unchangedFromReviewedCommit": true,
+      "rules": [
+        "react-hooks/set-state-in-effect"
+      ]
+    }
+  ]
+}

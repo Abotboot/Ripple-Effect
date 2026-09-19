@@ -1,0 +1,29 @@
+{
+  "createdAt": "2026-09-19T03:52:32.477Z",
+  "scope": "Decoded media pixels only; not a browser colorspace or live-renderer handoff match.",
+  "video": "/media/ripple/intro-proof-1080.mp4",
+  "comparisons": [
+    {
+      "name": "opening",
+      "frameIndex": 0,
+      "poster": "/media/ripple/microscope-poster.webp",
+      "width": 1920,
+      "height": 1080,
+      "mismatchedChannels": 0,
+      "maximumDifference": 0,
+      "meanAbsoluteDifference": 0,
+      "exact": true
+    },
+    {
+      "name": "terminal",
+      "frameIndex": 257,
+      "poster": "/media/ripple/continuation-terminal-proof.webp",
+      "width": 1920,
+      "height": 1080,
+      "mismatchedChannels": 0,
+      "maximumDifference": 0,
+      "meanAbsoluteDifference": 0,
+      "exact": true
+    }
+  ]
+}

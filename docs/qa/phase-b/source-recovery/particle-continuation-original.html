@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Genjutsu Continuation Driving Shot (4.0s)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000000; overflow: hidden; width: 100vw; height: 100vh; }
+    canvas { width: 100%; height: 100%; display: block; }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/node_modules/three/build/three.module.js",
+        "three/addons/": "/node_modules/three/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <script type="module">
+    import * as THREE from 'three';
+
+    const canvas = document.getElementById('c');
+    const width = 1920;
+    const height = 1080;
+    canvas.width = width;
+    canvas.height = height;
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      powerPreference: 'high-performance',
+      preserveDrawingBuffer: true
+    });
+    renderer.setSize(width, height, false);
+    renderer.setPixelRatio(1);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#000000');
+
+    const camera = new THREE.PerspectiveCamera(46, width / height, 0.1, 50);
+
+    // ==========================================
+    // LIGHTING & ATMOSPHERE (Matching 01.png)
+    // ==========================================
+    const ambientLight = new THREE.AmbientLight('#08181c', 1.0);
+    scene.add(ambientLight);
+
+    // Strong pale aqua key light from upper right
+    const keyLight = new THREE.DirectionalLight('#a6e6ec', 3.8);
+    keyLight.position.set(6.0, 7.5, 4.0);
+    scene.add(keyLight);
+
+    // Cool rim light from rear-right
+    const rimLight = new THREE.DirectionalLight('#68c0cc', 2.5);
+    rimLight.position.set(4.0, 2.0, -2.0);
+    scene.add(rimLight);
+
+    // Subtle dark fill light from lower left
+    const fillLight = new THREE.DirectionalLight('#142a30', 1.0);
+    fillLight.position.set(-5.0, -3.0, 2.0);
+    scene.add(fillLight);
+
+    // Point light for close particle specular glints
+    const glintLight = new THREE.PointLight('#b8f4fa', 3.0, 12, 1.1);
+    glintLight.position.set(3.2, 3.2, 1.8);
+    scene.add(glintLight);
+
+    // Atmospheric dark water studio backdrop with diagonal light rays
+    const bgGeo = new THREE.PlaneGeometry(32, 18);
+    const bgMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uLightIntensity: { value: 0.0 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uLightIntensity;
+        varying vec2 vUv;
+        void main() {
+          // Dark charcoal and deep gray-green gradient matching 01.png
+          vec3 darkCharcoal = vec3(0.008, 0.016, 0.020); // #020405
+          vec3 deepGreen    = vec3(0.020, 0.042, 0.048); // #050b0c
+          vec3 aquaGlow     = vec3(0.065, 0.145, 0.165);
+
+          // Diagonal light shafts from top right
+          float shaftAngle = vUv.x * 0.75 + vUv.y * 0.65;
+          float shaft1 = sin(shaftAngle * 42.0) * 0.5 + 0.5;
+          float shaft2 = sin((shaftAngle + 0.15) * 78.0) * 0.5 + 0.5;
+          float rays = (shaft1 * 0.65 + shaft2 * 0.35) * smoothstep(0.40, 0.95, vUv.x) * smoothstep(0.30, 0.95, vUv.y);
+
+          vec3 base = mix(darkCharcoal, deepGreen, vUv.x * 0.7 + vUv.y * 0.3);
+          vec3 col = (base + aquaGlow * rays * 1.3) * uLightIntensity;
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `,
+      depthWrite: false
+    });
+    const bgMesh = new THREE.Mesh(bgGeo, bgMat);
+    bgMesh.position.set(0.6, 0.0, -6.5);
+    scene.add(bgMesh);
+
+    // ==========================================
+    // PARTICLE GEOMETRIES & MATERIALS
+    // ==========================================
+
+    // Material 1: Translucent plastic flakes (crinkled translucent film)
+    const fragmentMat = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color('#d4e8eb'),
+      transmission: 0.85,
+      opacity: 0.95,
+      transparent: true,
+      roughness: 0.22,
+      ior: 1.50,
+      thickness: 0.04,
+      specularIntensity: 1.2,
+      specularColor: new THREE.Color('#d8f2f5'),
+      side: THREE.DoubleSide
+    });
+
+    const blueFragmentMat = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color('#589ec0'),
+      transmission: 0.78,
+      opacity: 0.92,
+      transparent: true,
+      roughness: 0.25,
+      ior: 1.48,
+      thickness: 0.05,
+      specularIntensity: 1.1,
+      side: THREE.DoubleSide
+    });
+
+    // Material 2: Thin synthetic fibers with subtle internal glow
+    const fiberMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color('#98d8e8'),
+      emissive: new THREE.Color('#1e4c5a'),
+      emissiveIntensity: 0.4,
+      roughness: 0.3,
+      metalness: 0.1
+    });
+
+    const blueFiberMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color('#4888b4'),
+      emissive: new THREE.Color('#143548'),
+      emissiveIntensity: 0.45,
+      roughness: 0.28,
+      metalness: 0.15
+    });
+
+    // Material 3: Solid polymer granules
+    const granuleMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color('#e2eeee'),
+      roughness: 0.38,
+      metalness: 0.06,
+      flatShading: true
+    });
+
+    const amberGranuleMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color('#c8a882'),
+      roughness: 0.44,
+      metalness: 0.08,
+      flatShading: true
+    });
+
+    // Edge highlight material for fragments (delicate bright rim)
+    const edgeMat = new THREE.LineBasicMaterial({
+      color: new THREE.Color('#bbf0f5'),
+      transparent: true,
+      opacity: 0.75,
+      linewidth: 1
+    });
+
+    // Helper: Create wrinkled translucent flake
+    function createWrinkledFlake(radii, angles, scale = 1.0) {
+      const group = new THREE.Group();
+      
+      // Create 2D shape
+      const shape = new THREE.Shape();
+      for (let i = 0; i < angles.length; i++) {
+        const a = angles[i];
+        const r = radii[i] * scale;
+        const x = Math.cos(a) * r;
+        const y = Math.sin(a) * r;
+        if (i === 0) shape.moveTo(x, y);
+        else shape.lineTo(x, y);
+      }
+      shape.closePath();
+
+      // Shape geometry with subdivision
+      const geom = new THREE.ShapeGeometry(shape, 12);
+      const pos = geom.attributes.position;
+      
+      // Wrinkle displacement
+      for (let i = 0; i < pos.count; i++) {
+        const px = pos.getX(i);
+        const py = pos.getY(i);
+        const pz = 0.035 * Math.sin(px * 18.0 + 1.2) * Math.cos(py * 16.0 + 0.8)
+                 + 0.015 * Math.sin(px * 35.0) * Math.sin(py * 32.0);
+        pos.setZ(i, pz);
+      }
+      geom.computeVertexNormals();
+
+      const mesh = new THREE.Mesh(geom, fragmentMat);
+      group.add(mesh);
+
+      // Add edge line highlight
+      const edges = new THREE.EdgesGeometry(geom, 25);
+      const line = new THREE.LineSegments(edges, edgeMat);
+      group.add(line);
+
+      return { group, mesh, line };
+    }
+
+    // Helper: Create deformed granule
+    function createGranuleMesh(radius, mat) {
+      const geom = new THREE.IcosahedronGeometry(radius, 2);
+      const pos = geom.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        let x = pos.getX(i);
+        let y = pos.getY(i);
+        let z = pos.getZ(i);
+        const noise = 1.0 + 0.22 * Math.sin(x * 24.0) * Math.cos(y * 22.0) * Math.sin(z * 18.0);
+        pos.setXYZ(i, x * noise, y * noise, z * noise);
+      }
+      geom.computeVertexNormals();
+      return new THREE.Mesh(geom, mat);
+    }
+
+    // Helper: Create fiber tube
+    function createFiberMesh(points, radius, mat) {
+      const curve = new THREE.CatmullRomCurve3(points);
+      const geom = new THREE.TubeGeometry(curve, 40, radius, 8, false);
+      return new THREE.Mesh(geom, mat);
+    }
+
+    // ==========================================
+    // PARTICLE SCENE ASSEMBLY (Matching 01.png)
+    // ==========================================
+    const particles = [];
+
+    function registerParticle(obj, targetPos, driftDir, driftDist, rotSpeed) {
+      scene.add(obj);
+      particles.push({
+        obj,
+        targetPos: targetPos.clone(),
+        driftDir: driftDir.clone().normalize(),
+        driftDist,
+        baseRot: obj.rotation.clone(),
+        rotSpeed
+      });
+    }
+
+    // --- FRAGMENTS ---
+    // Fragment 1: Large faceted translucent shard (upper-right: screenspace ~0.81, 0.31)
+    {
+      const radii = [0.45, 0.30, 0.48, 0.25, 0.40, 0.24, 0.36];
+      const angles = [0.0, 0.9, 1.8, 2.7, 3.6, 4.5, 5.4];
+      const { group } = createWrinkledFlake(radii, angles, 1.05);
+      group.rotation.set(0.25, -0.35, 0.40);
+      const targetPos = new THREE.Vector3(2.15, 1.05, -0.2);
+      registerParticle(group, targetPos, new THREE.Vector3(0.6, 0.4, 0.2), 0.16, new THREE.Vector3(0.04, 0.08, -0.06));
+    }
+
+    // Fragment 2: Blue-tinted translucent shard (mid-right: screenspace ~0.80, 0.53)
+    {
+      const radii = [0.32, 0.20, 0.38, 0.18, 0.30, 0.22];
+      const angles = [0.2, 1.2, 2.3, 3.4, 4.4, 5.6];
+      const { group, mesh } = createWrinkledFlake(radii, angles, 0.95);
+      mesh.material = blueFragmentMat;
+      group.rotation.set(-0.18, 0.30, -0.45);
+      const targetPos = new THREE.Vector3(2.05, -0.15, -0.35);
+      registerParticle(group, targetPos, new THREE.Vector3(0.7, -0.2, 0.15), 0.14, new THREE.Vector3(-0.06, 0.05, 0.04));
+    }
+
+    // Fragment 3: Lower right triangular shard (screenspace ~0.74, 0.68)
+    {
+      const radii = [0.36, 0.26, 0.40, 0.20, 0.34];
+      const angles = [0.1, 1.3, 2.6, 3.9, 5.2];
+      const { group } = createWrinkledFlake(radii, angles, 1.0);
+      group.rotation.set(0.32, -0.15, 0.25);
+      const targetPos = new THREE.Vector3(1.72, -0.85, 0.1);
+      registerParticle(group, targetPos, new THREE.Vector3(0.5, -0.5, 0.25), 0.18, new THREE.Vector3(0.05, -0.04, 0.07));
+    }
+
+    // Fragment 4: Mid-left shard (screenspace ~0.59, 0.43)
+    {
+      const radii = [0.26, 0.16, 0.30, 0.14, 0.24];
+      const angles = [0.3, 1.5, 2.9, 4.1, 5.4];
+      const { group } = createWrinkledFlake(radii, angles, 0.9);
+      group.rotation.set(0.12, 0.38, -0.28);
+      const targetPos = new THREE.Vector3(0.75, 0.30, -0.4);
+      registerParticle(group, targetPos, new THREE.Vector3(-0.3, 0.3, 0.1), 0.12, new THREE.Vector3(0.03, 0.06, -0.04));
+    }
+
+    // Fragment 5: Defocused distant background shard (~0.53, 0.15)
+    {
+      const radii = [0.22, 0.15, 0.26, 0.12, 0.20];
+      const angles = [0.1, 1.4, 2.8, 4.0, 5.2];
+      const { group } = createWrinkledFlake(radii, angles, 0.85);
+      group.rotation.set(0.4, 0.1, 0.6);
+      const targetPos = new THREE.Vector3(0.38, 1.48, -1.8);
+      registerParticle(group, targetPos, new THREE.Vector3(-0.2, 0.5, 0.05), 0.08, new THREE.Vector3(0.02, 0.03, 0.02));
+    }
+
+    // Fragment 6: Distant lower-right flake (~0.82, 0.90)
+    {
+      const radii = [0.28, 0.18, 0.32, 0.16, 0.25];
+      const angles = [0.0, 1.2, 2.5, 3.8, 5.0];
+      const { group } = createWrinkledFlake(radii, angles, 0.9);
+      group.rotation.set(-0.2, 0.4, 0.1);
+      const targetPos = new THREE.Vector3(2.18, -1.68, -1.4);
+      registerParticle(group, targetPos, new THREE.Vector3(0.4, -0.6, 0.1), 0.09, new THREE.Vector3(-0.03, 0.04, 0.03));
+    }
+
+    // --- FIBERS ---
+    // Fiber 1: Upper blue curved strand (screenspace ~0.62, 0.20 to ~0.65, 0.35)
+    {
+      const pts = [
+        new THREE.Vector3(0.82, 1.65, 0.1),
+        new THREE.Vector3(0.88, 1.50, 0.05),
+        new THREE.Vector3(1.15, 1.34, -0.1),
+        new THREE.Vector3(1.26, 1.06, -0.15),
+        new THREE.Vector3(1.42, 0.72, -0.2)
+      ];
+      const mesh = createFiberMesh(pts, 0.013, blueFiberMat);
+      registerParticle(mesh, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.3, 0.6, 0.2), 0.15, new THREE.Vector3(0.02, 0.05, -0.03));
+    }
+
+    // Fiber 2: Long middle-left strand (screenspace ~0.54, 0.55 to ~0.61, 0.85)
+    {
+      const pts = [
+        new THREE.Vector3(0.45, 0.15, 0.25),
+        new THREE.Vector3(0.60, -0.22, 0.18),
+        new THREE.Vector3(0.76, -0.68, 0.05),
+        new THREE.Vector3(0.95, -1.12, -0.1)
+      ];
+      const mesh = createFiberMesh(pts, 0.011, fiberMat);
+      registerParticle(mesh, new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.3, -0.4, 0.15), 0.14, new THREE.Vector3(0.01, -0.04, 0.02));
+    }
+
+    // Fiber 3: Lower blue strand (screenspace ~0.61, 0.82)
+    {
+      const pts = [
+        new THREE.Vector3(0.98, -0.86, 0.3),
+        new THREE.Vector3(0.94, -1.16, 0.2),
+        new THREE.Vector3(0.92, -1.42, 0.1)
+      ];
+      const mesh = createFiberMesh(pts, 0.012, blueFiberMat);
+      registerParticle(mesh, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.1, -0.5, 0.2), 0.16, new THREE.Vector3(-0.02, 0.03, -0.02));
+    }
+
+    // Fiber 4: Far-right thin strand (screenspace ~0.88, 0.25 to 0.45)
+    {
+      const pts = [
+        new THREE.Vector3(2.58, 1.42, -0.5),
+        new THREE.Vector3(2.52, 0.96, -0.6),
+        new THREE.Vector3(2.44, 0.52, -0.7)
+      ];
+      const mesh = createFiberMesh(pts, 0.009, fiberMat);
+      registerParticle(mesh, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.5, 0.3, 0.1), 0.10, new THREE.Vector3(0.01, 0.02, 0.01));
+    }
+
+    // Fiber 5: Far-right blue curve (screenspace ~0.91, 0.55 to 0.75)
+    {
+      const pts = [
+        new THREE.Vector3(2.68, 0.10, -0.4),
+        new THREE.Vector3(2.72, -0.30, -0.45),
+        new THREE.Vector3(2.74, -0.72, -0.5)
+      ];
+      const mesh = createFiberMesh(pts, 0.010, blueFiberMat);
+      registerParticle(mesh, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.6, -0.2, 0.1), 0.11, new THREE.Vector3(-0.01, 0.02, -0.01));
+    }
+
+    // --- GRANULES ---
+    // Granule 1: Central polymer bead (screenspace ~0.68, 0.58)
+    {
+      const mesh = createGranuleMesh(0.082, granuleMat);
+      const targetPos = new THREE.Vector3(1.24, -0.30, 0.2);
+      registerParticle(mesh, targetPos, new THREE.Vector3(0.2, -0.3, 0.2), 0.16, new THREE.Vector3(0.06, 0.08, 0.05));
+    }
+
+    // Granule 2: Small textured bead (screenspace ~0.62, 0.35)
+    {
+      const mesh = createGranuleMesh(0.065, amberGranuleMat);
+      const targetPos = new THREE.Vector3(0.88, 0.60, -0.15);
+      registerParticle(mesh, targetPos, new THREE.Vector3(0.1, 0.4, 0.1), 0.13, new THREE.Vector3(-0.05, 0.04, 0.06));
+    }
+
+    // Granule 3: Textured bead cluster (screenspace ~0.72, 0.42)
+    {
+      const mesh = createGranuleMesh(0.072, amberGranuleMat);
+      const targetPos = new THREE.Vector3(1.48, 0.34, -0.05);
+      registerParticle(mesh, targetPos, new THREE.Vector3(0.4, 0.3, 0.15), 0.14, new THREE.Vector3(0.04, -0.05, 0.04));
+    }
+
+    // Granule 4: Amber polymer bead upper right (~0.85, 0.15)
+    {
+      const mesh = createGranuleMesh(0.060, amberGranuleMat);
+      const targetPos = new THREE.Vector3(2.35, 1.50, -0.6);
+      registerParticle(mesh, targetPos, new THREE.Vector3(0.5, 0.5, 0.1), 0.10, new THREE.Vector3(0.03, 0.05, -0.03));
+    }
+
+    // Granule 5: Lower cluster bead (~0.85, 0.73)
+    {
+      const mesh = createGranuleMesh(0.075, amberGranuleMat);
+      const targetPos = new THREE.Vector3(2.30, -0.96, -0.35);
+      registerParticle(mesh, targetPos, new THREE.Vector3(0.5, -0.4, 0.15), 0.12, new THREE.Vector3(-0.04, 0.05, 0.05));
+    }
+
+    // Granule 6: Soft bead lower center (~0.68, 0.82)
+    {
+      const mesh = createGranuleMesh(0.088, granuleMat);
+      const targetPos = new THREE.Vector3(1.35, -1.42, -0.6);
+      registerParticle(mesh, targetPos, new THREE.Vector3(0.2, -0.6, 0.1), 0.11, new THREE.Vector3(0.03, -0.03, 0.04));
+    }
+
+    // Motes for depth (controlled by lighting)
+    const moteMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color('#94d0d8'),
+      roughness: 0.5,
+      metalness: 0.1
+    });
+    const moteGeo = new THREE.SphereGeometry(0.016, 6, 6);
+    const motes = [];
+    const moteCoords = [
+      [1.15, 0.82, -1.2], [1.82, 0.42, -0.8], [0.92, -0.48, -0.9],
+      [2.42, -0.18, -1.5], [1.62, -1.18, -1.1], [2.12, 1.22, -1.8],
+      [0.62, 1.12, -1.4], [1.42, -0.08, -1.0], [2.72, 0.72, -1.2]
+    ];
+    for (const c of moteCoords) {
+      const m = new THREE.Mesh(moteGeo, moteMat);
+      m.position.set(c[0], c[1], c[2]);
+      scene.add(m);
+      motes.push({ mesh: m, basePos: new THREE.Vector3(c[0], c[1], c[2]) });
+    }
+
+    // ==========================================
+    // TRAJECTORY & TIME FUNCTION
+    // 4.0 SECONDS = 120 FRAMES (0 to 119)
+    // ==========================================
+
+    const camStart = new THREE.Vector3(0.10, -0.06, 5.25);
+    const camEnd   = new THREE.Vector3(0.22, 0.02, 4.30);
+
+    const targetStart = new THREE.Vector3(0.55, -0.05, 0.0);
+    const targetEnd   = new THREE.Vector3(0.75, 0.02, 0.0);
+
+    // Export particle positions for later live handoff
+    window.getParticleHandoffData = function() {
+      // Set to final frame
+      window.setCameraTime(1.0);
+      const data = {
+        meta: {
+          reference: "01-particle-world-master.png",
+          phase: "continuation terminal state at t=4.0s (frame 119)",
+          duration_seconds: 4.0,
+          frame_rate: 30,
+          total_frames: 120,
+          camera_end_position: [camEnd.x, camEnd.y, camEnd.z],
+          camera_target: [targetEnd.x, targetEnd.y, targetEnd.z],
+          fov: 46
+        },
+        particles: []
+      };
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        const worldPos = p.obj.position.clone();
+        const ndc = worldPos.clone().project(camera);
+        const screenU = (ndc.x + 1.0) / 2.0;
+        const screenV = (1.0 - ndc.y) / 2.0;
+
+        data.particles.push({
+          id: i,
+          type: i < 6 ? "fragment" : (i < 11 ? "fiber" : "granule"),
+          world_position: [worldPos.x, worldPos.y, worldPos.z],
+          screenspace_uv: [Number(screenU.toFixed(3)), Number(screenV.toFixed(3))],
+          drift_direction: [p.driftDir.x, p.driftDir.y, p.driftDir.z],
+          drift_distance: p.driftDist,
+          rotation: [p.obj.rotation.x, p.obj.rotation.y, p.obj.rotation.z]
+        });
+      }
+      return data;
+    };
+
+    window.setCameraTime = function(tau) {
+      tau = Math.max(0, Math.min(1, tau));
+      const t = tau * 4.0; // 0.0s to 4.0s
+
+      // 1. LIGHTING & EMERGENCE (Strict Prompt 06 & 07 timing)
+      // 0.00s - 0.15s: EXACT FULL-FRAME OPTICAL BLACK (matching microscope-exit-frame.png)
+      // 0.15s - 1.20s: Smooth whole-frame emergence into dark water
+      // 1.20s - 4.00s: Full illumination (1.0)
+      let lightIntensity = 0.0;
+      if (t <= 0.15) {
+        lightIntensity = 0.0;
+      } else if (t < 1.20) {
+        const u = (t - 0.15) / 1.05;
+        lightIntensity = u * u * (3.0 - 2.0 * u);
+      } else {
+        lightIntensity = 1.0;
+      }
+
+      // Exact zero check for full optical black
+      if (lightIntensity === 0.0) {
+        scene.visible = false;
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.clear();
+        return;
+      }
+      scene.visible = true;
+
+      ambientLight.intensity = 1.0 * lightIntensity;
+      keyLight.intensity = 3.8 * lightIntensity;
+      rimLight.intensity = 2.5 * lightIntensity;
+      fillLight.intensity = 1.0 * lightIntensity;
+      glintLight.intensity = 3.0 * lightIntensity;
+      bgMat.uniforms.uLightIntensity.value = lightIntensity;
+
+      fiberMat.emissiveIntensity = 0.4 * lightIntensity;
+      blueFiberMat.emissiveIntensity = 0.45 * lightIntensity;
+      edgeMat.opacity = 0.75 * lightIntensity;
+
+      // 2. CAMERA FORWARD GLIDE & DECELERATION
+      let camProgress = 0.0;
+      if (t <= 3.20) {
+        const u = t / 3.20;
+        camProgress = 1.0 - Math.pow(1.0 - u, 3.0);
+      } else {
+        camProgress = 1.0;
+      }
+
+      const microDriftX = Math.sin(t * 0.8) * 0.003;
+      const microDriftY = Math.cos(t * 0.9) * 0.002;
+
+      camera.position.lerpVectors(camStart, camEnd, camProgress);
+      camera.position.x += microDriftX;
+      camera.position.y += microDriftY;
+
+      const currentTarget = new THREE.Vector3().lerpVectors(targetStart, targetEnd, camProgress);
+      camera.lookAt(currentTarget);
+
+      // 3. PARTICLE OUTWARD IMPULSE & SETTLING
+      let impulse = 0.0;
+      if (t >= 1.20 && t <= 2.80) {
+        const u = (t - 1.20) / 1.60;
+        impulse = Math.sin(Math.PI * u);
+      }
+
+      for (const p of particles) {
+        const offset = p.driftDir.clone().multiplyScalar(p.driftDist * impulse);
+        const forwardOffset = (1.0 - camProgress) * p.driftDist * 0.4;
+        
+        const pDriftX = Math.sin(t * 0.7 + p.targetPos.x) * 0.004;
+        const pDriftY = Math.cos(t * 0.6 + p.targetPos.y) * 0.003;
+
+        p.obj.position.copy(p.targetPos)
+          .add(offset)
+          .add(p.driftDir.clone().multiplyScalar(forwardOffset));
+        p.obj.position.x += pDriftX;
+        p.obj.position.y += pDriftY;
+
+        p.obj.rotation.x = p.baseRot.x + p.rotSpeed.x * t * 0.4;
+        p.obj.rotation.y = p.baseRot.y + p.rotSpeed.y * t * 0.4;
+        p.obj.rotation.z = p.baseRot.z + p.rotSpeed.z * t * 0.4;
+      }
+
+      for (let i = 0; i < motes.length; i++) {
+        const m = motes[i];
+        m.mesh.position.x = m.basePos.x + Math.sin(t * 0.5 + i) * 0.008;
+        m.mesh.position.y = m.basePos.y + Math.cos(t * 0.4 + i) * 0.006;
+      }
+
+      renderer.render(scene, camera);
+    };
+
+    // Initialize at tau = 0 (exact black)
+    window.setCameraTime(0.0);
+    window.RENDER_READY = true;
+  </script>
+</body>
+</html>

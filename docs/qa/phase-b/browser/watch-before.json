@@ -1,0 +1,32 @@
+[
+  {
+    "width": 320,
+    "height": 568,
+    "fromBelow": false,
+    "scrollY": 398,
+    "video": {
+      "top": -283,
+      "bottom": -103,
+      "height": 180
+    },
+    "time": 0,
+    "paused": true,
+    "phase": "paused",
+    "focus": "Skip intro"
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "fromBelow": true,
+    "scrollY": 595,
+    "video": {
+      "top": -498,
+      "bottom": -278.625,
+      "height": 219.375
+    },
+    "time": 0,
+    "paused": true,
+    "phase": "paused",
+    "focus": "Skip intro"
+  }
+]

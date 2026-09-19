@@ -1,0 +1,2049 @@
+{
+  "base": "http://localhost:3020",
+  "createdAt": "2026-09-19T03:46:10.794Z",
+  "success": false,
+  "filter": null,
+  "checks": [
+    {
+      "name": "layout-assets-skip-1440x900",
+      "passed": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "before": {
+        "media": {
+          "x": 0,
+          "y": 63,
+          "width": 1440,
+          "height": 810,
+          "right": 1440,
+          "bottom": 873
+        },
+        "stage": {
+          "x": 0,
+          "y": 63,
+          "width": 1440,
+          "height": 810,
+          "right": 1440,
+          "bottom": 873
+        },
+        "video": null,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scrollY": 0,
+        "overflow": false,
+        "overlap": 0
+      },
+      "during": {
+        "media": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 810,
+          "right": 1440,
+          "bottom": 810
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 810,
+          "right": 1440,
+          "bottom": 810
+        },
+        "video": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 810,
+          "right": 1440,
+          "bottom": 810
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scrollY": 63,
+        "overflow": false,
+        "overlap": 0
+      },
+      "allFiveAssetsServed": true,
+      "watchHarnessScroll": false
+    },
+    {
+      "name": "layout-assets-skip-1024x768",
+      "passed": true,
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "before": {
+        "media": {
+          "x": 0,
+          "y": 63,
+          "width": 1024,
+          "height": 576,
+          "right": 1024,
+          "bottom": 639
+        },
+        "stage": {
+          "x": 0,
+          "y": 63,
+          "width": 1024,
+          "height": 576,
+          "right": 1024,
+          "bottom": 639
+        },
+        "video": null,
+        "viewport": {
+          "width": 1024,
+          "height": 768
+        },
+        "scrollY": 0,
+        "overflow": false,
+        "overlap": 0
+      },
+      "during": {
+        "media": {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 576,
+          "right": 1024,
+          "bottom": 576
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 576,
+          "right": 1024,
+          "bottom": 576
+        },
+        "video": {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 576,
+          "right": 1024,
+          "bottom": 576
+        },
+        "viewport": {
+          "width": 1024,
+          "height": 768
+        },
+        "scrollY": 63,
+        "overflow": false,
+        "overlap": 0
+      },
+      "allFiveAssetsServed": true,
+      "watchHarnessScroll": false
+    },
+    {
+      "name": "layout-assets-skip-768x1024",
+      "passed": true,
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "before": {
+        "media": {
+          "x": 0,
+          "y": 63,
+          "width": 768,
+          "height": 432,
+          "right": 768,
+          "bottom": 495
+        },
+        "stage": {
+          "x": 0,
+          "y": 63,
+          "width": 768,
+          "height": 432,
+          "right": 768,
+          "bottom": 495
+        },
+        "video": null,
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scrollY": 0,
+        "overflow": false,
+        "overlap": 0
+      },
+      "during": {
+        "media": {
+          "x": 0,
+          "y": 0,
+          "width": 768,
+          "height": 432,
+          "right": 768,
+          "bottom": 432
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 768,
+          "height": 432,
+          "right": 768,
+          "bottom": 432
+        },
+        "video": {
+          "x": 0,
+          "y": 0,
+          "width": 768,
+          "height": 432,
+          "right": 768,
+          "bottom": 432
+        },
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "scrollY": 63,
+        "overflow": false,
+        "overlap": 0
+      },
+      "allFiveAssetsServed": true,
+      "watchHarnessScroll": false
+    },
+    {
+      "name": "layout-assets-skip-390x844",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "before": {
+        "media": {
+          "x": 0,
+          "y": 97,
+          "width": 390,
+          "height": 219.375,
+          "right": 390,
+          "bottom": 316.375
+        },
+        "stage": {
+          "x": 0,
+          "y": 97,
+          "width": 390,
+          "height": 219.375,
+          "right": 390,
+          "bottom": 316.375
+        },
+        "video": null,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scrollY": 0,
+        "overflow": false,
+        "overlap": 0
+      },
+      "during": {
+        "media": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 219.375,
+          "right": 390,
+          "bottom": 219.375
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 219.375,
+          "right": 390,
+          "bottom": 219.375
+        },
+        "video": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 219.375,
+          "right": 390,
+          "bottom": 219.375
+        },
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scrollY": 97,
+        "overflow": false,
+        "overlap": 0
+      },
+      "allFiveAssetsServed": true,
+      "watchHarnessScroll": false
+    },
+    {
+      "name": "layout-assets-skip-320x568",
+      "passed": true,
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "before": {
+        "media": {
+          "x": 0,
+          "y": 115,
+          "width": 320,
+          "height": 180,
+          "right": 320,
+          "bottom": 295
+        },
+        "stage": {
+          "x": 0,
+          "y": 115,
+          "width": 320,
+          "height": 180,
+          "right": 320,
+          "bottom": 295
+        },
+        "video": null,
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "scrollY": 0,
+        "overflow": false,
+        "overlap": 0
+      },
+      "during": {
+        "media": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 180,
+          "right": 320,
+          "bottom": 180
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 180,
+          "right": 320,
+          "bottom": 180
+        },
+        "video": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 180,
+          "right": 320,
+          "bottom": 180
+        },
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "scrollY": 115,
+        "overflow": false,
+        "overlap": 0
+      },
+      "allFiveAssetsServed": true,
+      "watchHarnessScroll": false
+    },
+    {
+      "name": "normal-journey-interactions-desktop",
+      "passed": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "journey": {
+        "initial": {
+          "media": {
+            "x": 0,
+            "y": 63,
+            "width": 1440,
+            "height": 810,
+            "right": 1440,
+            "bottom": 873
+          },
+          "stage": {
+            "x": 0,
+            "y": 63,
+            "width": 1440,
+            "height": 810,
+            "right": 1440,
+            "bottom": 873
+          },
+          "video": null,
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "scrollY": 0,
+          "overflow": false,
+          "overlap": 0
+        },
+        "playing": {
+          "media": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 810,
+            "right": 1440,
+            "bottom": 810
+          },
+          "stage": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 810,
+            "right": 1440,
+            "bottom": 810
+          },
+          "video": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 810,
+            "right": 1440,
+            "bottom": 810
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "scrollY": 63,
+          "overflow": false,
+          "overlap": 0
+        },
+        "events": [
+          {
+            "id": 1,
+            "type": "waiting",
+            "time": 0,
+            "duration": null,
+            "rate": 1,
+            "wallMs": 1573.699999988079,
+            "trusted": true
+          },
+          {
+            "id": 1,
+            "type": "playing",
+            "time": 0.008884,
+            "duration": 8.6,
+            "rate": 1,
+            "wallMs": 1756.7999999821186,
+            "trusted": true
+          },
+          {
+            "id": 1,
+            "type": "pause",
+            "time": 8.6,
+            "duration": 8.6,
+            "rate": 1,
+            "wallMs": 10349.40000000596,
+            "trusted": true
+          },
+          {
+            "id": 1,
+            "type": "ended",
+            "time": 8.6,
+            "duration": 8.6,
+            "rate": 1,
+            "wallMs": 10349.59999999404,
+            "trusted": true
+          }
+        ],
+        "reveals": [
+          {
+            "currentTime": 7.479854,
+            "cueMediaTime": 7.5,
+            "wallMs": 9227.799999982119,
+            "presentedFrameCallback": true
+          }
+        ],
+        "videos": [
+          {
+            "connected": false,
+            "paused": true,
+            "source": null
+          }
+        ]
+      },
+      "interaction": {
+        "searchInput": "60614",
+        "searchResult": "Isolated HTML interaction preview; no data request",
+        "atlasInteraction": "Scrolled three static illustrated cards and activated its specimen anchor",
+        "specimen": {
+          "renderer": "webgl",
+          "mode": "uv",
+          "angle": "-120",
+          "width": 574,
+          "height": 580
+        },
+        "canvasSHA256": {
+          "macro": "aec63063338103e19aed1c8b4512ad2411693b08be57022a828a9c9e9b8d4154",
+          "uv": "d2d19d8c987b553782693ffe210094af9863a07d3ba0f71eecddab463e2704ad",
+          "rotated": "b4487d734ff01499c69863e26c6572d406f169b2956690de519d15e36138f995"
+        }
+      },
+      "allFiveAssetsServed": true
+    },
+    {
+      "name": "normal-journey-interactions-mobile",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "journey": {
+        "initial": {
+          "media": {
+            "x": 0,
+            "y": 97,
+            "width": 390,
+            "height": 219.375,
+            "right": 390,
+            "bottom": 316.375
+          },
+          "stage": {
+            "x": 0,
+            "y": 97,
+            "width": 390,
+            "height": 219.375,
+            "right": 390,
+            "bottom": 316.375
+          },
+          "video": null,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "scrollY": 0,
+          "overflow": false,
+          "overlap": 0
+        },
+        "playing": {
+          "media": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 219.375,
+            "right": 390,
+            "bottom": 219.375
+          },
+          "stage": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 219.375,
+            "right": 390,
+            "bottom": 219.375
+          },
+          "video": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 219.375,
+            "right": 390,
+            "bottom": 219.375
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "scrollY": 97,
+          "overflow": false,
+          "overlap": 0
+        },
+        "events": [
+          {
+            "id": 1,
+            "type": "waiting",
+            "time": 0,
+            "duration": null,
+            "rate": 1,
+            "wallMs": 1456.300000011921,
+            "trusted": true
+          },
+          {
+            "id": 1,
+            "type": "playing",
+            "time": 0.023223,
+            "duration": 8.6,
+            "rate": 1,
+            "wallMs": 1535.800000011921,
+            "trusted": true
+          },
+          {
+            "id": 1,
+            "type": "pause",
+            "time": 8.6,
+            "duration": 8.6,
+            "rate": 1,
+            "wallMs": 10115.09999999404,
+            "trusted": true
+          },
+          {
+            "id": 1,
+            "type": "ended",
+            "time": 8.6,
+            "duration": 8.6,
+            "rate": 1,
+            "wallMs": 10115.199999988079,
+            "trusted": true
+          }
+        ],
+        "reveals": [
+          {
+            "currentTime": 7.507792,
+            "cueMediaTime": 7.5,
+            "wallMs": 9020.40000000596,
+            "presentedFrameCallback": true
+          }
+        ],
+        "videos": [
+          {
+            "connected": false,
+            "paused": true,
+            "source": null
+          }
+        ]
+      },
+      "interaction": {
+        "searchInput": "60614",
+        "searchResult": "Isolated HTML interaction preview; no data request",
+        "atlasInteraction": "Scrolled three static illustrated cards and activated its specimen anchor",
+        "specimen": {
+          "renderer": "webgl",
+          "mode": "uv",
+          "angle": "-120",
+          "width": 341,
+          "height": 360
+        },
+        "canvasSHA256": {
+          "macro": "f14195b6253a35fc2204708f2386b7d48254d913080cb09b9695da458950e887",
+          "uv": "29331e3a552e4424aaea4cbce95a1095eb2a084610ff017348100df09edf5247",
+          "rotated": "366dca134fb427bbcf5083e25efbf5d340830c97707dbc0e3e8701f82f979a79"
+        }
+      },
+      "allFiveAssetsServed": true
+    },
+    {
+      "name": "mocked-home-1440x900",
+      "passed": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "apiRequests": 8,
+      "apiPolicy": "Every API request fulfilled with empty QA fixtures; no backend traffic",
+      "during": {
+        "media": {
+          "x": 0,
+          "y": 73,
+          "width": 1440,
+          "height": 810,
+          "right": 1440,
+          "bottom": 883
+        },
+        "stage": {
+          "x": 0,
+          "y": 73,
+          "width": 1440,
+          "height": 810,
+          "right": 1440,
+          "bottom": 883
+        },
+        "video": {
+          "x": 0,
+          "y": 73,
+          "width": 1440,
+          "height": 810,
+          "right": 1440,
+          "bottom": 883
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scrollY": 0,
+        "overflow": false,
+        "overlap": 0
+      },
+      "allFiveAssetsServed": true,
+      "realFormInputPreserved": true,
+      "utilitiesSearch": {
+        "method": "GET",
+        "url": "http://localhost:3020/api/utilities?q=60614",
+        "response": "Intercepted empty array; no data claim"
+      }
+    },
+    {
+      "name": "mocked-home-390x844",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 8,
+      "apiPolicy": "Every API request fulfilled with empty QA fixtures; no backend traffic",
+      "during": {
+        "media": {
+          "x": 0,
+          "y": 73,
+          "width": 390,
+          "height": 219.375,
+          "right": 390,
+          "bottom": 292.375
+        },
+        "stage": {
+          "x": 0,
+          "y": 73,
+          "width": 390,
+          "height": 219.375,
+          "right": 390,
+          "bottom": 292.375
+        },
+        "video": {
+          "x": 0,
+          "y": 73,
+          "width": 390,
+          "height": 219.375,
+          "right": 390,
+          "bottom": 292.375
+        },
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "scrollY": 0,
+        "overflow": false,
+        "overlap": 0
+      },
+      "allFiveAssetsServed": true,
+      "realFormInputPreserved": true,
+      "utilitiesSearch": {
+        "method": "GET",
+        "url": "http://localhost:3020/api/utilities?q=60614",
+        "response": "Intercepted empty array; no data claim"
+      }
+    },
+    {
+      "name": "keyboard-pause-media-clock-offscreen",
+      "passed": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "pausedSeconds": 7.8,
+      "pausedMediaTime": 0.380968,
+      "offscreenTime": 0.704605,
+      "manualPausePreserved": true,
+      "typedInputPreserved": true
+    },
+    {
+      "name": "superseded-play-rejection-and-cleanup",
+      "passed": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "supersededRejectionIgnored": true,
+      "retained": [
+        {
+          "connected": false,
+          "paused": true,
+          "source": null
+        }
+      ]
+    },
+    {
+      "name": "visibility-and-reduced-motion-change",
+      "passed": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "documentVisibility": "Simulated hidden getter plus visibilitychange event",
+      "reducedMotionChange": "Playwright media emulation; playback released, replay bypassed"
+    },
+    {
+      "name": "blocked-storage",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "noAutomaticVideo": false,
+      "searchUsable": true
+    },
+    {
+      "name": "play-rejected",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Playback unavailable/. Input:\n\n'Supplied particle master · static artwork.'\n\n    at C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:438:18\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:502:9)\n    at async run (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:231:23)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:410:269",
+      "browserErrors": [],
+      "apiRequests": []
+    },
+    {
+      "name": "late-play",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "noAutomaticVideo": false,
+      "searchUsable": true
+    },
+    {
+      "name": "media-failed",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "noAutomaticVideo": false,
+      "searchUsable": true
+    },
+    {
+      "name": "timeupdate-fallback",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "fallback": "timeupdate media clock, not presented-frame synchronization",
+      "journey": {
+        "initial": {
+          "media": {
+            "x": 0,
+            "y": 97,
+            "width": 390,
+            "height": 219.375,
+            "right": 390,
+            "bottom": 316.375
+          },
+          "stage": {
+            "x": 0,
+            "y": 97,
+            "width": 390,
+            "height": 219.375,
+            "right": 390,
+            "bottom": 316.375
+          },
+          "video": null,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "scrollY": 0,
+          "overflow": false,
+          "overlap": 0
+        },
+        "playing": {
+          "media": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 219.375,
+            "right": 390,
+            "bottom": 219.375
+          },
+          "stage": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 219.375,
+            "right": 390,
+            "bottom": 219.375
+          },
+          "video": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 219.375,
+            "right": 390,
+            "bottom": 219.375
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "scrollY": 97,
+          "overflow": false,
+          "overlap": 0
+        },
+        "events": [
+          {
+            "id": 1,
+            "type": "waiting",
+            "time": 0,
+            "duration": null,
+            "rate": 1,
+            "wallMs": 1085.1000000238419,
+            "trusted": true
+          },
+          {
+            "id": 1,
+            "type": "playing",
+            "time": 0.011249,
+            "duration": 8.6,
+            "rate": 1,
+            "wallMs": 1145.4000000059605,
+            "trusted": true
+          },
+          {
+            "id": 1,
+            "type": "waiting",
+            "time": 0.060429,
+            "duration": 8.6,
+            "rate": 1,
+            "wallMs": 1195.300000011921,
+            "trusted": true
+          },
+          {
+            "id": 1,
+            "type": "playing",
+            "time": 0.060964,
+            "duration": 8.6,
+            "rate": 1,
+            "wallMs": 1212.7000000178814,
+            "trusted": true
+          },
+          {
+            "id": 1,
+            "type": "pause",
+            "time": 8.6,
+            "duration": 8.6,
+            "rate": 1,
+            "wallMs": 9753.5,
+            "trusted": true
+          },
+          {
+            "id": 1,
+            "type": "ended",
+            "time": 8.6,
+            "duration": 8.6,
+            "rate": 1,
+            "wallMs": 9753.700000017881,
+            "trusted": true
+          }
+        ],
+        "reveals": [
+          {
+            "currentTime": 7.749886,
+            "cueMediaTime": 7.745,
+            "wallMs": 8901.600000023842,
+            "presentedFrameCallback": false
+          }
+        ],
+        "videos": [
+          {
+            "connected": false,
+            "paused": true,
+            "source": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "reduced-at-load",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "noAutomaticVideo": true,
+      "searchUsable": true
+    },
+    {
+      "name": "returning-session",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "noAutomaticVideo": true,
+      "searchUsable": true
+    },
+    {
+      "name": "deep-link",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "noAutomaticVideo": true,
+      "searchUsable": true
+    },
+    {
+      "name": "master-poster-failed",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "noAutomaticVideo": false,
+      "searchUsable": true
+    },
+    {
+      "name": "terminal-poster-failed",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "noAutomaticVideo": false,
+      "searchUsable": true
+    },
+    {
+      "name": "video-poster-failed",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "noAutomaticVideo": false,
+      "searchUsable": true
+    },
+    {
+      "name": "media-and-terminal-failed",
+      "passed": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "apiRequests": 0,
+      "apiPolicy": "Zero API requests",
+      "noAutomaticVideo": false,
+      "searchUsable": true
+    }
+  ],
+  "requests": [
+    {
+      "name": "layout-assets-skip-1440x900",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=1920&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "layout-assets-skip-1024x768",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=1080&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "layout-assets-skip-768x1024",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=828&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=256&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=750&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "layout-assets-skip-390x844",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "layout-assets-skip-320x568",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "normal-journey-interactions-desktop",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=1920&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=640&q=75",
+          "status": 200
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "normal-journey-interactions-mobile",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "status": 200
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "mocked-home-1440x900",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=1920&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/activity",
+        "http://localhost:3020/api/utilities/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/readings/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/utilities/scores",
+        "http://localhost:3020/api/utilities?q=60614"
+      ],
+      "intercepted": [
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/activity",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/scores",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities?q=60614",
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "name": "mocked-home-390x844",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fsample-study-panel.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/activity",
+        "http://localhost:3020/api/utilities/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/readings/recent",
+        "http://localhost:3020/api/stats",
+        "http://localhost:3020/api/utilities/scores",
+        "http://localhost:3020/api/utilities?q=60614"
+      ],
+      "intercepted": [
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/activity",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/stats",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities/scores",
+          "method": "GET"
+        },
+        {
+          "url": "http://localhost:3020/api/utilities?q=60614",
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "name": "keyboard-pause-media-clock-offscreen",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=1920&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "superseded-play-rejection-and-cleanup",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=1920&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "visibility-and-reduced-motion-change",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=1920&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "blocked-storage",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "play-rejected",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "late-play",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "media-failed",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        }
+      ],
+      "failedRequests": [
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "reason": "net::ERR_FAILED"
+        }
+      ],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "timeupdate-fallback",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 304
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 304
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 304
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 304
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "reduced-at-load",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "returning-session",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "deep-link",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        }
+      ],
+      "failedRequests": [],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "master-poster-failed",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "reason": "net::ERR_FAILED"
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "reason": "net::ERR_FAILED"
+        }
+      ],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "terminal-poster-failed",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "reason": "net::ERR_FAILED"
+        }
+      ],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "video-poster-failed",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "status": 206
+        }
+      ],
+      "failedRequests": [
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "reason": "net::ERR_FAILED"
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "reason": "net::ERR_ABORTED"
+        }
+      ],
+      "api": [],
+      "intercepted": []
+    },
+    {
+      "name": "media-and-terminal-failed",
+      "responses": [
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fparticle-world-master.webp&w=640&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffibers-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Ffragments-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/_next/image?url=%2Fmedia%2Fripple%2Fgranules-card.webp&w=384&q=75",
+          "status": 200
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/microscope-poster.webp",
+          "status": 200
+        }
+      ],
+      "failedRequests": [
+        {
+          "url": "http://localhost:3020/media/ripple/continuation-terminal-proof.webp",
+          "reason": "net::ERR_FAILED"
+        },
+        {
+          "url": "http://localhost:3020/media/ripple/intro-proof-1080.mp4",
+          "reason": "net::ERR_FAILED"
+        }
+      ],
+      "api": [],
+      "intercepted": []
+    }
+  ],
+  "errors": [
+    {
+      "name": "play-rejected",
+      "error": "AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Playback unavailable/. Input:\n\n'Supplied particle master · static artwork.'\n\n    at C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:438:18\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:502:9)\n    at async run (C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:231:23)\n    at async C:\\Users\\ayada\\Documents\\Codex\\2026-09-18\\c-users-ayada-downloads-ripple-phase\\work\\Ripple-Effect\\scripts\\qa\\phase-b-browser.cjs:410:269"
+    }
+  ],
+  "recordings": [
+    {
+      "name": "normal-journey-interactions-desktop",
+      "file": "recordings\\desktop-journey-and-interactions.webm",
+      "bytes": 2041439,
+      "sha256": "9d7d3c42366ea52fce9ab10d3d2c81b3af8ecf09416a21b98601b17d4783da13",
+      "timing": "Unedited Playwright recording; playback rate 1, natural ended event"
+    },
+    {
+      "name": "normal-journey-interactions-mobile",
+      "file": "recordings\\mobile-journey-and-interactions.webm",
+      "bytes": 1383555,
+      "sha256": "db5e31d99fe04741c2c320d8c553ac16dd090cf44140293c1fc32399994e0a52",
+      "timing": "Unedited Playwright recording; playback rate 1, natural ended event"
+    }
+  ],
+  "browser": "152.0.7977.83",
+  "completedAt": "2026-09-19T03:48:20.720Z"
+}

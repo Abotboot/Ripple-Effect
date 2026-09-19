@@ -1,0 +1,168 @@
+{
+  "createdAt": "2026-09-19T03:52:31.788Z",
+  "node": "v24.19.0",
+  "platform": "win32",
+  "checks": [
+    {
+      "name": "asset-integrity",
+      "command": [
+        "node",
+        "--test",
+        "scripts/qa/phase-b-assets.mjs"
+      ],
+      "blocking": true,
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 338,
+      "output": "asset-integrity.txt"
+    },
+    {
+      "name": "poster-match",
+      "command": [
+        "node",
+        "scripts/qa/phase-b-poster-match.cjs"
+      ],
+      "blocking": true,
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 1608,
+      "output": "poster-match.txt"
+    },
+    {
+      "name": "provenance",
+      "command": [
+        "node",
+        "scripts/qa/run-regression.cjs",
+        "provenance"
+      ],
+      "blocking": true,
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 221,
+      "output": "provenance.txt"
+    },
+    {
+      "name": "read-path",
+      "command": [
+        "node",
+        "scripts/qa/run-regression.cjs",
+        "read-path"
+      ],
+      "blocking": true,
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 640,
+      "output": "read-path.txt"
+    },
+    {
+      "name": "remaining-regressions",
+      "command": [
+        "node",
+        "scripts/qa/run-regression.cjs",
+        "remaining"
+      ],
+      "blocking": true,
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 501,
+      "output": "remaining-regressions.txt"
+    },
+    {
+      "name": "source-tool-regressions",
+      "command": [
+        "node",
+        "--test",
+        "docs/qa/phase-b/source-recovery/source-tools.test.cjs"
+      ],
+      "blocking": true,
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 999,
+      "output": "source-tool-regressions.txt"
+    },
+    {
+      "name": "source-regeneration",
+      "command": [
+        "node",
+        "scripts/phase-b-source-build.cjs",
+        "--check"
+      ],
+      "blocking": true,
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 673,
+      "output": "source-regeneration.txt"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "blocking": true,
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 7908,
+      "output": "typecheck.txt"
+    },
+    {
+      "name": "scoped-lint",
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "src/app/motion-study",
+        "src/components/atmosphere/cinematic-intro.tsx",
+        "src/components/atmosphere/hero-particle-stage.tsx",
+        "src/components/atmosphere/tank-hero.tsx",
+        "src/components/atmosphere/water-narrative.tsx",
+        "src/components/sections/particle-atlas.tsx",
+        "src/lib/ripple-assets.ts",
+        "src/lib/continuation-scene.js",
+        "src/lib/continuation-scene.d.ts",
+        "scripts/phase-b-source-build.cjs",
+        "scripts/phase-b-source-export.cjs",
+        "scripts/phase-b-source-render.cjs",
+        "docs/qa/phase-b/source-recovery/*.cjs",
+        "scripts/qa/phase-b-assets.mjs",
+        "scripts/qa/phase-b-poster-match.cjs",
+        "scripts/qa/phase-b-lint-baseline.cjs",
+        "scripts/qa/phase-b-browser.cjs",
+        "scripts/qa/phase-b-zoom.cjs",
+        "scripts/qa/run-regression.cjs",
+        "scripts/qa/phase-b-checks.cjs"
+      ],
+      "blocking": true,
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 7794,
+      "output": "scoped-lint.txt"
+    },
+    {
+      "name": "full-repository-lint",
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "."
+      ],
+      "blocking": false,
+      "passed": false,
+      "exitCode": 1,
+      "durationMs": 23639,
+      "output": "full-repository-lint.txt"
+    },
+    {
+      "name": "production-build",
+      "command": [
+        "node",
+        "node_modules/next/dist/bin/next",
+        "build"
+      ],
+      "blocking": true,
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 16597,
+      "output": "production-build.txt"
+    }
+  ]
+}

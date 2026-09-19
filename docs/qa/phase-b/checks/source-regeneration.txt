@@ -1,0 +1,1 @@
+{"mode":"check","sourceSHA256":"96b6c9f390d50bfafaee4b6fa8c5875251945c64f879d38accaab66e81850c49","outputSHA256":{"src/lib/continuation-scene.js":"53e5e1dd273c53de200f30d13fbb8731f1a01ca3edc2ac1f90227daab14c79db","src/lib/continuation-scene.d.ts":"f75402607f569b767a4834350092b82c8335ae81e7122d4f8c4487c296c4ff04"}}

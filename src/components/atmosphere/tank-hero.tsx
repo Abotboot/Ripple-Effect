@@ -1,284 +1,119 @@
 'use client'
 
-import React, { useEffect, useRef, useState, useCallback } from 'react'
-import { gsap } from 'gsap'
-import { TankCanvas, TankCanvasHandle, ParticleFilter } from './tank-canvas'
-import { MicroscopeStage } from './microscope-stage'
+import { useCallback, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { CinematicIntro, type IntroOutcome } from './cinematic-intro'
+import { HeroParticleStage } from './hero-particle-stage'
 import './tank.css'
-import './microscope.css'
+import './cinematic-intro.css'
 
-export { TankCanvas }
+export { TankCanvas } from './tank-canvas'
 
-export function TankHero({ children }: { children: React.ReactNode }) {
+const reducedMotionQuery = '(prefers-reduced-motion: reduce)'
+const serverBypass = () => false
+const clientHydrated = () => true
+const subscribeHydration = () => () => {}
+const readReducedMotion = () => matchMedia(reducedMotionQuery).matches
+function subscribeReducedMotion(notify: () => void) {
+  const preference = matchMedia(reducedMotionQuery)
+  preference.addEventListener('change', notify)
+  return () => preference.removeEventListener('change', notify)
+}
+function readReturningSession() {
+  if (window.location.hash) return true
+  try { return Boolean(sessionStorage.getItem('ripple-entered')) } catch { return false }
+}
+function subscribeReturningSession(notify: () => void) {
+  window.addEventListener('hashchange', notify)
+  window.addEventListener('storage', notify)
+  return () => { window.removeEventListener('hashchange', notify); window.removeEventListener('storage', notify) }
+}
+function headerOffset() {
+  const header = document.querySelector<HTMLElement>('.site-header')
+  if (!header) return 0
+  const position = getComputedStyle(header).position
+  return position === 'sticky' || position === 'fixed' ? header.getBoundingClientRect().height : 0
+}
+
+export function TankHero({ children }: { children: ReactNode }) {
+  const hydrated = useSyncExternalStore(subscribeHydration, clientHydrated, serverBypass)
+  const [active, setActive] = useState(false)
+  const [reveal, setReveal] = useState(true)
+  const [terminal, setTerminal] = useState(false)
   const [entered, setEntered] = useState(false)
-  const [leaving, setLeaving] = useState(false)
-  const [revealing, setRevealing] = useState(false)
-  const revealingRef = useRef(false)
-  const [paused, setPaused] = useState(false)
-  const [filter, setFilter] = useState<ParticleFilter>('all')
+  const reduced = useSyncExternalStore(subscribeReducedMotion, readReducedMotion, serverBypass)
+  const returning = useSyncExternalStore(subscribeReturningSession, readReturningSession, serverBypass)
+  const visited = entered || returning || reduced
+  const [outcome, setOutcome] = useState<IntroOutcome | null>(null)
+  const [unavailableArtwork, setUnavailableArtwork] = useState<'master' | 'terminal' | null>(null)
+  const root = useRef<HTMLElement>(null)
+  const media = useRef<HTMLDivElement>(null)
+  const editorial = useRef<HTMLDivElement>(null)
+  const pendingFocus = useRef(false)
 
-  const canvasRef = useRef<TankCanvasHandle>(null)
-  const entryMotion = useRef<gsap.core.Timeline | null>(null)
-  const microscopePlay = useRef<((onComplete?: () => void) => void) | null>(null)
-  const dialog = useRef<HTMLDialogElement>(null)
-  const sceneLayerRef = useRef<HTMLDivElement>(null)
-  const finishedRef = useRef(false)
-
-  const handleMicroscopeReady = useCallback((play: (() => void) | null) => {
-    microscopePlay.current = play
-  }, [])
-
-  const finishEntry = useCallback((shouldFocusSearch = false) => {
-    if (finishedRef.current) return
-    finishedRef.current = true
-    entryMotion.current?.kill()
-    entryMotion.current = null
-    if (dialog.current?.open) {
-      dialog.current.close()
-    }
+  const remember = useCallback(() => {
     setEntered(true)
-    setLeaving(false)
-    setRevealing(false)
-    try {
-      sessionStorage.setItem('ripple-entered', '1')
-    } catch {
-      /* Storage may be unavailable or disabled */
-    }
-    if (shouldFocusSearch) {
-      const input = document.querySelector<HTMLInputElement>('.tank-search input')
-      input?.focus({ preventScroll: true })
+    try { sessionStorage.setItem('ripple-entered', '1') } catch { /* Optional storage. */ }
+  }, [])
+  const focusSearch = useCallback(() => {
+    editorial.current?.removeAttribute('inert')
+    const input = root.current?.querySelector<HTMLInputElement>('.tank-search input')
+    input?.focus({ preventScroll: true })
+    const bounds = input?.getBoundingClientRect()
+    const offset = headerOffset()
+    if (input) input.style.scrollMarginTop = `${offset}px`
+    if (bounds && (bounds.top < offset || bounds.bottom > window.innerHeight)) {
+      input?.scrollIntoView({ block: 'nearest', behavior: 'instant' })
     }
   }, [])
-
-  const skip = useCallback(() => {
-    entryMotion.current?.kill()
-    microscopePlay.current = null
-    finishEntry(true)
-  }, [finishEntry])
-
-  useEffect(() => {
-    try {
-      const hasIntroQuery = new URLSearchParams(window.location.search).has('intro')
-      const hasEnteredSession = sessionStorage.getItem('ripple-entered')
-      const hasHash = !!window.location.hash
-      if (!hasIntroQuery && (hasEnteredSession || hasHash)) {
-        finishedRef.current = true
-        setEntered(true)
-        return
-      }
-    } catch {
-      /* Storage access guard */
+  const finish = useCallback((reason: IntroOutcome) => {
+    // Restore focus when the focused player disappears, without interrupting
+    // someone already using the revealed HTML form or another page control.
+    pendingFocus.current = reason === 'skip' || Boolean(root.current?.querySelector('.ripple-intro')?.contains(document.activeElement))
+    setActive(false)
+    setReveal(true)
+    setTerminal(true)
+    setOutcome(reason)
+    remember()
+  }, [remember])
+  useLayoutEffect(() => {
+    if (active && !reveal) editorial.current?.setAttribute('inert', '')
+    else {
+      editorial.current?.removeAttribute('inert')
+      if (pendingFocus.current) { pendingFocus.current = false; focusSearch() }
     }
-
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      finishedRef.current = true
-      setEntered(true)
-      return
+  }, [active, reveal, focusSearch])
+  const watch = () => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { remember(); focusSearch(); return }
+    // Watch can be below the stage on small screens or after scrolling back.
+    // Move the viewport in the real interaction before the observer starts.
+    if (media.current) {
+      media.current.style.scrollMarginTop = `${headerOffset()}px`
+      media.current.scrollIntoView({ block: 'start', behavior: 'instant' })
     }
-
-    const gate = dialog.current
-    if (gate && !gate.open) {
-      gate.showModal()
-    }
-
-    const ctx = gsap.context(() => {
-      const isMobile = window.innerWidth <= 860
-      entryMotion.current = gsap.timeline({ defaults: { ease: 'power2.out' } })
-        .fromTo('.microscope-viewport',
-          { filter: 'blur(12px)', scale: isMobile ? 1 : 1.05 },
-          { filter: 'blur(0px)', scale: 1, duration: 1.6 },
-          0
-        )
-        .from('.microscope-copy > *', { opacity: 0, y: 14, duration: 0.5, stagger: 0.1 }, 0.3)
-    }, gate!)
-
-    return () => {
-      ctx.revert()
-      if (gate?.open) gate.close()
-    }
-  }, [])
-
-  const enter = () => {
-    if (leaving || revealing) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      finishEntry(true)
-      return
-    }
-    setLeaving(true)
-    entryMotion.current?.kill()
-
-    const gate = dialog.current
-    if (!gate) {
-      finishEntry(true)
-      return
-    }
-
-    entryMotion.current = gsap.timeline({
-      onComplete: () => {
-        if (microscopePlay.current) {
-          microscopePlay.current()
-        } else {
-          finishEntry(true)
-        }
-      },
-    })
-      .to(gate.querySelectorAll('.microscope-copy'), { opacity: 0, duration: 0.25 }, 0)
+    setOutcome(null)
+    setReveal(false)
+    setActive(true)
   }
-
-  const handleReveal = (coords: { x: number; y: number }) => {
-    revealingRef.current = true
-    setRevealing(true)
-    const sceneLayer = sceneLayerRef.current
-    const canvasEl = dialog.current?.querySelector<HTMLCanvasElement>('.microscope-model')
-    let sceneX = window.innerWidth * 0.65
-    let sceneY = window.innerHeight * 0.45
-
-    if (canvasEl && sceneLayer) {
-      const cRect = canvasEl.getBoundingClientRect()
-      const sRect = sceneLayer.getBoundingClientRect()
-      const viewportX = cRect.left + coords.x * cRect.width
-      const viewportY = cRect.top + coords.y * cRect.height
-      sceneX = viewportX - sRect.left
-      sceneY = viewportY - sRect.top
-
-      const tankCanvasEl = canvasRef.current?.getCanvasElement?.()
-      if (tankCanvasEl) {
-        const tRect = tankCanvasEl.getBoundingClientRect()
-        const tankNormX = (viewportX - tRect.left) / tRect.width
-        const tankNormY = (viewportY - tRect.top) / tRect.height
-        canvasRef.current?.triggerImpulse(tankNormX, tankNormY, 1.8)
-      } else {
-        canvasRef.current?.triggerImpulse(coords.x, coords.y, 1.8)
-      }
-    } else {
-      canvasRef.current?.triggerImpulse(coords.x, coords.y, 1.8)
-    }
-
-    if (!sceneLayer) {
-      finishEntry(true)
-      return
-    }
-
-    const sWidth = sceneLayer.clientWidth || window.innerWidth
-    const sHeight = sceneLayer.clientHeight || window.innerHeight
-    const maxRadius = Math.max(
-      Math.hypot(sceneX, sceneY),
-      Math.hypot(sWidth - sceneX, sceneY),
-      Math.hypot(sceneX, sHeight - sceneY),
-      Math.hypot(sWidth - sceneX, sHeight - sceneY)
-    ) + 16
-
-    sceneLayer.style.setProperty('--iris-x', `${sceneX}px`)
-    sceneLayer.style.setProperty('--iris-y', `${sceneY}px`)
-    sceneLayer.style.setProperty('--iris-r', '0px')
-    sceneLayer.classList.add('is-revealing')
-
-    const animObj = { r: 0 }
-    entryMotion.current?.kill()
-    entryMotion.current = gsap.timeline({
-      onComplete: () => {
-        finishEntry(true)
-      },
-    }).to(animObj, {
-      r: maxRadius,
-      duration: 0.95,
-      ease: 'power2.inOut',
-      onUpdate: () => {
-        sceneLayer.style.setProperty('--iris-r', `${animObj.r}px`)
-      },
-    })
-  }
-
   return (
-    <section className="tank-hero" aria-labelledby="tank-title">
-      <TankCanvas
-        ref={canvasRef}
-        paused={paused}
-        filter={filter}
-        enabled={entered || revealing}
-      />
-
-      <div className="tank-editorial">
+    <section ref={root} className="tank-hero ripple-hero" aria-labelledby="tank-title" data-testid="ripple-hero" data-state={active ? 'intro' : terminal ? 'home' : 'poster'}>
+      <div ref={media} className="ripple-media" data-testid="ripple-media">
+        <HeroParticleStage terminal={terminal || active} onUnavailable={setUnavailableArtwork} />
+        {active && <CinematicIntro onComplete={finish} onReveal={() => setReveal(true)} />}
+      </div>
+      <div ref={editorial} className={`tank-editorial ripple-editorial${active && !reveal ? ' is-awaiting-cue' : ''}`} aria-hidden={active && !reveal || undefined}>
         <p className="tank-eyebrow">A RIPPLE EFFECT INITIATIVE</p>
-        <h1 id="tank-title">
-          Clear water.<br className="hidden sm:inline" />{' '}
-          <em>Look closer.</em>
-        </h1>
-        <div className="tank-copy">
-          <p>Explore water readings and the evidence behind them.</p>
-          <p>Trace tested contaminants across municipal utilities and community waterways with traceable provenance.</p>
-        </div>
+        <h1 id="tank-title">Clear water.<br /><em>Look closer.</em></h1>
+        <div className="tank-copy"><p>Explore local water data and the evidence behind it.</p></div>
         <div className="tank-search">{children}</div>
       </div>
-
-      <div className="tank-canvas-controls" role="toolbar" aria-label="Particle visualizer controls">
-        <span className="tank-canvas-label">Illustrative particles · not to scale</span>
-        <div className="tank-filter-group" role="group" aria-label="Particle type filter">
-          {(['all', 'fibers', 'fragments', 'granules'] as const).map((f) => (
-            <button
-              key={f}
-              type="button"
-              aria-pressed={filter === f}
-              onClick={() => setFilter(f)}
-              className={`tank-ctrl-btn ${filter === f ? 'is-active' : ''}`}
-            >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
-            </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          aria-pressed={paused}
-          onClick={() => setPaused((p) => !p)}
-          className={`tank-ctrl-btn ${paused ? 'is-paused' : ''}`}
-        >
-          {paused ? 'Resume motion' : 'Pause motion'}
-        </button>
+      <div className="ripple-journey-actions">
+        {!active && <>
+          <button type="button" className="ripple-motion-button" disabled={!hydrated} onClick={watch} data-testid="journey-watch">{reduced ? 'Explore without motion' : terminal ? 'Replay journey' : 'Watch the microscope journey'}</button>
+          {!visited && <button type="button" className="ripple-motion-button ripple-secondary" disabled={!hydrated} data-testid="journey-skip-idle" onClick={() => { remember(); focusSearch() }}>Skip intro</button>}
+        </>}
+        <span className="ripple-illustration-label">Illustrative visualization · not to scale</span>
       </div>
-
-      {!entered && (
-        <dialog
-          ref={dialog}
-          className={`tank-gate${leaving ? ' is-leaving' : ''}${revealing ? ' is-revealing' : ''}`}
-          onCancel={(e) => {
-            e.preventDefault()
-            skip()
-          }}
-          aria-labelledby="gate-title"
-        >
-          <div ref={sceneLayerRef} className={`gate-scene-layer${leaving ? ' is-leaving' : ''}${revealing ? ' is-revealing' : ''}`}>
-            <div className="gate-top">
-              <span>RIPPLE EFFECT</span>
-            </div>
-
-            <div className="microscope-viewport">
-              <MicroscopeStage
-                onComplete={() => {
-                  if (!revealingRef.current) {
-                    finishEntry(true)
-                  }
-                }}
-                onReveal={handleReveal}
-                onReady={handleMicroscopeReady}
-              />
-            </div>
-
-            <div className="gate-center microscope-copy">
-              <p className="tank-eyebrow">LOOK BENEATH THE SURFACE</p>
-              <h2 id="gate-title">
-                A closer<br /><em>look changes everything.</em>
-              </h2>
-              <button type="button" className="gate-enter" onClick={enter}>
-                ENTER THE CURRENT <span aria-hidden="true">↗</span>
-              </button>
-            </div>
-          </div>
-
-          <button type="button" className="gate-skip-control gate-skip" onClick={skip}>
-            SKIP INTRO ↗
-          </button>
-        </dialog>
-      )}
+      <p className="ripple-proof-status" data-testid="journey-proof-status" role="status">{active ? 'Timing proof · provisional continuation.' : terminal ? `${outcome === 'error' ? 'Playback unavailable. ' : ''}${unavailableArtwork === 'terminal' ? 'Final frame unavailable. Search and the studies remain available.' : 'Static prototype fallback · exact final video frame. Live particle match pending.'}` : unavailableArtwork === 'master' ? 'Artwork unavailable. Search and the studies remain available.' : 'Supplied particle master · static artwork.'}</p>
     </section>
   )
 }

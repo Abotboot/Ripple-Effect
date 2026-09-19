@@ -41,7 +41,7 @@ const SIPHON_WAYPOINTS = [
   },
 ]
 
-export function WaterNarrative() {
+export function WaterNarrative({ contributeHref = '#submit' }: { contributeHref?: string } = {}) {
   const refractionId = useId().replace(/:/g, "")
   const root = useRef<HTMLDivElement>(null)
   const count = useRef<HTMLSpanElement>(null)
@@ -98,7 +98,7 @@ export function WaterNarrative() {
       </div>
       <a className="narrative-link" href="#search">Skip to your water data <span aria-hidden="true">↓</span></a>
     </section>
-    <section className="particle-stage" aria-labelledby="particle-title">
+    <section id="sample-study" className="particle-stage" aria-labelledby="particle-title">
       <div className="narrative-label">02 / THE INVISIBLE CONTENTS</div>
       <div className="sample-examination-layout">
         <figure className="sample-examination-art">
@@ -166,7 +166,7 @@ export function WaterNarrative() {
               <feDisplacementMap in="SourceGraphic" in2="ripple" scale="3" xChannelSelector="R" yChannelSelector="G" />
             </filter></defs>
           </svg>
-          <a className="countermeasure-action" href="#submit" style={{ '--label-refraction': `url("#${refractionId}")` } as CSSProperties}><span className="countermeasure-label">Contribute a reading</span> <span aria-hidden="true">↗</span></a>
+          <a className="countermeasure-action" href={contributeHref} style={{ '--label-refraction': `url("#${refractionId}")` } as CSSProperties}><span className="countermeasure-label">Contribute a reading</span> <span aria-hidden="true">↗</span></a>
           <a className="narrative-link" href="#search">Explore existing water data <span aria-hidden="true">↓</span></a>
         </div>
       </div>

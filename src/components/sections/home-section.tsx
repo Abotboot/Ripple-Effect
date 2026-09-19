@@ -157,9 +157,14 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
   // Pick up a pending search from the command palette (sessionStorage)
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const pending = sessionStorage.getItem('pendingSearch')
+    let pending: string | null = null
+    try {
+      pending = sessionStorage.getItem('pendingSearch')
+      if (pending) sessionStorage.removeItem('pendingSearch')
+    } catch {
+      // Storage may be blocked; direct search remains available.
+    }
     if (!pending) return
-    sessionStorage.removeItem('pendingSearch')
     const timer = setTimeout(() => { setQ(pending); doSearch(pending) }, 0)
     return () => clearTimeout(timer)
   }, [doSearch])

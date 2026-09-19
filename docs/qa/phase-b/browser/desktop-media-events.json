@@ -1,0 +1,55 @@
+{
+  "events": [
+    {
+      "id": 1,
+      "type": "waiting",
+      "time": 0,
+      "duration": null,
+      "rate": 1,
+      "wallMs": 1459.800000011921,
+      "trusted": true
+    },
+    {
+      "id": 1,
+      "type": "playing",
+      "time": 0.008947,
+      "duration": 8.6,
+      "rate": 1,
+      "wallMs": 1563.5999999940395,
+      "trusted": true
+    },
+    {
+      "id": 1,
+      "type": "pause",
+      "time": 8.6,
+      "duration": 8.6,
+      "rate": 1,
+      "wallMs": 10155.59999999404,
+      "trusted": true
+    },
+    {
+      "id": 1,
+      "type": "ended",
+      "time": 8.6,
+      "duration": 8.6,
+      "rate": 1,
+      "wallMs": 10155.699999988079,
+      "trusted": true
+    }
+  ],
+  "reveals": [
+    {
+      "currentTime": 7.480105,
+      "cueMediaTime": 7.5,
+      "wallMs": 9034.699999988079,
+      "presentedFrameCallback": true
+    }
+  ],
+  "videos": [
+    {
+      "connected": false,
+      "paused": true,
+      "source": null
+    }
+  ]
+}

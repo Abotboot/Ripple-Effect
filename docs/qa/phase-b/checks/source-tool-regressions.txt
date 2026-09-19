@@ -1,0 +1,15 @@
+✔ output containment rejects escapes, siblings and NULs before creating files (5.5346ms)
+✔ output containment rejects directory links and refuses to write through them (8.1949ms)
+✔ source transformations reject missing or ambiguous markers (0.4439ms)
+✔ candidate regeneration is stable and matches checked-in generated modules (142.7524ms)
+✔ export UUID normalization preserves relationships across fresh runtime IDs (1.3172ms)
+✔ Playwright override must be an absolute local installed package directory (1.4083ms)
+✔ loopback server serves exact module routes and rejects traversal, malformed URLs and unrelated files (134.8598ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 868.0677

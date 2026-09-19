@@ -1,0 +1,10 @@
+✔ all five reviewed stills and every responsive variant ship unchanged (22.1164ms)
+✔ reviewed timing proof is unchanged and never misidentified as matched final art (4.1768ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 199.1859

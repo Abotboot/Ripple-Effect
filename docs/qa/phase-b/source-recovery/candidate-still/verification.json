@@ -1,0 +1,69 @@
+{
+  "source": "disconnected deterministic candidate",
+  "sceneTimeSeconds": 4,
+  "browserVersion": "152.0.7977.83",
+  "browserExecutable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "playwrightVersion": "1.63.0",
+  "moduleSHA256": {
+    "/node_modules/three/build/three.module.js": "d835eab0b3bca3fdfd51e2ce7d06911f4a089b08db73cc3cd70fe5e3005a623f",
+    "/node_modules/three/build/three.core.js": "283be43b2229e15f46dac84cd19354ede5f06cac7ffb185e765cfcfb2c1eec90",
+    "/src/lib/continuation-scene.js": "53e5e1dd273c53de200f30d13fbb8731f1a01ca3edc2ac1f90227daab14c79db"
+  },
+  "gpu": {
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "shadingLanguage": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+    "vendor": "Google Inc. (AMD)",
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x0000164C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "contextAttributes": {
+      "alpha": true,
+      "antialias": true,
+      "depth": true,
+      "desynchronized": false,
+      "failIfMajorPerformanceCaveat": false,
+      "powerPreference": "high-performance",
+      "premultipliedAlpha": true,
+      "preserveDrawingBuffer": true,
+      "stencil": false,
+      "xrCompatible": false
+    }
+  },
+  "capture": "canvas PNG, fixed 1920x1080, DPR 1, forced sRGB browser profile",
+  "weatheringSeed": 17329,
+  "terminalRenders": 4,
+  "blackRenders": 1,
+  "pngSHA256": "69e73449d7e4dd552494835810a7f4b12ff0170150333d072bc1d8b54c8ab7db",
+  "samples": [
+    {
+      "label": "initial t=4",
+      "rgbaSHA256": "215c73ef07472f3f565f9ed869c474c6ad638f066c519d43474097239c177609"
+    },
+    {
+      "label": "repeated t=4",
+      "rgbaSHA256": "215c73ef07472f3f565f9ed869c474c6ad638f066c519d43474097239c177609",
+      "identical": true
+    },
+    {
+      "label": "seek from black, pointer and scatter at terminal",
+      "rgbaSHA256": "215c73ef07472f3f565f9ed869c474c6ad638f066c519d43474097239c177609",
+      "identical": true
+    },
+    {
+      "label": "fresh scene and canvas t=4",
+      "rgbaSHA256": "215c73ef07472f3f565f9ed869c474c6ad638f066c519d43474097239c177609",
+      "identical": true
+    }
+  ],
+  "opaqueBlackAtZero": true,
+  "lifecycle": {
+    "invalidTimesRejected": true,
+    "invalidPointersRejected": true,
+    "doubleDisposeSafe": true,
+    "postDisposeRejected": true
+  },
+  "handoffProof": false,
+  "limitations": [
+    "Same installed runtime only; cross-GPU equality unproven",
+    "No video encoded or decoded-video/live comparison",
+    "Subdivided flakes still have faceted normals; master material match unproven"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-19T03:37:38.053Z",
+  "node": "v24.19.0",
+  "platform": "win32",
+  "checks": [
+    {
+      "name": "production-build",
+      "command": [
+        "node",
+        "node_modules/next/dist/bin/next",
+        "build"
+      ],
+      "blocking": true,
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 29653,
+      "output": "production-build.txt"
+    }
+  ]
+}
