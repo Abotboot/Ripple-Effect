@@ -56,3 +56,6 @@ server.log
 .env
 .codegraph/
 .review/
+
+# Isolated browser QA profiles and caches are never project artifacts.
+/docs/qa/**/.browser-*/

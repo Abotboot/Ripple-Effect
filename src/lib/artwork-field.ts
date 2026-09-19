@@ -68,7 +68,8 @@ export interface ArtworkField {
 
 type Cover = { x: number; y: number; width: number; height: number; scale: number }
 type Tile = { region: ArtworkRegion; x: number; y: number; width: number; height: number;
-  normal: HTMLCanvasElement; dimmed: HTMLCanvasElement; phaseX: number; phaseY: number }
+  normal: HTMLCanvasElement; dimmed: HTMLCanvasElement; selected: HTMLCanvasElement;
+  phaseX: number; phaseY: number }
 const DIM = 0.40
 const TWO_PI = Math.PI * 2
 const clamp = (value: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, value))
@@ -149,6 +150,28 @@ export function createArtworkField(canvas: HTMLCanvasElement, images: {
       const height = Math.min(sourceHeight - y, Math.ceil(h * sourceHeight))
       const normal = makeCanvas(width, height)
       normal.context.drawImage(master!, x, y, width, height, 0, 0, width, height)
+      // Selection restores the existing light detail, not the crop's entire water rectangle.
+      // Read once during construction; rendering only draws the cached image canvases.
+      const selected = makeCanvas(width, height)
+      const pixels = normal.context.getImageData(0, 0, width, height)
+      const water: number[] = []
+      const luminance = (offset: number) => pixels.data[offset] * 0.2126 +
+        pixels.data[offset + 1] * 0.7152 + pixels.data[offset + 2] * 0.0722
+      for (let py = 0; py < height; py++) for (let px = 0; px < width; px++) {
+        const radius = Math.hypot((px + 0.5) / width * 2 - 1, (py + 0.5) / height * 2 - 1)
+        if (radius > 0.85) water.push(luminance((py * width + px) * 4))
+      }
+      water.sort((a, b) => a - b)
+      // The surrounding-water quantile is only an artwork matte, never a detected category.
+      const waterFloor = (water[Math.floor((water.length - 1) * 0.85)] ?? 0) + 3
+      for (let py = 0; py < height; py++) for (let px = 0; px < width; px++) {
+        const offset = (py * width + px) * 4
+        const radius = Math.hypot((px + 0.5) / width * 2 - 1, (py + 0.5) / height * 2 - 1)
+        const envelope = smooth(clamp((1 - radius) / 0.48, 0, 1))
+        const detail = smooth(clamp((luminance(offset) - waterFloor) / 36, 0, 1))
+        pixels.data[offset + 3] = Math.round(pixels.data[offset + 3] * envelope * detail)
+      }
+      selected.context.putImageData(pixels, 0, 0)
       normal.context.globalCompositeOperation = 'destination-in'
       for (const vertical of [false, true]) {
         const gradient = normal.context.createLinearGradient(0, 0, vertical ? 0 : width, vertical ? height : 0)
@@ -166,7 +189,7 @@ export function createArtworkField(canvas: HTMLCanvasElement, images: {
       dimmed.context.fillStyle = `rgba(0,0,0,${1 - DIM})`
       dimmed.context.fillRect(0, 0, width, height)
       dimmed.context.globalCompositeOperation = 'source-over'
-      return { region, x, y, width, height, normal: normal.canvas, dimmed: dimmed.canvas,
+      return { region, x, y, width, height, normal: normal.canvas, dimmed: dimmed.canvas, selected: selected.canvas,
         phaseX: seeded(index, 1013904223) * TWO_PI, phaseY: seeded(index, 374761393) * TWO_PI }
     })
     field = makeCanvas(1, 1)
@@ -288,12 +311,16 @@ export function createArtworkField(canvas: HTMLCanvasElement, images: {
         dy = clamp(dy * motionMix + (sourceHeight * 0.48 - centerY) * inward, -limit, limit)
         lastMaxDisplacementCssPx = Math.max(lastMaxDisplacementCssPx, Math.hypot(dx, dy) * fit.scale)
         lastRegionOffsets.push({ id: region.id, x: dx, y: dy })
-        const selected = frame.category === 'all' || frame.category === region.category
         // At rest, drawing the original alone avoids rounding from redundant alpha composites.
         if (dx === 0 && dy === 0 && frame.category === 'all') continue
-        const image = selected ? tile.normal : tile.dimmed
-        art.drawImage(image, fit.x + (tile.x + dx) * fit.scale, fit.y + (tile.y + dy) * fit.scale,
-          tile.width * fit.scale, tile.height * fit.scale)
+        const x = fit.x + (tile.x + dx) * fit.scale
+        const y = fit.y + (tile.y + dy) * fit.scale
+        // Motion coverage stays at the field's exposure, including beneath a selected subject.
+        const image = frame.category === 'all' ? tile.normal : tile.dimmed
+        art.drawImage(image, x, y, tile.width * fit.scale, tile.height * fit.scale)
+        if (frame.category === region.category) {
+          art.drawImage(tile.selected, x, y, tile.width * fit.scale, tile.height * fit.scale)
+        }
       }
       if (entrance < 1) {
         const boundaryFit = cover(boundary!.naturalWidth, boundary!.naturalHeight, width, height)

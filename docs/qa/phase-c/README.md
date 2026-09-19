@@ -80,6 +80,13 @@ as flat synthetic particles.
 
 ## Evidence and tests
 
+The final published review also identified and corrected bright rectangular
+surroundings in category highlights and a blocked, injected Netlify review
+toolbar. The highlight now restores image detail through a soft, luminance-based
+matte; preview collaboration settings disable the unused toolbar without
+weakening security headers. See [Final preview review](FINALIZATION.md) for the
+separate deployment checks and settings change.
+
 The completed integrated run passed **19/19 browser cases**, including the five
 sizes, two complete recorded journeys, live-field pause/offscreen behavior,
 keyboard atlas selection, rejected/delayed playback, reduced motion, failed

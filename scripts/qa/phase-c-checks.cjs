@@ -16,7 +16,7 @@ const targets=[
   'src/components/atmosphere/tank-hero.tsx','src/components/atmosphere/water-narrative.tsx',
   'src/components/sections/home-section.tsx','src/components/sections/particle-atlas.tsx',
   'src/app/motion-study/page.tsx','scripts/phase-c-artwork-assets.cjs',
-  'scripts/qa/phase-c-browser.cjs','scripts/qa/phase-c-checks.cjs',
+  'scripts/qa/phase-c-browser.cjs','scripts/qa/phase-c-checks.cjs','scripts/qa/phase-c-deployed.cjs',
   'docs/qa/phase-c/renderer/check.cjs','docs/qa/phase-c/design/review-design.cjs',
 ]
 const checks=[
@@ -35,7 +35,8 @@ async function main(){
     const result=spawnSync(process.execPath,args,{cwd:root,encoding:'utf8',windowsHide:true,timeout:240000,maxBuffer:16*1024*1024,
       env:{...process.env,SEED_DEMO_DATA:'false',DATABASE_URL:'postgresql://qa:qa@127.0.0.1:1/ripple_qa?connect_timeout=1',DIRECT_URL:'postgresql://qa:qa@127.0.0.1:1/ripple_qa?connect_timeout=1'}})
     const text=`${result.stdout||''}${result.stderr||''}${result.error?.message||''}`.replaceAll(root,'<repo>').replaceAll(root.replaceAll('\\','/'),'<repo>')
-    fs.writeFileSync(path.join(out,name+'.txt'),text)
+    const log = text.replace(/[ \t]+$/gm,'').trimEnd()
+    fs.writeFileSync(path.join(out,name+'.txt'),log ? log+'\n' : '')
     const passed=result.status===0&&!result.error
     report.checks.push({name,command:['node',...args],passed,exitCode:result.status});save()
     console.log(passed?'PASS':'FAIL',name)

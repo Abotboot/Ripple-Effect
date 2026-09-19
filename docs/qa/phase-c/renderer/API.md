@@ -42,10 +42,15 @@ x=.755; landscape preserves the original centered composition. Boundary always
 uses centered cover. DPR is bounded to 2, 4096 per dimension and about 8.4 million
 pixels. CSS sizing remains the owner's responsibility.
 
-Category labels describe manually annotated artwork regions. Non-target artwork
-is dimmed, and target image patches retain their original light and color. They
-do not identify contaminants or establish counts, dimensions, concentrations, or
-water quality. Use the product label **interactive artwork**.
+Category labels describe manually annotated artwork regions. All motion crops
+stay at the field's exposure. Selected detail is restored through a separate
+cached matte: a smooth elliptical falloff multiplied by luminance contrast
+against the crop's surrounding water. The matte changes alpha only; it retains
+the master's RGB and leaves crop corners and low-detail water dim. No rectangular
+water patch or painted spotlight is used for highlighting. The matte is prepared
+once when images are decoded; rendering performs no pixel readback. These art
+annotations do not identify contaminants or establish counts, dimensions,
+concentrations, or water quality. Use the product label **interactive artwork**.
 
 `ARTWORK_REGIONS` and `getArtworkEntrance(entrance)` are exported for inspection
 and endpoint-easing QA. `getDiagnostics()` reports

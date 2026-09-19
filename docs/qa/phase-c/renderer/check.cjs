@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
 const ts = require('typescript');
+const sharp = require('sharp');
 const { ROOT, contained, sha256, writeFile, loadPlaywright } = require('../../phase-b/source-recovery/offline-tools.cjs');
 const QA = path.join(ROOT, 'docs/qa/phase-c/renderer');
 const masterPath = contained(ROOT, 'public/media/ripple/particle-world-master.webp');
@@ -17,10 +18,10 @@ const source = fs.readFileSync(modulePath, 'utf8');
 const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.ES2020 } }).outputText;
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#010608}canvas{display:block}</style></head><body><canvas id="art"></canvas><script type="module">
 import {createArtworkField,ARTWORK_REGIONS,getArtworkEntrance} from '/field.js';
-const master=new Image(), boundary=new Image(), nonblack=new Image();
-master.src='/master.webp';boundary.src='/boundary.webp';nonblack.src='/nonblack.webp';
-await Promise.all([master.decode(),boundary.decode(),nonblack.decode()]);
-Object.assign(window,{createArtworkField,ARTWORK_REGIONS,getArtworkEntrance,master,boundary,nonblack});
+const master=new Image(), boundary=new Image(), nonblack=new Image(), uniformWater=new Image();
+master.src='/master.webp';boundary.src='/boundary.webp';nonblack.src='/nonblack.webp';uniformWater.src='/flat-water.png';
+await Promise.all([master.decode(),boundary.decode(),nonblack.decode(),uniformWater.decode()]);
+Object.assign(window,{createArtworkField,ARTWORK_REGIONS,getArtworkEntrance,master,boundary,nonblack,uniformWater});
 window.RENDER_READY=true;
 </script></body></html>`;
 
@@ -32,6 +33,8 @@ async function main() {
     ['/master.webp', { type: 'image/webp', bytes: fs.readFileSync(masterPath) }],
     ['/boundary.webp', { type: 'image/webp', bytes: fs.readFileSync(boundaryPath) }],
     ['/nonblack.webp', { type: 'image/webp', bytes: fs.readFileSync(nonblackPath) }],
+    ['/flat-water.png', { type: 'image/png', bytes: await sharp({ create: { width: 1672, height: 941,
+      channels: 3, background: { r: 16, g: 32, b: 40 } } }).png().toBuffer() }],
   ]);
   const server = http.createServer((req, res) => {
     const host = `127.0.0.1:${server.address().port}`;
@@ -128,7 +131,13 @@ async function main() {
     const reports = [];
     async function capture(name) {
       const base64 = await page.evaluate(() => document.querySelector('#art').toDataURL('image/png').split(',')[1]);
-      writeFile(QA, name, Buffer.from(base64, 'base64'));
+      const bytes = Buffer.from(base64, 'base64');
+      writeFile(QA, name, bytes);
+      if (name === 'desktop-granules.png' || name === 'mobile-granules.png') {
+        const desktop = name.startsWith('desktop');
+        const crop = desktop ? { left: 830, top: 80, width: 470, height: 610 } : { left: 0, top: 100, width: 585, height: 990 };
+        writeFile(QA, name.replace('.png', '-details.png'), await sharp(bytes).extract(crop).resize({ width: desktop ? 940 : 780 }).png().toBuffer());
+      }
     }
     for (const viewport of [{ name: 'desktop', width: 1440, height: 810, dpr: 1 }, { name: 'mobile', width: 390, height: 844, dpr: 1.5 }]) {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
@@ -145,7 +154,8 @@ async function main() {
         const master = window.compare(rest, await window.expected(window.master, width, height, focalX));
         assert(master.changedPixels === 0, 'Settled time-zero image differs from master');
         window.frame({ time: 8 });
-        const drift = window.compare(rest, await window.pixels());
+        const moving = await window.pixels();
+        const drift = window.compare(rest, moving);
         assert(drift.changedPixels > 500, 'Drift did not change the image');
         const pointer = width > height ? { x: 0.79, y: 0.32 } : { x: 0.72, y: 0.32 };
         window.frame({ pointer });
@@ -155,9 +165,55 @@ async function main() {
         window.frame({ impulse: { x: 0.72, y: 0.45, strength: 1 } });
         const impulseEffect = window.compare(rest, await window.pixels());
         assert(impulseEffect.changedPixels > 500, 'Impulse did not change the artwork');
-        window.frame({ category: 'fragments' });
-        const fragments = window.compare(rest, await window.pixels());
-        assert(fragments.meanAbsoluteChannelDifference > 0.1, 'Category selection did not dim non-target artwork');
+        const categories = {};
+        for (const category of ['fibers', 'fragments', 'granules']) {
+          window.frame({ time: 8, category });
+          const pixels = await window.pixels();
+          const change = window.compare(moving, pixels);
+          assert(change.meanAbsoluteChannelDifference > 0.1, category + ' did not dim non-target artwork');
+          const canvas = document.querySelector('#art');
+          const scale = Math.max(width / window.master.naturalWidth, height / window.master.naturalHeight);
+          const fitWidth = window.master.naturalWidth * scale, fitHeight = window.master.naturalHeight * scale;
+          const fitX = Math.min(0, Math.max(width - fitWidth, width / 2 - fitWidth * focalX));
+          const fitY = (height - fitHeight) / 2;
+          const offsets = window.field.getDiagnostics().lastRegionOffsets;
+          const rectangles = window.ARTWORK_REGIONS.filter(region => region.category === category).map(region => {
+            const [u, v, w, h] = region.bounds;
+            const offset = offsets.find(value => value.id === region.id);
+            return { x: (fitX + (Math.floor(u * window.master.naturalWidth) + offset.x) * scale) * canvas.width / width,
+              y: (fitY + (Math.floor(v * window.master.naturalHeight) + offset.y) * scale) * canvas.height / height,
+              width: Math.ceil(w * window.master.naturalWidth) * scale * canvas.width / width,
+              height: Math.ceil(h * window.master.naturalHeight) * scale * canvas.height / height };
+          });
+          // Compare with the same moving frame dimmed as a whole. The old normal-tile restore
+          // adds light throughout rectangular crop corners, including water far from a subject.
+          let edgeSamples = 0, maxCornerLift = 0, totalCornerLift = 0, highlightedPixels = 0;
+          for (let i = 0; i < pixels.length; i += 4) {
+            if (Math.max(...[0, 1, 2].map(c => pixels[i + c] - Math.round(moving[i + c] * 0.4))) > 8) highlightedPixels++;
+          }
+          for (const box of rectangles) {
+            for (let py = Math.max(0, Math.ceil(box.y)); py < Math.min(canvas.height, box.y + box.height); py += 2) {
+              for (let px = Math.max(0, Math.ceil(box.x)); px < Math.min(canvas.width, box.x + box.width); px += 2) {
+                const nx = (px + 0.5 - box.x) / box.width * 2 - 1, ny = (py + 0.5 - box.y) / box.height * 2 - 1;
+                if (Math.hypot(nx, ny) < 1.08 || Math.max(Math.abs(nx), Math.abs(ny)) > 0.96) continue;
+                if (rectangles.some(other => Math.hypot((px + 0.5 - other.x) / other.width * 2 - 1,
+                  (py + 0.5 - other.y) / other.height * 2 - 1) < 1.04)) continue;
+                const i = (py * canvas.width + px) * 4;
+                const lift = Math.max(0, ...[0, 1, 2].map(c => pixels[i + c] - Math.round(moving[i + c] * 0.4)));
+                edgeSamples++; totalCornerLift += lift; maxCornerLift = Math.max(maxCornerLift, lift);
+              }
+            }
+          }
+          assert(edgeSamples > 20, category + ' did not sample enough crop-corner water');
+          assert(maxCornerLift <= 3, category + ' restores rectangular corner water: ' + maxCornerLift);
+          assert(highlightedPixels > 50, category + ' lost its subject highlights');
+          window.frame({ time: 12, category: 'all' });
+          window.frame({ time: 8, category });
+          const repeated = window.compare(pixels, await window.pixels());
+          assert(repeated.changedPixels === 0, category + ' mask repeat differs at ' + width + 'x' + height + ': ' + JSON.stringify(repeated));
+          categories[category] = { change, highlightedPixels, cropEdges: { samples: edgeSamples, maxCornerLift,
+            meanCornerLift: totalCornerLift / edgeSamples, allowedRoundingLift: 3 }, repeated };
+        }
         window.frame({ entrance: 0.3 });
         const entry = window.field.getDiagnostics();
         const uniqueOffsets = new Set(entry.lastRegionOffsets.map(offset => `${offset.x.toFixed(4)},${offset.y.toFixed(4)}`)).size;
@@ -175,13 +231,15 @@ async function main() {
           startSecond: (easing(2 * h).opacity - 2 * easing(h).opacity + easing(0).opacity) / (h * h),
           endSecond: (easing(1).opacity - 2 * easing(1 - h).opacity + easing(1 - 2 * h).opacity) / (h * h) };
         assert(Math.abs(derivatives.startFirst) < 0.00001 && Math.abs(derivatives.endFirst) < 0.00001 && Math.abs(derivatives.startSecond) < 0.02 && Math.abs(derivatives.endSecond) < 0.02, 'Entry endpoint derivatives do not settle');
-        return { width, height, dpr, boundary, master, drift, pointerEffect, impulseEffect, fragments,
+        return { width, height, dpr, boundary, master, drift, pointerEffect, impulseEffect, categories,
           repeated, pointerRGBA: await window.digest(pointed), entry: { cameraScale: entry.lastCameraScale, uniqueLocalOffsets: uniqueOffsets, derivatives } };
       }, viewport);
       await page.evaluate(() => window.frame({ time: 8 }));
       await capture(`${viewport.name}-artwork.png`);
-      await page.evaluate(() => window.frame({ time: 8, category: 'fragments' }));
-      await capture(`${viewport.name}-fragments.png`);
+      for (const category of ['fibers', 'fragments', 'granules']) {
+        await page.evaluate(category => window.frame({ time: 8, category }), category);
+        await capture(`${viewport.name}-${category}.png`);
+      }
       await page.evaluate(() => window.frame({ entrance: 0.6 }));
       await capture(`${viewport.name}-entrance.png`);
       const performance = await page.evaluate(async ({ width, height, dpr }) => {
@@ -221,6 +279,29 @@ async function main() {
         rejectsAfterDispose: rejects(() => window.frame()) && rejects(() => window.field.resize(400, 800, 1)) };
     });
     if (Object.values(lifecycle).some(value => !value)) throw Error('Lifecycle validation failed');
+    const flatWater = await page.evaluate(async () => {
+      // A featureless source must stay featureless in every filter. This directly catches a
+      // bright rectangular/elliptical water spotlight even when category pixel differences pass.
+      const fixture = document.createElement('canvas');
+      fixture.width = 1672; fixture.height = 941;
+      const ctx = fixture.getContext('2d');
+      ctx.fillStyle = 'rgb(16,32,40)'; ctx.fillRect(0, 0, fixture.width, fixture.height);
+      const canvas = document.querySelector('#art');
+      window.field = window.createArtworkField(canvas, { master: window.uniformWater, boundary: window.boundary });
+      window.size(fixture.width, fixture.height, 1);
+      ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, fixture.width, fixture.height);
+      const expected = await window.readPNG(fixture);
+      const checks = [];
+      try {
+        for (const category of ['fibers', 'fragments', 'granules']) for (const time of [0, 8]) {
+          window.frame({ category, time, pointer: { x: 0.8, y: 0.4 } });
+          const comparison = window.compare(expected, await window.pixels());
+          if (comparison.maxChannelDifference > 1) throw Error(category + ' adds light to flat water: ' + JSON.stringify(comparison));
+          checks.push({ category, time, ...comparison });
+        }
+        return { fixture: 'Uniform RGB(16,32,40) at native 1672x941', allowedRoundingDifference: 1, checks };
+      } finally { window.field.dispose(); fixture.width = 0; fixture.height = 0; }
+    });
     const nonblackBoundary = await page.evaluate(async () => {
       const canvas = document.querySelector('#art');
       window.field = window.createArtworkField(canvas, { master: window.master, boundary: window.nonblack });
@@ -240,14 +321,16 @@ async function main() {
       renderer: 'Canvas2D artwork patches; no triangle geometry, generated particles or volumetric simulation',
       boundaryFixture: path.relative(ROOT, boundaryPath).replaceAll('\\', '/'), boundaryFixtureSHA256: sha256(fs.readFileSync(boundaryPath)),
       approvedVideoBoundaryUsed: boundaryPath === terminalPath, masterSHA256: sha256(fs.readFileSync(masterPath)), setup, reports, lifecycle,
-      nonblackBoundary: { fixture: path.relative(ROOT, nonblackPath).replaceAll('\\', '/'), ...nonblackBoundary }, errors,
+      nonblackBoundary: { fixture: path.relative(ROOT, nonblackPath).replaceAll('\\', '/'), ...nonblackBoundary }, flatWater, errors,
       limitations: ['Same local browser runtime; cross-browser decode/color equality is not proven.',
         'Timing reports JS draw submission and the owner RAF interval, not GPU completion or a production performance guarantee.',
         'Fixed art regions are annotations and may include surrounding water; no segmentation or scientific measurement is claimed.'] };
     writeFile(QA, 'verification.json', JSON.stringify(report, null, 2) + '\n');
     console.log(JSON.stringify({ status: report.status, approvedVideoBoundaryUsed: report.approvedVideoBoundaryUsed,
       viewports: reports.map(value => ({ name: value.viewport, boundaryChanged: value.boundary.changedPixels, masterChanged: value.master.changedPixels,
-        pointerChanged: value.pointerEffect.changedPixels, submissionP95Ms: value.performance.submissionP95Ms })), lifecycle, browserErrors: errors.length }));
+        pointerChanged: value.pointerEffect.changedPixels, categories: Object.fromEntries(Object.entries(value.categories).map(([name, category]) =>
+          [name, { maxCornerLift: category.cropEdges.maxCornerLift, highlightedPixels: category.highlightedPixels }])),
+        submissionP95Ms: value.performance.submissionP95Ms })), flatWaterMaxDifference: Math.max(...flatWater.checks.map(check => check.maxChannelDifference)), lifecycle, browserErrors: errors.length }));
   } finally {
     if (oldTemp === undefined) delete process.env.TEMP; else process.env.TEMP = oldTemp;
     if (oldTmp === undefined) delete process.env.TMP; else process.env.TMP = oldTmp;

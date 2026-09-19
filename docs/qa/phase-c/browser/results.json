@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-09-19T04:38:09.341Z",
+  "createdAt": "2026-09-19T05:07:04.570Z",
   "base": "http://localhost:3020",
   "success": true,
   "checks": [
@@ -261,9 +261,9 @@
           "events": [
             {
               "type": "playing",
-              "time": 0.000483,
+              "time": 0.000564,
               "rate": 1,
-              "wall": 825.2999999821186
+              "wall": 1035
             },
             {
               "type": "ended",
@@ -271,7 +271,7 @@
               "time": 5,
               "duration": 5,
               "rate": 1,
-              "wall": 5968.4000000059605
+              "wall": 6155.5
             }
           ],
           "boundary": {
@@ -297,9 +297,9 @@
           "events": [
             {
               "type": "playing",
-              "time": 0.000535,
+              "time": 0.000616,
               "rate": 1,
-              "wall": 755.2000000178814
+              "wall": 932.3999999761581
             },
             {
               "type": "ended",
@@ -307,7 +307,7 @@
               "time": 5,
               "duration": 5,
               "rate": 1,
-              "wall": 5796.700000017881
+              "wall": 5965.5999999940395
             }
           ],
           "boundary": {
@@ -548,16 +548,16 @@
     {
       "name": "journey-desktop",
       "path": "recordings\\desktop-live-journey.webm",
-      "bytes": 1390757,
-      "sha256": "42a0db66100d4ce0ab2a0e7aa79b0d03d2d09767d17cf30f7cc180a5a2501dbe"
+      "bytes": 1399666,
+      "sha256": "e62b153b6a97f912068951d1de51404e07ba9e1ebd13e751f2b0ee21340380da"
     },
     {
       "name": "journey-mobile",
       "path": "recordings\\mobile-live-journey.webm",
-      "bytes": 997880,
-      "sha256": "c600c32e1e4afeaef0237a2a53d4286325725c37a537125fd24b7df35817764b"
+      "bytes": 990625,
+      "sha256": "ae62ccf97e72e9e1fd0781fdeee44a4144d89560ea98b2d792d2692886ae5391"
     }
   ],
   "browser": "152.0.7977.83",
-  "completedAt": "2026-09-19T04:39:20.980Z"
+  "completedAt": "2026-09-19T05:08:17.077Z"
 }

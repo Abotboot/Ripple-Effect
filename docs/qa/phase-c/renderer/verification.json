@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "implementationSHA256": "ef7e3e905a40b7bef9d4aa50bc61ee5aeea192dc7721b220e2d30d006ef0924a",
+  "implementationSHA256": "c79296e389262a7e89789bac31bc765a33b1cfe9be9cf454421bf05a1023b328",
   "browserVersion": "152.0.7977.83",
   "playwrightVersion": "1.63.0",
   "renderer": "Canvas2D artwork patches; no triangle geometry, generated particles or volumetric simulation",
@@ -47,10 +47,64 @@
         "meanAbsoluteChannelDifference": 2.2772828074988567,
         "maxChannelDifference": 245
       },
-      "fragments": {
-        "changedPixels": 1038547,
-        "meanAbsoluteChannelDifference": 7.663178155006858,
-        "maxChannelDifference": 154
+      "categories": {
+        "fibers": {
+          "change": {
+            "changedPixels": 1058625,
+            "meanAbsoluteChannelDifference": 8.660450674439872,
+            "maxChannelDifference": 153
+          },
+          "highlightedPixels": 7952,
+          "cropEdges": {
+            "samples": 3168,
+            "maxCornerLift": 1,
+            "meanCornerLift": 0.13068181818181818,
+            "allowedRoundingLift": 3
+          },
+          "repeated": {
+            "changedPixels": 0,
+            "meanAbsoluteChannelDifference": 0,
+            "maxChannelDifference": 0
+          }
+        },
+        "fragments": {
+          "change": {
+            "changedPixels": 1054643,
+            "meanAbsoluteChannelDifference": 8.20287037037037,
+            "maxChannelDifference": 153
+          },
+          "highlightedPixels": 18301,
+          "cropEdges": {
+            "samples": 1321,
+            "maxCornerLift": 1,
+            "meanCornerLift": 0.17865253595760788,
+            "allowedRoundingLift": 3
+          },
+          "repeated": {
+            "changedPixels": 0,
+            "meanAbsoluteChannelDifference": 0,
+            "maxChannelDifference": 0
+          }
+        },
+        "granules": {
+          "change": {
+            "changedPixels": 1057603,
+            "meanAbsoluteChannelDifference": 8.6792821216278,
+            "maxChannelDifference": 153
+          },
+          "highlightedPixels": 5590,
+          "cropEdges": {
+            "samples": 471,
+            "maxCornerLift": 1,
+            "meanCornerLift": 0.11464968152866242,
+            "allowedRoundingLift": 3
+          },
+          "repeated": {
+            "changedPixels": 0,
+            "meanAbsoluteChannelDifference": 0,
+            "maxChannelDifference": 0
+          }
+        }
       },
       "repeated": {
         "changedPixels": 0,
@@ -72,8 +126,8 @@
         "measuredFrames": 30,
         "submissionMedianMs": 0.4000000059604645,
         "submissionP95Ms": 0.5999999940395355,
-        "ownerRafMedianMs": 16.700000000000045,
-        "ownerRafP95Ms": 16.899999999999864,
+        "ownerRafMedianMs": 16.699999999999818,
+        "ownerRafP95Ms": 16.799999999999727,
         "resources": {
           "renderer": "canvas2d-interactive-artwork",
           "disposed": false,
@@ -81,11 +135,11 @@
           "backingWidth": 1440,
           "backingHeight": 810,
           "effectiveDpr": 1,
-          "ownedCanvasCount": 35,
-          "approximateCacheBytes": 7227912,
+          "ownedCanvasCount": 52,
+          "approximateCacheBytes": 8509068,
           "frameCount": 32,
           "lastRenderMs": 0.4000000059604645,
-          "maxRenderMs": 0.5999999940395355,
+          "maxRenderMs": 0.6000000238418579,
           "lastMaxDisplacementCssPx": 3.637318853727401,
           "lastCameraScale": 1,
           "lastRegionOffsets": [
@@ -210,10 +264,64 @@
         "meanAbsoluteChannelDifference": 6.473862986817173,
         "maxChannelDifference": 237
       },
-      "fragments": {
-        "changedPixels": 687328,
-        "meanAbsoluteChannelDifference": 12.607556833781162,
-        "maxChannelDifference": 153
+      "categories": {
+        "fibers": {
+          "change": {
+            "changedPixels": 740138,
+            "meanAbsoluteChannelDifference": 16.824864638608716,
+            "maxChannelDifference": 153
+          },
+          "highlightedPixels": 4331,
+          "cropEdges": {
+            "samples": 3079,
+            "maxCornerLift": 1,
+            "meanCornerLift": 0.17700552127314062,
+            "allowedRoundingLift": 3
+          },
+          "repeated": {
+            "changedPixels": 0,
+            "meanAbsoluteChannelDifference": 0,
+            "maxChannelDifference": 0
+          }
+        },
+        "fragments": {
+          "change": {
+            "changedPixels": 729594,
+            "meanAbsoluteChannelDifference": 14.520525872816552,
+            "maxChannelDifference": 153
+          },
+          "highlightedPixels": 38040,
+          "cropEdges": {
+            "samples": 2974,
+            "maxCornerLift": 1,
+            "meanCornerLift": 0.16509751176866175,
+            "allowedRoundingLift": 3
+          },
+          "repeated": {
+            "changedPixels": 0,
+            "meanAbsoluteChannelDifference": 0,
+            "maxChannelDifference": 0
+          }
+        },
+        "granules": {
+          "change": {
+            "changedPixels": 735051,
+            "meanAbsoluteChannelDifference": 16.184633837872383,
+            "maxChannelDifference": 153
+          },
+          "highlightedPixels": 11061,
+          "cropEdges": {
+            "samples": 986,
+            "maxCornerLift": 1,
+            "meanCornerLift": 0.12474645030425964,
+            "allowedRoundingLift": 3
+          },
+          "repeated": {
+            "changedPixels": 0,
+            "meanAbsoluteChannelDifference": 0,
+            "maxChannelDifference": 0
+          }
+        }
       },
       "repeated": {
         "changedPixels": 0,
@@ -234,9 +342,9 @@
       "performance": {
         "measuredFrames": 30,
         "submissionMedianMs": 0.4000000059604645,
-        "submissionP95Ms": 0.6000000238418579,
-        "ownerRafMedianMs": 16.699999999999818,
-        "ownerRafP95Ms": 16.800000000000182,
+        "submissionP95Ms": 0.8999999761581421,
+        "ownerRafMedianMs": 16.69999999999709,
+        "ownerRafP95Ms": 17.100000000002183,
         "resources": {
           "renderer": "canvas2d-interactive-artwork",
           "disposed": false,
@@ -244,11 +352,11 @@
           "backingWidth": 585,
           "backingHeight": 1266,
           "effectiveDpr": 1.5,
-          "ownedCanvasCount": 35,
-          "approximateCacheBytes": 5524752,
+          "ownedCanvasCount": 52,
+          "approximateCacheBytes": 6805908,
           "frameCount": 32,
-          "lastRenderMs": 0.4000000059604645,
-          "maxRenderMs": 0.800000011920929,
+          "lastRenderMs": 0.5999999940395355,
+          "maxRenderMs": 1.0999999940395355,
           "lastMaxDisplacementCssPx": 3.787982622045688,
           "lastCameraScale": 1,
           "lastRegionOffsets": [
@@ -364,6 +472,54 @@
       "meanAbsoluteChannelDifference": 0,
       "maxChannelDifference": 0
     }
+  },
+  "flatWater": {
+    "fixture": "Uniform RGB(16,32,40) at native 1672x941",
+    "allowedRoundingDifference": 1,
+    "checks": [
+      {
+        "category": "fibers",
+        "time": 0,
+        "changedPixels": 33016,
+        "meanAbsoluteChannelDifference": 0.007707323811412407,
+        "maxChannelDifference": 1
+      },
+      {
+        "category": "fibers",
+        "time": 8,
+        "changedPixels": 24638,
+        "meanAbsoluteChannelDifference": 0.005428961012326972,
+        "maxChannelDifference": 1
+      },
+      {
+        "category": "fragments",
+        "time": 0,
+        "changedPixels": 33016,
+        "meanAbsoluteChannelDifference": 0.007707323811412407,
+        "maxChannelDifference": 1
+      },
+      {
+        "category": "fragments",
+        "time": 8,
+        "changedPixels": 24638,
+        "meanAbsoluteChannelDifference": 0.005428961012326972,
+        "maxChannelDifference": 1
+      },
+      {
+        "category": "granules",
+        "time": 0,
+        "changedPixels": 33016,
+        "meanAbsoluteChannelDifference": 0.007707323811412407,
+        "maxChannelDifference": 1
+      },
+      {
+        "category": "granules",
+        "time": 8,
+        "changedPixels": 24638,
+        "meanAbsoluteChannelDifference": 0.005428961012326972,
+        "maxChannelDifference": 1
+      }
+    ]
   },
   "errors": [],
   "limitations": [

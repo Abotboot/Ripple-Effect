@@ -1,17 +1,17 @@
-✔ verified measurement without benchmarks is not an assessed report (3.2635ms)
-✔ verified measurement with incompatible benchmark units remains neutral (0.5856ms)
-✔ partially assessable utility preserves independent legal and health comparison subsets (0.463ms)
-✔ explicit conversion: 1 particles/ml -> particles/l (0.1415ms)
-✔ explicit conversion: 1 particles/100ml -> particles/l (0.1223ms)
-✔ explicit conversion: 1 particles/l -> particles/ml (0.1002ms)
-✔ explicit conversion: 1 particles/liter -> particles/l (0.1041ms)
-✔ explicit conversion: 1 fibers/ml -> fibers/l (0.1976ms)
-✔ explicit conversion: 1 ppb -> ug/l (0.1958ms)
-✔ explicit conversion: 1 ppm -> ppt (0.2009ms)
-✔ reject conversion particles/kg -> particles/l (0.1915ms)
-✔ reject conversion particles/m2 -> particles/l (0.0999ms)
-✔ reject conversion fibers/l -> particles/l (0.1313ms)
-✔ actual stats GET normalizes eligible concentrations before averaging (138.686ms)
+✔ verified measurement without benchmarks is not an assessed report (3.3154ms)
+✔ verified measurement with incompatible benchmark units remains neutral (0.6377ms)
+✔ partially assessable utility preserves independent legal and health comparison subsets (0.4929ms)
+✔ explicit conversion: 1 particles/ml -> particles/l (0.1516ms)
+✔ explicit conversion: 1 particles/100ml -> particles/l (0.1316ms)
+✔ explicit conversion: 1 particles/l -> particles/ml (0.1008ms)
+✔ explicit conversion: 1 particles/liter -> particles/l (0.1006ms)
+✔ explicit conversion: 1 fibers/ml -> fibers/l (0.1781ms)
+✔ explicit conversion: 1 ppb -> ug/l (0.1797ms)
+✔ explicit conversion: 1 ppm -> ppt (0.2296ms)
+✔ reject conversion particles/kg -> particles/l (0.2908ms)
+✔ reject conversion particles/m2 -> particles/l (0.1009ms)
+✔ reject conversion fibers/l -> particles/l (0.1218ms)
+✔ actual stats GET normalizes eligible concentrations before averaging (131.844ms)
 ℹ tests 14
 ℹ suites 0
 ℹ pass 14
@@ -19,4 +19,4 @@
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 152.8593
+ℹ duration_ms 146.7307
