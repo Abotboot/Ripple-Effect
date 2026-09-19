@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X, Building2, MapPin, Users, Globe, AlertTriangle, ShieldCheck,
@@ -47,6 +47,47 @@ export function UtilityDetailDialog({
   onClose: () => void
 }) {
   const [shareCardOpen, setShareCardOpen] = useState(false)
+  const dialog = useRef<HTMLDivElement>(null)
+  const closeButton = useRef<HTMLButtonElement>(null)
+  const handlers = useRef({ onClose, shareCardOpen })
+  const headingId = useId()
+  const descriptionId = useId()
+  const utilityId = utility?.id
+  useLayoutEffect(() => { handlers.current = { onClose, shareCardOpen } }, [onClose, shareCardOpen])
+  useEffect(() => {
+    if (!utilityId || !dialog.current) return
+    const previous = document.activeElement as HTMLElement | null
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeButton.current?.focus({ preventScroll: true })
+    const controls = () => [...(dialog.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]') ?? [])]
+      .filter(element => element.getClientRects().length > 0 && !element.closest('[hidden], [inert]'))
+    const keyboard = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault(); event.stopPropagation()
+        if (handlers.current.shareCardOpen) { setShareCardOpen(false); closeButton.current?.focus({ preventScroll: true }) }
+        else handlers.current.onClose()
+      } else if (event.key === 'Tab' && !handlers.current.shareCardOpen) {
+        const items = controls(), first = items[0], last = items[items.length - 1]
+        if (!first) { event.preventDefault(); dialog.current?.focus(); return }
+        if (!dialog.current?.contains(document.activeElement)) { event.preventDefault(); (event.shiftKey ? last : first).focus() }
+        else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+      }
+    }
+    const focus = () => { if (!handlers.current.shareCardOpen && !dialog.current?.contains(document.activeElement)) closeButton.current?.focus({ preventScroll: true }) }
+    document.addEventListener('keydown', keyboard, true)
+    document.addEventListener('focusin', focus)
+    return () => {
+      document.removeEventListener('keydown', keyboard, true)
+      document.removeEventListener('focusin', focus)
+      document.body.style.overflow = previousOverflow
+      if (previous?.isConnected) previous.focus?.({ preventScroll: true })
+    }
+  }, [utilityId])
+  const isCompared = (status: string | undefined) => status === 'above_benchmark' || status === 'below_benchmark'
+  const healthCompared = utility?.contaminantSummaries.filter(s => isCompared(s.healthBenchmarkStatus)).length ?? 0
+  const legalCompared = utility?.contaminantSummaries.filter(s => isCompared(s.legalBenchmarkStatus)).length ?? 0
 
   return (
     <>
@@ -60,6 +101,13 @@ export function UtilityDetailDialog({
             onClick={onClose}
           >
             <motion.div
+              ref={dialog}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={headingId}
+              aria-describedby={descriptionId}
+              tabIndex={-1}
+              data-testid="utility-detail-dialog"
               className="relative flex max-h-[92vh] sm:max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:max-w-4xl sm:rounded-2xl"
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -68,12 +116,12 @@ export function UtilityDetailDialog({
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="relative shrink-0 overflow-hidden bg-water-surface px-5 py-6 text-primary-foreground sm:px-7">
-                <div className="absolute right-4 top-4 flex gap-1.5">
+              <div className="relative shrink-0 overflow-hidden bg-[#203c35] px-5 py-5 text-[#e5efeb] sm:px-7">
+                <div className="mb-3 flex justify-end gap-1.5">
                   <button
                     onClick={() => setShareCardOpen(true)}
                     aria-label="Share community card"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
+                    className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
                     title="Generate shareable report card"
                   >
                     <Share2 className="h-4 w-4" />
@@ -85,7 +133,7 @@ export function UtilityDetailDialog({
                     window.open(`/api/samples?utilityId=${utility.id}&limit=5000`, '_blank')
                   }}
                   aria-label="Download samples"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
                   title="Download samples (JSON)"
                 >
                   <Download className="h-4 w-4" />
@@ -124,7 +172,8 @@ export function UtilityDetailDialog({
 Source: ${sourceType} · Treatment: ${treatmentStatus}</div>
 ${score && score.score !== null ? `<div class="score" style="background: ${score.score >= 80 ? '#d1fae5' : score.score >= 70 ? '#e0f2fe' : score.score >= 60 ? '#fef3c7' : '#fee2e2'}; color: ${score.score >= 80 ? '#065f46' : score.score >= 70 ? '#075985' : score.score >= 60 ? '#92400e' : '#991b1b'};">Water Safety Score: ${score.score}/100 (Grade ${escapeHtml(score.grade)}, ${escapeHtml(score.label)})</div>` : `<div class="score" style="background: #f4f4f5; color: #52525b;">Water Safety Score: Not enough reviewed data (${escapeHtml(score?.label ?? 'Pending verification')})</div>`}
 <h2>Summary</h2>
-<p>Contaminants tracked: ${utility.contaminantSummaries.length} · Samples: ${utility.totalSamples} · Above health guideline: ${utility.healthExceedances} · Above legal limit: ${utility.exceedances}</p>
+<p>Contaminants tracked: ${utility.contaminantSummaries.length} · Samples: ${utility.totalSamples} · Above health guideline: ${healthCompared ? utility.healthExceedances : 'Not assessed'} · Above legal limit: ${legalCompared ? utility.exceedances : 'Not assessed'}</p>
+${utility.dataStatus?.status === 'degraded' ? '<p>Historical observations are available; verification metadata is unavailable. No safety conclusion is established from those records.</p>' : ''}
 <h2>Contaminant Breakdown</h2>
 <table>
 <tr><th>Contaminant</th><th>Latest Level</th><th>Unit</th><th>Health Guideline</th><th>Legal Limit</th><th>Status</th></tr>
@@ -134,12 +183,12 @@ ${utility.contaminantSummaries.map((s) => {
     : s.healthBenchmarkStatus === 'above_benchmark'
     ? '<span class="warning">Above health guideline</span>'
     : (s.healthBenchmarkStatus === 'below_benchmark' || s.legalBenchmarkStatus === 'below_benchmark')
-    ? '<span class="ok">Within guidelines</span>'
+    ? '<span class="ok">No exceedance in available comparison</span>'
     : (s.healthBenchmarkStatus === 'illustrative' || s.legalBenchmarkStatus === 'illustrative')
     ? '<span class="neutral">Illustrative data</span>'
     : '<span class="neutral">Unreviewed data</span>'
   const lvl = s.latestLevel != null ? s.latestLevel.toFixed(2) : '—'
-  return `<tr><td>${escapeHtml(s.contaminant.name)}</td><td>${lvl}</td><td>${escapeHtml(s.unit)}</td><td>${escapeHtml(s.contaminant.healthGuideline ?? '—')}</td><td>${escapeHtml(s.contaminant.legalLimit ?? 'None')}</td><td>${status}</td></tr>`
+  return `<tr><td>${escapeHtml(s.contaminant.name)}</td><td>${lvl}</td><td>${escapeHtml(s.unit)}</td><td>${escapeHtml(s.contaminant.healthGuideline ?? '—')} ${escapeHtml(s.contaminant.healthGuidelineUnit ?? '')}</td><td>${escapeHtml(s.contaminant.legalLimit ?? '—')} ${escapeHtml(s.contaminant.legalLimitUnit ?? '')}</td><td>${status}</td></tr>`
 }).join('')}
 </table>
 <div class="footer">
@@ -153,15 +202,16 @@ Learn more at https://arippleeffectinitiative.org
                     setTimeout(() => w.print(), 500)
                   }}
                   aria-label="Print report"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
                   title="Print / save as PDF"
                 >
                   <Printer className="h-4 w-4" />
                 </button>
                 <button
+                  ref={closeButton}
                   onClick={onClose}
                   aria-label="Close"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -170,7 +220,7 @@ Learn more at https://arippleeffectinitiative.org
                 <MapPin className="h-3 w-3" />
                 {utility.city}, {utility.state} · PWSID {utility.pwsid}
               </div>
-              <h2 className="mt-1.5 pr-32 sm:pr-36 text-xl font-bold leading-tight sm:text-2xl">
+              <h2 id={headingId} style={{ color: '#e5efeb' }} className="mt-1.5 text-xl font-bold leading-tight sm:text-2xl">
                 {utility.name}
               </h2>
               <div className="mt-3 flex flex-wrap gap-1.5">
@@ -194,6 +244,7 @@ Learn more at https://arippleeffectinitiative.org
             {/* Body */}
             <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
               <div className="space-y-6 p-5 sm:p-7 pb-12">
+                <p id={descriptionId} className="text-sm leading-relaxed text-muted-foreground" data-testid="utility-assessment-notice">{utility.dataStatus?.status === 'degraded' ? 'Historical observations are shown with their original source labels. Verification metadata is unavailable in this database version; these records do not establish a safety score or a reviewed benchmark comparison.' : 'Read the source, date, units and review status alongside each observation. Missing comparisons are not evidence of safe water.'}</p>
                 {/* Summary stats */}
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   <StatTile
@@ -208,15 +259,15 @@ Learn more at https://arippleeffectinitiative.org
                   />
                   <StatTile
                     label="Above health guideline"
-                    value={utility.healthExceedances.toString()}
+                    value={healthCompared ? `${utility.healthExceedances} / ${healthCompared}` : 'Not assessed'}
                     icon={AlertTriangle}
-                    tone={utility.healthExceedances > 0 ? 'warning' : 'ok'}
+                    tone={healthCompared && utility.healthExceedances > 0 ? 'warning' : 'default'}
                   />
                   <StatTile
                     label="Above legal limit"
-                    value={utility.exceedances.toString()}
+                    value={legalCompared ? `${utility.exceedances} / ${legalCompared}` : 'Not assessed'}
                     icon={ShieldCheck}
-                    tone={utility.exceedances > 0 ? 'danger' : 'ok'}
+                    tone={legalCompared && utility.exceedances > 0 ? 'danger' : 'default'}
                   />
                 </div>
 
@@ -361,7 +412,7 @@ function ContaminantDetailCard({
   } else if (healthBenchmarkStatus === 'above_benchmark') {
     status = { label: 'Above health guideline', tone: 'warning' }
   } else if (healthBenchmarkStatus === 'below_benchmark' || legalBenchmarkStatus === 'below_benchmark') {
-    status = { label: 'Within guidelines', tone: 'ok' }
+    status = { label: 'No exceedance in available comparison', tone: 'neutral' }
   } else if (healthBenchmarkStatus === 'illustrative' || legalBenchmarkStatus === 'illustrative') {
     status = { label: 'Illustrative benchmark', tone: 'neutral' }
   } else if (healthBenchmarkStatus === 'unreviewed' || legalBenchmarkStatus === 'unreviewed') {
@@ -529,7 +580,8 @@ export function SafetyScoreCard({
   score: NonNullable<UtilityWithStats['safetyScore']>
 }) {
   const { score: value, grade, label, color, bgColor, deductions, dataConfidence } = score
-  const hasScore = value !== null
+  const hasScore = typeof value === 'number' && Number.isFinite(value)
+  if (!hasScore) return <Card data-testid="unassessed-score" className="border-border"><CardContent className="p-5"><h3 className="text-base font-semibold text-foreground">Safety score not assessed</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">There is not enough reviewed evidence for a score. Original observations remain available below, but a missing assessment is neither a clean result nor a failed water test.</p></CardContent></Card>
 
   const borderClass = !hasScore
     ? 'border-border/80 dark:border-border/60'

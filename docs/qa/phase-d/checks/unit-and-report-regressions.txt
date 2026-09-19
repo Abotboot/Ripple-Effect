@@ -1,17 +1,17 @@
-✔ verified measurement without benchmarks is not an assessed report (3.4092ms)
-✔ verified measurement with incompatible benchmark units remains neutral (0.6952ms)
-✔ partially assessable utility preserves independent legal and health comparison subsets (0.546ms)
-✔ explicit conversion: 1 particles/ml -> particles/l (0.1666ms)
-✔ explicit conversion: 1 particles/100ml -> particles/l (0.1321ms)
-✔ explicit conversion: 1 particles/l -> particles/ml (0.1029ms)
-✔ explicit conversion: 1 particles/liter -> particles/l (0.1126ms)
-✔ explicit conversion: 1 fibers/ml -> fibers/l (0.1337ms)
-✔ explicit conversion: 1 ppb -> ug/l (0.1265ms)
-✔ explicit conversion: 1 ppm -> ppt (0.2309ms)
-✔ reject conversion particles/kg -> particles/l (0.2033ms)
-✔ reject conversion particles/m2 -> particles/l (0.1066ms)
-✔ reject conversion fibers/l -> particles/l (0.1296ms)
-✔ actual stats GET normalizes eligible concentrations before averaging (155.8057ms)
+✔ verified measurement without benchmarks is not an assessed report (2.8528ms)
+✔ verified measurement with incompatible benchmark units remains neutral (0.6012ms)
+✔ partially assessable utility preserves independent legal and health comparison subsets (0.4499ms)
+✔ explicit conversion: 1 particles/ml -> particles/l (0.1282ms)
+✔ explicit conversion: 1 particles/100ml -> particles/l (0.1216ms)
+✔ explicit conversion: 1 particles/l -> particles/ml (0.0926ms)
+✔ explicit conversion: 1 particles/liter -> particles/l (0.0985ms)
+✔ explicit conversion: 1 fibers/ml -> fibers/l (0.1135ms)
+✔ explicit conversion: 1 ppb -> ug/l (0.1089ms)
+✔ explicit conversion: 1 ppm -> ppt (0.1657ms)
+✔ reject conversion particles/kg -> particles/l (0.1579ms)
+✔ reject conversion particles/m2 -> particles/l (0.0911ms)
+✔ reject conversion fibers/l -> particles/l (0.0902ms)
+✔ actual stats GET normalizes eligible concentrations before averaging (139.4576ms)
 ℹ tests 14
 ℹ suites 0
 ℹ pass 14
@@ -19,4 +19,4 @@
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 171.7991
+ℹ duration_ms 152.4146

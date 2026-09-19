@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-09-19T07:26:15.347Z",
+  "createdAt": "2026-09-19T07:45:26.420Z",
   "baseline": "be0f622eece788684de60c9e5de17be010363e0f",
   "checks": [
     {
@@ -77,6 +77,14 @@
       "command": [
         "node",
         "node_modules/eslint/bin/eslint.js",
+        "docs/qa/phase-d/data/check.cjs",
+        "docs/qa/phase-d/data/map-browser.cjs",
+        "docs/qa/phase-d/specimen/review-specimen.cjs",
+        "docs/qa/phase-d/specimen/typecheck-specimen.cjs",
+        "scripts/qa/phase-d-checks.cjs",
+        "scripts/qa/phase-d-counter.cjs",
+        "scripts/qa/phase-d-integration.cjs",
+        "scripts/qa/phase-d-microscope.cjs",
         "src/app/api/activity/route.ts",
         "src/app/api/contaminants/[id]/route.ts",
         "src/app/api/dashboard/route.ts",
@@ -89,6 +97,8 @@
         "src/app/api/utilities/compare/route.ts",
         "src/app/api/utilities/scores/route.ts",
         "src/components/atmosphere/bottle-scene.ts",
+        "src/components/atmosphere/particle-study-counter.tsx",
+        "src/components/atmosphere/specimen-fallback.ts",
         "src/components/atmosphere/specimen-inspector.tsx",
         "src/components/atmosphere/tank-hero.tsx",
         "src/components/atmosphere/water-narrative.tsx",
@@ -97,22 +107,15 @@
         "src/components/sections/map-section.tsx",
         "src/components/sections/microplastics-section.tsx",
         "src/components/sections/microplastics-trend-section.tsx",
+        "src/components/sections/utility-detail-dialog.tsx",
         "src/lib/api.ts",
         "src/lib/artwork-journey.ts",
-        "src/lib/types.ts",
-        "docs/qa/phase-d/data/check.cjs",
-        "docs/qa/phase-d/data/map-browser.cjs",
-        "docs/qa/phase-d/specimen/review-specimen.cjs",
-        "docs/qa/phase-d/specimen/typecheck-specimen.cjs",
-        "scripts/qa/phase-d-checks.cjs",
-        "scripts/qa/phase-d-counter.cjs",
-        "scripts/qa/phase-d-integration.cjs",
-        "scripts/qa/phase-d-microscope.cjs",
-        "src/components/atmosphere/particle-study-counter.tsx",
-        "src/components/atmosphere/specimen-fallback.ts",
         "src/lib/sample-read-cohort.ts",
         "src/lib/sample-read-model.ts",
-        "src/lib/sample-read.ts"
+        "src/lib/sample-read.ts",
+        "src/lib/types.ts",
+        "scripts/qa/phase-d-detail.cjs",
+        "scripts/qa/phase-d-preview.cjs"
       ],
       "passed": true,
       "exitCode": 0
@@ -129,5 +132,5 @@
     }
   ],
   "success": true,
-  "completedAt": "2026-09-19T07:26:56.860Z"
+  "completedAt": "2026-09-19T07:46:05.166Z"
 }

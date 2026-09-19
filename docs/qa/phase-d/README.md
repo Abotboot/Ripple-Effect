@@ -101,3 +101,22 @@ previous microscope clip remains unchanged in `public/media/ripple/live/`.
 Local fixture success is not proof of production restoration. Final preview
 read checks must verify the deployed branch against actual responses before
 the data outage is described as resolved. Main is not changed by this branch.
+
+## Published-read follow-up
+
+The first live preview pass returned HTTP 200 for all 14 checked public reads.
+It reconciled all **30 utility locations** and **3,073 observations** with the
+public exports: IDs, values, units, dates and source labels agreed. Legacy
+metadata was clearly degraded; all scores remained unavailable rather than
+fabricated. This is consistency of the fetched records, not independent
+authentication of the underlying historical measurements.
+
+That same browser pass exposed an older utility-detail panel issue: the panel
+lacked dialog semantics/Escape behavior and showed green zero-exceedance tiles
+even when no comparison was assessed. The follow-up adds named modal semantics,
+keyboard focus containment/return, Escape, 44px actions and a legible title.
+Unavailable comparisons now read **Not assessed**, and an unavailable score no
+longer displays a 0–100 gauge or a faux deduction breakdown. The printable
+summary likewise distinguishes unassessed comparisons and prints benchmark units.
+Two local UI cases using the actual read-only preview records pass at desktop
+and mobile sizes (`detail/results.json`); the nine build/fixture gates pass again.
