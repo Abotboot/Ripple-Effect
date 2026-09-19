@@ -8,6 +8,7 @@ type Phase = 'loading' | 'playing' | 'paused' | 'handoff' | 'error'
 
 export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutcome) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const ambientRef = useRef<HTMLCanvasElement>(null)
   const effectEpoch = useRef(0)
   const callback = useRef(onComplete)
   const [phase, setPhase] = useState<Phase>('loading')
@@ -26,6 +27,7 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
     let lastMediaTime = 0
     let lastProgress = performance.now()
     let releaseTimer: number | undefined
+    let lastAmbient = -1
     const preference = matchMedia('(prefers-reduced-motion: reduce)')
 
     const cancelFrame = () => {
@@ -63,6 +65,12 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
     const cue = (mediaTime: number) => {
       if (disposed || completed) return
       video.dataset.mediaTime = mediaTime.toFixed(3)
+      // One decoder, with a tiny blurred copy extending the same frame to the edges.
+      if (video.readyState >= 2 && (mediaTime - lastAmbient >= .08 || video.ended)) {
+        const ambient = ambientRef.current
+        const context = ambient?.getContext('2d')
+        if (ambient && context) { context.drawImage(video, 0, 0, ambient.width, ambient.height); lastAmbient = mediaTime }
+      }
       if (mediaTime > lastMediaTime) {
         lastMediaTime = mediaTime
         lastProgress = performance.now()
@@ -135,6 +143,7 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
         return
       }
       setPhase('playing')
+      cue(video.currentTime)
       lastProgress = performance.now()
       scheduleFrame()
     }
@@ -206,6 +215,7 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
 
   return (
     <div className="ripple-intro" data-testid="cinematic-intro" data-state={phase}>
+      <canvas ref={ambientRef} width={128} height={72} className="ripple-ambient" aria-hidden="true" />
       <video
         ref={videoRef}
         className="ripple-intro-video"

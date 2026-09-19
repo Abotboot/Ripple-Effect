@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, type KeyboardEvent } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import Image from 'next/image'
 import { rippleAssets } from '@/lib/ripple-assets'
 import styles from './particle-atlas.module.css'
@@ -11,33 +11,35 @@ const categories = [
     title: 'Fibers',
     description: 'Long, fine strands',
     asset: rippleAssets.fibers,
-    observation: 'Follow the slender outlines. The strands bend along their length, with narrow highlights at their edges. Softer strands sit behind the two sharper examples.',
-    limitation: 'The colors and apparent widths are illustrative, not material tests or size measurements.',
-    record: 'For a real sample, look for recorded dimensions, an examination method, and evidence for any material label.',
   },
   {
     id: 'fragments',
     title: 'Fragments',
     description: 'Irregular flakes and chips',
     asset: rippleAssets.fragments,
-    observation: 'Compare the uneven outlines and broad, translucent faces. The foreground pieces have folds and bright edges; the more distant shapes are less distinct.',
-    limitation: 'Transparency and surface texture here are visual cues, not polymer-identification results.',
-    record: 'For a real sample, keep the image and its scale with the method used to identify the material.',
   },
   {
     id: 'granules',
     title: 'Granules',
     description: 'Compact, rounded pieces',
     asset: rippleAssets.granules,
-    observation: 'Look at the compact forms and uneven surfaces. Their rounded outlines differ from the thin strands and broad flakes in the other illustrations.',
-    limitation: 'The number of pieces shown is an artistic choice, not a count or concentration from a water sample.',
-    record: 'For a real sample, check the sampled volume, reported units, and analytical result before interpreting a particle count.',
   },
 ] as const
 
 export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } = {}) {
   const [selected, setSelected] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const [visible, setVisible] = useState(false)
+  const atlas = useRef<HTMLElement>(null)
   const tabs = useRef<Array<HTMLButtonElement | null>>([])
+  useEffect(() => {
+    let intersecting = false
+    const update = () => setVisible(intersecting && !document.hidden)
+    const observer = new IntersectionObserver(([entry]) => { intersecting = entry.isIntersecting; update() })
+    if (atlas.current) observer.observe(atlas.current)
+    document.addEventListener('visibilitychange', update)
+    return () => { observer.disconnect(); document.removeEventListener('visibilitychange', update) }
+  }, [])
 
   const moveSelection = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     let next: number
@@ -54,17 +56,17 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
   }
 
   return (
-    <section id="particle-atlas" className={styles.atlas} aria-labelledby="particle-atlas-title" data-testid="particle-atlas">
+    <section ref={atlas} id="particle-atlas" className={styles.atlas} aria-labelledby="particle-atlas-title" data-testid="particle-atlas" data-motion={visible && !paused}>
       <div className={styles.inner}>
         <div className={styles.heading}>
           <div>
             <p className={styles.eyebrow}>Particle atlas</p>
             <h2 id="particle-atlas-title">Compare particle forms</h2>
           </div>
-          <p className={styles.intro}>Choose a form to read its visible features and the limits of visual identification.</p>
+          <div><p className={styles.intro}>Three forms. Take a closer look.</p><button type="button" className={styles.motionToggle} aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume motion' : 'Pause motion'}</button></div>
         </div>
         <div className={styles.grid} role="tablist" aria-label="Particle form" aria-orientation="horizontal">
-          {categories.map(({ id, title, description, asset }, index) => (
+          {categories.map(({ id, title, description }, index) => (
             <button
               key={id}
               ref={element => { tabs.current[index] = element }}
@@ -78,24 +80,29 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
               className={styles.card}
               onClick={() => setSelected(index)}
               onKeyDown={event => moveSelection(event, index)}
+              onPointerMove={event => {
+                if (event.pointerType !== 'mouse') return
+                const box = event.currentTarget.getBoundingClientRect()
+                event.currentTarget.style.setProperty('--look-x', `${((event.clientX - box.left) / box.width - .5) * 12}px`)
+                event.currentTarget.style.setProperty('--look-y', `${((event.clientY - box.top) / box.height - .5) * 12}px`)
+              }}
+              onPointerLeave={event => { event.currentTarget.style.setProperty('--look-x', '0px'); event.currentTarget.style.setProperty('--look-y', '0px') }}
             >
-              <Image
-                src={asset.src}
-                alt={asset.alt}
-                width={asset.width}
-                height={asset.height}
-                sizes="(max-width: 699px) 28vw, (max-width: 1399px) 28vw, 370px"
-                loading="lazy"
-              />
+              <span className={styles.scene} data-form={id} aria-hidden="true">
+                <span className={styles.light} />
+                <span className={styles.depth}>
+                  {[0, 1, 2].map(layer => <span key={layer} className={styles.particle} data-layer={layer}><Image src={`/media/ripple/layers/${id === 'fibers' ? 'fiber' : id === 'fragments' ? 'fragment' : 'granule'}.png`} alt="" width={1280} height={1280} sizes="(max-width: 699px) 28vw, 300px" loading="lazy" /></span>)}
+                </span>
+              </span>
               <span className={styles.cardLabel}>
                 <span id={`atlas-label-${id}`} className={styles.cardTitle}>{title}</span>
-                <span className={styles.selection} aria-hidden="true">{selected === index ? 'Selected' : 'View notes'}</span>
+                <span className={styles.selection} aria-hidden="true">{selected === index ? 'Exploring' : 'Explore ↗'}</span>
               </span>
               <span className={styles.description}>{description}</span>
             </button>
           ))}
         </div>
-        {categories.map(({ id, title, observation, limitation, record }, index) => (
+        {categories.map(({ id, title, description, asset }, index) => (
           <div
             key={id}
             id={`atlas-panel-${id}`}
@@ -107,18 +114,15 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
             data-testid={`atlas-panel-${id}`}
           >
             <div className={styles.panelHeading}>
-              <h3>{title}: reading the illustration</h3>
-              <span>Illustration only</span>
+              <h3>{title}</h3>
+              <span>{description}</span>
             </div>
-            <dl className={styles.observations}>
-              <div><dt>Visible features</dt><dd>{observation}</dd></div>
-              <div><dt>What this cannot tell you</dt><dd>{limitation}</dd></div>
-            </dl>
-            <p className={styles.record}>{record}</p>
+            <p className={styles.features}>{id === 'fibers' ? 'Follow the curve and fine strands along its edge.' : id === 'fragments' ? 'Look for folded surfaces, sharp edges and uneven thickness.' : 'Compare the rounded outlines and rough surfaces.'}</p>
+            <details className={styles.reference}><summary>View original illustration</summary><Image src={asset.src} alt={asset.alt} width={asset.width} height={asset.height} sizes="(max-width: 699px) 80vw, 320px" loading="lazy" /></details>
           </div>
         ))}
         <div className={styles.footer}>
-          <p className={styles.note}>Illustrations only. Form alone cannot identify material, source, concentration, or risk.</p>
+          <p className={styles.note}>Particle illustrations. Identification requires a sample test.</p>
           <div className={styles.footerLinks}>
             {onMethodology && <button type="button" className={styles.link} onClick={onMethodology}>Methodology &amp; sources <span aria-hidden="true">↗</span></button>}
             <a className={styles.link} href="#specimen-study">Try the specimen controls <span aria-hidden="true">↓</span></a>

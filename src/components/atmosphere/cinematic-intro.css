@@ -1,18 +1,30 @@
-.ripple-hero { --tank-cyan: #b8d8cb; min-height: 0; background: #05080a; }
-.ripple-media { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #05080a; }
+.ripple-hero { --tank-cyan: #b8d8cb; min-height: 0; background: #05080a; margin-top: calc(-1 * var(--ripple-header-offset, 72px)); }
+.ripple-media { position: relative; width: 100%; height: 100dvh; background: #071315; overflow: hidden; container-type: size; }
 .ripple-particle-stage, .ripple-intro { position: absolute; inset: 0; }
 .ripple-stage-image, .ripple-intro-video { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
 .ripple-artwork-fallback { position: absolute; right: 7%; bottom: 12%; max-width: 36%; margin: 0; color: #a9bdb6; font-size: 13px; line-height: 1.6; }
 .ripple-intro { z-index: 3; background: #020403; }
-.ripple-intro-video { background: #020403; }
+.ripple-intro-video { position: relative; background: transparent; }
+.ripple-ambient { position: absolute; inset: -24px; width: calc(100% + 48px); height: calc(100% + 48px); object-fit: cover; background-size: cover; background-position: center; filter: blur(24px) brightness(.7); pointer-events: none; }
+.ripple-ambient-opening { background-image: url('/media/ripple/microscope/opening-v4.png'); }
+.ripple-ambient-terminal { background-image: url('/media/ripple/microscope/terminal-v4.png'); }
+.ripple-intro-video, .ripple-entry-image, .ripple-hero[data-terminal=true] .ripple-stage-image {
+  --half-frame-width: min(50cqw, 88.8889cqh);
+  --half-frame-height: min(50cqh, 28.125cqw);
+  mask-image: linear-gradient(90deg, transparent calc(50% - var(--half-frame-width)), #000 calc(50% - var(--half-frame-width) + 12px), #000 calc(50% + var(--half-frame-width) - 12px), transparent calc(50% + var(--half-frame-width))), linear-gradient(0deg, transparent calc(50% - var(--half-frame-height)), #000 calc(50% - var(--half-frame-height) + 12px), #000 calc(50% + var(--half-frame-height) - 12px), transparent calc(50% + var(--half-frame-height)));
+  mask-composite: intersect;
+}
+.ripple-hero[data-terminal=true] .ripple-particle-stage .ripple-stage-image { visibility: visible; }
+.ripple-hero[data-terminal=true] .ripple-particle-stage .ripple-artwork-canvas { opacity: 0; pointer-events: none; }
 .ripple-entry-cover {
   position: fixed;
   inset: 0;
   z-index: 100;
-  width: 100vw;
+  width: 100%;
   height: 100dvh;
   overflow: hidden;
   isolation: isolate;
+  container-type: size;
   background: #020403;
   color: #edf5f0;
 }
@@ -96,7 +108,7 @@ body.ripple-cinematic-active button[aria-label="Scroll to top"] {
   visibility: hidden !important;
   pointer-events: none !important;
 }
-.ripple-editorial { position: absolute; z-index: 2; top: 0; left: 0; width: 58%; padding: clamp(44px, 7vw, 120px) 0 20px 7vw; transition: opacity .4s ease; pointer-events: none; }
+.ripple-editorial { position: absolute; z-index: 2; top: 0; left: 0; width: 58%; padding: max(110px, 9vw) 0 20px 7vw; transition: opacity .4s ease; pointer-events: none; }
 .ripple-editorial.is-awaiting-cue { opacity: 0; pointer-events: none; }
 .ripple-editorial :is(input, button, a) { pointer-events: auto; }
 .ripple-editorial.is-awaiting-cue :is(input, button, a) { pointer-events: none; }
@@ -129,13 +141,13 @@ body.ripple-cinematic-active button[aria-label="Scroll to top"] {
 .ripple-workbench-actions .ripple-motion-button { gap: 12px; background: transparent; border-color: #c6ddd342; }
 .ripple-skip-link { border: 0; background: transparent; color: #afc1b8; padding: 10px; min-height: 44px; font-size: 12px !important; text-decoration: underline; text-underline-offset: 4px; }
 .ripple-field-description { flex-basis: 100%; margin: 0; max-width: 760px; color: #bac8c2; font-size: 12px; line-height: 1.65; }
-.ripple-hero { --ripple-header-offset: 0px; }
+.ripple-hero { --ripple-header-offset: 72px; }
 /* The entry journey owns one clean viewport-sized media rectangle. */
 .ripple-hero:is([data-state=video], [data-state=entering]) .ripple-media {
   position: fixed;
   inset: 0;
   z-index: 80;
-  width: 100vw;
+  width: 100%;
   height: 100dvh;
   aspect-ratio: auto;
   margin: 0;
@@ -155,13 +167,13 @@ body.ripple-cinematic-active button[aria-label="Scroll to top"] {
 .ripple-hero[data-state=video] .ripple-editorial.is-awaiting-cue { visibility: hidden; transition: none; }
 .ripple-playback-error { margin: 16px 7vw 0; padding: 12px 14px; color: #e5d3b6; background: #211c16; border: 1px solid #b9a47f66; font-size: 13px; line-height: 1.6; }
 @media (max-width: 1100px) {
-  .ripple-editorial { padding-top: 40px; width: 62%; }
+  .ripple-editorial { padding-top: 110px; width: 62%; }
   .ripple-editorial h1 { font-size: clamp(45px, 6.8vw, 80px); }
   .ripple-editorial .tank-copy { margin-top: 16px; }
   .ripple-editorial .tank-search { margin-top: 16px; }
 }
 @media (max-width: 860px) {
-  .ripple-editorial { position: relative; width: auto; padding: 32px 6vw 8px; }
+  .ripple-editorial { position: absolute; top: max(145px, 40dvh); width: 100%; padding: 32px 6vw 8px; background: linear-gradient(transparent, #05080ae8 35%); }
   .ripple-artwork-fallback { inset: 45% 6% auto; max-width: none; text-align: center; }
   .ripple-editorial h1 { font-size: clamp(46px, 9vw, 74px); }
   .ripple-editorial .tank-search { padding: 0; margin-top: 24px; max-width: none; background: transparent; }
@@ -176,6 +188,10 @@ body.ripple-cinematic-active button[aria-label="Scroll to top"] {
   .ripple-hero:is([data-state=video], [data-state=entering]) .ripple-editorial.is-awaiting-cue { position: absolute; }
 }
 @media (max-width: 600px) {
+  .ripple-editorial { top: 110px; padding-top: 24px; }
+  .ripple-editorial h1 { font-size: clamp(40px, 9vw, 54px); }
+  .ripple-editorial .tank-copy { margin-top: 12px; font-size: 14px; }
+  .ripple-editorial .tank-search { margin-top: 16px; }
   .ripple-entry-copy { left: 20px; bottom: 22px; width: calc(100vw - 40px); }
   .ripple-entry-copy h2 { font-size: clamp(40px, 13vw, 58px); }
   .ripple-entry-copy > p:not(.ripple-entry-eyebrow) { max-width: 370px; margin-top: 14px; font-size: 13px; line-height: 1.55; }

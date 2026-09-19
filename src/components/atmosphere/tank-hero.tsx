@@ -54,6 +54,8 @@ export function TankHero({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<ArtworkPhase>('idle')
   const [reveal, setReveal] = useState(true)
   const [entered, setEntered] = useState(false)
+  const [replayCover, setReplayCover] = useState(false)
+  const [holdTerminal, setHoldTerminal] = useState(false)
   const [category, setCategory] = useState<ArtworkCategory>('all')
   const [paused, setPaused] = useState(false)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -67,9 +69,10 @@ export function TankHero({ children }: { children: ReactNode }) {
   const currentPhase = useRef(phase)
   useLayoutEffect(() => { currentPhase.current = phase }, [phase])
   const active = phase === 'video' || phase === 'entering'
-  const showEntryCover = hydrated && !entered && !returning && !reduced && !active
+  const showEntryCover = hydrated && (replayCover || !entered && !returning) && !reduced && !active
   const remember = useCallback(() => {
     setEntered(true)
+    setReplayCover(false)
     persistReturning()
   }, [])
   const focusSearch = useCallback(() => {
@@ -81,17 +84,13 @@ export function TankHero({ children }: { children: ReactNode }) {
     }
   }, [])
   const finish = useCallback((outcome: IntroOutcome) => {
-    if (outcome === 'complete' && status === 'ready' && !matchMedia(motionQuery).matches) {
-      // The exact video exit is already painted underneath. There is no second
-      // encoded particle clip and no swap to a different scene at the endpoint.
-      setPhase('entering')
-      return
-    }
+    // Keep the actual final frame. Do not run the old second camera move.
+    setHoldTerminal(outcome === 'complete')
     pendingFocus.current = true
     setPhase('live'); setReveal(true); setPaused(false)
     setPlaybackError(outcome === 'error')
     remember()
-  }, [remember, status])
+  }, [remember])
   const settled = useCallback(() => {
     setPhase('live'); setReveal(true)
     remember()
@@ -157,8 +156,10 @@ export function TankHero({ children }: { children: ReactNode }) {
   }, [showEntryCover, active])
   useLayoutEffect(() => {
     if (!showEntryCover && !active) return
-    const x = window.scrollX
-    const y = window.scrollY
+    const x = 0
+    const y = 0
+    window.dispatchEvent(new Event('ripple-cinematic-start'))
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
     const previous = {
       cinematicClass: document.body.classList.contains('ripple-cinematic-active'),
       rootOverflow: document.documentElement.style.overflow,
@@ -186,27 +187,30 @@ export function TankHero({ children }: { children: ReactNode }) {
       document.body.style.left = previous.bodyLeft
       document.body.style.right = previous.bodyRight
       document.body.style.width = previous.bodyWidth
-      window.scrollTo(x, y)
+      window.scrollTo({ top: y, left: x, behavior: 'instant' })
+      window.dispatchEvent(new Event('ripple-cinematic-end'))
     }
   }, [showEntryCover, active])
   useLayoutEffect(() => {
-    if (!active) return
     const updateOffset = () => root.current?.style.setProperty('--ripple-header-offset', `${headerOffset()}px`)
     updateOffset()
     // Scroll only after the fitted player layout is committed. No harness scroll is needed.
-    if (phase === 'video' && media.current) {
-      media.current.style.scrollMarginTop = `${headerOffset()}px`
-      media.current.scrollIntoView({ block: 'start', behavior: 'instant' })
-    }
     window.addEventListener('resize', updateOffset)
     return () => window.removeEventListener('resize', updateOffset)
   }, [active, phase])
   const watch = useCallback(() => {
     if (matchMedia(motionQuery).matches) { remember(); focusSearch(); return }
     remember()
+    setHoldTerminal(false)
     pendingFocus.current = true
     setPlaybackError(false); setCategory('all'); setPaused(false); setReveal(false); setPhase('video')
   }, [remember, focusSearch])
+  const replay = useCallback(() => {
+    if (matchMedia(motionQuery).matches) { focusSearch(); return }
+    window.dispatchEvent(new Event('ripple-cinematic-start'))
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    setPlaybackError(false); setPhase('idle'); setReplayCover(true)
+  }, [focusSearch])
   const skipEntry = useCallback(() => {
     remember()
     pendingFocus.current = true
@@ -214,7 +218,7 @@ export function TankHero({ children }: { children: ReactNode }) {
   }, [remember])
   const description = forms.find(form => form.id === category)!.description
 
-  return <section ref={root} className="tank-hero ripple-hero" aria-labelledby="tank-title" data-testid="ripple-hero" data-state={phase}>
+  return <section ref={root} className="tank-hero ripple-hero" aria-labelledby="tank-title" data-testid="ripple-hero" data-state={phase} data-terminal={holdTerminal}>
     {showEntryCover && <div
       className="ripple-entry-cover"
       data-testid="journey-entry-cover"
@@ -237,6 +241,7 @@ export function TankHero({ children }: { children: ReactNode }) {
         controls[next]?.focus()
       }}
     >
+      <div className="ripple-ambient ripple-ambient-opening" aria-hidden="true" />
       <Image
         src={artworkJourney.poster}
         alt=""
@@ -251,35 +256,34 @@ export function TankHero({ children }: { children: ReactNode }) {
       <div className="ripple-entry-copy">
         <p className="ripple-entry-eyebrow">A Ripple Effect initiative</p>
         <h2 id="ripple-entry-title">Clear water.<br /><em>Look closer.</em></h2>
-        <p id="ripple-entry-description">Enter the microscope, then explore reported water measurements and the evidence behind them.</p>
+        <p id="ripple-entry-description">A closer look at water. Start here.</p>
         <button ref={entryEnter} type="button" className="ripple-entry-enter" data-testid="journey-enter" onClick={watch}>
           Enter <span aria-hidden="true">→</span>
         </button>
       </div>
     </div>}
     <div ref={media} className="ripple-media" data-testid="ripple-media">
+      {(active || holdTerminal) && <div className="ripple-ambient ripple-ambient-terminal" aria-hidden="true" />}
       <div className={`ripple-particle-stage${status === 'ready' ? ' is-field-ready' : ''}`} role="img" aria-label={rippleAssets.master.alt} data-testid="particle-stage" data-renderer={status === 'ready' ? 'interactive-artwork' : 'master-static'}>
-        {!imageFailed ? <Image src={phase === 'video' || phase === 'entering' ? artworkJourney.terminalPoster : rippleAssets.master.src} alt={rippleAssets.master.alt} width={1920} height={1080} sizes="100vw" unoptimized loading="eager" className="ripple-stage-image" data-testid="hero-artwork" onError={() => setImageFailed(true)} /> : <p className="ripple-artwork-fallback">Artwork unavailable. Water search is still available.</p>}
-        <ArtworkFieldCanvas phase={phase} paused={paused || showEntryCover} reduced={reduced} category={category} onReady={ready} onError={failed} onReveal={revealCopy} onSettled={settled} />
+        {!imageFailed ? <Image src={active || holdTerminal ? artworkJourney.terminalPoster : rippleAssets.master.src} alt={holdTerminal ? 'View through the microscope eyepiece' : rippleAssets.master.alt} width={1920} height={1080} sizes="100vw" unoptimized loading="eager" className="ripple-stage-image" data-testid="hero-artwork" onError={() => setImageFailed(true)} /> : <p className="ripple-artwork-fallback">Artwork unavailable. Water search is still available.</p>}
+        <ArtworkFieldCanvas phase={phase} paused={paused || showEntryCover || holdTerminal} reduced={reduced} category={category} onReady={ready} onError={failed} onReveal={revealCopy} onSettled={settled} />
       </div>
       {phase === 'video' && <CinematicIntro onComplete={finish} />}
-      {!active && <span className="ripple-media-caption">Illustration <span aria-hidden="true">/</span> not a laboratory measurement</span>}
     </div>
     <div ref={editorial} className={`tank-editorial ripple-editorial${active && !reveal ? ' is-awaiting-cue' : ''}`} aria-hidden={showEntryCover || active && !reveal || undefined}>
       <p className="tank-eyebrow">A RIPPLE EFFECT INITIATIVE</p>
       <h1 id="tank-title">Clear water.<br /><em>Look closer.</em></h1>
-      <div className="tank-copy"><p>Find reported water measurements, check their sources, and see where evidence is missing.</p></div>
+      <div className="tank-copy"><p>Explore water measurements and their sources.</p></div>
       <div className="tank-search">{children}</div>
-      <p className="ripple-search-note">Reported data, not a complete safety assessment.</p>
     </div>
     <div className="ripple-workbench" aria-label="Illustration controls">
       {!active && <>
         <div className="ripple-form-selector"><span className="ripple-control-label">Highlight a form</span>
-          <div className="ripple-category-buttons" role="group" aria-label="Highlight particle category">{forms.map(form => <button type="button" key={form.id} data-testid={`field-${form.id}`} disabled={!hydrated || status !== 'ready'} aria-pressed={category === form.id} onClick={() => setCategory(form.id)}>{form.label}</button>)}</div>
+          <div className="ripple-category-buttons" role="group" aria-label="Highlight particle category">{forms.map(form => <button type="button" key={form.id} data-testid={`field-${form.id}`} disabled={!hydrated || status !== 'ready'} aria-pressed={!holdTerminal && category === form.id} onClick={() => { setHoldTerminal(false); setCategory(form.id) }}>{form.label}</button>)}</div>
         </div>
         <div className="ripple-workbench-actions">
           <button type="button" className="ripple-motion-button" data-testid="field-pause" disabled={!hydrated || status !== 'ready' || reduced} aria-pressed={paused || reduced} onClick={() => setPaused(value => !value)}>{reduced ? 'Reduced motion' : paused ? 'Resume artwork' : 'Pause artwork'}</button>
-          <button type="button" className="ripple-motion-button" disabled={!hydrated} onClick={watch} data-testid="journey-watch">{reduced ? 'Explore without motion' : playbackError ? 'Retry intro' : 'Replay intro'}<span aria-hidden="true">↗</span></button>
+          <button type="button" className="ripple-motion-button" disabled={!hydrated} onClick={replay} data-testid="journey-watch">{reduced ? 'Explore without motion' : playbackError ? 'Retry intro' : 'Replay intro'}<span aria-hidden="true">↗</span></button>
         </div>
       </>}
       <p className="ripple-field-description" data-testid="field-description" aria-live="polite">{description}</p>

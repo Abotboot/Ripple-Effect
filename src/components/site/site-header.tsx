@@ -6,7 +6,6 @@ import './site-chrome.css'
 import { motion, useScroll, useSpring } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { ThemeToggle } from '@/components/site/theme-toggle'
 
 export type Section =
   | 'home'
@@ -129,7 +128,6 @@ export function SiteHeader({
             <HandHeart className="h-4 w-4" aria-hidden="true" />
             Donate
           </button>
-          <ThemeToggle />
           <a
             href={REPO_URL}
             target="_blank"
