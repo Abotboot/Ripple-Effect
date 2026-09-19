@@ -3,9 +3,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import Image from 'next/image'
 import { CinematicIntro, type IntroOutcome } from './cinematic-intro'
-import { ArtworkFieldCanvas } from './artwork-field-canvas'
 import { artworkJourney, type ArtworkCategory, type ArtworkPhase } from '@/lib/artwork-journey'
-import { rippleAssets } from '@/lib/ripple-assets'
+import { PhotoParticleScene } from '../sections/photo-particle-scene'
 import './tank.css'
 import './cinematic-intro.css'
 
@@ -41,7 +40,7 @@ function headerOffset() {
   return header && ['sticky', 'fixed'].includes(getComputedStyle(header).position) ? header.getBoundingClientRect().height : 0
 }
 const forms: { id: ArtworkCategory; label: string; description: string }[] = [
-  { id: 'all', label: 'All forms', description: 'An illustrated field of fibers, fragments and granules. Move across the artwork or tap to stir it.' },
+  { id: 'all', label: 'All forms', description: 'Move across the particles, or tap a form to highlight it.' },
   { id: 'fibers', label: 'Fibers', description: 'Thread-like forms with long, narrow profiles.' },
   { id: 'fragments', label: 'Fragments', description: 'Irregular, angular or film-like pieces.' },
   { id: 'granules', label: 'Granules', description: 'Rounded or bead-like solid forms.' },
@@ -57,16 +56,12 @@ export function TankHero({ children }: { children: ReactNode }) {
   const [replayCover, setReplayCover] = useState(false)
   const [category, setCategory] = useState<ArtworkCategory>('all')
   const [paused, setPaused] = useState(false)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [playbackError, setPlaybackError] = useState(false)
-  const [imageFailed, setImageFailed] = useState(false)
   const root = useRef<HTMLElement>(null)
   const media = useRef<HTMLDivElement>(null)
   const editorial = useRef<HTMLDivElement>(null)
   const entryEnter = useRef<HTMLButtonElement>(null)
   const pendingFocus = useRef(false)
-  const currentPhase = useRef(phase)
-  useLayoutEffect(() => { currentPhase.current = phase }, [phase])
   const active = phase === 'video' || phase === 'entering'
   const showEntryCover = hydrated && (replayCover || !entered && !returning && !reduced) && !active
   const remember = useCallback(() => {
@@ -86,7 +81,7 @@ export function TankHero({ children }: { children: ReactNode }) {
     // Dissolve the unchanged terminal frame into the artwork; never hold it forever.
     pendingFocus.current = true
     setPhase(outcome === 'complete' ? 'entering' : 'live')
-    setReveal(outcome !== 'complete'); setPaused(false)
+    setReveal(outcome !== 'complete')
     setPlaybackError(outcome === 'error')
     remember()
   }, [remember])
@@ -94,14 +89,6 @@ export function TankHero({ children }: { children: ReactNode }) {
     setPhase('live'); setReveal(true)
     remember()
   }, [remember])
-  const ready = useCallback(() => setStatus('ready'), [])
-  const failed = useCallback(() => {
-    setStatus('error')
-    // An artwork download/Canvas2D failure must not cut short a playable video.
-    // The handoff also works over static artwork if the renderer fails.
-    if (currentPhase.current === 'video' || currentPhase.current === 'entering') return
-    setPhase('live'); setReveal(true)
-  }, [])
   useEffect(() => {
     if (phase !== 'entering') return
     // Release the page even if a browser suppresses animationend.
@@ -112,7 +99,7 @@ export function TankHero({ children }: { children: ReactNode }) {
     const preference = matchMedia(motionQuery)
     const change = () => { if (preference.matches) {
       pendingFocus.current = true
-      setPhase('live'); setReveal(true); setPaused(false)
+      setPhase('live'); setReveal(true)
       remember()
     } }
     preference.addEventListener('change', change)
@@ -216,7 +203,7 @@ export function TankHero({ children }: { children: ReactNode }) {
   const skipEntry = useCallback(() => {
     remember()
     pendingFocus.current = true
-    setPlaybackError(false); setPaused(false); setReveal(true); setPhase('live')
+    setPlaybackError(false); setReveal(true); setPhase('live')
   }, [remember])
   const description = forms.find(form => form.id === category)!.description
 
@@ -266,10 +253,10 @@ export function TankHero({ children }: { children: ReactNode }) {
     </div>}
     {!active && !showEntryCover && <button type="button" className="ripple-motion-button ripple-replay-top" disabled={!hydrated} onClick={replay} data-testid="journey-watch">{playbackError ? 'Retry intro' : 'Replay intro'} <span aria-hidden="true">↗</span></button>}
     <div ref={media} className="ripple-media" data-testid="ripple-media">
-      <div className={`ripple-particle-stage${status === 'ready' ? ' is-field-ready' : ''}`} role="img" aria-label={rippleAssets.master.alt} data-testid="particle-stage" data-renderer={status === 'ready' ? 'interactive-artwork' : 'master-static'}>
-        {!imageFailed ? <Image src={rippleAssets.master.src} alt={rippleAssets.master.alt} width={1920} height={1080} sizes="100vw" unoptimized loading="eager" className="ripple-stage-image" data-testid="hero-artwork" onError={() => setImageFailed(true)} /> : <p className="ripple-artwork-fallback">Artwork unavailable. Water search is still available.</p>}
-        <ArtworkFieldCanvas phase={phase} paused={paused || showEntryCover || active} reduced={reduced} category={category} onReady={ready} onError={failed} />
-      </div>
+      <figure className="ripple-photograph" data-testid="particle-stage" data-renderer="photo-derived-cutouts" data-category={category}>
+        <PhotoParticleScene hero selected={category} paused={paused || active || showEntryCover || reduced} onSelect={setCategory} />
+        <figcaption>Photo-derived · AI isolated &amp; relit. <a href="#particle-atlas">Photo sources ↓</a></figcaption>
+      </figure>
       {active && <div className="ripple-handoff" data-testid="journey-handoff" aria-hidden="true" onAnimationEnd={event => {
         if (event.target === event.currentTarget && event.animationName === 'ripple-terminal-dissolve') settled()
       }}>
@@ -284,14 +271,12 @@ export function TankHero({ children }: { children: ReactNode }) {
       <div className="tank-copy"><p>Explore water measurements and their sources.</p></div>
       <div className="tank-search">{children}</div>
     </div>
-    <div className="ripple-workbench" aria-label="Illustration controls">
+    <div className="ripple-workbench" aria-label="Photograph controls">
       {!active && <>
         <div className="ripple-form-selector"><span className="ripple-control-label">Highlight a form</span>
-          <div className="ripple-category-buttons" role="group" aria-label="Highlight particle category">{forms.map(form => <button type="button" key={form.id} data-testid={`field-${form.id}`} disabled={!hydrated || status !== 'ready'} aria-pressed={category === form.id} onClick={() => setCategory(form.id)}>{form.label}</button>)}</div>
+          <div className="ripple-category-buttons" role="group" aria-label="Choose particle form">{forms.map(form => <button type="button" key={form.id} data-testid={`field-${form.id}`} disabled={!hydrated} aria-pressed={category === form.id} onClick={() => setCategory(form.id)}>{form.label}</button>)}</div>
         </div>
-        <div className="ripple-workbench-actions">
-          <button type="button" className="ripple-motion-button" data-testid="field-pause" disabled={!hydrated || status !== 'ready' || reduced} aria-pressed={paused || reduced} onClick={() => setPaused(value => !value)}>{reduced ? 'Reduced motion' : paused ? 'Resume artwork' : 'Pause artwork'}</button>
-        </div>
+        <button type="button" className="ripple-motion-button" data-testid="field-pause" aria-pressed={paused || reduced} disabled={reduced} onClick={() => setPaused(value => !value)}>{reduced ? 'Reduced motion' : paused ? 'Resume motion' : 'Pause motion'}</button>
       </>}
       <p className="ripple-field-description" data-testid="field-description" aria-live="polite">{description}</p>
     </div>

@@ -1,5 +1,6 @@
 import Image from 'next/image'
-import { rippleAssets } from '@/lib/ripple-assets'
+import { particlePhotographs } from '@/lib/particle-photographs'
+import { PhotographCredit } from '../sections/photograph-credit'
 import { ParticleStudyCounter } from './particle-study-counter'
 import './water-narrative.css'
 
@@ -11,14 +12,15 @@ export function WaterNarrative({ contributeHref = '#submit', onMethodology }: { 
       <div className="narrative-inner sample-examination-layout">
         <figure className="sample-examination-art">
           <Image
-            src={rippleAssets.sample.src}
-            alt={rippleAssets.sample.alt}
-            width={rippleAssets.sample.width}
-            height={rippleAssets.sample.height}
+            src="/media/ripple/photo-cutouts/microscope-detail.webp"
+            alt="Photo-derived close-up of a Raman microscope objective and sample stage, cropped and relit with AI"
+            width={960}
+            height={1200}
             sizes="(max-width: 699px) 88vw, (max-width: 1199px) 36vw, 390px"
             loading="lazy"
+            unoptimized
           />
-          <figcaption>Illustrated specimen slide and water bead.</figcaption>
+          <figcaption>Raman microscope · photo-derived detail.<br /><PhotographCredit photo={particlePhotographs.sample} edited /></figcaption>
         </figure>
         <div className="sample-examination-copy">
           <p className="narrative-label">From image to evidence</p>

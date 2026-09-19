@@ -1,4 +1,9 @@
 .ripple-hero { --tank-cyan: #b8d8cb; min-height: 0; background: #05080a; margin-top: calc(-1 * var(--ripple-header-offset, 72px)); }
+.ripple-photograph { position: absolute; inset: 0; margin: 0; }
+.ripple-photograph [data-testid=hero-cutout-scene] { height: 100%; aspect-ratio: auto; mask-image: linear-gradient(90deg, #0002, #0004 35%, #000 66%); }
+.ripple-photograph figcaption { position: absolute; bottom: 72px; right: 6vw; max-width: 70%; color: #b6c0bd; font-size: 11px; line-height: 1.6; }
+.photograph-credit a { text-decoration: underline; text-underline-offset: 3px; }
+.photograph-credit a:focus-visible { outline: 2px solid #eeeae1; outline-offset: 3px; }
 .ripple-media { position: relative; width: 100%; height: 100dvh; background: #071315; overflow: hidden; container-type: size; }
 .ripple-particle-stage, .ripple-intro { position: absolute; inset: 0; }
 .ripple-stage-image, .ripple-intro-video { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
@@ -14,7 +19,7 @@
   mask-image: linear-gradient(90deg, transparent calc(50% - var(--half-frame-width)), #000 calc(50% - var(--half-frame-width) + 12px), #000 calc(50% + var(--half-frame-width) - 12px), transparent calc(50% + var(--half-frame-width))), linear-gradient(0deg, transparent calc(50% - var(--half-frame-height)), #000 calc(50% - var(--half-frame-height) + 12px), #000 calc(50% + var(--half-frame-height) - 12px), transparent calc(50% + var(--half-frame-height)));
   mask-composite: intersect;
 }
-.ripple-handoff { position: absolute; inset: 0; z-index: 2; background: #020403; pointer-events: none; }
+.ripple-handoff { position: absolute; inset: 0; z-index: 2; background: #020403; pointer-events: none; will-change: opacity; }
 .ripple-terminal-image { object-fit: contain; object-position: center; }
 .ripple-hero[data-state=entering] .ripple-handoff { animation: ripple-terminal-dissolve 1.1s ease-in-out forwards; }
 @keyframes ripple-terminal-dissolve { from { opacity: 1; } to { opacity: 0; } }
@@ -170,6 +175,8 @@ body.ripple-cinematic-active button[aria-label="Scroll to top"] {
   .ripple-editorial .tank-search { margin-top: 16px; }
 }
 @media (max-width: 860px) {
+  .ripple-photograph [data-testid=hero-cutout-scene] { mask-image: linear-gradient(#0007, #0004 35%, #000 75%); }
+  .ripple-photograph figcaption { left: 24px; right: auto; max-width: 70%; font-size: 9px; }
   .ripple-editorial { position: absolute; top: max(145px, 40dvh); width: 100%; padding: 32px 6vw 8px; background: linear-gradient(transparent, #05080ae8 35%); }
   .ripple-artwork-fallback { inset: 45% 6% auto; max-width: none; text-align: center; }
   .ripple-editorial h1 { font-size: clamp(46px, 9vw, 74px); }

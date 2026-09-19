@@ -1,0 +1,65 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- Local browser regression. */
+const assert = require('node:assert/strict')
+const fs = require('node:fs')
+const path = require('node:path')
+const { loadPlaywright } = require('../../docs/qa/phase-b/source-recovery/offline-tools.cjs')
+const output = path.resolve(process.env.QA_OUTPUT || 'docs/qa/photo-particle-motion')
+fs.mkdirSync(output, { recursive: true })
+const report = { checks: [], passed: false }
+;(async () => {
+  const playwright = loadPlaywright()
+  for (const engine of ['chromium', 'webkit']) {
+    const browser = await playwright[engine].launch({ headless: true, ...(engine === 'chromium' ? { channel: 'chrome' } : {}) })
+    try {
+      for (const width of [1280, 414, 320]) {
+        const context = await browser.newContext({ viewport: { width, height: width === 320 ? 568 : 896 }, hasTouch: width < 500, isMobile: width < 500 })
+        await context.addInitScript(() => sessionStorage.setItem('ripple-entered', '1'))
+        await context.route('**/api/**', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }))
+        const page = await context.newPage()
+        page.setDefaultTimeout(15000)
+        await page.goto(process.env.QA_BASE_URL || 'http://localhost:3020')
+        const scene = page.getByTestId('hero-cutout-scene')
+        await scene.scrollIntoViewIfNeeded()
+        await scene.locator('img').evaluateAll(images => Promise.all(images.map(image => image.decode())))
+        assert.equal(await scene.locator('img').count(), 160)
+        assert.equal(await scene.locator('img').evaluateAll(images => new Set(images.map(image => image.src)).size), 11)
+        assert(await page.getByTestId('ripple-media').evaluate(node => node.clientHeight > 250))
+        await page.waitForFunction(() => document.querySelector('[data-testid="hero-cutout-scene"]')?.dataset.motion === 'true')
+        const fragment = scene.locator('[data-particle="fragment"]').first()
+        await page.getByTestId('field-fragments').click()
+        assert.equal(await fragment.getAttribute('data-highlighted'), 'true')
+        assert.equal(await scene.locator('[data-particle="fiber"]').first().getAttribute('data-dimmed'), 'true')
+        if (width === 1280) {
+          await page.getByTestId('field-all').click()
+          await scene.scrollIntoViewIfNeeded()
+          const box = await scene.boundingBox()
+          await page.mouse.move(box.x + box.width - 120, box.y + box.height / 2)
+          await page.waitForFunction(() => [...document.querySelectorAll('[data-testid="hero-cutout-scene"] [data-particle]')].some(node => Math.abs(parseFloat(node.style.getPropertyValue('--push-x'))) > 1))
+          assert.equal(await scene.locator('> span').first().evaluate(node => getComputedStyle(node).transform), 'none', 'Lighting must remain stationary')
+        }
+        await page.getByTestId('field-pause').click()
+        await scene.scrollIntoViewIfNeeded()
+        assert.equal(await scene.getAttribute('data-motion'), 'false')
+        const float = fragment.locator('img').locator('..')
+        assert.equal(await float.evaluate(node => getComputedStyle(node).animationPlayState), 'paused')
+        await page.screenshot({ path: path.join(output, `${engine}-${width}-highlight.png`) })
+        await page.getByTestId('field-pause').click()
+        await page.locator('#sample-study').scrollIntoViewIfNeeded()
+        await page.waitForFunction(() => document.querySelector('[data-testid="hero-cutout-scene"]')?.dataset.motion === 'false')
+        await page.emulateMedia({ reducedMotion: 'reduce' })
+        await scene.scrollIntoViewIfNeeded()
+        assert.equal(await float.evaluate(node => getComputedStyle(node).animationName), 'none')
+        await page.getByTestId('journey-watch').click()
+        await page.getByTestId('journey-enter').waitFor()
+        await page.getByTestId('journey-cover-skip').click()
+        await page.locator('.tank-search input').fill('Chicago')
+        assert.equal(await page.locator('.tank-search input').inputValue(), 'Chicago')
+        assert.equal(await page.evaluate(() => document.querySelectorAll('[inert]').length), 0)
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false)
+        await context.close()
+        report.checks.push({ engine, width, passed: true })
+      }
+    } finally { await browser.close() }
+  }
+  report.passed = true
+})().catch(error => { report.error = error.stack; process.exitCode = 1 }).finally(() => { fs.writeFileSync(path.join(output, 'results.json'), JSON.stringify(report, null, 2)); console.log(JSON.stringify(report)) })
