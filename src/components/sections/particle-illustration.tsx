@@ -45,7 +45,7 @@ export function ParticleIllustration({ subject }: { subject: ParticleSubject }) 
       <span className={styles.inspect}>{zoomed ? 'Reset view −' : 'Inspect +'}</span>
     </button>
     <figcaption className={styles.caption}>
-      <span>{subject === 'nanoplastics' ? 'Conceptual nanoscale illustration' : 'Generated illustration'}</span>
+      <span>{subject === 'nanoplastics' ? 'Conceptual nanoscale illustration' : 'Illustration'}</span>
       <button type="button" className={styles.pause} aria-label={`${paused ? 'Resume' : 'Pause'} ${artwork.label} motion`} aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume' : 'Pause'}</button>
     </figcaption>
   </figure>

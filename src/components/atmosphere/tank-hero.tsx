@@ -259,7 +259,7 @@ export function TankHero({ children }: { children: ReactNode }) {
     <div ref={media} className="ripple-media" data-testid="ripple-media">
       <figure className="ripple-photograph" data-testid="particle-stage" data-renderer="photo-derived-cutouts" data-category={category}>
         <PhotoParticleScene hero selected={category} paused={paused || active || showEntryCover || reduced} onSelect={setCategory} />
-        <figcaption>Photo-derived · AI isolated &amp; relit. <a href="#particle-atlas">Photo sources ↓</a></figcaption>
+        <figcaption><a href="#particle-atlas">Photo sources ↓</a></figcaption>
       </figure>
       {active && <div className="ripple-handoff" data-testid="journey-handoff" aria-hidden="true" onAnimationEnd={event => {
         if (event.target === event.currentTarget && event.animationName === 'ripple-terminal-dissolve') settled()

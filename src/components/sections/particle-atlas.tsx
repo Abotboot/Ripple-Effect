@@ -52,7 +52,7 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
             <p className={styles.eyebrow}>Particle atlas</p>
             <h2 id="particle-atlas-title">Compare particle forms</h2>
           </div>
-          <div><p className={styles.intro}>Photo-derived particles. Three forms to explore.</p><button className={styles.motionToggle} type="button" aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume motion' : 'Pause motion'}</button></div>
+          <div><p className={styles.intro}>Three forms to explore.</p><button className={styles.motionToggle} type="button" aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume motion' : 'Pause motion'}</button></div>
         </div>
         <div className={styles.grid} role="tablist" aria-label="Particle form" aria-orientation="horizontal">
           {categories.map(({ id, title, description }, index) => (
@@ -103,7 +103,6 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
           </div>
         ))}
         <div className={styles.footer}>
-          <p className={styles.note}>Photo-derived artwork. Source photo shown for each form.</p>
           <div className={styles.footerLinks}>
             {onMethodology && <button type="button" className={styles.link} onClick={onMethodology}>Methodology &amp; sources <span aria-hidden="true">↗</span></button>}
             <a className={styles.link} href="#sample-study">Examine a sample <span aria-hidden="true">↓</span></a>
