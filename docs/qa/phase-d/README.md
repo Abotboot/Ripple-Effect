@@ -1,5 +1,10 @@
 # Phase D — specimen, research interaction and data-read recovery
 
+**Published PR #3 preview verified:** 30 actual mapped utilities, 3,073
+reconciled observations, 16 successful public GET checks, and clean desktop/mobile
+interaction runs. See [PREVIEW_VERIFICATION.md](PREVIEW_VERIFICATION.md) for
+the tested application revision, evidence and historical-data limitations.
+
 This follow-up starts from production/main `be0f622eece788684de60c9e5de17be010363e0f`
 on `agent/specimen-data-polish`. The approved hero artwork and category renderer
 are preserved. The rejected generated glass-vial/fluorescent images are not used.
