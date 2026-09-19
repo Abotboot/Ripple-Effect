@@ -10,6 +10,8 @@
 .ripple-artwork-fallback { position: absolute; right: 7%; bottom: 12%; max-width: 36%; margin: 0; color: #a9bdb6; font-size: 13px; line-height: 1.6; }
 .ripple-intro { z-index: 3; background: #020403; }
 .ripple-intro-video { position: relative; background: transparent; }
+.ripple-play-retry { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); min-height: 48px; padding: 14px 28px; border: 1px solid #b8d8cb; background: #071315; color: #eeeae1; cursor: pointer; }
+.ripple-play-retry:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
 .ripple-ambient { position: absolute; inset: -24px; width: calc(100% + 48px); height: calc(100% + 48px); object-fit: cover; background-size: cover; background-position: center; filter: blur(24px) brightness(.7); pointer-events: none; }
 .ripple-ambient-opening { background-image: url('/media/ripple/microscope/opening-v4.png'); }
 .ripple-ambient-terminal { background-image: url('/media/ripple/microscope/terminal-v4.png'); }
@@ -177,7 +179,8 @@ body.ripple-cinematic-active button[aria-label="Scroll to top"] {
 @media (max-width: 860px) {
   .ripple-photograph [data-testid=hero-cutout-scene] { mask-image: linear-gradient(#0007, #0004 35%, #000 75%); }
   .ripple-photograph figcaption { left: 24px; right: auto; max-width: 70%; font-size: 9px; }
-  .ripple-editorial { position: absolute; top: max(145px, 40dvh); width: 100%; padding: 32px 6vw 8px; background: linear-gradient(transparent, #05080ae8 35%); }
+  .ripple-editorial { position: absolute; top: max(145px, 40dvh); width: 100%; padding: 32px 6vw 8px; background: transparent; isolation: isolate; }
+  .ripple-editorial::before { content: ''; position: absolute; inset: -28px 0 -110px; z-index: -1; pointer-events: none; background: linear-gradient(transparent, #05080ae8 25%, #05080ae8 68%, transparent); }
   .ripple-artwork-fallback { inset: 45% 6% auto; max-width: none; text-align: center; }
   .ripple-editorial h1 { font-size: clamp(46px, 9vw, 74px); }
   .ripple-editorial .tank-search { padding: 0; margin-top: 24px; max-width: none; background: transparent; }

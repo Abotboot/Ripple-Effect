@@ -113,8 +113,10 @@ async function live(page) {
         await id(page, 'journey-watch').click()
         await id(page, 'journey-enter').waitFor()
         await id(page, 'journey-enter').click()
+        await page.waitForFunction(() => document.querySelector('[data-testid="journey-video"]')?.currentTime > .1)
+        await page.getByRole('button', { name: 'Skip intro', exact: true }).click()
         await live(page)
-        assert.equal(await id(page, 'journey-video').count(), 0, 'Manual reduced-motion preview stays static')
+        assert.equal(await id(page, 'journey-video').count(), 0, 'Explicit playback can be skipped with reduced motion')
       } else {
         if (scenario === 'animation-disabled') await page.addStyleTag({ content: '.ripple-handoff { animation: none !important; }' })
         await id(page, 'journey-enter').click()
