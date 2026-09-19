@@ -3,6 +3,8 @@
 import './editorial-pages.css'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
+import { ParticleIllustration, type ParticleSubject } from './particle-illustration'
 import { motion } from 'framer-motion'
 import {
   BarChart3, FlaskConical, AlertTriangle, Droplets, Microscope,
@@ -81,6 +83,7 @@ const tooltipStyle = {
 
 // -- Plastic contaminants (from the old Plastics page) --
 type PlasticEntry = {
+  artwork: ParticleSubject
   name: string
   size: string
   sources: string
@@ -93,6 +96,7 @@ type PlasticEntry = {
 const PLASTIC_ENTRIES: PlasticEntry[] = [
   {
     name: 'Microplastics',
+    artwork: 'microplastics',
     size: '< 5 mm (down to ~1 µm)',
     sources: 'Plastic packaging breakdown, synthetic textile fibers, tire wear particles, microbeads, degraded larger plastics.',
     foundIn: 'Rivers, lakes, streams, oceans, soil, air, food, and the water supplies drawn from them.',
@@ -102,6 +106,7 @@ const PLASTIC_ENTRIES: PlasticEntry[] = [
   },
   {
     name: 'Nanoplastics',
+    artwork: 'nanoplastics',
     size: '< 1 µm (down to ~1 nm)',
     sources: 'Further breakdown of microplastics, direct release from products, polymer manufacturing.',
     foundIn: 'Surface freshwater, bottled water (a 2024 Columbia University study found ~110,000–370,000 particles/L), food chain.',
@@ -111,6 +116,7 @@ const PLASTIC_ENTRIES: PlasticEntry[] = [
   },
   {
     name: 'Microbeads',
+    artwork: 'microbeads',
     size: '< 5 mm',
     sources: 'Historically used in exfoliating face washes and toothpastes. Banned in rinse-off cosmetics in the US (Microbead-Free Waters Act of 2015) but persist in the environment.',
     foundIn: 'Lakes, rivers, marine sediment; legacy contamination persists.',
@@ -120,6 +126,7 @@ const PLASTIC_ENTRIES: PlasticEntry[] = [
   },
   {
     name: 'Tire-wear particles (TRWP)',
+    artwork: 'tire',
     size: '~10 µm – 5 mm',
     sources: 'Friction of vehicle tires on roads. One of the largest sources of microplastic pollution globally.',
     foundIn: 'Road runoff, stormwater, rivers, coastal waters, air near roadways.',
@@ -129,6 +136,7 @@ const PLASTIC_ENTRIES: PlasticEntry[] = [
   },
   {
     name: 'Synthetic textile fibers',
+    artwork: 'fibers',
     size: '~5 µm – 5 mm',
     sources: 'Shedding from polyester, nylon, acrylic, and fleece garments during washing. A typical wash can release hundreds of thousands of fibers.',
     foundIn: 'Wastewater effluent, rivers, lakes, oceans, indoor air.',
@@ -335,6 +343,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
     <div className="editorial-page">
       {/* Mission hero */}
       <section className="relative overflow-hidden bg-water-surface text-primary-foreground">
+        <Image src="/media/ripple/illustrations/water-background.webp" alt="" fill sizes="100vw" className="object-cover opacity-40" />
         <div className="pointer-events-none absolute inset-0 opacity-30">
           <div className="absolute -top-20 right-[5%] h-80 w-80 rounded-full bg-white/20 blur-3xl" />
           <div className="absolute bottom-0 left-[20%] h-60 w-60 rounded-full bg-white/10 blur-3xl" />
@@ -620,7 +629,8 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.05 }}
                 >
-                  <Card className="flex h-full flex-col overflow-hidden border-amber-300/40 hover:border-amber-400/60 hover:shadow-md dark:border-amber-700/40">
+                  <Card className="flex h-full flex-col gap-0 overflow-hidden border-amber-300/40 py-0 hover:border-amber-400/60 hover:shadow-md dark:border-amber-700/40">
+                    <ParticleIllustration subject={p.artwork} />
                     <CardContent className="flex h-full flex-col p-5">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="text-base font-semibold text-foreground">{p.name}</h3>

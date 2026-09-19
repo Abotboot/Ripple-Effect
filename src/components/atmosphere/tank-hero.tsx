@@ -23,7 +23,7 @@ function subscribeReduced(notify: () => void) {
   return () => media.removeEventListener('change', notify)
 }
 function readReturning() {
-  if (window.location.hash) return true
+  if (window.location.hash && window.location.hash.toLowerCase() !== '#home') return true
   try { return Boolean(sessionStorage.getItem('ripple-entered')) } catch { return false }
 }
 function subscribeReturning(notify: () => void) {
@@ -68,7 +68,7 @@ export function TankHero({ children }: { children: ReactNode }) {
   const currentPhase = useRef(phase)
   useLayoutEffect(() => { currentPhase.current = phase }, [phase])
   const active = phase === 'video' || phase === 'entering'
-  const showEntryCover = hydrated && (replayCover || !entered && !returning) && !reduced && !active
+  const showEntryCover = hydrated && (replayCover || !entered && !returning && !reduced) && !active
   const remember = useCallback(() => {
     setEntered(true)
     setReplayCover(false)
@@ -203,17 +203,16 @@ export function TankHero({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('resize', updateOffset)
   }, [active, phase])
   const watch = useCallback(() => {
-    if (matchMedia(motionQuery).matches) { remember(); focusSearch(); return }
+    if (matchMedia(motionQuery).matches) { finish('reduced-motion'); return }
     remember()
     pendingFocus.current = true
     setPlaybackError(false); setCategory('all'); setPaused(false); setReveal(false); setPhase('video')
-  }, [remember, focusSearch])
+  }, [remember, finish])
   const replay = useCallback(() => {
-    if (matchMedia(motionQuery).matches) { focusSearch(); return }
     window.dispatchEvent(new Event('ripple-cinematic-start'))
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
     setPlaybackError(false); setPhase('idle'); setReplayCover(true)
-  }, [focusSearch])
+  }, [])
   const skipEntry = useCallback(() => {
     remember()
     pendingFocus.current = true
@@ -265,6 +264,7 @@ export function TankHero({ children }: { children: ReactNode }) {
         </button>
       </div>
     </div>}
+    {!active && !showEntryCover && <button type="button" className="ripple-motion-button ripple-replay-top" disabled={!hydrated} onClick={replay} data-testid="journey-watch">{playbackError ? 'Retry intro' : 'Replay intro'} <span aria-hidden="true">↗</span></button>}
     <div ref={media} className="ripple-media" data-testid="ripple-media">
       <div className={`ripple-particle-stage${status === 'ready' ? ' is-field-ready' : ''}`} role="img" aria-label={rippleAssets.master.alt} data-testid="particle-stage" data-renderer={status === 'ready' ? 'interactive-artwork' : 'master-static'}>
         {!imageFailed ? <Image src={rippleAssets.master.src} alt={rippleAssets.master.alt} width={1920} height={1080} sizes="100vw" unoptimized loading="eager" className="ripple-stage-image" data-testid="hero-artwork" onError={() => setImageFailed(true)} /> : <p className="ripple-artwork-fallback">Artwork unavailable. Water search is still available.</p>}
@@ -291,7 +291,6 @@ export function TankHero({ children }: { children: ReactNode }) {
         </div>
         <div className="ripple-workbench-actions">
           <button type="button" className="ripple-motion-button" data-testid="field-pause" disabled={!hydrated || status !== 'ready' || reduced} aria-pressed={paused || reduced} onClick={() => setPaused(value => !value)}>{reduced ? 'Reduced motion' : paused ? 'Resume artwork' : 'Pause artwork'}</button>
-          <button type="button" className="ripple-motion-button" disabled={!hydrated} onClick={replay} data-testid="journey-watch">{reduced ? 'Explore without motion' : playbackError ? 'Retry intro' : 'Replay intro'}<span aria-hidden="true">↗</span></button>
         </div>
       </>}
       <p className="ripple-field-description" data-testid="field-description" aria-live="polite">{description}</p>
