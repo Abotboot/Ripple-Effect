@@ -18,6 +18,7 @@ import { QualityBadge } from '@/components/quality-badge'
 import { SourceBadge } from '@/components/source-badge'
 import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
 import { normalizeToBenchmarkUnit } from '@/lib/provenance'
+import { hasPublishedScore, summaryPresentation, utilityComparisons } from '@/lib/assessment-presentation'
 
 function escapeHtml(str: unknown): string {
   if (str == null) return ''
@@ -85,9 +86,7 @@ export function UtilityDetailDialog({
       if (previous?.isConnected) previous.focus?.({ preventScroll: true })
     }
   }, [utilityId])
-  const isCompared = (status: string | undefined) => status === 'above_benchmark' || status === 'below_benchmark'
-  const healthCompared = utility?.contaminantSummaries.filter(s => isCompared(s.healthBenchmarkStatus)).length ?? 0
-  const legalCompared = utility?.contaminantSummaries.filter(s => isCompared(s.legalBenchmarkStatus)).length ?? 0
+  const { healthCompared, legalCompared, healthAbove, legalAbove } = utilityComparisons(utility?.contaminantSummaries ?? [])
 
   return (
     <>
@@ -143,7 +142,6 @@ export function UtilityDetailDialog({
                     // Open a printable report in a new window
                     const w = window.open('', '_blank', 'width=800,height=900')
                     if (!w) return
-                    const exceedances = utility.contaminantSummaries.filter((s) => s.exceedsLegalLimit || s.exceedsHealthGuideline)
                     const score = utility.safetyScore
                     const name = escapeHtml(utility.name)
                     const city = escapeHtml(utility.city)
@@ -163,37 +161,28 @@ export function UtilityDetailDialog({
   td { padding: 6px 8px; border-bottom: 1px solid #e5e5e5; }
   .danger { color: #e11d48; font-weight: bold; }
   .warning { color: #f59e0b; font-weight: bold; }
-  .ok { color: #10b981; }
+  .neutral { color: #52525b; }
   .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #ccc; font-size: 11px; color: #666; }
   @media print { body { margin: 0; } }
 </style></head><body>
 <h1>${name}</h1>
 <div class="meta">${city}, ${state} · PWSID: ${pwsid} · Population served: ${utility.population.toLocaleString()}<br>
 Source: ${sourceType} · Treatment: ${treatmentStatus}</div>
-${score && score.score !== null ? `<div class="score" style="background: ${score.score >= 80 ? '#d1fae5' : score.score >= 70 ? '#e0f2fe' : score.score >= 60 ? '#fef3c7' : '#fee2e2'}; color: ${score.score >= 80 ? '#065f46' : score.score >= 70 ? '#075985' : score.score >= 60 ? '#92400e' : '#991b1b'};">Water Safety Score: ${score.score}/100 (Grade ${escapeHtml(score.grade)}, ${escapeHtml(score.label)})</div>` : `<div class="score" style="background: #f4f4f5; color: #52525b;">Water Safety Score: Not enough reviewed data (${escapeHtml(score?.label ?? 'Pending verification')})</div>`}
+${hasPublishedScore(score) ? `<div class="score">Water Safety Score: ${score.score}/100 (Grade ${escapeHtml(score.grade)}, ${escapeHtml(score.label)})</div>` : '<div class="score neutral">Safety score not assessed</div>'}
 <h2>Summary</h2>
-<p>Contaminants tracked: ${utility.contaminantSummaries.length} · Samples: ${utility.totalSamples} · Above health guideline: ${healthCompared ? utility.healthExceedances : 'Not assessed'} · Above legal limit: ${legalCompared ? utility.exceedances : 'Not assessed'}</p>
+<p>Contaminants tracked: ${utility.contaminantSummaries.length} · Samples: ${utility.totalSamples} · Above health guideline: ${healthCompared ? `${healthAbove} / ${healthCompared} compared` : 'Not assessed'} · Above legal limit: ${legalCompared ? `${legalAbove} / ${legalCompared} compared` : 'Not assessed'}</p>
 ${utility.dataStatus?.status === 'degraded' ? '<p>Historical observations are available; verification metadata is unavailable. No safety conclusion is established from those records.</p>' : ''}
 <h2>Contaminant Breakdown</h2>
 <table>
-<tr><th>Contaminant</th><th>Latest Level</th><th>Unit</th><th>Health Guideline</th><th>Legal Limit</th><th>Status</th></tr>
+<tr><th>Contaminant</th><th>Latest measurement</th><th>Health comparison</th><th>Legal comparison</th></tr>
 ${utility.contaminantSummaries.map((s) => {
-  const status = s.legalBenchmarkStatus === 'above_benchmark'
-    ? '<span class="danger">Above legal limit</span>'
-    : s.healthBenchmarkStatus === 'above_benchmark'
-    ? '<span class="warning">Above health guideline</span>'
-    : (s.healthBenchmarkStatus === 'below_benchmark' || s.legalBenchmarkStatus === 'below_benchmark')
-    ? '<span class="ok">No exceedance in available comparison</span>'
-    : (s.healthBenchmarkStatus === 'illustrative' || s.legalBenchmarkStatus === 'illustrative')
-    ? '<span class="neutral">Illustrative data</span>'
-    : '<span class="neutral">Unreviewed data</span>'
-  const lvl = s.latestLevel != null ? s.latestLevel.toFixed(2) : '—'
-  return `<tr><td>${escapeHtml(s.contaminant.name)}</td><td>${lvl}</td><td>${escapeHtml(s.unit)}</td><td>${escapeHtml(s.contaminant.healthGuideline ?? '—')} ${escapeHtml(s.contaminant.healthGuidelineUnit ?? '')}</td><td>${escapeHtml(s.contaminant.legalLimit ?? '—')} ${escapeHtml(s.contaminant.legalLimitUnit ?? '')}</td><td>${status}</td></tr>`
+  const assessment = summaryPresentation(s)
+  return `<tr><td>${escapeHtml(s.contaminant.name)}</td><td>${escapeHtml(assessment.valueText)}</td><td class="${assessment.health.tone}">${escapeHtml(assessment.health.label)}</td><td class="${assessment.legal.tone}">${escapeHtml(assessment.legal.label)}</td></tr>`
 }).join('')}
 </table>
 <div class="footer">
 Report generated from A Ripple Effect Initiative freshwater database on ${escapeHtml(new Date().toLocaleDateString())}.<br>
-Data is illustrative and community-submitted. Always verify with your utility's Consumer Confidence Report (CCR).<br>
+Comparison states describe reviewed records only. Missing comparisons do not establish water safety.<br>
 Learn more at https://arippleeffectinitiative.org
 </div>
 </body></html>`
@@ -259,22 +248,20 @@ Learn more at https://arippleeffectinitiative.org
                   />
                   <StatTile
                     label="Above health guideline"
-                    value={healthCompared ? `${utility.healthExceedances} / ${healthCompared}` : 'Not assessed'}
+                    value={healthCompared ? `${healthAbove} / ${healthCompared}` : 'Not assessed'}
                     icon={AlertTriangle}
-                    tone={healthCompared && utility.healthExceedances > 0 ? 'warning' : 'default'}
+                    tone={healthAbove > 0 ? 'warning' : 'default'}
                   />
                   <StatTile
                     label="Above legal limit"
-                    value={legalCompared ? `${utility.exceedances} / ${legalCompared}` : 'Not assessed'}
+                    value={legalCompared ? `${legalAbove} / ${legalCompared}` : 'Not assessed'}
                     icon={ShieldCheck}
-                    tone={legalCompared && utility.exceedances > 0 ? 'danger' : 'default'}
+                    tone={legalAbove > 0 ? 'danger' : 'default'}
                   />
                 </div>
 
                 {/* Water Safety Score */}
-                {utility.safetyScore && (
-                  <SafetyScoreCard score={utility.safetyScore} />
-                )}
+                <SafetyScoreCard score={utility.safetyScore} />
 
                 {utility.notes && (
                   <div className="rounded-lg border border-border/60 bg-muted/40 p-3 text-sm text-muted-foreground">
@@ -302,7 +289,7 @@ Learn more at https://arippleeffectinitiative.org
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center gap-2 text-base">
                       <FlaskConical className="h-4 w-4 text-primary" />
-                      Latest measurements vs health &amp; legal limits
+                      Latest records and benchmark comparisons
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -322,11 +309,8 @@ Learn more at https://arippleeffectinitiative.org
 
                 <Separator />
                 <p className="text-xs text-muted-foreground">
-                  Health guidelines reflect EWG / independent research thresholds.
-                  Legal limits reflect EPA Maximum Contaminant Levels (MCLs).
-                  Microplastics are currently <strong>unregulated</strong> in the
-                  US; there is no federal legal limit. Always cross-reference
-                                    with your utility&apos;s annual Consumer Confidence Report (CCR).
+                  Benchmarks are displayed only when supplied with the record. A missing
+                  limit is not a finding that a contaminant is unregulated or safe.
                 </p>
               </div>
             </div>
@@ -383,7 +367,7 @@ function StatTile({
   )
 }
 
-function ContaminantDetailCard({
+export function ContaminantDetailCard({
   summary,
 }: {
   summary: UtilityWithStats['contaminantSummaries'][number]
@@ -392,9 +376,6 @@ function ContaminantDetailCard({
     contaminant: c,
     latestLevel,
     unit,
-    healthRatio,
-    healthBenchmarkStatus,
-    legalBenchmarkStatus,
     quality,
     provenance,
     verificationStatus,
@@ -402,32 +383,14 @@ function ContaminantDetailCard({
     robot,
   } = summary
 
-  let status: { label: string; tone: 'danger' | 'warning' | 'ok' | 'neutral' } = {
-    label: 'No benchmark',
-    tone: 'neutral',
-  }
-
-  if (legalBenchmarkStatus === 'above_benchmark') {
-    status = { label: 'Above legal limit', tone: 'danger' }
-  } else if (healthBenchmarkStatus === 'above_benchmark') {
-    status = { label: 'Above health guideline', tone: 'warning' }
-  } else if (healthBenchmarkStatus === 'below_benchmark' || legalBenchmarkStatus === 'below_benchmark') {
-    status = { label: 'No exceedance in available comparison', tone: 'neutral' }
-  } else if (healthBenchmarkStatus === 'illustrative' || legalBenchmarkStatus === 'illustrative') {
-    status = { label: 'Illustrative benchmark', tone: 'neutral' }
-  } else if (healthBenchmarkStatus === 'unreviewed' || legalBenchmarkStatus === 'unreviewed') {
-    status = { label: 'Unreviewed data', tone: 'neutral' }
-  } else if (healthBenchmarkStatus === 'incompatible_units' || legalBenchmarkStatus === 'incompatible_units') {
-    status = { label: 'Unit mismatch', tone: 'neutral' }
-  }
+  const status = summaryPresentation(summary)
+  const healthRatio = status.health.ratio
 
   const statusCls =
     status.tone === 'danger'
       ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300'
       : status.tone === 'warning'
       ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
-      : status.tone === 'ok'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
       : 'border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300'
 
   // Health ratio progress (capped at 1000x for display)
@@ -440,9 +403,9 @@ function ContaminantDetailCard({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h4 className="text-sm font-semibold text-foreground">{c.name}</h4>
-              {!c.regulated && (
-                <Badge variant="outline" className="bg-amber-50 text-[10px] text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
-                  Unregulated
+              {c.legalLimit == null && (
+                <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                  No legal benchmark supplied
                 </Badge>
               )}
               <QualityBadge
@@ -467,7 +430,6 @@ function ContaminantDetailCard({
           >
             {status.tone === 'danger' && <AlertTriangle className="h-3 w-3" />}
             {status.tone === 'warning' && <AlertTriangle className="h-3 w-3" />}
-            {status.tone === 'ok' && <ShieldCheck className="h-3 w-3" />}
             {status.label}
           </span>
         </div>
@@ -479,7 +441,7 @@ function ContaminantDetailCard({
               Latest
             </div>
             <div className="mt-0.5 font-semibold tabular-nums text-foreground">
-              {latestLevel != null ? latestLevel.toFixed(2) : '—'}{' '}
+              {status.hasData && latestLevel != null ? latestLevel.toFixed(2) : '— Not measured'}{' '}
               <span className="text-[10px] font-normal text-muted-foreground">{unit}</span>
             </div>
           </div>
@@ -490,10 +452,10 @@ function ContaminantDetailCard({
             <div className="mt-0.5 font-semibold tabular-nums text-foreground">
               {c.healthGuideline != null ? (
                 <>
-                  {c.healthGuideline} <span className="text-[10px] font-normal text-muted-foreground">{c.healthGuidelineUnit ?? unit}</span>
+                  {c.healthGuideline} <span className="text-[10px] font-normal text-muted-foreground">{c.healthGuidelineUnit || 'Unit unavailable'}</span>
                 </>
               ) : (
-                <span className="text-muted-foreground">—</span>
+                <span className="text-muted-foreground">No benchmark supplied</span>
               )}
             </div>
           </div>
@@ -504,10 +466,10 @@ function ContaminantDetailCard({
             <div className="mt-0.5 font-semibold tabular-nums text-foreground">
               {c.legalLimit != null ? (
                 <>
-                  {c.legalLimit} <span className="text-[10px] font-normal text-muted-foreground">{c.legalLimitUnit ?? unit}</span>
+                  {c.legalLimit} <span className="text-[10px] font-normal text-muted-foreground">{c.legalLimitUnit || 'Unit unavailable'}</span>
                 </>
               ) : (
-                <span className="text-muted-foreground">Not regulated</span>
+                <span className="text-muted-foreground">No benchmark supplied</span>
               )}
             </div>
           </div>
@@ -518,7 +480,7 @@ function ContaminantDetailCard({
           <div className="mt-3">
             <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
               <span>vs health guideline</span>
-              <span className={healthRatio > 1 ? 'font-semibold text-amber-600' : 'text-emerald-600'}>
+              <span className={healthRatio > 1 ? 'font-semibold text-amber-600' : 'text-muted-foreground'}>
                 {healthRatio >= 100
                   ? `${Math.round(healthRatio)}× higher`
                   : healthRatio >= 1
@@ -533,7 +495,7 @@ function ContaminantDetailCard({
                   ? '[&>[data-slot=progress-indicator]]:bg-rose-500'
                   : status.tone === 'warning'
                   ? '[&>[data-slot=progress-indicator]]:bg-amber-500'
-                  : '[&>[data-slot=progress-indicator]]:bg-emerald-500'
+                  : '[&>[data-slot=progress-indicator]]:bg-slate-400'
               }`}
             />
           </div>
@@ -541,17 +503,18 @@ function ContaminantDetailCard({
 
         {/* Trend chart */}
         {summary.trend.length > 1 && (() => {
-          const hgInUnit = c.healthGuideline != null && c.healthGuidelineUnit
+          const hgInUnit = status.health.ratio != null && c.healthGuideline != null && c.healthGuidelineUnit
             ? normalizeToBenchmarkUnit(c.healthGuideline, c.healthGuidelineUnit, unit)
-            : c.healthGuideline ?? undefined
-          const llInUnit = c.legalLimit != null && c.legalLimitUnit
+            : undefined
+          const llInUnit = status.legal.ratio != null && c.legalLimit != null && c.legalLimitUnit
             ? normalizeToBenchmarkUnit(c.legalLimit, c.legalLimitUnit, unit)
-            : c.legalLimit ?? undefined
+            : undefined
           return (
             <div className="mt-3">
               <ContaminantTrendChart
                 data={summary.trend}
                 unit={unit}
+                reviewed={status.reviewed}
                 healthGuideline={hgInUnit ?? undefined}
                 legalLimit={llInUnit ?? undefined}
               />
@@ -577,15 +540,11 @@ function ContaminantDetailCard({
 export function SafetyScoreCard({
   score,
 }: {
-  score: NonNullable<UtilityWithStats['safetyScore']>
+  score: UtilityWithStats['safetyScore']
 }) {
+  if (!hasPublishedScore(score)) return <Card data-testid="unassessed-score" className="border-border"><CardContent className="p-5"><h3 className="text-base font-semibold text-foreground">Safety score not assessed</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">There is not enough reviewed evidence for a published score.</p></CardContent></Card>
   const { score: value, grade, label, color, bgColor, deductions, dataConfidence } = score
-  const hasScore = typeof value === 'number' && Number.isFinite(value)
-  if (!hasScore) return <Card data-testid="unassessed-score" className="border-border"><CardContent className="p-5"><h3 className="text-base font-semibold text-foreground">Safety score not assessed</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">There is not enough reviewed evidence for a score. Original observations remain available below, but a missing assessment is neither a clean result nor a failed water test.</p></CardContent></Card>
-
-  const borderClass = !hasScore
-    ? 'border-border/80 dark:border-border/60'
-    : value >= 80
+  const borderClass = value >= 80
     ? 'border-emerald-300/60 dark:border-emerald-700/40'
     : value >= 70
     ? 'border-sky-300/60 dark:border-sky-700/40'
@@ -593,9 +552,7 @@ export function SafetyScoreCard({
     ? 'border-amber-300/60 dark:border-amber-700/40'
     : 'border-rose-300/60 dark:border-rose-700/40'
 
-  const barColor = !hasScore
-    ? 'bg-zinc-400'
-    : value >= 80
+  const barColor = value >= 80
     ? 'bg-emerald-500'
     : value >= 70
     ? 'bg-sky-500'
@@ -610,7 +567,7 @@ export function SafetyScoreCard({
           {/* Score circle */}
           <div className={`relative flex h-20 w-20 shrink-0 items-center justify-center rounded-full ${bgColor}`}>
             <div className="text-center">
-              <div className={`text-2xl font-extrabold tabular-nums ${color}`}>{hasScore ? value : '—'}</div>
+              <div className={`text-2xl font-extrabold tabular-nums ${color}`}>{value}</div>
               <div className={`text-[10px] font-bold ${color}`}>Grade {grade}</div>
             </div>
           </div>
@@ -624,9 +581,7 @@ export function SafetyScoreCard({
               </span>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              {hasScore
-                ? 'A composite 0-100 metric based on legal + health guideline exceedances and data confidence.'
-                : 'Insufficient reviewed laboratory or regulatory records are available to establish a formal compliance score.'}
+              A published composite score based on the supplied scoring policy.
             </p>
             <div className="mt-2 flex items-center gap-3 text-xs">
               <span className="text-muted-foreground">
@@ -649,7 +604,7 @@ export function SafetyScoreCard({
             <motion.div
               className={`h-full ${barColor}`}
               initial={{ width: 0 }}
-              animate={{ width: hasScore ? `${value}%` : '0%' }}
+              animate={{ width: `${value}%` }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
             />
           </div>

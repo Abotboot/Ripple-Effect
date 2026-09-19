@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-19T14:07:58.052Z",
+  "sourceFiles": [
+    "src/lib/assessment-presentation.ts",
+    "src/lib/water-report-card.ts",
+    "src/components/sections/utility-detail-dialog.tsx",
+    "src/components/charts/contaminant-bar-chart.tsx",
+    "src/components/charts/contaminant-trend-chart.tsx",
+    "src/components/d3/contaminant-spectrum-chart.tsx"
+  ],
+  "diagnostics": 0,
+  "success": true
+}

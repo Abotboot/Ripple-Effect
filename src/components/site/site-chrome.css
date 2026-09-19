@@ -4,11 +4,17 @@
 .site-brand-word { font: 400 25px/1 var(--font-tank-display), serif; letter-spacing: -.02em; }
 .site-header .site-brand-word .text-primary { color: #1df2b3; }
 .site-header .site-brand .text-muted-foreground { color: var(--chrome-muted); font-family: var(--font-geist-mono), monospace; font-size: 8px; margin-top: 6px; }
-.site-header nav button, .site-header nav a { min-height: 44px; font: 400 11px/1.5 var(--font-geist-mono), monospace; border-radius: 0; background: transparent; color: var(--chrome-muted); border-bottom: 1px solid transparent; }
+.site-header nav button, .site-header nav a { min-height: 44px; font: 400 11px/1.5 var(--font-geist-mono), monospace; border-radius: 0; background: transparent; color: var(--chrome-muted); border-bottom: 1px solid transparent; transition:background-color .16s ease,border-color .16s ease,color .16s ease; }
 .site-header .site-nav-desktop svg { display: none; }
 .site-header nav button:hover, .site-header nav a:hover { color: #e9fff7; background: #142820; border-bottom-color: #649c85; }
 .site-header nav button[aria-current=page] { color: #1df2b3; border-bottom-color: #1df2b3; background: #0e241d; }
 .site-header .site-github { align-items: center; justify-content: center; height: 44px; width: 44px; color: var(--chrome-muted); }
+.site-header .site-donate-link { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; border: 1px solid #dceecf; background: #dceecf; color: #10251d; font: 600 12px/1.4 var(--font-geist-mono), monospace; white-space: nowrap; transition: background-color .18s ease, border-color .18s ease, color .18s ease; }
+.site-header .site-donate-link:hover { background: #eff8e8; border-color: #eff8e8; }
+.site-header .site-donate-link[aria-current=page] { background: #bde4c9; border-color: #bde4c9; }
+.site-header .site-nav-menu .site-donate-menu { color: #e7f4de; background: #20392b; border: 1px solid #76956f; }
+.site-header .site-nav-menu .site-donate-menu:hover { background: #2a4937; }
+@media (max-width: 379px) { .site-header .site-donate-link { padding-inline: 10px; gap: 6px; } .site-header .site-donate-link > svg { display: none; } }
 .site-header button[aria-label="Toggle menu"] { width: 44px; height: 44px; color: var(--chrome-ink); }
 .site-header button[aria-label*="mode"] { color: var(--chrome-ink); }
 .site-header .site-nav-menu { background: #080f11; border-top: 1px solid #29433c; max-height: calc(100dvh - 72px); overflow-y: auto; overscroll-behavior: contain; }

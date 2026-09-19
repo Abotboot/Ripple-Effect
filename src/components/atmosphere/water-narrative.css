@@ -12,9 +12,9 @@
 .narrative-inner { max-width: 1140px; margin-inline: auto; }
 .water-narrative h2 { margin: 0; font: 500 clamp(29px, 3vw, 42px)/1.15 var(--font-geist-sans), sans-serif; letter-spacing: -.03em; text-wrap: balance; }
 .water-narrative .narrative-label { margin: 0 0 14px; color: var(--narrative-aqua); font-size: 13px; font-weight: 500; line-height: 1.5; }
-.water-narrative .narrative-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 44px; padding-block: 10px; border-bottom: 1px solid #718a81; color: var(--narrative-ink); font-size: 14px; line-height: 1.5; text-decoration: none; }
+.water-narrative .narrative-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 44px; padding: 10px 0; border: 0; border-bottom: 1px solid #718a81; background: transparent; color: var(--narrative-ink); font: inherit; font-size: 14px; line-height: 1.5; text-decoration: none; cursor: pointer; }
 .water-narrative .narrative-link:hover { color: var(--narrative-aqua); border-color: currentColor; }
-.water-narrative a:focus-visible { outline: 2px solid var(--narrative-ink); outline-offset: 4px; }
+.water-narrative :is(a,button):focus-visible { outline: 2px solid var(--narrative-ink); outline-offset: 4px; }
 .water-narrative .particle-stage { background: #0e1517; }
 .sample-examination-layout { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
 .sample-examination-art { max-width: 390px; width: 100%; margin: 0; }
@@ -61,4 +61,4 @@
   .research-layout { gap: 32px; }
   .particle-number > span:first-child { font-size: clamp(49px, 12vw, 70px); }
 }
-@media (prefers-reduced-motion: reduce) { .water-narrative a:focus-visible { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .water-narrative :is(a,button) { transition: none; } }

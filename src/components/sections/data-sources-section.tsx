@@ -134,14 +134,13 @@ export function DataSourcesSection() {
             </div>
             <div className="flex-1">
               <h2 className="text-base font-bold text-foreground sm:text-lg">
-                Every database above tracks regulated contaminants. Almost none
-                track microplastics &mdash; that&apos;s the gap A Ripple Effect Initiative fills.
+                Microplastics remain sparse in major public drinking-water datasets.
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                The EPA, EWG, and most state portals don&apos;t include
-                microplastics because there is no federal limit and no routine
-                monitoring requirement. We collect that data ourselves, in the
-                open, so communities can see what&apos;s in their water.
+                These sources have different scopes, and there is no routine federal
+                drinking-water monitoring requirement for microplastics. Community and
+                project observations are labeled separately and do not substitute for
+                reviewed institutional measurements.
               </p>
             </div>
           </div>

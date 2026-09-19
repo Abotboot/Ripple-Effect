@@ -43,7 +43,11 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
   const [loading, setLoading] = useState(false)
   const [searchFailed, setSearchFailed] = useState(false)
   const [stats, setStats] = useState<Stats | null>(null)
+  const [statsFailed, setStatsFailed] = useState(false)
+  const [statsAttempt, setStatsAttempt] = useState(0)
   const [scores, setScores] = useState<Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> | null>(null)
+  const [scoresFailed, setScoresFailed] = useState(false)
+  const [scoresAttempt, setScoresAttempt] = useState(0)
   const [selected, setSelected] = useState<UtilityWithStats | null>(null)
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null)
   const [shareUtility, setShareUtility] = useState<UtilityWithStats | null>(null)
@@ -52,7 +56,18 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
   const { toast } = useToast()
 
   useEffect(() => {
-    api.getStats().then(setStats).catch(() => {})
+    api.getStats()
+      .then((value) => {
+        setStats(value)
+        setStatsFailed(false)
+      })
+      .catch(() => {
+        setStats(null)
+        setStatsFailed(true)
+      })
+  }, [statsAttempt])
+
+  useEffect(() => {
     api.getUtilityScores()
       .then((r) => {
         const map: Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> = {}
@@ -62,8 +77,11 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
         }
         setScores(map)
       })
-      .catch(() => setScores({}))
-  }, [])
+      .catch(() => {
+        setScores(null)
+        setScoresFailed(true)
+      })
+  }, [scoresAttempt])
 
   const doSearch = useCallback(
     async (query: string) => {
@@ -185,6 +203,17 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
 
       {/* Stats bar */}
       <StatsBar stats={stats} />
+      {statsFailed && (
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 border-b border-border px-4 py-4 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8" role="alert" data-testid="home-stats-error">
+          <div>
+            <p className="font-semibold text-foreground">National summary could not be loaded</p>
+            <p className="mt-1 text-muted-foreground">Search and independently loaded utility locations remain available. No national count or comparison is inferred while this request is unavailable.</p>
+          </div>
+          <Button type="button" variant="outline" size="sm" onClick={() => { setStatsFailed(false); setStatsAttempt(value => value + 1) }}>
+            Retry summary
+          </Button>
+        </div>
+      )}
       {stats?.dataStatus?.status === 'degraded' && <div className="mx-auto max-w-7xl border-b border-border px-4 py-4 text-sm leading-relaxed text-muted-foreground sm:px-6 lg:px-8" role="status" data-testid="legacy-data-notice"><strong className="font-medium text-foreground">Historical records are available.</strong> Their verification metadata is not available in this database version. Locations and original observations are shown; safety scores and reviewed comparisons are withheld until that evidence can be verified.</div>}
 
       {/* Polite live region for screen readers */}
@@ -241,6 +270,18 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
           </div>
         )}
 
+        {results && results.length > 0 && scoresFailed && (
+          <div className="mt-6 flex flex-col gap-3 border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between" role="alert" data-testid="utility-assessment-error">
+            <div>
+              <p className="text-sm font-semibold text-foreground">Assessment data could not be loaded</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Utility locations are still available below. No score or pass/fail state is inferred while assessment data is unavailable.</p>
+            </div>
+            <Button type="button" variant="outline" size="sm" onClick={() => { setScores(null); setScoresFailed(false); setScoresAttempt(value => value + 1) }}>
+              Retry assessments
+            </Button>
+          </div>
+        )}
+
         {/* Results grid */}
         <div className="mt-8">
           {loading ? (
@@ -284,20 +325,24 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                       <UtilityCard
                         utility={u}
                         score={scores?.[u.id]}
+                        assessmentState={scoresFailed ? 'error' : scores === null ? 'loading' : scores[u.id] ? 'available' : 'missing'}
                         onOpen={() => openUtility(u)}
                         loading={loadingDetail === u.id}
                         onShare={() => openShareCard(u)}
                         loadingShare={loadingShareId === u.id}
+                        onRequestTesting={() => onNavigate?.('submit')}
                       />
                     </CinematicPanel>
                   ) : (
                     <UtilityCard
                       utility={u}
                       score={scores?.[u.id]}
+                      assessmentState={scoresFailed ? 'error' : scores === null ? 'loading' : scores[u.id] ? 'available' : 'missing'}
                       onOpen={() => openUtility(u)}
                       loading={loadingDetail === u.id}
                       onShare={() => openShareCard(u)}
                       loadingShare={loadingShareId === u.id}
+                      onRequestTesting={() => onNavigate?.('submit')}
                     />
                   )}
                 </motion.div>
@@ -309,11 +354,11 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
         </div>
       </section>
 
-      <ParticleAtlas />
+      <ParticleAtlas onMethodology={() => onNavigate?.('sources')} />
 
       <div id="specimen-study">
         <SpecimenInspector />
-        <WaterNarrative />
+        <WaterNarrative onMethodology={() => onNavigate?.('sources')} />
       </div>
 
       {/* Interactive D3 Contaminant Safety Gap Visualizer */}
@@ -351,7 +396,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                 <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
                   Review available observations, methods and limitations.
                   A missing record is not evidence of absence.
-                                  </p>
+                </p>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5 self-end text-sm font-semibold text-primary sm:self-center">
@@ -375,17 +420,16 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                   Support the microplastics identifier
                 </h3>
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                  Learn about the fieldwork project, its goals, and ways to contribute.
-                  Read the project details before deciding how to help.
+                  Review the fieldwork plan, funding source, and ways to contribute.
                 </p>
               </div>
             </div>
             <button
               onClick={() => onNavigate?.('donate')}
-              className="inline-flex min-h-11 shrink-0 items-center gap-2 border border-primary px-5 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+              className="inline-flex min-h-11 shrink-0 items-center gap-2 border border-primary px-5 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary/10 motion-reduce:transition-none"
             >
               <HandHeart className="h-5 w-5" />
-              View the project
+              View funding plan
             </button>
           </div>
         </div>
@@ -404,7 +448,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
             <div className="min-w-0 flex-1">
               <h4 className="font-semibold text-foreground">Integrated data sources</h4>
               <p className="text-sm text-muted-foreground">
-                EWG, EPA SDWIS, USGS, WHO &mdash; see every database we pull from.
+                Review the project databases, references, and source notes.
               </p>
             </div>
             <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
@@ -421,7 +465,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
             <div className="min-w-0 flex-1">
               <h4 className="font-semibold text-foreground">Open source on GitHub</h4>
               <p className="text-sm text-muted-foreground">
-                Fork it, file issues, or contribute. The whole project is open.
+                Browse the code, file issues, or contribute on GitHub.
               </p>
             </div>
             <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
@@ -474,6 +518,7 @@ function Hero({ q, setQ, onSearch, onNavigate }: {
 
 function StatsBar({ stats }: { stats: Stats | null }) {
   if (!stats) return null
+  const healthCompared = stats.sampleAssessment?.healthCompared ?? 0
   const items = [
     {
       icon: Building2,
@@ -496,9 +541,9 @@ function StatsBar({ stats }: { stats: Stats | null }) {
     {
       icon: AlertTriangle,
       label: 'Above health guideline',
-      value: stats.sampleAssessment?.healthAbove ?? null,
-      hint: (stats.sampleAssessment?.healthCompared ?? 0) > 0 ? `${stats.sampleAssessment!.healthCompared} comparable reviewed readings` : 'Not assessed — no comparable reviewed readings',
-      tone: (stats.sampleAssessment?.healthAbove ?? 0) > 0 ? 'warning' as const : undefined,
+      value: healthCompared > 0 ? stats.sampleAssessment?.healthAbove ?? null : null,
+      hint: healthCompared > 0 ? `${healthCompared} comparable reviewed readings` : 'Not assessed — no comparable reviewed readings',
+      tone: healthCompared > 0 && (stats.sampleAssessment?.healthAbove ?? 0) > 0 ? 'warning' as const : undefined,
     },
   ]
   return (
@@ -558,17 +603,21 @@ function AnimatedCounter({ value, className }: { value: number; className?: stri
 function UtilityCard({
   utility,
   score,
+  assessmentState,
   onOpen,
   loading,
   onShare,
   loadingShare,
+  onRequestTesting,
 }: {
   utility: Utility
   score?: { score: number; grade: string; label: string; color: string; bgColor: string }
+  assessmentState: 'loading' | 'available' | 'missing' | 'error'
   onOpen: () => void
   loading: boolean
   onShare?: () => void
   loadingShare?: boolean
+  onRequestTesting?: () => void
 }) {
   return (
     <Card className="group h-full overflow-hidden transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
@@ -593,6 +642,16 @@ function UtilityCard({
               <span className={`text-lg font-extrabold tabular-nums leading-none ${score.color}`}>{score.score}</span>
               <span className={`text-[9px] font-bold leading-none ${score.color}`}>{score.grade}</span>
             </div>
+          ) : assessmentState === 'missing' ? (
+            <div className="flex shrink-0 flex-col items-end text-right">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Unassessed</span>
+              <span className="mt-0.5 text-xs text-muted-foreground">No data</span>
+            </div>
+          ) : assessmentState === 'error' ? (
+            <div className="flex shrink-0 flex-col items-end text-right">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Unavailable</span>
+              <span className="mt-0.5 text-xs text-muted-foreground">Retry above</span>
+            </div>
           ) : (
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Building2 className="h-5 w-5" />
@@ -616,6 +675,15 @@ function UtilityCard({
             PWSID: {utility.pwsid}
           </Badge>
         </div>
+
+        {assessmentState === 'missing' && (
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+            <span>No reviewed measurement is available for an assessment.</span>
+            {onRequestTesting && (
+              <button type="button" className="font-semibold text-primary underline underline-offset-4" onClick={onRequestTesting}>Testing &amp; contribution options</button>
+            )}
+          </div>
+        )}
 
         <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1">
@@ -737,6 +805,8 @@ function timeAgo(dateStr: string): string {
 
 function RecentActivityAndAlerts() {
   const [items, setItems] = useState<ActivityItem[] | null>(null)
+  const [activityFailed, setActivityFailed] = useState(false)
+  const [activityAttempt, setActivityAttempt] = useState(0)
   const [alertEmail, setAlertEmail] = useState('')
   const [alertZip, setAlertZip] = useState('')
   const [subscribing, setSubscribing] = useState(false)
@@ -746,8 +816,8 @@ function RecentActivityAndAlerts() {
   useEffect(() => {
     api.getActivity()
       .then((r) => setItems(r.items))
-      .catch(() => setItems([]))
-  }, [])
+      .catch(() => { setItems(null); setActivityFailed(true) })
+  }, [activityAttempt])
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -783,7 +853,13 @@ function RecentActivityAndAlerts() {
           </div>
           <Card>
             <CardContent className="p-0">
-              {items === null ? (
+              {activityFailed ? (
+                <div className="p-6 text-sm" role="alert">
+                  <p className="font-semibold text-foreground">Recent activity could not be loaded</p>
+                  <p className="mt-1 text-muted-foreground">This is a loading error, not an empty activity history.</p>
+                  <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => { setItems(null); setActivityFailed(false); setActivityAttempt(value => value + 1) }}>Retry activity</Button>
+                </div>
+              ) : items === null ? (
                 <div className="space-y-2 p-4">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Skeleton key={i} className="h-14 w-full" />
@@ -923,10 +999,15 @@ function RecentlyAddedAndQuality({
   onOpenUtility: (u: RecentUtility) => void
 }) {
   const [recent, setRecent] = useState<RecentUtility[] | null>(null)
+  const [recentFailed, setRecentFailed] = useState(false)
+  const [recentAttempt, setRecentAttempt] = useState(0)
   const [stats, setStats] = useState<Stats | null>(null)
 
   useEffect(() => {
-    api.getRecentUtilities().then((r) => setRecent(r.utilities)).catch(() => setRecent([]))
+    api.getRecentUtilities().then((r) => setRecent(r.utilities)).catch(() => { setRecent(null); setRecentFailed(true) })
+  }, [recentAttempt])
+
+  useEffect(() => {
     api.getStats().then(setStats).catch(() => {})
   }, [])
 
@@ -941,7 +1022,15 @@ function RecentlyAddedAndQuality({
             <Clock className="h-5 w-5 text-primary" />
             <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Recently added utilities</h2>
           </div>
-          {!recent ? (
+          {recentFailed ? (
+            <Card>
+              <CardContent className="p-6" role="alert">
+                <p className="text-sm font-semibold text-foreground">Recent utility locations could not be loaded</p>
+                <p className="mt-1 text-sm text-muted-foreground">This is a service error. Existing search results and other independently loaded utility locations remain available.</p>
+                <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => { setRecent(null); setRecentFailed(false); setRecentAttempt(value => value + 1) }}>Retry locations</Button>
+              </CardContent>
+            </Card>
+          ) : !recent ? (
             <div className="grid gap-3 sm:grid-cols-2">
               {Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-24 w-full" />
@@ -1020,11 +1109,6 @@ function RecentlyAddedAndQuality({
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <h3 className="text-base font-bold text-foreground">Read the evidence label</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                Source and review status describe what is known about a record.
-                Unreviewed and illustrative observations are not verified measurements.
-              </p>
-
               {qualityCounts && (
                 <div className="mt-4 space-y-2">
                   <QualityRow
@@ -1062,9 +1146,8 @@ function RecentlyAddedAndQuality({
                 </div>
               )}
 
-              <p className="mt-4 text-[11px] text-muted-foreground">
-                A missing review label or benchmark is not a safety verdict.
-                Check the source, method, units and collection date before interpreting a result.
+              <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+                Source and review status show what evidence supports each record. Missing review or benchmark data remains unassessed; check the method, units, collection date, and source before interpreting a result.
               </p>
             </CardContent>
           </Card>
@@ -1137,12 +1220,14 @@ type CitizenReading = {
 
 function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void }) {
   const [readings, setReadings] = useState<CitizenReading[] | null>(null)
+  const [readingsFailed, setReadingsFailed] = useState(false)
+  const [readingsAttempt, setReadingsAttempt] = useState(0)
 
   useEffect(() => {
     api.getRecentReadings()
       .then((r) => setReadings(r.items))
-      .catch(() => setReadings([]))
-  }, [])
+      .catch(() => { setReadings(null); setReadingsFailed(true) })
+  }, [readingsAttempt])
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -1164,7 +1249,15 @@ function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void
         )}
       </div>
 
-      {!readings ? (
+      {readingsFailed ? (
+        <Card>
+          <CardContent className="p-6" role="alert">
+            <p className="text-sm font-semibold text-foreground">Citizen readings could not be loaded</p>
+            <p className="mt-1 text-sm text-muted-foreground">This is a loading error, not evidence that no readings exist.</p>
+            <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => { setReadings(null); setReadingsFailed(false); setReadingsAttempt(value => value + 1) }}>Retry readings</Button>
+          </CardContent>
+        </Card>
+      ) : !readings ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-28 w-full" />

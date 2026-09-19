@@ -4,8 +4,29 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Legend,
 } from 'recharts'
+import { areUnitsCompatible, isEligibleForScoring, normalizeToBenchmarkUnit } from '@/lib/provenance'
+import type { ContaminantSummary } from '@/lib/types'
 
-type TrendPoint = { date: string; level: number; treatmentStatus: string }
+type TrendPoint = ContaminantSummary['trend'][number]
+
+export function buildTrendRows(data: TrendPoint[], unit: string, reviewed: boolean) {
+  const rows = new Map<string, { date: string; Treated: number | null; Untreated: number | null }>()
+  let excluded = 0
+  for (const point of data) {
+    const date = new Date(point.date)
+    if (!Number.isFinite(date.getTime())) { excluded++; continue }
+    const key = date.toISOString()
+    const row = rows.get(key) ?? { date: key, Treated: null, Untreated: null }
+    rows.set(key, row)
+    if (typeof point.level !== 'number' || !Number.isFinite(point.level) || point.level < 0 ||
+      !point.unit || !areUnitsCompatible(point.unit, unit) || (reviewed && !isEligibleForScoring(point)) ||
+      (point.treatmentStatus !== 'Treated' && point.treatmentStatus !== 'Untreated')) { excluded++; continue }
+    const level = normalizeToBenchmarkUnit(point.level, point.unit, unit)
+    if (level == null) { excluded++; continue }
+    row[point.treatmentStatus] = level
+  }
+  return { rows: [...rows.values()].sort((a, b) => a.date.localeCompare(b.date)), excluded }
+}
 
 // Small inline trend chart for a single contaminant at a single utility.
 // Optionally shows health guideline and legal limit reference lines.
@@ -14,38 +35,23 @@ export function ContaminantTrendChart({
   unit,
   healthGuideline,
   legalLimit,
+  reviewed = false,
 }: {
   data: TrendPoint[]
   unit: string
   healthGuideline?: number
   legalLimit?: number
+  reviewed?: boolean
 }) {
-  // Format samples into chart points; split by treatment status
-  const treated = data.filter((d) => d.treatmentStatus === 'Treated')
-  const untreated = data.filter((d) => d.treatmentStatus === 'Untreated')
-
-  // Merge on date for the chart
-  const allDates = Array.from(
-    new Set(data.map((d) => new Date(d.date).toISOString().slice(0, 10)))
-  ).sort()
-
-  const chartData = allDates.map((date) => {
-    const t = treated.find((d) => new Date(d.date).toISOString().slice(0, 10) === date)
-    const u = untreated.find((d) => new Date(d.date).toISOString().slice(0, 10) === date)
-    return {
-      date,
-      Treated: t ? +t.level.toFixed(3) : null,
-      Untreated: u ? +u.level.toFixed(3) : null,
-    }
-  })
-
-  const hasUntreated = untreated.length > 0
+  const { rows: chartData, excluded } = buildTrendRows(data, unit, reviewed)
+  const hasUntreated = chartData.some(point => point.Untreated != null)
+  if (!chartData.some(point => point.Treated != null || point.Untreated != null)) return <p className="text-xs text-muted-foreground">No trend can be compared in the recorded unit. Original observations remain unassessed.</p>
 
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between">
         <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-          Trend over time
+          {reviewed ? 'Reviewed observations over time' : 'Unreviewed observations · not a safety trend'}
         </span>
       </div>
       <div className="h-[180px] w-full">
@@ -76,7 +82,7 @@ export function ContaminantTrendChart({
               formatter={(value: number, name) => [`${value} ${unit}`, name]}
               labelFormatter={(d) => `Sampled ${d}`}
             />
-            {healthGuideline != null && healthGuideline > 0 && (
+            {reviewed && healthGuideline != null && Number.isFinite(healthGuideline) && healthGuideline > 0 && (
               <ReferenceLine
                 y={healthGuideline}
                 stroke="#f59e0b"
@@ -84,7 +90,7 @@ export function ContaminantTrendChart({
                 label={{ value: 'Health', fontSize: 8, fill: '#f59e0b', position: 'right' }}
               />
             )}
-            {legalLimit != null && legalLimit > 0 && (
+            {reviewed && legalLimit != null && Number.isFinite(legalLimit) && legalLimit > 0 && (
               <ReferenceLine
                 y={legalLimit}
                 stroke="#e11d48"
@@ -93,22 +99,22 @@ export function ContaminantTrendChart({
               />
             )}
             <Line
-              type="monotone"
+              type="linear"
               dataKey="Treated"
-              stroke="#0d9488"
+              stroke="#708d9b"
               strokeWidth={2}
-              dot={{ r: 3, fill: '#0d9488' }}
-              connectNulls
+              dot={{ r: 3, fill: '#708d9b' }}
+              connectNulls={false}
             />
             {hasUntreated && (
               <Line
-                type="monotone"
+                type="linear"
                 dataKey="Untreated"
                 stroke="#94a3b8"
                 strokeWidth={2}
                 strokeDasharray="5 3"
                 dot={{ r: 3, fill: '#94a3b8' }}
-                connectNulls
+                connectNulls={false}
               />
             )}
             <Legend
@@ -118,6 +124,7 @@ export function ContaminantTrendChart({
           </LineChart>
         </ResponsiveContainer>
       </div>
+      {excluded > 0 && <p className="mt-2 text-xs text-muted-foreground">{excluded} observations omitted from the plotted comparison because their value, unit or review status could not be used.</p>}
     </div>
   )
 }

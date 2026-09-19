@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { timingSafeEqual } from 'crypto'
 import { db } from '@/lib/db'
-import { sendDiscordReadingWebhook, sendDiscordAlertWebhook } from '@/lib/discord-webhook'
+import { sendDiscordReadingWebhook } from '@/lib/discord-webhook'
 import { checkRateLimit } from '@/lib/rate-limit'
 
 // Constant-time comparison so a wrong key leaks no timing information.
@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
       reporterName: '🤖 Ripple Robot' + (body.deviceId ? ` (${String(body.deviceId).slice(0, 40)})` : ''),
       utilityName: robotUtilityName || body.utilityName || null,
       notes: body.notes,
+      reviewState: 'provisional-device',
     })
     return NextResponse.json(
       { ok: true, id: robotCreated.id, message: 'Robot reading recorded.', robot: true },
@@ -196,7 +197,8 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  // Dispatch real-time citizen reading to Discord webhook
+  // Queue/receipt notification only. A public citizen submission is unreviewed
+  // evidence and cannot trigger a threshold/safety alert from its raw value.
   await sendDiscordReadingWebhook({
     contaminantName: contaminant.name,
     level,
@@ -204,23 +206,9 @@ export async function POST(req: NextRequest) {
     location: body.location,
     reporterName: body.reporterName,
     utilityName: utilityName || body.utilityName || (utilityId ? 'Mapped Utility' : null),
-    notes: body.notes
+    notes: body.notes,
+    reviewState: 'unreviewed',
   })
-
-  // If level exceeds EPA legal limit or health guideline, dispatch alert to #contaminant-alerts
-  const exceedsLegal = contaminant.legalLimit != null && level > contaminant.legalLimit
-  const exceedsHealth = contaminant.healthGuideline != null && level > contaminant.healthGuideline
-  if (exceedsLegal || exceedsHealth) {
-    await sendDiscordAlertWebhook({
-      contaminantName: contaminant.name,
-      level,
-      unit,
-      legalLimit: contaminant.legalLimit,
-      healthGuideline: contaminant.healthGuideline,
-      location: body.location,
-      utilityName: utilityName || body.utilityName || null,
-    })
-  }
 
   return NextResponse.json(
     { ok: true, id: created.id, message: 'Citizen reading recorded. Thank you!' },

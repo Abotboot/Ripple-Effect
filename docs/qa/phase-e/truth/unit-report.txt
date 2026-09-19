@@ -1,0 +1,22 @@
+✔ verified measurement without benchmarks is not an assessed report (5.6631ms)
+✔ verified measurement with incompatible benchmark units remains neutral (1.6729ms)
+✔ partially assessable utility preserves independent legal and health comparison subsets (1.3876ms)
+✔ explicit conversion: 1 particles/ml -> particles/l (0.29ms)
+✔ explicit conversion: 1 particles/100ml -> particles/l (0.2414ms)
+✔ explicit conversion: 1 particles/l -> particles/ml (0.1975ms)
+✔ explicit conversion: 1 particles/liter -> particles/l (0.181ms)
+✔ explicit conversion: 1 fibers/ml -> fibers/l (0.2554ms)
+✔ explicit conversion: 1 ppb -> ug/l (0.262ms)
+✔ explicit conversion: 1 ppm -> ppt (0.3377ms)
+✔ reject conversion particles/kg -> particles/l (0.3013ms)
+✔ reject conversion particles/m2 -> particles/l (0.1969ms)
+✔ reject conversion fibers/l -> particles/l (0.1713ms)
+✔ actual stats GET normalizes eligible concentrations before averaging (273.1019ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 301.0056

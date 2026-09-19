@@ -12,7 +12,7 @@ const categories = [
     description: 'Long, fine strands',
     asset: rippleAssets.fibers,
     observation: 'Follow the slender outlines. The strands bend along their length, with narrow highlights at their edges. Softer strands sit behind the two sharper examples.',
-    limitation: 'A thread-like shape does not identify a plastic or its source. The colors and apparent widths in this illustration are not material tests or size measurements.',
+    limitation: 'The colors and apparent widths are illustrative, not material tests or size measurements.',
     record: 'For a real sample, look for recorded dimensions, an examination method, and evidence for any material label.',
   },
   {
@@ -21,7 +21,7 @@ const categories = [
     description: 'Irregular flakes and chips',
     asset: rippleAssets.fragments,
     observation: 'Compare the uneven outlines and broad, translucent faces. The foreground pieces have folds and bright edges; the more distant shapes are less distinct.',
-    limitation: 'An angular outline cannot establish a polymer type or explain how a piece formed. Transparency and surface texture alone do not confirm that a particle is plastic.',
+    limitation: 'Transparency and surface texture here are visual cues, not polymer-identification results.',
     record: 'For a real sample, keep the image and its scale with the method used to identify the material.',
   },
   {
@@ -30,12 +30,12 @@ const categories = [
     description: 'Compact, rounded pieces',
     asset: rippleAssets.granules,
     observation: 'Look at the compact forms and uneven surfaces. Their rounded outlines differ from the thin strands and broad flakes in the other illustrations.',
-    limitation: 'A rounded shape does not establish composition, concentration, or risk. The number of pieces shown is an artistic choice, not a count from a water sample.',
+    limitation: 'The number of pieces shown is an artistic choice, not a count or concentration from a water sample.',
     record: 'For a real sample, check the sampled volume, reported units, and analytical result before interpreting a particle count.',
   },
 ] as const
 
-export function ParticleAtlas() {
+export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } = {}) {
   const [selected, setSelected] = useState(0)
   const tabs = useRef<Array<HTMLButtonElement | null>>([])
 
@@ -118,8 +118,11 @@ export function ParticleAtlas() {
           </div>
         ))}
         <div className={styles.footer}>
-          <p className={styles.note}>Illustrations, not measured samples. Appearance alone does not confirm material.</p>
-          <a className={styles.link} href="#specimen-study">Try the specimen controls <span aria-hidden="true">↓</span></a>
+          <p className={styles.note}>Illustrations only. Form alone cannot identify material, source, concentration, or risk.</p>
+          <div className={styles.footerLinks}>
+            {onMethodology && <button type="button" className={styles.link} onClick={onMethodology}>Methodology &amp; sources <span aria-hidden="true">↗</span></button>}
+            <a className={styles.link} href="#specimen-study">Try the specimen controls <span aria-hidden="true">↓</span></a>
+          </div>
         </div>
       </div>
     </section>

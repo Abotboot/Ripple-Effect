@@ -38,7 +38,8 @@
 .record { margin: 20px 0 0; padding-top: 16px; border-top: 1px solid var(--atlas-line); color: var(--atlas-muted); font-size: 13px; line-height: 1.65; }
 .footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px 28px; margin-top: 18px; }
 .note { max-width: 540px; margin: 0; color: var(--atlas-muted); font-size: 13px; line-height: 1.65; }
-.link { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 44px; padding-block: 10px; border-bottom: 1px solid #718a81; color: var(--atlas-ink); font-size: 14px; line-height: 1.5; text-decoration: none; }
+.footerLinks { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
+.link { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 44px; padding: 10px 0; border: 0; border-bottom: 1px solid #718a81; background: transparent; color: var(--atlas-ink); font: inherit; font-size: 14px; line-height: 1.5; text-decoration: none; cursor: pointer; }
 .link:hover { color: var(--atlas-aqua); border-color: currentColor; }
 @media (max-width: 699px) {
   .heading { align-items: start; flex-direction: column; gap: 16px; }

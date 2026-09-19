@@ -1,13 +1,13 @@
-/** Refined microscope camera illustration followed by the existing live artwork field. */
+/** User-approved microscope camera journey followed by the existing live artwork field. */
 export const artworkJourney = {
-  src: '/media/ripple/microscope/microscope-journey.mp4',
-  poster: '/media/ripple/microscope/opening.webp',
-  terminalPoster: '/media/ripple/microscope/terminal.webp',
-  width: 1920,
-  height: 1080,
-  durationSeconds: 5,
-  // The edited camera study ends in exact optical black. HTML reveals in the live phase,
-  // not at an arbitrary time inside the video or from a second encoded scene.
+  src: '/media/ripple/microscope/microscope-journey-v4.mp4',
+  poster: '/media/ripple/microscope/opening-v4.png',
+  terminalPoster: '/media/ripple/microscope/terminal-v4.png',
+  width: 1280,
+  height: 720,
+  durationSeconds: 2.966016,
+  // The live boundary is the approved video's actual decoded final lens-interior frame.
+  // HTML reveals in the live phase, not at an arbitrary time inside the video.
   textRevealAtSeconds: Number.POSITIVE_INFINITY,
   entranceSeconds: 3.4,
   revealProgress: 0.72,

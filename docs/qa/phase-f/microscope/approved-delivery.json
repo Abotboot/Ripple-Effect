@@ -1,0 +1,75 @@
+{
+  "verifiedAt": "2026-09-19T14:08:03.155Z",
+  "worker": "worker-5",
+  "userVisualApproval": "User watched the full take and explicitly said it looks perfect before integration.",
+  "source": {
+    "originalPath": "C:/Users/ayada/Downloads/wan-3-video-53cbd3dc-82bb-4832-9a0b-65a6c50fcc61.mp4",
+    "sha256": "1874274321D1A9B9A596AF65563166468B769A2420C2D8E79CEC1B99934ED47C",
+    "bytes": 3697477,
+    "frames": 90,
+    "durationSeconds": 3.065011,
+    "firstBadFrame": 89,
+    "firstBadFrameTimeSeconds": 2.966667,
+    "lastKeptFrame": 88,
+    "lastKeptFrameTimeSeconds": 2.933333
+  },
+  "delivery": {
+    "file": "public/media/ripple/microscope/microscope-journey-v4.mp4",
+    "sha256": "28031DA7910E070684F0423B9794E6E50CB31D5CB0465A66BE880F6913A32AF8",
+    "byteIdenticalToApprovedSource": false,
+    "edit": "Frame-accurate trim of source frames 0-88; required re-encode because stream-copy retained source frame 89.",
+    "bytes": 2377212,
+    "codec": "h264",
+    "profile": "High",
+    "pixelFormat": "yuv420p",
+    "width": 1280,
+    "height": 720,
+    "fps": "30/1",
+    "frames": 89,
+    "durationSeconds": 2.966016,
+    "firstDecodedRgbSHA256": "D9792F955657D9925D4FD4DF975BDFA74A2AEE073721DF096A5B608685FB9964",
+    "finalDecodedRgbSHA256": "ED753D72D4EB11C3A17D3FB2B025692905E9B51729B9FC0D1EB22FFF2613432B",
+    "editorialFadeOrBlackAdded": false,
+    "speedChanged": false,
+    "deterministicApproachPrepended": false,
+    "framesInterpolatedOrPadded": false
+  },
+  "posters": {
+    "opening": {
+      "file": "public/media/ripple/microscope/opening-v4.png",
+      "sha256": "627DE265DE9FA200B088E59B0176FFE1AB7AFCA9A5760036A70AABA8A219D818",
+      "decodedRgbSHA256": "D9792F955657D9925D4FD4DF975BDFA74A2AEE073721DF096A5B608685FB9964",
+      "frame": 0,
+      "exactDecodedFrameMatch": true
+    },
+    "terminal": {
+      "file": "public/media/ripple/microscope/terminal-v4.png",
+      "sha256": "1618771967958B7464FE7D04A6E8A352810C3A6C863A670122C89F191F696302",
+      "decodedRgbSHA256": "327A4CE407A0634D6E8F87B81C83F046E8BF3A773D9C568D8A392F0D14CC08A4",
+      "frame": 88,
+      "exactBrowserDecodedFrameMatch": true,
+      "browserProofFiles": [
+        "docs/qa/phase-f/microscope/browser/normal-1440x900-video-end.png",
+        "docs/qa/phase-f/microscope/browser/normal-390x844-video-end.png"
+      ],
+      "ffmpegDecodedFrame88RgbSHA256": "ED753D72D4EB11C3A17D3FB2B025692905E9B51729B9FC0D1EB22FFF2613432B",
+      "ffmpegToBrowserTerminalDelta": {
+        "differingBytes": 1797570,
+        "totalBytes": 2764800,
+        "maxDelta": 5,
+        "meanAbsoluteDelta": 0.7345431857638889
+      },
+      "isExactBlack": false
+    }
+  },
+  "fixedEvidence": {
+    "deterministicCandidateStatus": "unused-preserved-evidence",
+    "hashes": {
+      "approach": "7B335CDEBF89AEAA65A2EA96EC3CA13ED15A47255E8CCDC21A1E8F1F7D4D6092",
+      "firstInput": "C6FB36F820528DDA0C1C8E38B5F3A779272042770653B913B9F4E47654388C37",
+      "terminalInput": "00C51AA16E81897A974A7AB3EE9E43E53E11FB552E3249E80C93035E3C1ADAA2"
+    },
+    "decodedApproachTerminalRgbSHA256": "C9FB57E9F6255A22EB9873D5E3699F4AFF05D189FC21F53DD9E895B28DD7CE7C"
+  },
+  "activeJourneyPath": "/media/ripple/microscope/microscope-journey-v4.mp4"
+}

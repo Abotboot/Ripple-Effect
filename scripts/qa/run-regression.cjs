@@ -11,11 +11,12 @@ const { createJiti } = require('jiti')
 const suites = {
   provenance: 'provenance-regression.ts',
   'read-path': 'read-path-safety.cjs',
+  'citizen-alert': 'citizen-notification-safety.cjs',
   remaining: 'remaining-regressions.cjs',
 }
 const suite = suites[process.argv[2]]
 if (!suite) {
-  console.error('Usage: node scripts/qa/run-regression.cjs provenance|read-path|remaining')
+  console.error('Usage: node scripts/qa/run-regression.cjs provenance|read-path|citizen-alert|remaining')
   process.exitCode = 2
 } else {
   const root = path.resolve(__dirname, '../..')

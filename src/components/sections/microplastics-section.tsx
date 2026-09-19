@@ -991,8 +991,8 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                   Test your local freshwater
                 </p>
                 <p className="mt-2 text-sm text-white/85">
-                  Take a reading from a river, lake, or stream near you and push
-                  the data here. Every measurement makes the map clearer.
+                  Take a reading from a river, lake, or stream near you and add
+                  it as a clearly labeled citizen observation for review.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button

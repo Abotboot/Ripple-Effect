@@ -16,12 +16,12 @@ export type Section =
   | 'sources'
   | 'submit'
   | 'about'
-    | 'partners'
-    | 'faq'
-    | 'donate'
-    | 'admin'
-    | 'privacy'
-    | 'terms'
+  | 'partners'
+  | 'faq'
+  | 'donate'
+  | 'admin'
+  | 'privacy'
+  | 'terms'
 
 const NAV: Array<{ id: Section; label: string; icon: React.ElementType }> = [
   { id: 'home', label: 'Home', icon: Droplets },
@@ -38,7 +38,7 @@ const NAV: Array<{ id: Section; label: string; icon: React.ElementType }> = [
 ]
 
 const DESKTOP_NAV = NAV.filter(({ id }) =>
-  ['home', 'about', 'partners', 'map', 'microplastics', 'submit', 'donate'].includes(id)
+  ['home', 'about', 'partners', 'map', 'microplastics', 'submit'].includes(id)
 )
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
@@ -68,7 +68,7 @@ export function SiteHeader({
       <motion.div
         aria-hidden="true"
         style={{ scaleX: progress }}
-        className="absolute inset-x-0 top-0 h-[3px] origin-left bg-gradient-to-r from-primary via-cyan-400 to-primary"
+        className="absolute inset-x-0 top-0 h-[3px] origin-left bg-gradient-to-r from-primary via-cyan-400 to-primary motion-reduce:hidden"
       />
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
         {/* Brand, logo zoomed in (bigger) */}
@@ -85,13 +85,13 @@ export function SiteHeader({
             />
           </div>
           <span className="hidden sm:flex flex-col items-start leading-none">
-                      <span className="site-brand-word">
-                        A Ripple<span className="text-primary"> Effect Initiative</span>
-                      </span>
-                      <span className="mt-0.5 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                        One act. Endless impact.
-                      </span>
-                    </span>
+            <span className="site-brand-word">
+              A Ripple<span className="text-primary"> Effect Initiative</span>
+            </span>
+            <span className="mt-0.5 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              One act. Endless impact.
+            </span>
+          </span>
         </button>
 
         {/* Desktop nav */}
@@ -119,6 +119,16 @@ export function SiteHeader({
         </nav>
 
         <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => go('donate')}
+            className="site-donate-link"
+            aria-current={current === 'donate' ? 'page' : undefined}
+            data-testid="header-donate"
+          >
+            <HandHeart className="h-4 w-4" aria-hidden="true" />
+            Donate
+          </button>
           <ThemeToggle />
           <a
             href={REPO_URL}
@@ -153,9 +163,10 @@ export function SiteHeader({
               <button
                 key={id}
                 onClick={() => go(id)}
-              aria-current={current === id ? 'page' : undefined}
+                aria-current={current === id ? 'page' : undefined}
                 className={cn(
                   'inline-flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  id === 'donate' && 'site-donate-menu',
                   current === id
                     ? id === 'donate'
                       ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400'

@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-09-19T09:11:53.320Z",
+  "retrieval": "Exact Files Library IDs; original bytes materialized in Linux and downloaded through the owned authenticated Library tab. SHA-256 agrees across both.",
+  "assets": [
+    {
+      "source": "C:/Users/ayada/Downloads/image(2).png",
+      "fileId": "file_000000009b9c81f5a955330656d41590",
+      "sha256": "bb0c1087269cbf1419b8a30101e050cde230c53cc37488bc7e1c2e6da7eaa467",
+      "name": "great-value-reference.png",
+      "use": "Reference only; not served by the website",
+      "destination": "docs\\qa\\phase-e\\specimen\\assets\\great-value-reference.png",
+      "bytes": 192236,
+      "width": 768,
+      "height": 768
+    },
+    {
+      "source": "C:/Users/ayada/Downloads/image-gen-1(4).png",
+      "fileId": "file_00000000ca7c81f5b51b8eeaa48c86db",
+      "sha256": "5e795632fed45166cc7ac401e31d930a46e4d6241f370cfd3d47aa741dc322d4",
+      "name": "clean-pet-source.png",
+      "use": "Existing generated generic bottle; no new generation or baked particle layer",
+      "destination": "docs\\qa\\phase-e\\specimen\\assets\\clean-pet-source.png",
+      "bytes": 1471396,
+      "width": 1122,
+      "height": 1402
+    },
+    {
+      "destination": "public\\media\\ripple\\specimen\\retail-pet-clean.webp",
+      "bytes": 115010,
+      "width": 1122,
+      "height": 1402,
+      "sha256": "70453cef21fe746362d9bfa7b50968ec093443ef223848de99098069e9c13b97",
+      "use": "The only delivered bottle image, used by both overview and real image detail"
+    }
+  ]
+}

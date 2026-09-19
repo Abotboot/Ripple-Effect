@@ -81,6 +81,7 @@ export async function sendDiscordReadingWebhook(reading: {
   reporterName?: string | null
   utilityName?: string | null
   notes?: string | null
+  reviewState?: 'unreviewed' | 'provisional-device'
 }) {
   if (!REPORTS_WEBHOOK_URL) return
   try {
@@ -88,8 +89,12 @@ export async function sendDiscordReadingWebhook(reading: {
       username: 'Ripple Water Monitor',
       embeds: [
         {
-          title: `💧 New Citizen Reading: ${reading.contaminantName}`,
-          description: `A citizen science reading of **${reading.level} ${reading.unit}** was recorded on the platform.`,
+          title: reading.reviewState === 'provisional-device'
+            ? `🤖 New Provisional Device Reading: ${reading.contaminantName}`
+            : `💧 New Unreviewed Citizen Reading: ${reading.contaminantName}`,
+          description: reading.reviewState === 'provisional-device'
+            ? `A device reading of **${reading.level} ${reading.unit}** was recorded as provisional. This notification is not a reviewed safety assessment or threshold alert.`
+            : `A citizen science reading of **${reading.level} ${reading.unit}** was recorded and queued for review. This notification is not a safety assessment or threshold alert.`,
           color: 0x0ea5e9,
           fields: [
             {
@@ -112,7 +117,9 @@ export async function sendDiscordReadingWebhook(reading: {
               : []),
           ],
           footer: {
-            text: 'A Ripple Effect • Community Science Stream',
+            text: reading.reviewState === 'provisional-device'
+              ? 'A Ripple Effect • Provisional device submission'
+              : 'A Ripple Effect • Unreviewed community submission',
           },
           timestamp: new Date().toISOString(),
         },
@@ -163,12 +170,12 @@ export async function sendDiscordAlertWebhook(alert: {
             },
             {
               name: '⚖️ Legal Limit (MCL)',
-              value: alert.legalLimit != null ? `${alert.legalLimit} ${alert.unit}` : 'Unregulated',
+              value: alert.legalLimit != null ? `${alert.legalLimit} ${alert.unit}` : 'Benchmark unavailable',
               inline: true,
             },
             {
               name: '🏥 Health Guideline',
-              value: alert.healthGuideline != null ? `${alert.healthGuideline} ${alert.unit}` : 'None',
+              value: alert.healthGuideline != null ? `${alert.healthGuideline} ${alert.unit}` : 'Benchmark unavailable',
               inline: true,
             },
             {
