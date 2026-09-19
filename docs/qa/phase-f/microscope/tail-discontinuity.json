@@ -1,0 +1,13 @@
+{
+  "source": "C:/Users/ayada/Downloads/wan-3-video-53cbd3dc-82bb-4832-9a0b-65a6c50fcc61.mp4",
+  "sourceSHA256": "1874274321D1A9B9A596AF65563166468B769A2420C2D8E79CEC1B99934ED47C",
+  "fps": 30,
+  "contactSheetFrames": [84, 85, 86, 87, 88, 89],
+  "lastKeptFrame": 88,
+  "lastKeptPtsSeconds": 2.933333,
+  "firstBadFrame": 89,
+  "firstBadPtsSeconds": 2.966667,
+  "firstBadFrameSceneChangeScore": 9.371,
+  "decision": "Drop source frame 89. Authoritative delivery contains source visual sequence through frame 88 only.",
+  "editLimits": "No padding, fade, black frame, interpolation, deterministic pre-roll, or speed change."
+}

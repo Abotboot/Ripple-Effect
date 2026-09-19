@@ -1,0 +1,10 @@
+{
+  "createdAt": "2026-09-19T12:36:00.611Z",
+  "sourceFiles": [
+    "src/components/atmosphere/specimen-inspector.tsx",
+    "src/components/atmosphere/bottle-scene.ts"
+  ],
+  "noEmit": true,
+  "diagnostics": 0,
+  "success": true
+}

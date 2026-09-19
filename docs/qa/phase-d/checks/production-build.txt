@@ -1,0 +1,60 @@
+▲ Next.js 16.3.4 (Turbopack)
+✓ Running next.config.ts took 57ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.8s
+  Running TypeScript ...
+  Finished TypeScript in 6.3s ...
+  Collecting page data using 11 workers ...
+  Generating static pages using 11 workers (0/33) ...
+  Generating static pages using 11 workers (8/33)
+  Generating static pages using 11 workers (16/33)
+  Generating static pages using 11 workers (24/33)
+✓ Generating static pages using 11 workers (33/33) in 694ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/activity
+├ ƒ /api/alerts
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/me
+├ ƒ /api/chapters
+├ ƒ /api/chapters/[id]
+├ ƒ /api/contaminants
+├ ƒ /api/contaminants/[id]
+├ ƒ /api/dashboard
+├ ƒ /api/donations
+├ ƒ /api/donations/[id]
+├ ƒ /api/donations/sync
+├ ƒ /api/export
+├ ƒ /api/import
+├ ƒ /api/leaderboard
+├ ƒ /api/microplastics/trend
+├ ƒ /api/readings
+├ ƒ /api/readings/[id]
+├ ƒ /api/readings/export
+├ ƒ /api/readings/pending
+├ ƒ /api/readings/recent
+├ ƒ /api/reports
+├ ƒ /api/reports/[id]
+├ ƒ /api/samples
+├ ƒ /api/samples/[id]
+├ ƒ /api/stats
+├ ƒ /api/utilities
+├ ƒ /api/utilities/[id]
+├ ƒ /api/utilities/compare
+├ ƒ /api/utilities/near
+├ ƒ /api/utilities/recent
+├ ƒ /api/utilities/scores
+├ ƒ /api/volunteers
+├ ƒ /api/volunteers/[id]
+├ ○ /icon.png
+└ ○ /motion-study
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

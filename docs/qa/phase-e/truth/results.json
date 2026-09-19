@@ -1,0 +1,87 @@
+{
+  "createdAt": "2026-09-19T14:07:46.580Z",
+  "mode": "Offline synthetic fixtures; no database, network or browser",
+  "checks": [
+    {
+      "name": "missing level remains unmeasured in helper, table, detail and report",
+      "passed": true,
+      "tableStatus": "no_data",
+      "reportStatus": "Not Assessed"
+    },
+    {
+      "name": "citizen fields cannot create a verdict even with stale verified flags and ratios",
+      "passed": true
+    },
+    {
+      "name": "unknown PFAS benchmark remains unavailable without a regulation claim",
+      "passed": true
+    },
+    {
+      "name": "unit normalization uses the same canonical ratio in both comparison views",
+      "passed": true,
+      "healthRatio": 0.2,
+      "legalRatio": 0.1
+    },
+    {
+      "name": "incompatible and unknown units never establish a comparison",
+      "passed": true
+    },
+    {
+      "name": "zero is preserved as a real observation while negative and non-finite values are missing",
+      "passed": true
+    },
+    {
+      "name": "partial coverage stays neutral and preserves independent subset counts",
+      "passed": true
+    },
+    {
+      "name": "reviewed exceedances are retained but stale booleans cannot reverse numeric evidence",
+      "passed": true
+    },
+    {
+      "name": "missing, suppressed, NaN and out-of-range scores have an explicit neutral card",
+      "passed": true
+    },
+    {
+      "name": "trend normalization retains gaps and excludes unknown units or provenance",
+      "passed": true
+    },
+    {
+      "name": "map unknown assessment and historical badges remain conservative",
+      "passed": true
+    },
+    {
+      "name": "D3 demonstration labels never present fiction or missing model limits as safety evidence",
+      "passed": true
+    }
+  ],
+  "failures": [],
+  "success": true,
+  "completedAt": "2026-09-19T14:07:46.670Z",
+  "sourceHashes": [
+    {
+      "file": "src/lib/assessment-presentation.ts",
+      "sha256": "8c82c07402ce5e140f8178723711fa35bc1ceea78b10cf48ce9c0595cbd30584"
+    },
+    {
+      "file": "src/lib/water-report-card.ts",
+      "sha256": "ee2fbcf32536dc907401a8d4b9ec034ac079bfef74eeffa877ef0980b8e0bd01"
+    },
+    {
+      "file": "src/components/sections/utility-detail-dialog.tsx",
+      "sha256": "93cfac8f469b723775f3cbc5ed460aadecc27d189f1e4b95e096c51b4a6b3c72"
+    },
+    {
+      "file": "src/components/charts/contaminant-bar-chart.tsx",
+      "sha256": "5b315b0d02c942376af8222a8b3bcec3c25fa2834892dcb6928e8eaa22950fa2"
+    },
+    {
+      "file": "src/components/charts/contaminant-trend-chart.tsx",
+      "sha256": "d6ac4ce4b89298d76af501376bc70db0540fe2e57bddc9fc5e4c5e3d42d2d057"
+    },
+    {
+      "file": "src/components/d3/contaminant-spectrum-chart.tsx",
+      "sha256": "6297f95ffbbba00b6c9eb325693266bdf7dfdcc88c08ebe1563c84c4fa4c7e0f"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "checkedAt": "2026-09-19T07:21:52.965Z",
+  "checks": [
+    {
+      "command": "node node_modules/typescript/bin/tsc --noEmit --pretty false --incremental false",
+      "exitCode": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js src/lib/sample-read.ts src/lib/sample-read-model.ts src/lib/sample-read-cohort.ts src/lib/types.ts src/lib/api.ts src/app/api/stats/route.ts src/app/api/utilities/scores/route.ts \"src/app/api/utilities/[id]/route.ts\" src/app/api/samples/route.ts src/app/api/export/route.ts src/app/api/utilities/compare/route.ts \"src/app/api/contaminants/[id]/route.ts\" src/app/api/microplastics/trend/route.ts src/app/api/readings/recent/route.ts src/app/api/activity/route.ts src/app/api/dashboard/route.ts src/components/sections/map-section.tsx src/components/sections/microplastics-section.tsx src/components/sections/microplastics-trend-section.tsx docs/qa/phase-d/data/check.cjs docs/qa/phase-d/data/map-browser.cjs",
+      "exitCode": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "command": "node scripts/qa/run-regression.cjs read-path",
+      "exitCode": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "command": "node scripts/qa/run-regression.cjs remaining",
+      "exitCode": 0,
+      "signal": null,
+      "error": null
+    }
+  ]
+}

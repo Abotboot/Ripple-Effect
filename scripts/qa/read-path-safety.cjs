@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- CommonJS regression harness. */
 'use strict';
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -415,6 +416,9 @@ function checkReportCardViewModel() {
       {
         ...unreviewedUtility.contaminantSummaries[0],
         isVerified: true,
+        latestLevel: 20,
+        avgLevel: 20,
+        maxLevel: 20,
         verificationStatus: 'VERIFIED',
         provenance: 'REGULATORY_REPORTED',
         exceedsLegalLimit: true,

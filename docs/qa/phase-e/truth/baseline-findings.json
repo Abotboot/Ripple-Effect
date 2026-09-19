@@ -1,0 +1,88 @@
+{
+  "capturedAt": "2026-09-19T09:31:16.660Z",
+  "source": "Offline fixtures passed through actual buildContaminantSummary, ContaminantBarChart and buildWaterReportCardViewModel exports; no database or network.",
+  "canonicalStatuses": [
+    {
+      "name": "Fixture contaminant",
+      "provenance": "UNKNOWN",
+      "hasData": false,
+      "level": null,
+      "unit": "ppb",
+      "healthStatus": "no_data",
+      "healthRatio": null
+    },
+    {
+      "name": "Fixture contaminant",
+      "provenance": "CITIZEN_CONTRIBUTED",
+      "hasData": true,
+      "level": 1,
+      "unit": "ppb",
+      "healthStatus": "unreviewed",
+      "healthRatio": null
+    },
+    {
+      "name": "Fixture contaminant",
+      "provenance": "LAB_REPORTED",
+      "hasData": true,
+      "level": 0.001,
+      "unit": "ppm",
+      "healthStatus": "below_benchmark",
+      "healthRatio": 0.2
+    },
+    {
+      "name": "Unknown benchmark fixture",
+      "provenance": "LAB_REPORTED",
+      "hasData": true,
+      "level": 1,
+      "unit": "ppb",
+      "healthStatus": "no_benchmark",
+      "healthRatio": null
+    }
+  ],
+  "actualChartRows": [
+    {
+      "name": "Fixture contaminant",
+      "fullName": "Fixture contaminant",
+      "level": 1,
+      "unit": "ppb",
+      "ratio": 0.2,
+      "status": "ok"
+    },
+    {
+      "name": "Fixture contaminant",
+      "fullName": "Fixture contaminant",
+      "level": 0.001,
+      "unit": "ppm",
+      "ratio": 0.0002,
+      "status": "ok"
+    },
+    {
+      "name": "Fixture contaminant",
+      "fullName": "Fixture contaminant",
+      "level": 0,
+      "unit": "ppb",
+      "ratio": 0,
+      "status": "ok"
+    },
+    {
+      "name": "Unknown benchmark fi…",
+      "fullName": "Unknown benchmark fixture",
+      "level": 1,
+      "unit": "ppb",
+      "ratio": 0,
+      "status": "ok"
+    }
+  ],
+  "partialReport": {
+    "legalStatus": "0 above / 1 assessed",
+    "legalTone": "emerald",
+    "legalSublabel": "1 not assessed"
+  },
+  "findings": [
+    "Chart maps missing latestLevel to numeric 0 and status ok.",
+    "Citizen and no-benchmark rows receive default ok instead of a neutral unassessed status.",
+    "Chart computes raw ppm/ppb ratio 0.0002 while canonical normalized ratio is 0.2.",
+    "Chart plots raw level with a fixed x=1 Health guideline marker, not the normalized ratio.",
+    "Report card uses emerald legal aggregate despite another contaminant being unassessed."
+  ]
+}

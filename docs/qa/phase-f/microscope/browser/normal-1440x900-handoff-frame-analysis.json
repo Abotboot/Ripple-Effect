@@ -1,0 +1,182 @@
+[
+  {
+    "label": "first-ended-to-entering",
+    "epoch": 1789826216479,
+    "expectedRecordingSeconds": 7.905,
+    "windowStartSeconds": 7.755,
+    "frames": [
+      {
+        "index": 0,
+        "approximateSeconds": 7.755,
+        "openingMAD": 32.887,
+        "terminalMAD": 18.088833333333334
+      },
+      {
+        "index": 1,
+        "approximateSeconds": 7.788333333333333,
+        "openingMAD": 32.26408333333333,
+        "terminalMAD": 18.652166666666666
+      },
+      {
+        "index": 2,
+        "approximateSeconds": 7.821666666666666,
+        "openingMAD": 32.26408333333333,
+        "terminalMAD": 18.652166666666666
+      },
+      {
+        "index": 3,
+        "approximateSeconds": 7.8549999999999995,
+        "openingMAD": 31.841145833333332,
+        "terminalMAD": 19.209979166666667
+      },
+      {
+        "index": 4,
+        "approximateSeconds": 7.888333333333334,
+        "openingMAD": 31.568770833333332,
+        "terminalMAD": 19.45135416666667
+      },
+      {
+        "index": 5,
+        "approximateSeconds": 7.921666666666667,
+        "openingMAD": 31.297604166666666,
+        "terminalMAD": 19.743479166666667
+      },
+      {
+        "index": 6,
+        "approximateSeconds": 7.955,
+        "openingMAD": 30.973354166666667,
+        "terminalMAD": 20.132354166666666
+      },
+      {
+        "index": 7,
+        "approximateSeconds": 7.988333333333333,
+        "openingMAD": 30.44333333333333,
+        "terminalMAD": 20.759458333333335
+      },
+      {
+        "index": 8,
+        "approximateSeconds": 8.021666666666667,
+        "openingMAD": 30.44333333333333,
+        "terminalMAD": 20.759458333333335
+      },
+      {
+        "index": 9,
+        "approximateSeconds": 8.055,
+        "openingMAD": 30.112291666666668,
+        "terminalMAD": 21.17920833333333
+      },
+      {
+        "index": 10,
+        "approximateSeconds": 8.088333333333333,
+        "openingMAD": 29.890645833333334,
+        "terminalMAD": 21.4029375
+      },
+      {
+        "index": 11,
+        "approximateSeconds": 8.121666666666666,
+        "openingMAD": 29.568458333333332,
+        "terminalMAD": 21.939916666666665
+      },
+      {
+        "index": 12,
+        "approximateSeconds": 8.155,
+        "openingMAD": 29.266208333333335,
+        "terminalMAD": 22.355125
+      },
+      {
+        "index": 13,
+        "approximateSeconds": 8.188333333333333,
+        "openingMAD": 28.732625,
+        "terminalMAD": 23.102083333333333
+      }
+    ],
+    "openingLikeCount": 0
+  },
+  {
+    "label": "replay-ended-to-entering",
+    "epoch": 1789826225536,
+    "expectedRecordingSeconds": 16.962,
+    "windowStartSeconds": 16.812,
+    "frames": [
+      {
+        "index": 0,
+        "approximateSeconds": 16.812,
+        "openingMAD": 32.117604166666666,
+        "terminalMAD": 18.835020833333335
+      },
+      {
+        "index": 1,
+        "approximateSeconds": 16.845333333333336,
+        "openingMAD": 31.669791666666665,
+        "terminalMAD": 19.221166666666665
+      },
+      {
+        "index": 2,
+        "approximateSeconds": 16.878666666666668,
+        "openingMAD": 31.409,
+        "terminalMAD": 19.525291666666668
+      },
+      {
+        "index": 3,
+        "approximateSeconds": 16.912000000000003,
+        "openingMAD": 31.069145833333334,
+        "terminalMAD": 19.9234375
+      },
+      {
+        "index": 4,
+        "approximateSeconds": 16.945333333333334,
+        "openingMAD": 31.069145833333334,
+        "terminalMAD": 19.9234375
+      },
+      {
+        "index": 5,
+        "approximateSeconds": 16.97866666666667,
+        "openingMAD": 30.8140625,
+        "terminalMAD": 20.199979166666665
+      },
+      {
+        "index": 6,
+        "approximateSeconds": 17.012,
+        "openingMAD": 30.508458333333333,
+        "terminalMAD": 20.577458333333333
+      },
+      {
+        "index": 7,
+        "approximateSeconds": 17.045333333333335,
+        "openingMAD": 29.979708333333335,
+        "terminalMAD": 21.162708333333335
+      },
+      {
+        "index": 8,
+        "approximateSeconds": 17.078666666666667,
+        "openingMAD": 29.671520833333332,
+        "terminalMAD": 21.70210416666667
+      },
+      {
+        "index": 9,
+        "approximateSeconds": 17.112000000000002,
+        "openingMAD": 29.320729166666666,
+        "terminalMAD": 22.190479166666666
+      },
+      {
+        "index": 10,
+        "approximateSeconds": 17.145333333333333,
+        "openingMAD": 29.320729166666666,
+        "terminalMAD": 22.190479166666666
+      },
+      {
+        "index": 11,
+        "approximateSeconds": 17.17866666666667,
+        "openingMAD": 29.0881875,
+        "terminalMAD": 22.5499375
+      },
+      {
+        "index": 12,
+        "approximateSeconds": 17.212,
+        "openingMAD": 28.7966875,
+        "terminalMAD": 22.9609375
+      }
+    ],
+    "openingLikeCount": 0
+  }
+]

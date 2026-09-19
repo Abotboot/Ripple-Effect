@@ -14,13 +14,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { api } from '@/lib/api'
+import { Button } from '@/components/ui/button'
+import type { DataReadStatus } from '@/lib/types'
 
 type TrendPoint = {
   quarter: string
   label: string
-  treatedAvg: number
-  untreatedAvg: number
-  maxLevel: number
+  treatedAvg: number | null
+  untreatedAvg: number | null
+  maxLevel: number | null
 }
 
 const tooltipStyle = {
@@ -35,20 +37,25 @@ const tooltipStyle = {
 export function MicroplasticsTrendSection() {
   const [data, setData] = useState<{
     trend: TrendPoint[]
-    direction: 'up' | 'down' | 'flat'
-    pctChange: number
+    direction: 'up' | 'down' | 'flat' | null
+    pctChange: number | null
     totalSamples: number
+    reviewedSampleCount?: number
+    dataStatus?: DataReadStatus
     dateRange: { from: string; to: string } | null
   } | null>(null)
   const [error, setError] = useState(false)
+  const [reload, setReload] = useState(0)
 
   useEffect(() => {
+    let active = true
     api.getMicroplasticsTrend()
-      .then(setData)
-      .catch(() => setError(true))
-  }, [])
+      .then(value => { if (active) setData(value) })
+      .catch(() => { if (active) setError(true) })
+    return () => { active = false }
+  }, [reload])
 
-  const directionInfo = data ? {
+  const directionInfo = data?.direction ? {
     up: { icon: TrendingUp, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-100 dark:bg-rose-950/50', label: 'Rising' },
     down: { icon: TrendingDown, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-950/50', label: 'Falling' },
     flat: { icon: Minus, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-950/50', label: 'Stable' },
@@ -65,8 +72,8 @@ export function MicroplasticsTrendSection() {
                 Microplastics trend over time
               </CardTitle>
               <p className="mt-1 text-sm text-muted-foreground">
-                Quarterly average microplastic levels (particles/L) in treated
-                vs untreated water. Are levels changing?
+                Quarterly averages of compatible reviewed records, normalized to particles/L.
+                Changes in sampled utilities or methods can also change these averages.
               </p>
             </div>
             {directionInfo && data && (
@@ -77,7 +84,7 @@ export function MicroplasticsTrendSection() {
               >
                 <directionInfo.icon className="h-4 w-4" />
                 {directionInfo.label}
-                {data.pctChange !== 0 && (
+                {data.pctChange != null && data.pctChange !== 0 && (
                   <span className="ml-1 text-xs">
                     ({data.pctChange > 0 ? '+' : ''}{data.pctChange}%)
                   </span>
@@ -88,14 +95,15 @@ export function MicroplasticsTrendSection() {
         </CardHeader>
         <CardContent>
           {error ? (
-            <div className="flex h-[320px] items-center justify-center text-sm text-muted-foreground">
-              Could not load trend data.
+            <div role="alert" className="flex h-[320px] flex-col items-center justify-center gap-3 text-sm text-muted-foreground">
+              <p>Could not load trend data.</p>
+              <Button variant="outline" onClick={() => { setError(false); setData(null); setReload(value => value + 1) }}>Retry trend data</Button>
             </div>
           ) : !data ? (
             <Skeleton className="h-[320px] w-full" />
           ) : data.trend.length === 0 ? (
             <div className="flex h-[320px] items-center justify-center text-sm text-muted-foreground">
-              No trend data available yet.
+              No compatible reviewed trend data is available. Unreviewed observations are excluded.
             </div>
           ) : (
             <>
@@ -157,9 +165,9 @@ export function MicroplasticsTrendSection() {
                 <div className="rounded-lg border border-border bg-muted/30 p-3">
                   <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-muted-foreground">
                     <FlaskConical className="h-3 w-3" />
-                    Samples
+                    Reviewed samples
                   </div>
-                  <div className="mt-1 text-lg font-bold tabular-nums text-foreground">{data.totalSamples}</div>
+                  <div className="mt-1 text-lg font-bold tabular-nums text-foreground">{data.reviewedSampleCount ?? '—'}</div>
                 </div>
                 <div className="rounded-lg border border-border bg-muted/30 p-3">
                   <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Period</div>
@@ -173,7 +181,7 @@ export function MicroplasticsTrendSection() {
                     Latest treated avg
                   </div>
                   <div className="mt-1 text-lg font-bold tabular-nums text-foreground">
-                    {data.trend.length > 0 ? `${data.trend[data.trend.length - 1].treatedAvg}` : '—'} p/L
+                    {data.trend.at(-1)?.treatedAvg ?? '—'} p/L
                   </div>
                 </div>
                 <div className="rounded-lg border border-border bg-muted/30 p-3">
@@ -182,16 +190,14 @@ export function MicroplasticsTrendSection() {
                     Peak measured
                   </div>
                   <div className="mt-1 text-lg font-bold tabular-nums text-foreground">
-                    {data.trend.length > 0 ? `${Math.max(...data.trend.map((t) => t.maxLevel))}` : '—'} p/L
+                    {data.trend.some(t => t.maxLevel != null) ? Math.max(...data.trend.flatMap(t => t.maxLevel == null ? [] : [t.maxLevel])) : '—'} p/L
                   </div>
                 </div>
               </div>
 
               <p className="mt-3 text-[11px] text-muted-foreground">
-                Trend data is illustrative (calibrated to WHO/Orb Media published
-                ranges) until chapters begin submitting real identifier readings.
-                As first-party data arrives, this chart will reflect actual
-                measured trends over time.
+                {data.totalSamples} total records; {data.reviewedSampleCount ?? '—'} compatible reviewed observations plotted.
+                Missing treatment cohorts remain gaps. These observations do not establish a national or causal treatment trend.
               </p>
             </>
           )}

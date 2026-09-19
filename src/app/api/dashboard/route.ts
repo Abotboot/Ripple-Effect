@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { computeSafetyScore } from '@/lib/safety-score'
-import { isEligibleForScoring, normalizeProvenance } from '@/lib/provenance'
+import { getProvenancePresentation, isEligibleForScoring, normalizeProvenance } from '@/lib/provenance'
+import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
+import { sampleBenchmarkStatus } from '@/lib/sample-read-model'
 
 // GET /api/dashboard
 // Returns aggregated national water quality statistics for the public
@@ -9,38 +11,41 @@ import { isEligibleForScoring, normalizeProvenance } from '@/lib/provenance'
 // state rankings, and quality breakdown.
 export async function GET() {
 
-  const [utilities, samples, contaminants] = await Promise.all([
+  const [utilities, sampleRead, contaminants] = await Promise.all([
     db.utility.findMany({
       select: {
         id: true, name: true, city: true, state: true, pwsid: true,
         population: true, latitude: true, longitude: true,
-        samples: {
-          select: {
-            level: true, quality: true, source: true,
-            contaminant: { select: { id: true, name: true, slug: true, healthGuideline: true, legalLimit: true, category: true } },
-          },
-        },
       },
     }),
-    db.sample.findMany({
-      select: {
-        level: true, quality: true, treatmentStatus: true, source: true,
-        contaminant: { select: { id: true, name: true, slug: true, healthGuideline: true, legalLimit: true, category: true } },
-      },
+    readSamples({
+        utilityId: true, level: true, unit: true, quality: true, treatmentStatus: true, source: true,
+        provenance: true, verificationStatus: true,
+        contaminant: { select: { id: true, name: true, slug: true, healthGuideline: true, legalLimit: true,
+          healthGuidelineUnit: true, legalLimitUnit: true, category: true } },
     }),
     db.contaminant.findMany({ select: { id: true, name: true, slug: true, category: true, regulated: true, trackedByUs: true } }),
   ])
+  const { samples, dataStatus } = sampleRead
+  const byUtility = new Map<string, typeof samples>()
+  for (const sample of samples) {
+    if (!sample.utilityId) continue
+    const list = byUtility.get(sample.utilityId) ?? []
+    list.push(sample)
+    byUtility.set(sample.utilityId, list)
+  }
 
   // Safety score distribution
   const scoreBuckets = { a: 0, b: 0, c: 0, d: 0, f: 0 } // A: 90+, B: 80-89, C: 70-79, D: 60-69, F: <60
   const utilityScores: Array<{ id: string; name: string; city: string; state: string; score: number | null; grade: string; label: string; status?: string }> = []
 
   for (const u of utilities) {
+    const utilitySamples = byUtility.get(u.id) ?? []
     let legalEx = 0, healthEx = 0, verified = 0, provisional = 0, citizen = 0
     const seenContam = new Set<string>()
     const seenLegal = new Set<string>()
     const seenHealth = new Set<string>()
-    for (const s of u.samples) {
+    for (const s of utilitySamples) {
       seenContam.add(s.contaminant.id)
       const p = normalizeProvenance(s)
       const eligible = isEligibleForScoring(s)
@@ -52,15 +57,15 @@ export async function GET() {
         const hg = s.contaminant.healthGuideline
         const ll = s.contaminant.legalLimit
         const key = s.contaminant.id
-        if (hg != null && hg > 0 && s.level > hg && !seenHealth.has(key)) { healthEx++; seenHealth.add(key) }
-        if (ll != null && ll > 0 && s.level > ll && !seenLegal.has(key)) { legalEx++; seenLegal.add(key) }
+        if (sampleBenchmarkStatus({ ...s, benchmark: hg, benchmarkUnit: s.contaminant.healthGuidelineUnit }) === 'above_benchmark' && !seenHealth.has(key)) { healthEx++; seenHealth.add(key) }
+        if (sampleBenchmarkStatus({ ...s, benchmark: ll, benchmarkUnit: s.contaminant.legalLimitUnit }) === 'above_benchmark' && !seenLegal.has(key)) { legalEx++; seenLegal.add(key) }
       }
     }
     const score = computeSafetyScore({
       legalExceedances: legalEx,
       healthExceedances: healthEx,
       totalContaminants: seenContam.size,
-      totalSamples: u.samples.length,
+      totalSamples: utilitySamples.length,
       verifiedSamples: verified,
       provisionalSamples: provisional,
       citizenSamples: citizen,
@@ -86,8 +91,8 @@ export async function GET() {
       exceedanceCounts.set(c.id, { name: c.name, slug: c.slug, category: c.category, healthCount: 0, legalCount: 0 })
     }
     const entry = exceedanceCounts.get(c.id)!
-    if (c.healthGuideline != null && c.healthGuideline > 0 && s.level > c.healthGuideline) entry.healthCount++
-    if (c.legalLimit != null && c.legalLimit > 0 && s.level > c.legalLimit) entry.legalCount++
+    if (sampleBenchmarkStatus({ ...s, benchmark: c.healthGuideline, benchmarkUnit: c.healthGuidelineUnit }) === 'above_benchmark') entry.healthCount++
+    if (sampleBenchmarkStatus({ ...s, benchmark: c.legalLimit, benchmarkUnit: c.legalLimitUnit }) === 'above_benchmark') entry.legalCount++
   }
   const topExceedances = Array.from(exceedanceCounts.values())
     .filter((e) => e.healthCount > 0 || e.legalCount > 0)
@@ -108,10 +113,10 @@ export async function GET() {
     .sort((a, b) => b.avgScore - a.avgScore)
 
   // Quality breakdown
-  const qualityBreakdown = { verified: 0, provisional: 0, citizen: 0, unreviewed: 0 }
+  const qualityBreakdown = { verified: 0, provisional: 0, citizen: 0, unreviewed: 0, illustrative: 0 }
   for (const s of samples) {
-    const q = (s.quality ?? 'unreviewed') as keyof typeof qualityBreakdown
-    if (q in qualityBreakdown) qualityBreakdown[q]++
+    const variant = getProvenancePresentation(s).badgeVariant
+    if (variant === 'verified' || variant === 'citizen' || variant === 'illustrative') qualityBreakdown[variant]++
     else qualityBreakdown.unreviewed++
   }
 
@@ -128,6 +133,7 @@ export async function GET() {
   const scoredUtilities = utilityScores.filter((u): u is typeof u & { score: number } => u.score !== null)
 
   return NextResponse.json({
+    dataStatus,
     scoreDistribution: scoreBuckets,
     topExceedances,
     stateRankings,
@@ -139,5 +145,5 @@ export async function GET() {
     trackedByUs: contaminants.filter((c) => c.trackedByUs).length,
     bestUtility: [...scoredUtilities].sort((a, b) => b.score - a.score)[0] ?? null,
     worstUtility: [...scoredUtilities].sort((a, b) => a.score - b.score)[0] ?? null,
-  })
+  }, { headers: sampleReadHeaders(dataStatus) })
 }

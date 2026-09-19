@@ -41,28 +41,28 @@ const VALUES = [
     icon: ShieldCheck,
     title: 'Open data',
     description:
-      'Everything we collect is public and downloadable. No paywalls, no logins, no API keys. The whole dataset is on GitHub and exportable as JSON or CSV.',
+      'Public water observations can be explored and exported as JSON or CSV. Personal details and administrative records are not part of public downloads.',
     accent: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300',
   },
   {
     icon: Users,
     title: 'Community-powered',
     description:
-      'We are built by volunteers and citizen scientists. Anyone can take our identifier and test the freshwater in their own community.',
+      'Contributors can submit water readings with their collection location, date, method, and units. Community readings remain labeled separately from reviewed institutional records.',
     accent: 'bg-teal-100 text-teal-700 dark:bg-teal-950/50 dark:text-teal-300',
   },
   {
     icon: BookOpen,
     title: 'Science first',
     description:
-      'Our measurement ranges are calibrated to published research from WHO, EPA, EWG, and USGS. When a number is illustrative rather than lab-verified, we say so clearly.',
+      'Measured observations, source attribution, and verification status stay distinct. Illustrative visuals are not test results, and a missing record is not a safety finding.',
     accent: 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
   },
 ]
 
-// Team organized by working group. Photos live in /public/team/<slug>.jpg
-// (e.g. /team/siddhant-khatiwada.jpg). If a photo file is missing, the card
-// falls back to an initials avatar so the layout never breaks.
+// No headshot assets have been supplied. Use initials rather than requesting
+// nonexistent /team files or assigning another person's portrait. Add photo
+// only when the corresponding reviewed asset is actually present.
 type TeamMember = {
   name: string
   title: string
@@ -82,7 +82,7 @@ const TEAM_GROUPS: TeamGroup[] = [
     group: 'Leadership',
     accent: 'border-primary/40 bg-primary/5',
     members: [
-      { name: 'Siddhant Khatiwada', title: 'Founder & President', photo: '/team/siddhant-khatiwada.jpg' },
+      { name: 'Siddhant Khatiwada', title: 'Founder & President' },
     ],
   },
   {
@@ -90,10 +90,10 @@ const TEAM_GROUPS: TeamGroup[] = [
     group: 'Engineering / Programming',
     accent: 'border-cyan-400/40 bg-cyan-500/5',
     members: [
-      { name: 'Abod', title: 'Engineering', photo: '/team/abod.jpg' },
-      { name: 'Diwash', title: 'Engineering', photo: '/team/diwash.jpg' },
-      { name: 'Aryan', title: 'Programming', photo: '/team/aryan.jpg' },
-      { name: 'Akshat', title: 'Programming', photo: '/team/akshat.jpg' },
+      { name: 'Abod', title: 'Engineering' },
+      { name: 'Diwash', title: 'Engineering' },
+      { name: 'Aryan', title: 'Programming' },
+      { name: 'Akshat', title: 'Programming' },
     ],
   },
   {
@@ -101,9 +101,9 @@ const TEAM_GROUPS: TeamGroup[] = [
     group: 'Public Relations / Social Media',
     accent: 'border-rose-400/40 bg-rose-500/5',
     members: [
-      { name: 'Abby', title: 'PR / Social Media', photo: '/team/abby.jpg' },
-      { name: 'Zahra', title: 'PR / Social Media', photo: '/team/zahra.jpg' },
-      { name: 'Giamy', title: 'PR / Social Media', photo: '/team/giamy.jpg' },
+      { name: 'Abby', title: 'PR / Social Media' },
+      { name: 'Zahra', title: 'PR / Social Media' },
+      { name: 'Giamy', title: 'PR / Social Media' },
     ],
   },
   {
@@ -111,8 +111,8 @@ const TEAM_GROUPS: TeamGroup[] = [
     group: 'Finance Team',
     accent: 'border-amber-400/40 bg-amber-500/5',
     members: [
-      { name: 'Sujhav', title: 'Finance', photo: '/team/sujhav.jpg' },
-      { name: 'Aryash', title: 'Finance', photo: '/team/aryash.jpg' },
+      { name: 'Sujhav', title: 'Finance' },
+      { name: 'Kenny', title: 'Finance' },
     ],
   },
 ]
@@ -354,7 +354,6 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
                               <CardContent className="flex flex-col items-center p-6 text-center">
                                 <div className={`mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full text-2xl font-extrabold ${initialsColor(i)}`}>
                                   {m.photo ? (
-                                    /* eslint-disable-next-line @next/next/no-img-element */
                                     <img
                                       src={m.photo}
                                       alt={m.name}

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { readSamples, SAMPLE_READ_FIELDS, sampleReadHeaders } from '@/lib/sample-read'
+import { buildContaminantSummary } from '@/lib/aggregate'
 
 // GET /api/utilities/compare?ids=id1,id2,id3
 // Returns full contaminant summaries for up to 3 utilities, formatted for
@@ -7,7 +9,7 @@ import { db } from '@/lib/db'
 // + the health guideline / legal limit for reference.
 export async function GET(req: NextRequest) {
   const idsParam = req.nextUrl.searchParams.get('ids') ?? ''
-  const ids = idsParam.split(',').map((s) => s.trim()).filter(Boolean).slice(0, 3)
+  const ids = [...new Set(idsParam.split(',').map((s) => s.trim()).filter(Boolean))].slice(0, 3)
 
   if (ids.length < 2) {
     return NextResponse.json(
@@ -16,19 +18,19 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  const utilities = await db.utility.findMany({
-    where: { id: { in: ids } },
-    include: {
-      samples: {
-        include: { contaminant: true },
-        orderBy: { sampleDate: 'desc' },
-      },
-    },
-  })
+  const [utilities, { samples, dataStatus }] = await Promise.all([
+    db.utility.findMany({ where: { id: { in: ids } } }),
+    readSamples({ ...SAMPLE_READ_FIELDS, contaminant: true }, {
+      where: { utilityId: { in: ids } }, orderBy: { sampleDate: 'desc' },
+    }),
+  ])
 
   // Preserve the order requested
   const ordered = ids
-    .map((id) => utilities.find((u) => u.id === id))
+    .map((id) => {
+      const utility = utilities.find(u => u.id === id)
+      return utility ? { ...utility, samples: samples.filter(s => s.utilityId === id) } : null
+    })
     .filter((u): u is NonNullable<typeof u> => u != null)
 
   if (ordered.length < 2) {
@@ -72,30 +74,27 @@ export async function GET(req: NextRequest) {
       if (samplesForC.length === 0) {
         return { utilityId: u.id, level: null, sampleCount: 0 }
       }
-      // samples are ordered desc by date, so first is latest
-      const latest = samplesForC[0]
+      const summary = buildContaminantSummary(samplesForC[0].contaminant, samplesForC)
       return {
         utilityId: u.id,
-        level: latest.level,
-        unit: latest.unit,
+        level: summary.latestLevel,
+        unit: summary.unit,
         sampleCount: samplesForC.length,
+        cohortSampleCount: summary.sampleCount,
+        source: summary.source,
+        provenance: summary.provenance,
+        verificationStatus: summary.verificationStatus,
+        healthBenchmarkStatus: summary.healthBenchmarkStatus,
+        legalBenchmarkStatus: summary.legalBenchmarkStatus,
+        sampleDate: summary.latestDate,
       }
     })
-
-    // Determine the "winner" (lowest level) - nulls don't count.
-    let bestUtilityId: string | null = null
-    let bestLevel = Infinity
-    for (const p of perUtility) {
-      if (p.level != null && p.level < bestLevel) {
-        bestLevel = p.level
-        bestUtilityId = p.utilityId
-      }
-    }
 
     return {
       contaminant: c,
       perUtility,
-      bestUtilityId,
+      // Separate sources, dates, units and coverage do not establish a system winner.
+      bestUtilityId: null,
     }
   })
 
@@ -107,6 +106,7 @@ export async function GET(req: NextRequest) {
   })
 
   return NextResponse.json({
+    dataStatus,
     utilities: ordered.map((u) => ({
       id: u.id,
       name: u.name,
@@ -118,5 +118,5 @@ export async function GET(req: NextRequest) {
       treatmentStatus: u.treatmentStatus,
     })),
     rows,
-  })
+  }, { headers: sampleReadHeaders(dataStatus) })
 }

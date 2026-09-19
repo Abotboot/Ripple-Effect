@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-09-19T07:20:38.929Z",
+  "checks": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "apiRequests": 0,
+      "state": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "all",
+        "visibleForms": "26",
+        "renderCount": "54"
+      },
+      "passed": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "apiRequests": 0,
+      "state": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "all",
+        "visibleForms": "26",
+        "renderCount": "54"
+      },
+      "passed": true
+    }
+  ],
+  "success": true,
+  "completedAt": "2026-09-19T07:20:46.559Z"
+}

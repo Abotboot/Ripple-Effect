@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 import { normalizeProvenance, normalizeVerification } from '@/lib/provenance'
+import { readSamples, SAMPLE_READ_FIELDS, sampleReadHeaders, type SampleReadStatus } from '@/lib/sample-read'
 
 // GET /api/export?format=csv|json&table=utilities|contaminants|samples|reports
 // Returns the entire table as a downloadable file.
@@ -31,6 +32,7 @@ export async function GET(req: NextRequest) {
   }
 
   let rows: Record<string, unknown>[] = []
+  let dataStatus: SampleReadStatus | undefined
   switch (table) {
     case 'utilities':
       rows = await db.utility.findMany({ orderBy: { state: 'asc' } })
@@ -38,14 +40,14 @@ export async function GET(req: NextRequest) {
     case 'contaminants':
       rows = await db.contaminant.findMany({ orderBy: { name: 'asc' } })
       break
-    case 'samples':
-      rows = await db.sample.findMany({
-        orderBy: { sampleDate: 'desc' },
-        include: {
+    case 'samples': {
+      const result = await readSamples({
+          ...SAMPLE_READ_FIELDS,
           contaminant: { select: { slug: true, name: true } },
           utility: { select: { pwsid: true, name: true } },
-        },
-      })
+      }, { orderBy: { sampleDate: 'desc' } })
+      rows = result.samples
+      dataStatus = result.dataStatus
       rows = rows.map((r) => ({
         id: r.id,
         utilityId: r.utilityId,
@@ -66,6 +68,7 @@ export async function GET(req: NextRequest) {
         createdAt: (r.createdAt as Date).toISOString(),
       }))
       break
+    }
     case 'reports':
       rows = await db.report.findMany({ orderBy: { createdAt: 'desc' } })
       // Strip reporterEmail from public export (PII protection)
@@ -106,6 +109,7 @@ export async function GET(req: NextRequest) {
   if (format === 'json') {
     return new NextResponse(JSON.stringify(rows, null, 2), {
       headers: {
+        ...(dataStatus ? sampleReadHeaders(dataStatus) : {}),
         'Content-Type': 'application/json',
         'Content-Disposition': `attachment; filename="arippleeffectinitiative-${table}.json"`,
       },
@@ -115,6 +119,7 @@ export async function GET(req: NextRequest) {
   const csv = toCSV(rows)
   return new NextResponse(csv, {
     headers: {
+      ...(dataStatus ? sampleReadHeaders(dataStatus) : {}),
       'Content-Type': 'text/csv; charset=utf-8',
       'Content-Disposition': `attachment; filename="arippleeffectinitiative-${table}.csv"`,
     },

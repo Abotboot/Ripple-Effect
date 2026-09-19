@@ -1,280 +1,128 @@
 'use client'
 
-import './editorial-pages.css'
-
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import {
-  Heart, PieChart, ExternalLink,
-  Wrench, FlaskConical, Microscope, Database,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-const GOAL = 25000
+import { ArrowUpRight, Database, FlaskConical, HandHeart, Microscope, Wrench } from 'lucide-react'
+import './editorial-pages.css'
+import './donation.css'
 
-// HCB / Hack Club fiscal sponsorship. Funding is read live from the public
-// HCB API (Transparency Mode is on, so no auth needed).
+const GOAL = 25_000
 const HCB_DONATE_URL = 'https://hcb.hackclub.com/donations/start/a-ripple-effect-initiative-arei'
 const HCB_ORG_API = 'https://hcb.hackclub.com/api/v3/organizations/a-ripple-effect-initiative-arei'
+const HCB_SPONSORSHIP = 'https://help.hcb.hackclub.com/en/articles/15409723-what-is-fiscal-sponsorship-and-how-is-it-different-from-starting-my-own-501-c-3'
 
 const ALLOCATIONS = [
-  {
-    icon: Wrench,
-    title: 'Identifier parts & PCBs',
-    pct: 35,
-    color: 'text-rose-600 dark:text-rose-300',
-    bg: 'bg-rose-100 dark:bg-rose-900/40',
-  },
-  {
-    icon: Microscope,
-    title: 'Field kits (microscope + reagents)',
-    pct: 30,
-    color: 'text-amber-600 dark:text-amber-300',
-    bg: 'bg-amber-100 dark:bg-amber-900/40',
-  },
-  {
-    icon: FlaskConical,
-    title: 'Lab verification of citizen samples',
-    pct: 25,
-    color: 'text-fuchsia-600 dark:text-fuchsia-300',
-    bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/40',
-  },
-  {
-    icon: Database,
-    title: 'Keeping the database free & open',
-    pct: 10,
-    color: 'text-emerald-600 dark:text-emerald-300',
-    bg: 'bg-emerald-100 dark:bg-emerald-900/40',
-  },
-]
+  { icon: Wrench, title: 'Identifier parts & circuit boards', pct: 35 },
+  { icon: Microscope, title: 'Field kits & sample supplies', pct: 30 },
+  { icon: FlaskConical, title: 'Laboratory verification', pct: 25 },
+  { icon: Database, title: 'Free, open data infrastructure', pct: 10 },
+] as const
 
-function formatCurrency(n: number) {
+type Funding =
+  | { status: 'loading' }
+  | { status: 'unavailable' }
+  | { status: 'available'; raised: number; checkedAt: string }
+
+function currency(value: number) {
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }).format(n)
-}
-
-type HCBOrg = {
-  balances?: {
-    total_raised?: number
-    balance_cents?: number
-  }
+    style: 'currency', currency: 'USD', minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(value)
 }
 
 export function DonateSection() {
-  // Live funding from the HCB public API (Transparency Mode is enabled).
-  const [raised, setRaised] = useState<number | null>(null)
-  const [statsLoading, setStatsLoading] = useState(true)
+  const [funding, setFunding] = useState<Funding>({ status: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const [showForm, setShowForm] = useState(false)
 
   useEffect(() => {
-    let cancelled = false
-    ;(async () => {
+    let active = true
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10_000)
+    void (async () => {
       try {
-        const res = await fetch(HCB_ORG_API)
-        if (!res.ok) throw new Error('HCB API error')
-        const data = (await res.json()) as HCBOrg
-        // total_raised is returned in cents.
-        const raisedCents = data.balances?.total_raised ?? 0
-        if (!cancelled) setRaised(raisedCents / 100)
+        const response = await fetch(HCB_ORG_API, { signal: controller.signal, cache: 'no-store' })
+        if (!response.ok) throw new Error('Funding source unavailable')
+        const data: unknown = await response.json()
+        const record = data as { balances?: { total_raised?: unknown }; demo_mode?: unknown } | null
+        const cents = record?.balances?.total_raised
+        if (record?.demo_mode === true || typeof cents !== 'number' || !Number.isFinite(cents) || cents < 0) {
+          throw new Error('Funding total is not a usable live amount')
+        }
+        if (active) setFunding({ status: 'available', raised: cents / 100, checkedAt: new Date().toISOString() })
       } catch {
-        if (!cancelled) setRaised(0)
-      } finally {
-        if (!cancelled) setStatsLoading(false)
-      }
+        // A failed, missing or malformed total is unavailable, never a false $0.
+        if (active) setFunding({ status: 'unavailable' })
+      } finally { clearTimeout(timeout) }
     })()
-    return () => {
-      cancelled = true
-    }
-  }, [])
+    return () => { active = false; clearTimeout(timeout); controller.abort() }
+  }, [attempt])
 
-  const pct = raised != null ? Math.min(100, Math.round((raised / GOAL) * 100)) : 0
+  const retryFunding = () => { setFunding({ status: 'loading' }); setAttempt(value => value + 1) }
+  const percentage = funding.status === 'available' ? Math.min(100, funding.raised / GOAL * 100) : null
 
-  return (
-    <div className="editorial-page donation-page">
-      {/* Hero */}
-      <section className="donation-hero">
-        <div className="relative mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Badge className="mb-4 border-white/40 bg-white/15 text-white hover:bg-white/20">
-                Crowdfunding · Tax-deductible via HCB
-              </Badge>
-              <h1 className="text-balance text-3xl font-extrabold tracking-tight drop-shadow-sm text-white sm:text-5xl">
-                Fund the microplastics identifier
-              </h1>
-              <p className="mx-auto mt-4 max-w-2xl text-pretty text-base text-white/90 sm:text-lg">
-                We&apos;re crowdfunding a low-cost, open-source microplastics
-                identifier that volunteers can dip directly into local rivers,
-                lakes, and streams. Every dollar moves us closer to
-                citizen-science kits in the field, and a free, open database
-                anyone can use.
-              </p>
-            </motion.div>
-
-            {/* Progress bar, fed by the live HCB balance */}
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-              className="mx-auto mt-8 max-w-xl rounded-2xl border border-white/30 bg-white/10 p-5 backdrop-blur-sm text-white"
-            >
-              <div className="flex items-end justify-between gap-2">
-                <div className="text-left">
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-white/80">
-                    Raised so far
-                  </div>
-                  {statsLoading ? (
-                    <Skeleton className="mt-1 h-8 w-32 bg-white/20" />
-                  ) : (
-                    <div className="text-3xl font-extrabold leading-none text-white sm:text-4xl">
-                      {formatCurrency(raised ?? 0)}
-                    </div>
-                  )}
-                </div>
-                <div className="text-right">
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-white/80">
-                    Goal
-                  </div>
-                  <div className="text-xl font-bold text-white sm:text-2xl">
-                    {formatCurrency(GOAL)}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-white/20">
-                <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-300 via-amber-200 to-white"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${pct}%` }}
-                  transition={{ duration: 1, ease: 'easeOut' }}
-                />
-              </div>
-
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-white/85">
-                <span>Donations are handled live by HCB (Hack Club Bank).</span>
-                <span className="font-semibold text-white">{pct}% funded</span>
-              </div>
-            </motion.div>
-
-            {/* Single unified CTA button taking user directly to HCB */}
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row"
-            >
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                className="w-full bg-white text-rose-600 shadow-lg hover:bg-white/90 sm:w-auto font-semibold"
-              >
-                <a
-                  href={HCB_DONATE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Donate securely via HCB
-                </a>
-              </Button>
-            </motion.div>
-            <p className="mt-3 max-w-lg text-center text-xs text-white/80">
-              A Ripple Effect Initiative is a fiscally sponsored project of The Hack Foundation (dba Hack Club), a 501(c)(3) public charity. Contributions made through Hack Club Bank are tax-deductible to the full extent permitted by U.S. law.
-            </p>
-          </div>
+  return <div className="editorial-page donation-page" data-testid="donation-page">
+    <section className="donation-hero">
+      <div className="donation-layout">
+        <div className="donation-intro">
+          <p className="donation-kicker"><HandHeart size={18} aria-hidden="true" /> Community-funded research</p>
+          <h1>Better tools.<br /><em>Better water data.</em></h1>
+          <p className="donation-lede">Help build and validate a low-cost microplastics identifier, then publish the observations it supports in an open data system.</p>
+          <a className="donation-primary" href={HCB_DONATE_URL} target="_blank" rel="noopener noreferrer" data-testid="donation-primary">
+            Donate to the project <ArrowUpRight size={20} aria-hidden="true" />
+          </a>
+          <p className="donation-provider">Checkout and donation receipts are handled by HCB.</p>
         </div>
-      </section>
 
-
-      {/* Embedded HCB donation form */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-          <div className="mb-6 text-center">
-            <h2 className="flex items-center justify-center gap-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              <Heart className="h-6 w-6 text-rose-500" />
-              Donate directly
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Complete your donation securely below, or open HCB directly using the button above.
-            </p>
+        <div className="donation-funding" data-testid="donation-funding" data-state={funding.status} aria-busy={funding.status === 'loading'}>
+          <div className="donation-funding-heading"><span>Build & validation fund</span><span>01 / Fieldwork</span></div>
+          <p className="donation-total-label">Raised through HCB</p>
+          <div className="donation-total" aria-live="polite" data-testid="donation-total">
+            {funding.status === 'available' ? currency(funding.raised) : funding.status === 'loading' ? 'Loading total…' : 'Total unavailable'}
           </div>
-          <div className="mx-auto flex w-full max-w-2xl justify-center overflow-hidden rounded-xl border border-border bg-muted/20 shadow-sm transition-all sm:max-w-3xl">
-            {/* eslint-disable-next-line react/no-unknown-property */}
-            <iframe
-              src="https://hcb.hackclub.com/donations/start/a-ripple-effect-initiative-arei"
-              className="w-full min-h-[580px] sm:min-h-[660px] md:min-h-[720px] border-none"
-              name="donateFrame"
-              scrolling="yes"
-              frameBorder={0}
-              marginHeight={0}
-              marginWidth={0}
-              allowFullScreen
-              loading="lazy"
-              title="A Ripple Effect Initiative donation form"
-            />
-          </div>
+          <div className="donation-goal"><span>Project goal</span><strong>{currency(GOAL)}</strong></div>
+          {funding.status === 'available' && <>
+            <progress className="donation-progress" max={GOAL} value={Math.min(GOAL, funding.raised)} aria-label={`${currency(funding.raised)} raised toward ${currency(GOAL)} goal`} />
+            <div className="donation-funding-note"><span>{percentage!.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of goal</span><time dateTime={funding.checkedAt}>Fetched from HCB</time></div>
+          </>}
+          {funding.status === 'unavailable' && <div className="donation-total-error" role="status">
+            <p>The funding total could not be loaded. HCB checkout is still available.</p>
+            <button type="button" onClick={retryFunding}>Retry total</button>
+          </div>}
+          <a className="donation-source" href={HCB_ORG_API} target="_blank" rel="noopener noreferrer">Inspect the public funding data <ArrowUpRight size={14} aria-hidden="true" /></a>
         </div>
-      </section>
+      </div>
+    </section>
 
-      {/* Main content */}
-      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+    <section className="donation-details">
+      <div>
+        <p className="donation-kicker">The plan</p>
+        <h2>From parts<br />to usable evidence.</h2>
+        <p>Hardware is only the beginning. The project budget also plans for sample supplies, laboratory verification, and a database people can examine for themselves.</p>
+        <p className="donation-sponsor">A Ripple Effect Initiative uses HCB for fiscal sponsorship and contribution processing. <a href={HCB_SPONSORSHIP} target="_blank" rel="noopener noreferrer">Read how fiscal sponsorship and fees work ↗</a></p>
+      </div>
+      <div className="donation-allocation" aria-label="Planned project allocation">
+        <div className="donation-allocation-heading"><span>Planned allocation</span><span>Share of program budget</span></div>
+        {ALLOCATIONS.map(({ icon: Icon, title, pct }) => <div className="donation-allocation-row" key={title}>
+          <Icon size={20} aria-hidden="true" /><span>{title}</span><strong>{pct}%</strong>
+        </div>)}
+        <p>Planning targets, not a record of money already spent. Fiscal-sponsorship and payment fees are separate.</p>
+      </div>
+    </section>
 
-        {/* Where the money goes */}
-        <div className="mx-auto max-w-2xl">
-          <Card className="bg-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <PieChart className="h-4 w-4 text-primary" />
-                Where the money goes
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Every dollar is earmarked for the build.
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {ALLOCATIONS.map(({ icon: Icon, title, pct, color, bg }) => (
-                <div key={title} className="rounded-lg border border-border p-3">
-                  <div className="flex items-center gap-3">
-                    <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', bg)}>
-                      <Icon className={cn('h-4 w-4', color)} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-semibold text-foreground">{title}</p>
-                        <span className={cn('text-xs font-bold', color)}>{pct}%</span>
-                      </div>
-                      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                        <motion.div
-                          className={cn('h-full rounded-full', bg)}
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${pct}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.8, ease: 'easeOut' }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <p className="pt-1 text-[11px] text-muted-foreground">
-                100% of donations fund the identifier program and the free,
-                open database.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-    </div>
-  )
+    <section className="donation-checkout" aria-labelledby="donation-checkout-title">
+      <div>
+        <p className="donation-kicker">Take the next step</p>
+        <h2 id="donation-checkout-title">Support the work.</h2>
+        <p>Choose an amount, then review the recipient and amount in HCB checkout before submitting.</p>
+      </div>
+      <div className="donation-checkout-actions">
+        <a className="donation-primary" href={HCB_DONATE_URL} target="_blank" rel="noopener noreferrer">Continue to HCB <ArrowUpRight size={18} aria-hidden="true" /></a>
+        <button className="donation-embed-toggle" type="button" onClick={() => setShowForm(value => !value)} aria-expanded={showForm} aria-controls="donation-embedded-form">{showForm ? 'Hide embedded form' : 'Use the form on this page'}</button>
+      </div>
+      {showForm && <div id="donation-embedded-form" className="donation-embed">
+        <iframe src={HCB_DONATE_URL} title="A Ripple Effect Initiative donation form on HCB" loading="lazy" />
+        <p>Form not loading? <a href={HCB_DONATE_URL} target="_blank" rel="noopener noreferrer">Open HCB directly ↗</a></p>
+      </div>}
+    </section>
+  </div>
 }

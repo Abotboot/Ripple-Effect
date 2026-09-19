@@ -17,7 +17,7 @@ export interface ContaminantBenchmark {
   category: 'pfas' | 'heavy-metals' | 'plastics' | 'byproducts' | 'agricultural'
   unit: string
   ewgGuideline: number
-  epaLimit: number | null // null means unregulated by EPA!
+  epaLimit: number | null // null means this illustrative model supplies no benchmark.
   typicalUntreated: number
   typicalTreated: number
   description: string
@@ -182,18 +182,18 @@ export function ContaminantSpectrumChart() {
           <div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
-                D3 Logarithmic Spectrum
+                Example comparison
               </Badge>
               <Badge variant="outline" className="border-purple-500/40 bg-purple-500/10 text-purple-600 dark:text-purple-400">
                 Illustrative Benchmarks
               </Badge>
-              <span className="text-xs text-muted-foreground">EWG vs EPA Guideline Models</span>
+              <span className="text-xs text-muted-foreground">Not a water assessment</span>
             </div>
             <CardTitle className="mt-1.5 text-xl font-bold tracking-tight text-foreground">
-              Contaminant Safety Gap Visualizer
+              How benchmark comparisons work
             </CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              Simulated demonstration benchmarks comparing health guidelines against regulatory thresholds. Fictional system levels are illustrative models for education.
+              Fictional system levels demonstrate a comparison scale. They are not utility readings, current regulatory guidance, or safety findings.
             </p>
           </div>
 
@@ -239,20 +239,20 @@ export function ContaminantSpectrumChart() {
                 <Badge variant="secondary" className="font-mono text-xs">
                   {active.unit}
                 </Badge>
-                {active.epaLimit === null && (
-                  <Badge className="border-rose-500/40 bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold">
-                    0 Federal Legal Limit (Unregulated)
+                  {active.epaLimit === null && (
+                  <Badge variant="outline" className="text-muted-foreground font-semibold">
+                    No legal benchmark supplied
                   </Badge>
                 )}
               </div>
-              <p className="mt-1 text-xs text-muted-foreground max-w-2xl">{active.description}</p>
+              <p className="mt-1 text-xs text-muted-foreground max-w-2xl">Model units: {active.unit}. Values below are examples, not a concentration for your water.</p>
             </div>
 
             {/* Benchmark stats badges */}
             <div className="flex shrink-0 items-center gap-2 pt-2 md:pt-0">
               <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-left">
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
-                  EWG Guideline
+                  Example health benchmark
                 </div>
                 <div className="font-mono text-sm font-bold text-amber-900 dark:text-amber-200">
                   {active.ewgGuideline} {active.unit}
@@ -261,10 +261,10 @@ export function ContaminantSpectrumChart() {
 
               <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-left">
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-rose-700 dark:text-rose-400">
-                  EPA Legal Limit
+                  Example legal benchmark
                 </div>
                 <div className="font-mono text-sm font-bold text-rose-900 dark:text-rose-200">
-                  {active.epaLimit != null ? `${active.epaLimit} ${active.unit}` : 'None (No limit)'}
+                  {active.epaLimit != null ? `${active.epaLimit} ${active.unit}` : 'Not supplied'}
                 </div>
               </div>
             </div>
@@ -275,11 +275,12 @@ export function ContaminantSpectrumChart() {
         <div className="relative pt-6 pb-12">
           {/* Axis Track Background with Threshold Zones */}
           <div className="relative h-12 w-full overflow-hidden rounded-xl border border-border/80 bg-muted/40 shadow-inner">
-            {/* Zone 1: Safe Zone (0 to EWG) */}
+            {/* Below the first model benchmark is not a safety finding. */}
             <div
-              className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-emerald-500/25 to-emerald-400/15"
+              className="absolute top-0 bottom-0 left-0 bg-slate-400/20"
               style={{ width: `${ewgPos}%` }}
-              title="Safe Scientific Baseline"
+              title="Below the example health benchmark"
+              data-testid="benchmark-model-baseline"
             />
 
             {/* Zone 2: Caution Zone (EWG to EPA or Max) */}
@@ -289,7 +290,7 @@ export function ContaminantSpectrumChart() {
                 left: `${ewgPos}%`,
                 width: epaPos ? `${epaPos - ewgPos}%` : `${100 - ewgPos}%`,
               }}
-              title="Exceeds Health Guideline (Known biological risk)"
+              title="Above the example health benchmark"
             />
 
             {/* Zone 3: Danger Zone (Beyond EPA limit, if applicable) */}
@@ -297,7 +298,7 @@ export function ContaminantSpectrumChart() {
               <div
                 className="absolute top-0 bottom-0 right-0 bg-gradient-to-r from-rose-500/30 to-rose-600/50"
                 style={{ left: `${epaPos}%` }}
-                title="Exceeds Federal Legal Limit"
+              title="Above the example legal benchmark"
               />
             )}
 
@@ -325,7 +326,7 @@ export function ContaminantSpectrumChart() {
                         ? 'border-white bg-rose-600 ring-2 ring-rose-500/50'
                         : exceedEwg
                         ? 'border-white bg-amber-500 ring-2 ring-amber-400/50'
-                        : 'border-white bg-emerald-500 ring-2 ring-emerald-400/50'
+                        : 'border-white bg-slate-400 ring-2 ring-slate-400/50'
                     } ${isHovered ? 'scale-135 ring-4 ring-primary' : ''}`}
                   />
                 </div>
@@ -356,7 +357,7 @@ export function ContaminantSpectrumChart() {
             style={{ left: `${ewgPos}%` }}
           >
             <span className="rounded bg-amber-500/20 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800 dark:text-amber-300 border border-amber-500/40">
-              EWG: {active.ewgGuideline}
+              Health example: {active.ewgGuideline}
             </span>
             <div className="h-3 w-[1px] bg-amber-500/70" />
           </div>
@@ -368,7 +369,7 @@ export function ContaminantSpectrumChart() {
               style={{ left: `${epaPos}%` }}
             >
               <span className="rounded bg-rose-500/20 px-1.5 py-0.5 font-mono text-[10px] font-bold text-rose-800 dark:text-rose-300 border border-rose-500/40">
-                EPA: {active.epaLimit}
+                Legal example: {active.epaLimit}
               </span>
               <div className="h-3 w-[1px] bg-rose-500/70" />
             </div>
@@ -379,15 +380,15 @@ export function ContaminantSpectrumChart() {
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5">
                 <span className="inline-block h-3 w-3 rounded-full bg-amber-500" />
-                Tracked Utility City
+                Fictional system
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="inline-block h-3 w-1 bg-cyan-500 rounded" />
-                Untreated River/Lake Avg ({active.typicalUntreated} {active.unit})
+                Untreated example ({active.typicalUntreated} {active.unit})
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="inline-block h-3 w-1 bg-primary rounded" />
-                Treated Tap Avg ({active.typicalTreated} {active.unit})
+                Treated example ({active.typicalTreated} {active.unit})
               </span>
             </div>
             <div className="font-mono text-[11px] text-muted-foreground hidden sm:block">
@@ -402,14 +403,13 @@ export function ContaminantSpectrumChart() {
           <div className="rounded-xl border border-border/70 bg-card p-4">
             <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-semibold text-sm">
               <ShieldAlert className="h-4 w-4 shrink-0" />
-              Health Impacts & Hazards
+              What this model can show
             </div>
             <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-              {active.healthRisk}
+              The same value can sit above one benchmark and below another. A missing benchmark remains unavailable; it is not zero and does not establish safety.
             </p>
             <div className="mt-3 rounded-lg bg-muted/40 p-2.5 text-[11px] text-muted-foreground">
-              <strong className="text-foreground">Filter Defense: </strong>
-              {active.filterTip}
+              Actual comparisons need a reviewed sample, a documented benchmark, and compatible units.
             </div>
           </div>
 
@@ -418,7 +418,7 @@ export function ContaminantSpectrumChart() {
             <div className="flex items-center justify-between text-sm font-semibold">
               <span className="flex items-center gap-2 text-foreground">
                 <Info className="h-4 w-4 text-primary" />
-                Utility Measurement Inspector
+                Example value inspector
               </span>
               <span className="text-[11px] text-muted-foreground">Hover dots on spectrum</span>
             </div>
@@ -442,20 +442,20 @@ export function ContaminantSpectrumChart() {
                         ? 'bg-rose-500 text-white'
                         : hoveredItem.level > active.ewgGuideline
                         ? 'bg-amber-500 text-white'
-                        : 'bg-emerald-500 text-white'
+                        : 'bg-slate-500 text-white'
                     }`}
                   >
                     {hoveredItem.level > (active.epaLimit ?? Infinity)
-                      ? 'Exceeds Legal Limit'
+                      ? 'Above example legal benchmark'
                       : hoveredItem.level > active.ewgGuideline
-                      ? `${Math.round(hoveredItem.level / active.ewgGuideline)}× EWG Guideline`
-                      : 'Safe'}
+                      ? `${Math.round(hoveredItem.level / active.ewgGuideline)}× example health benchmark`
+                      : 'Below example benchmark'}
                   </Badge>
                 </div>
               </div>
             ) : (
               <div className="mt-3 flex flex-col items-center justify-center rounded-lg border border-dashed border-border/80 p-5 text-center text-xs text-muted-foreground">
-                <span>Hover over any plotted node on the spectrum above to inspect its real measurement and health multiplier.</span>
+                <span>Hover over a plotted node to inspect its fictional value and comparison ratio.</span>
               </div>
             )}
           </div>

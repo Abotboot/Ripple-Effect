@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-19T07:45:15.978Z",
+  "source": "Public GET responses from preview3 supplied to localhost UI",
+  "checks": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "passed": true,
+      "keyboardOpenAndTrap": true,
+      "escapeRestoresFocus": true,
+      "neutralUnassessed": true,
+      "errors": [],
+      "writes": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "passed": true,
+      "keyboardOpenAndTrap": true,
+      "escapeRestoresFocus": true,
+      "neutralUnassessed": true,
+      "errors": [],
+      "writes": []
+    }
+  ],
+  "success": true
+}

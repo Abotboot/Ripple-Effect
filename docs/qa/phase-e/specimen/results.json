@@ -1,0 +1,1109 @@
+{
+  "createdAt": "2026-09-19T09:24:34.393Z",
+  "base": "http://localhost:3020",
+  "selectedCases": "all",
+  "checks": [
+    {
+      "name": "layout-1440",
+      "passed": true,
+      "apiRequests": [],
+      "responses": [
+        {
+          "url": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "status": 200
+        }
+      ],
+      "initial": {
+        "testid": "specimen-detail-canvas",
+        "running": "false",
+        "motion": "idle",
+        "renderer": "photo-canvas",
+        "rendered": "macro",
+        "form": "all",
+        "visibleForms": "0",
+        "zoom": "3",
+        "position": "0.500,0.260",
+        "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+        "transition": "settled",
+        "scanProgress": "1.000",
+        "renderCount": "2",
+        "width": 556,
+        "height": 556
+      },
+      "final": {
+        "testid": "specimen-detail-canvas",
+        "running": "false",
+        "motion": "paused",
+        "renderer": "photo-canvas",
+        "rendered": "uv",
+        "form": "all",
+        "visibleForms": "16",
+        "zoom": "3",
+        "position": "0.500,0.260",
+        "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+        "transition": "settled",
+        "scanProgress": "1.000",
+        "renderCount": "39",
+        "width": 556,
+        "height": 556
+      },
+      "geometry": {
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Choose a detail area on the bottle. Keyboard users can use the Detail position control.",
+            "height": 655.328125
+          },
+          {
+            "name": "Shoulder",
+            "height": 44
+          },
+          {
+            "name": "Label",
+            "height": 44
+          },
+          {
+            "name": "Ribs",
+            "height": 44
+          },
+          {
+            "name": "Bottle detail",
+            "height": 44
+          },
+          {
+            "name": "Illustrative UV",
+            "height": 44
+          },
+          {
+            "name": "Resume motion",
+            "height": 44
+          },
+          {
+            "name": "Detail position",
+            "height": 44
+          },
+          {
+            "name": "2×",
+            "height": 44
+          },
+          {
+            "name": "3×",
+            "height": 44
+          },
+          {
+            "name": "4×",
+            "height": 44
+          },
+          {
+            "name": "All forms",
+            "height": 44
+          },
+          {
+            "name": "Fibers",
+            "height": 44
+          },
+          {
+            "name": "Fragments",
+            "height": 44
+          },
+          {
+            "name": "Replay reveal",
+            "height": 44
+          },
+          {
+            "name": "Research context · NIH ↗",
+            "height": 44
+          }
+        ],
+        "width": 1440,
+        "height": 900
+      },
+      "wholeBottleUnchanged": true,
+      "wholeBottleEvidence": {
+        "before": {
+          "src": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "photoDOM": "<button type=\"button\" class=\"specimen-photo-target\" aria-label=\"Choose a detail area on the bottle. Keyboard users can use the Detail position control.\"><img alt=\"Illustrative clear retail-style PET water bottle with a white cap, blue-and-white generic label, a fill line and molded ribs\" loading=\"lazy\" width=\"1122\" height=\"1402\" decoding=\"async\" data-nimg=\"1\" style=\"color:transparent\" src=\"http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp\"><span class=\"specimen-locator\" data-testid=\"specimen-locator\" aria-hidden=\"true\" style=\"left: 33.3333%; top: 12.6619%; width: 33.3333%; height: 26.6762%;\"><span>Detail area</span></span></button>",
+          "style": {
+            "filter": "none",
+            "opacity": "1",
+            "transform": "none",
+            "blend": "normal"
+          },
+          "bounds": {
+            "x": 150,
+            "y": 122.328125,
+            "width": 524.453125,
+            "height": 655.328125
+          },
+          "decodedImageSHA256": "8dfe3c2f9f7dfdee4165b0d6813dc0ff4955c7173670f00a873ed2e15668dd51"
+        },
+        "after": {
+          "src": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "photoDOM": "<button type=\"button\" class=\"specimen-photo-target\" aria-label=\"Choose a detail area on the bottle. Keyboard users can use the Detail position control.\"><img alt=\"Illustrative clear retail-style PET water bottle with a white cap, blue-and-white generic label, a fill line and molded ribs\" loading=\"lazy\" width=\"1122\" height=\"1402\" decoding=\"async\" data-nimg=\"1\" style=\"color:transparent\" src=\"http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp\"><span class=\"specimen-locator\" data-testid=\"specimen-locator\" aria-hidden=\"true\" style=\"left: 33.3333%; top: 12.6619%; width: 33.3333%; height: 26.6762%;\"><span>Detail area</span></span></button>",
+          "style": {
+            "filter": "none",
+            "opacity": "1",
+            "transform": "none",
+            "blend": "normal"
+          },
+          "bounds": {
+            "x": 150,
+            "y": 122.328125,
+            "width": 524.453125,
+            "height": 655.328125
+          },
+          "decodedImageSHA256": "8dfe3c2f9f7dfdee4165b0d6813dc0ff4955c7173670f00a873ed2e15668dd51"
+        }
+      },
+      "hashes": {
+        "macro": "6b38f9085c7d06fa426db75cbb4e59a1e749a128ce03151d3ecb5fa14483b0cd",
+        "ribs": "636b60d06c10cca846cb425179101bf060e412465df06bba6cbe8da931d11ca5",
+        "zoomed": "8b3037506758d71c227f4b955f54e89f17d02cb0b5f901c8a47dd46ea02c0aee",
+        "uv": "e668e9cfc3be4354788ecd0bc4d08068f211a40d83e1e4e33a8100a2f9ec3a81",
+        "fibers": "388c9ccadd53c7cc2b9fbe33fcbd56a84b90881d423c968e0ca2d9e40f103102"
+      }
+    },
+    {
+      "name": "layout-1024",
+      "passed": true,
+      "apiRequests": [],
+      "responses": [
+        {
+          "url": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "status": 200
+        }
+      ],
+      "initial": {
+        "testid": "specimen-detail-canvas",
+        "running": "false",
+        "motion": "idle",
+        "renderer": "photo-canvas",
+        "rendered": "macro",
+        "form": "all",
+        "visibleForms": "0",
+        "zoom": "3",
+        "position": "0.500,0.260",
+        "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+        "transition": "settled",
+        "scanProgress": "1.000",
+        "renderCount": "2",
+        "width": 441,
+        "height": 441
+      },
+      "final": {
+        "testid": "specimen-detail-canvas",
+        "running": "false",
+        "motion": "paused",
+        "renderer": "photo-canvas",
+        "rendered": "uv",
+        "form": "all",
+        "visibleForms": "16",
+        "zoom": "3",
+        "position": "0.500,0.260",
+        "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+        "transition": "settled",
+        "scanProgress": "1.000",
+        "renderCount": "39",
+        "width": 441,
+        "height": 441
+      },
+      "geometry": {
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Choose a detail area on the bottle. Keyboard users can use the Detail position control.",
+            "height": 520.78125
+          },
+          {
+            "name": "Shoulder",
+            "height": 44
+          },
+          {
+            "name": "Label",
+            "height": 44
+          },
+          {
+            "name": "Ribs",
+            "height": 44
+          },
+          {
+            "name": "Bottle detail",
+            "height": 44
+          },
+          {
+            "name": "Illustrative UV",
+            "height": 44
+          },
+          {
+            "name": "Resume motion",
+            "height": 44
+          },
+          {
+            "name": "Detail position",
+            "height": 44
+          },
+          {
+            "name": "2×",
+            "height": 44
+          },
+          {
+            "name": "3×",
+            "height": 44
+          },
+          {
+            "name": "4×",
+            "height": 44
+          },
+          {
+            "name": "All forms",
+            "height": 44
+          },
+          {
+            "name": "Fibers",
+            "height": 44
+          },
+          {
+            "name": "Fragments",
+            "height": 44
+          },
+          {
+            "name": "Replay reveal",
+            "height": 44
+          },
+          {
+            "name": "Research context · NIH ↗",
+            "height": 44
+          }
+        ],
+        "width": 1024,
+        "height": 768
+      },
+      "wholeBottleUnchanged": true,
+      "wholeBottleEvidence": {
+        "before": {
+          "src": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "photoDOM": "<button type=\"button\" class=\"specimen-photo-target\" aria-label=\"Choose a detail area on the bottle. Keyboard users can use the Detail position control.\"><img alt=\"Illustrative clear retail-style PET water bottle with a white cap, blue-and-white generic label, a fill line and molded ribs\" loading=\"lazy\" width=\"1122\" height=\"1402\" decoding=\"async\" data-nimg=\"1\" style=\"color:transparent\" src=\"http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp\"><span class=\"specimen-locator\" data-testid=\"specimen-locator\" aria-hidden=\"true\" style=\"left: 33.3333%; top: 12.6619%; width: 33.3333%; height: 26.6762%;\"><span>Detail area</span></span></button>",
+          "style": {
+            "filter": "none",
+            "opacity": "1",
+            "transform": "none",
+            "blend": "normal"
+          },
+          "bounds": {
+            "x": 61.4375,
+            "y": 123.359375,
+            "width": 416.78125,
+            "height": 520.78125
+          },
+          "decodedImageSHA256": "b7adfee8f5eacfadd1d286ee872a1e266d7a9db24da7e05246722170ae03507b"
+        },
+        "after": {
+          "src": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "photoDOM": "<button type=\"button\" class=\"specimen-photo-target\" aria-label=\"Choose a detail area on the bottle. Keyboard users can use the Detail position control.\"><img alt=\"Illustrative clear retail-style PET water bottle with a white cap, blue-and-white generic label, a fill line and molded ribs\" loading=\"lazy\" width=\"1122\" height=\"1402\" decoding=\"async\" data-nimg=\"1\" style=\"color:transparent\" src=\"http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp\"><span class=\"specimen-locator\" data-testid=\"specimen-locator\" aria-hidden=\"true\" style=\"left: 33.3333%; top: 12.6619%; width: 33.3333%; height: 26.6762%;\"><span>Detail area</span></span></button>",
+          "style": {
+            "filter": "none",
+            "opacity": "1",
+            "transform": "none",
+            "blend": "normal"
+          },
+          "bounds": {
+            "x": 61.4375,
+            "y": 123.359375,
+            "width": 416.78125,
+            "height": 520.78125
+          },
+          "decodedImageSHA256": "b7adfee8f5eacfadd1d286ee872a1e266d7a9db24da7e05246722170ae03507b"
+        }
+      },
+      "hashes": {
+        "macro": "c618e8fc28fa3e5c099eec458dbcd72f3bb59f629ee4f13540d9f31213108b1b",
+        "ribs": "52e92f0674603cb05a3097ab5cc0e8ad1a1c9ee5a30ebb546bb0317cb2cf130e",
+        "zoomed": "2b9ece6ca8c69e3ea408300444c6b25f455cee5dbfcac24adaf9e901248ed291",
+        "uv": "3f7c1f5bd69f0191ef8ab8a5e3152e5042eee143be87d25647b3f9c7735b4021",
+        "fibers": "9c9d1d65461e1d87acf01e45965b13178cac1e56dc151cf16a5e7ee2e59c9fb8"
+      }
+    },
+    {
+      "name": "layout-768",
+      "passed": true,
+      "apiRequests": [],
+      "responses": [
+        {
+          "url": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "status": 200
+        }
+      ],
+      "initial": {
+        "testid": "specimen-detail-canvas",
+        "running": "false",
+        "motion": "idle",
+        "renderer": "photo-canvas",
+        "rendered": "macro",
+        "form": "all",
+        "visibleForms": "0",
+        "zoom": "3",
+        "position": "0.500,0.260",
+        "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+        "transition": "settled",
+        "scanProgress": "1.000",
+        "renderCount": "2",
+        "width": 538,
+        "height": 538
+      },
+      "final": {
+        "testid": "specimen-detail-canvas",
+        "running": "false",
+        "motion": "paused",
+        "renderer": "photo-canvas",
+        "rendered": "uv",
+        "form": "all",
+        "visibleForms": "16",
+        "zoom": "3",
+        "position": "0.500,0.260",
+        "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+        "transition": "settled",
+        "scanProgress": "1.000",
+        "renderCount": "39",
+        "width": 538,
+        "height": 538
+      },
+      "geometry": {
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Choose a detail area on the bottle. Keyboard users can use the Detail position control.",
+            "height": 549.796875
+          },
+          {
+            "name": "Shoulder",
+            "height": 44
+          },
+          {
+            "name": "Label",
+            "height": 44
+          },
+          {
+            "name": "Ribs",
+            "height": 44
+          },
+          {
+            "name": "Bottle detail",
+            "height": 44
+          },
+          {
+            "name": "Illustrative UV",
+            "height": 44
+          },
+          {
+            "name": "Resume motion",
+            "height": 44
+          },
+          {
+            "name": "Detail position",
+            "height": 44
+          },
+          {
+            "name": "2×",
+            "height": 44
+          },
+          {
+            "name": "3×",
+            "height": 44
+          },
+          {
+            "name": "4×",
+            "height": 44
+          },
+          {
+            "name": "All forms",
+            "height": 44
+          },
+          {
+            "name": "Fibers",
+            "height": 44
+          },
+          {
+            "name": "Fragments",
+            "height": 44
+          },
+          {
+            "name": "Replay reveal",
+            "height": 44
+          },
+          {
+            "name": "Research context · NIH ↗",
+            "height": 44
+          }
+        ],
+        "width": 768,
+        "height": 1024
+      },
+      "wholeBottleUnchanged": true,
+      "wholeBottleEvidence": {
+        "before": {
+          "src": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "photoDOM": "<button type=\"button\" class=\"specimen-photo-target\" aria-label=\"Choose a detail area on the bottle. Keyboard users can use the Detail position control.\"><img alt=\"Illustrative clear retail-style PET water bottle with a white cap, blue-and-white generic label, a fill line and molded ribs\" loading=\"lazy\" width=\"1122\" height=\"1402\" decoding=\"async\" data-nimg=\"1\" style=\"color:transparent\" src=\"http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp\"><span class=\"specimen-locator\" data-testid=\"specimen-locator\" aria-hidden=\"true\" style=\"left: 33.3333%; top: 12.6619%; width: 33.3333%; height: 26.6762%;\"><span>Detail area</span></span></button>",
+          "style": {
+            "filter": "none",
+            "opacity": "1",
+            "transform": "none",
+            "blend": "normal"
+          },
+          "bounds": {
+            "x": 164,
+            "y": 236.609375,
+            "width": 440,
+            "height": 549.796875
+          },
+          "decodedImageSHA256": "b7adfee8f5eacfadd1d286ee872a1e266d7a9db24da7e05246722170ae03507b"
+        },
+        "after": {
+          "src": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "photoDOM": "<button type=\"button\" class=\"specimen-photo-target\" aria-label=\"Choose a detail area on the bottle. Keyboard users can use the Detail position control.\"><img alt=\"Illustrative clear retail-style PET water bottle with a white cap, blue-and-white generic label, a fill line and molded ribs\" loading=\"lazy\" width=\"1122\" height=\"1402\" decoding=\"async\" data-nimg=\"1\" style=\"color:transparent\" src=\"http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp\"><span class=\"specimen-locator\" data-testid=\"specimen-locator\" aria-hidden=\"true\" style=\"left: 33.3333%; top: 12.6619%; width: 33.3333%; height: 26.6762%;\"><span>Detail area</span></span></button>",
+          "style": {
+            "filter": "none",
+            "opacity": "1",
+            "transform": "none",
+            "blend": "normal"
+          },
+          "bounds": {
+            "x": 164,
+            "y": -0.390625,
+            "width": 440,
+            "height": 549.796875
+          },
+          "decodedImageSHA256": "b7adfee8f5eacfadd1d286ee872a1e266d7a9db24da7e05246722170ae03507b"
+        }
+      },
+      "hashes": {
+        "macro": "50d059f2de7986753c5bb72c7a2f3087e1a70488bd65a2006f78005e85edd0a8",
+        "ribs": "ef7cfa8e58fbd1d50302ea7859bf4b99a2790565ae7727c47ea9186ce2ff59ce",
+        "zoomed": "bf32c1b07a807010ca0ba47d48ef209e01c1524d5fd54c644a633990b8dd1806",
+        "uv": "f853eecae0e45bd0780d872b087135eee6f70a34627287845ac9f52f635ac711",
+        "fibers": "1f8af8fd955ae982aeafa5b0fed2ec1fabd6f1e1680a730d5eba388557d290eb"
+      }
+    },
+    {
+      "name": "layout-390",
+      "passed": true,
+      "apiRequests": [],
+      "responses": [
+        {
+          "url": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "status": 200
+        }
+      ],
+      "initial": {
+        "testid": "specimen-detail-canvas",
+        "running": "false",
+        "motion": "idle",
+        "renderer": "photo-canvas",
+        "rendered": "macro",
+        "form": "all",
+        "visibleForms": "0",
+        "zoom": "3",
+        "position": "0.500,0.260",
+        "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+        "transition": "settled",
+        "scanProgress": "1.000",
+        "renderCount": "2",
+        "width": 341,
+        "height": 341
+      },
+      "final": {
+        "testid": "specimen-detail-canvas",
+        "running": "false",
+        "motion": "paused",
+        "renderer": "photo-canvas",
+        "rendered": "uv",
+        "form": "all",
+        "visibleForms": "16",
+        "zoom": "3",
+        "position": "0.500,0.260",
+        "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+        "transition": "settled",
+        "scanProgress": "1.000",
+        "renderCount": "39",
+        "width": 341,
+        "height": 341
+      },
+      "geometry": {
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Choose a detail area on the bottle. Keyboard users can use the Detail position control.",
+            "height": 428.859375
+          },
+          {
+            "name": "Shoulder",
+            "height": 44
+          },
+          {
+            "name": "Label",
+            "height": 44
+          },
+          {
+            "name": "Ribs",
+            "height": 44
+          },
+          {
+            "name": "Bottle detail",
+            "height": 44
+          },
+          {
+            "name": "Illustrative UV",
+            "height": 44
+          },
+          {
+            "name": "Resume motion",
+            "height": 44
+          },
+          {
+            "name": "Detail position",
+            "height": 44
+          },
+          {
+            "name": "2×",
+            "height": 44
+          },
+          {
+            "name": "3×",
+            "height": 44
+          },
+          {
+            "name": "4×",
+            "height": 44
+          },
+          {
+            "name": "All forms",
+            "height": 44
+          },
+          {
+            "name": "Fibers",
+            "height": 44
+          },
+          {
+            "name": "Fragments",
+            "height": 44
+          },
+          {
+            "name": "Replay reveal",
+            "height": 44
+          },
+          {
+            "name": "Research context · NIH ↗",
+            "height": 44
+          }
+        ],
+        "width": 390,
+        "height": 844
+      },
+      "wholeBottleUnchanged": true,
+      "wholeBottleEvidence": {
+        "before": {
+          "src": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "photoDOM": "<button type=\"button\" class=\"specimen-photo-target\" aria-label=\"Choose a detail area on the bottle. Keyboard users can use the Detail position control.\"><img alt=\"Illustrative clear retail-style PET water bottle with a white cap, blue-and-white generic label, a fill line and molded ribs\" loading=\"lazy\" width=\"1122\" height=\"1402\" decoding=\"async\" data-nimg=\"1\" style=\"color:transparent\" src=\"http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp\"><span class=\"specimen-locator\" data-testid=\"specimen-locator\" aria-hidden=\"true\" style=\"left: 33.3333%; top: 12.6619%; width: 33.3333%; height: 26.6762%;\"><span>Detail area</span></span></button>",
+          "style": {
+            "filter": "none",
+            "opacity": "1",
+            "transform": "none",
+            "blend": "normal"
+          },
+          "bounds": {
+            "x": 23.390625,
+            "y": 207.4375,
+            "width": 343.21875,
+            "height": 428.859375
+          },
+          "decodedImageSHA256": "b7adfee8f5eacfadd1d286ee872a1e266d7a9db24da7e05246722170ae03507b"
+        },
+        "after": {
+          "src": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "photoDOM": "<button type=\"button\" class=\"specimen-photo-target\" aria-label=\"Choose a detail area on the bottle. Keyboard users can use the Detail position control.\"><img alt=\"Illustrative clear retail-style PET water bottle with a white cap, blue-and-white generic label, a fill line and molded ribs\" loading=\"lazy\" width=\"1122\" height=\"1402\" decoding=\"async\" data-nimg=\"1\" style=\"color:transparent\" src=\"http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp\"><span class=\"specimen-locator\" data-testid=\"specimen-locator\" aria-hidden=\"true\" style=\"left: 33.3333%; top: 12.6619%; width: 33.3333%; height: 26.6762%;\"><span>Detail area</span></span></button>",
+          "style": {
+            "filter": "none",
+            "opacity": "1",
+            "transform": "none",
+            "blend": "normal"
+          },
+          "bounds": {
+            "x": 23.390625,
+            "y": 207.4375,
+            "width": 343.21875,
+            "height": 428.859375
+          },
+          "decodedImageSHA256": "b7adfee8f5eacfadd1d286ee872a1e266d7a9db24da7e05246722170ae03507b"
+        }
+      },
+      "hashes": {
+        "macro": "16d0cd8f6f77c1e58d03f2aacf821bf54eb389dd294c012581dc8b18d45ae47f",
+        "ribs": "70131ad63e5f1497f42dd250ee9cbe258c793fe9148be4e30c6c122b7e38d40f",
+        "zoomed": "06a6532e35ed11f6959049221e3dce49831be08a55e34e123997fffad53ed9d1",
+        "uv": "7b996d05f76706eed6c1093dab22a39df50b1a9abdc3d528ee51537efcfa09cb",
+        "fibers": "66603c011346cac426cf9e4d101c465995fc1ff9a9a331dcd55edf6a0b55873a"
+      }
+    },
+    {
+      "name": "layout-320",
+      "passed": true,
+      "apiRequests": [],
+      "responses": [
+        {
+          "url": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "status": 200
+        }
+      ],
+      "initial": {
+        "testid": "specimen-detail-canvas",
+        "running": "false",
+        "motion": "idle",
+        "renderer": "photo-canvas",
+        "rendered": "macro",
+        "form": "all",
+        "visibleForms": "0",
+        "zoom": "3",
+        "position": "0.500,0.260",
+        "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+        "transition": "settled",
+        "scanProgress": "1.000",
+        "renderCount": "2",
+        "width": 280,
+        "height": 280
+      },
+      "final": {
+        "testid": "specimen-detail-canvas",
+        "running": "false",
+        "motion": "paused",
+        "renderer": "photo-canvas",
+        "rendered": "uv",
+        "form": "all",
+        "visibleForms": "16",
+        "zoom": "3",
+        "position": "0.500,0.260",
+        "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+        "transition": "settled",
+        "scanProgress": "1.000",
+        "renderCount": "39",
+        "width": 280,
+        "height": 280
+      },
+      "geometry": {
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Choose a detail area on the bottle. Keyboard users can use the Detail position control.",
+            "height": 351.890625
+          },
+          {
+            "name": "Shoulder",
+            "height": 44
+          },
+          {
+            "name": "Label",
+            "height": 44
+          },
+          {
+            "name": "Ribs",
+            "height": 44
+          },
+          {
+            "name": "Bottle detail",
+            "height": 44
+          },
+          {
+            "name": "Illustrative UV",
+            "height": 44
+          },
+          {
+            "name": "Resume motion",
+            "height": 44
+          },
+          {
+            "name": "Detail position",
+            "height": 44
+          },
+          {
+            "name": "2×",
+            "height": 44
+          },
+          {
+            "name": "3×",
+            "height": 44
+          },
+          {
+            "name": "4×",
+            "height": 44
+          },
+          {
+            "name": "All forms",
+            "height": 44
+          },
+          {
+            "name": "Fibers",
+            "height": 44
+          },
+          {
+            "name": "Fragments",
+            "height": 44
+          },
+          {
+            "name": "Replay reveal",
+            "height": 44
+          },
+          {
+            "name": "Research context · NIH ↗",
+            "height": 44
+          }
+        ],
+        "width": 320,
+        "height": 568
+      },
+      "wholeBottleUnchanged": true,
+      "wholeBottleEvidence": {
+        "before": {
+          "src": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "photoDOM": "<button type=\"button\" class=\"specimen-photo-target\" aria-label=\"Choose a detail area on the bottle. Keyboard users can use the Detail position control.\"><img alt=\"Illustrative clear retail-style PET water bottle with a white cap, blue-and-white generic label, a fill line and molded ribs\" loading=\"lazy\" width=\"1122\" height=\"1402\" decoding=\"async\" data-nimg=\"1\" style=\"color:transparent\" src=\"http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp\"><span class=\"specimen-locator\" data-testid=\"specimen-locator\" aria-hidden=\"true\" style=\"left: 33.3333%; top: 12.6619%; width: 33.3333%; height: 26.6762%;\"><span>Detail area</span></span></button>",
+          "style": {
+            "filter": "none",
+            "opacity": "1",
+            "transform": "none",
+            "blend": "normal"
+          },
+          "bounds": {
+            "x": 19.1875,
+            "y": 108.234375,
+            "width": 281.625,
+            "height": 351.890625
+          },
+          "decodedImageSHA256": "b7adfee8f5eacfadd1d286ee872a1e266d7a9db24da7e05246722170ae03507b"
+        },
+        "after": {
+          "src": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "photoDOM": "<button type=\"button\" class=\"specimen-photo-target\" aria-label=\"Choose a detail area on the bottle. Keyboard users can use the Detail position control.\"><img alt=\"Illustrative clear retail-style PET water bottle with a white cap, blue-and-white generic label, a fill line and molded ribs\" loading=\"lazy\" width=\"1122\" height=\"1402\" decoding=\"async\" data-nimg=\"1\" style=\"color:transparent\" src=\"http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp\"><span class=\"specimen-locator\" data-testid=\"specimen-locator\" aria-hidden=\"true\" style=\"left: 33.3333%; top: 12.6619%; width: 33.3333%; height: 26.6762%;\"><span>Detail area</span></span></button>",
+          "style": {
+            "filter": "none",
+            "opacity": "1",
+            "transform": "none",
+            "blend": "normal"
+          },
+          "bounds": {
+            "x": 19.1875,
+            "y": 108.234375,
+            "width": 281.625,
+            "height": 351.890625
+          },
+          "decodedImageSHA256": "b7adfee8f5eacfadd1d286ee872a1e266d7a9db24da7e05246722170ae03507b"
+        }
+      },
+      "hashes": {
+        "macro": "76e267ce80845c05eb235227e7927bf0686cc1214519ae8733342c6fef260b0c",
+        "ribs": "6f00be8cbf5c0f98301e5ec80e685109e9f99d171bdf5818224b889ceee91ccf",
+        "zoomed": "21016f016f2ca17ce216ff3746ae4a51ad733c0c3dc7dd51ddb588a5b50072a3",
+        "uv": "5be60e9072504fd767efb738fbd21dbfa3ad676fe010ed8d2600875517713376",
+        "fibers": "13681ffee81c0126a340da205f735d27c8856ac03e67335dee9ccc6588236e85"
+      }
+    },
+    {
+      "name": "lifecycle",
+      "passed": true,
+      "apiRequests": [],
+      "responses": [
+        {
+          "url": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "status": 200
+        }
+      ],
+      "idle": {
+        "before": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "idle",
+          "renderer": "photo-canvas",
+          "rendered": "macro",
+          "form": "all",
+          "visibleForms": "0",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "settled",
+          "scanProgress": "1.000",
+          "renderCount": "2",
+          "width": 556,
+          "height": 556
+        },
+        "after": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "idle",
+          "renderer": "photo-canvas",
+          "rendered": "macro",
+          "form": "all",
+          "visibleForms": "0",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "settled",
+          "scanProgress": "1.000",
+          "renderCount": "2",
+          "width": 556,
+          "height": 556
+        }
+      },
+      "scanPaused": {
+        "before": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "paused",
+          "renderer": "photo-canvas",
+          "rendered": "uv",
+          "form": "all",
+          "visibleForms": "1",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "scanning",
+          "scanProgress": "0.148",
+          "renderCount": "35",
+          "width": 556,
+          "height": 556
+        },
+        "after": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "paused",
+          "renderer": "photo-canvas",
+          "rendered": "uv",
+          "form": "all",
+          "visibleForms": "1",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "scanning",
+          "scanProgress": "0.148",
+          "renderCount": "35",
+          "width": 556,
+          "height": 556
+        }
+      },
+      "offscreen": {
+        "before": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "offscreen",
+          "renderer": "photo-canvas",
+          "rendered": "uv",
+          "form": "all",
+          "visibleForms": "1",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "scanning",
+          "scanProgress": "0.148",
+          "renderCount": "35",
+          "width": 556,
+          "height": 556
+        },
+        "after": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "offscreen",
+          "renderer": "photo-canvas",
+          "rendered": "uv",
+          "form": "all",
+          "visibleForms": "1",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "scanning",
+          "scanProgress": "0.148",
+          "renderCount": "35",
+          "width": 556,
+          "height": 556
+        }
+      },
+      "hidden": {
+        "before": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "offscreen",
+          "renderer": "photo-canvas",
+          "rendered": "uv",
+          "form": "all",
+          "visibleForms": "5",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "scanning",
+          "scanProgress": "0.326",
+          "renderCount": "41",
+          "width": 556,
+          "height": 556
+        },
+        "after": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "offscreen",
+          "renderer": "photo-canvas",
+          "rendered": "uv",
+          "form": "all",
+          "visibleForms": "5",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "scanning",
+          "scanProgress": "0.326",
+          "renderCount": "41",
+          "width": 556,
+          "height": 556
+        }
+      },
+      "reduced": {
+        "before": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "reduced-motion",
+          "renderer": "photo-canvas",
+          "rendered": "uv",
+          "form": "all",
+          "visibleForms": "16",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "settled",
+          "scanProgress": "1.000",
+          "renderCount": "43",
+          "width": 556,
+          "height": 556
+        },
+        "after": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "reduced-motion",
+          "renderer": "photo-canvas",
+          "rendered": "uv",
+          "form": "all",
+          "visibleForms": "16",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "settled",
+          "scanProgress": "1.000",
+          "renderCount": "43",
+          "width": 556,
+          "height": 556
+        }
+      },
+      "visibilityMethod": "Synthetic document.hidden and visibilitychange, not native background-tab emulation"
+    },
+    {
+      "name": "reduced-at-load",
+      "passed": true,
+      "apiRequests": [],
+      "responses": [
+        {
+          "url": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "status": 200
+        }
+      ],
+      "frozen": {
+        "before": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "reduced-motion",
+          "renderer": "photo-canvas",
+          "rendered": "uv",
+          "form": "fragments",
+          "visibleForms": "10",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "settled",
+          "scanProgress": "1.000",
+          "renderCount": "4",
+          "width": 341,
+          "height": 341
+        },
+        "after": {
+          "testid": "specimen-detail-canvas",
+          "running": "false",
+          "motion": "reduced-motion",
+          "renderer": "photo-canvas",
+          "rendered": "uv",
+          "form": "fragments",
+          "visibleForms": "10",
+          "zoom": "3",
+          "position": "0.500,0.260",
+          "crop": "{\"x\":0.33333333333333337,\"y\":0.12661911554921543,\"width\":0.3333333333333333,\"height\":0.26676176890156916}",
+          "transition": "settled",
+          "scanProgress": "1.000",
+          "renderCount": "4",
+          "width": 341,
+          "height": 341
+        }
+      }
+    },
+    {
+      "name": "image-failure-and-retry",
+      "passed": true,
+      "apiRequests": [],
+      "responses": [
+        {
+          "url": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp?retry=1",
+          "status": 200
+        }
+      ],
+      "recovered": true
+    },
+    {
+      "name": "canvas-unavailable",
+      "passed": true,
+      "apiRequests": [],
+      "responses": [
+        {
+          "url": "http://localhost:3020/media/ripple/specimen/retail-pet-clean.webp",
+          "status": 200
+        }
+      ],
+      "fullPhotoAvailable": true,
+      "falseRotationControl": false
+    }
+  ],
+  "failures": [],
+  "recordings": [
+    {
+      "name": "layout-1440",
+      "file": "recordings\\layout-1440.webm",
+      "bytes": 822959,
+      "sha256": "c58f81825bf6de29f42deab4568d49b5e9fbbd63f1bedf55dacaf2811a801e1e",
+      "timing": "Unedited interaction recording; no acceleration"
+    },
+    {
+      "name": "layout-390",
+      "file": "recordings\\layout-390.webm",
+      "bytes": 531353,
+      "sha256": "aeafd425fb3556d87cb39168f8bd088cbc6d9c91a8d10c531e9f5eb0507f1249",
+      "timing": "Unedited interaction recording; no acceleration"
+    }
+  ],
+  "success": true,
+  "browser": "152.0.7977.83",
+  "completedAt": "2026-09-19T09:25:12.453Z",
+  "sourceHashes": [
+    {
+      "file": "src/components/atmosphere/specimen-inspector.tsx",
+      "sha256": "3798b4ccb18b24bffa45a66d7abcd6f20b5bfaacafa809efb54625106937ba26"
+    },
+    {
+      "file": "src/components/atmosphere/specimen-inspector.css",
+      "sha256": "2a7930af55c1a1bc6ba7813719dce568755dd14a7d52a5556f02a509f46a7583"
+    },
+    {
+      "file": "src/components/atmosphere/bottle-scene.ts",
+      "sha256": "0aa7567c3a2a2b9a679b57d71b1511ee897769be0872ce7d37d810d763ede9e3"
+    },
+    {
+      "file": "public/media/ripple/specimen/retail-pet-clean.webp",
+      "sha256": "70453cef21fe746362d9bfa7b50968ec093443ef223848de99098069e9c13b97"
+    }
+  ]
+}

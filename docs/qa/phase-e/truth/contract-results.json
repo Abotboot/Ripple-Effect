@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-19T14:07:46.962Z",
+  "checks": [
+    {
+      "name": "legacy-read-contracts",
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "provenance",
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "read-path",
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "unit-report",
+      "passed": true,
+      "exitCode": 0
+    }
+  ],
+  "success": true,
+  "completedAt": "2026-09-19T14:07:50.312Z"
+}

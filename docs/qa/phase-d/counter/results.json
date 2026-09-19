@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-09-19T07:21:28.963Z",
+  "base": "http://localhost:3020",
+  "checks": [
+    {
+      "width": 1440,
+      "height": 900,
+      "reducedMotion": false,
+      "passed": true,
+      "count": 240000,
+      "nanoMarks": 90,
+      "noAPI": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "reducedMotion": false,
+      "passed": true,
+      "count": 240000,
+      "nanoMarks": 90,
+      "noAPI": true
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "reducedMotion": true,
+      "passed": true,
+      "count": 240000,
+      "nanoMarks": 90,
+      "noAPI": true
+    }
+  ],
+  "success": true,
+  "completedAt": "2026-09-19T07:21:44.905Z"
+}

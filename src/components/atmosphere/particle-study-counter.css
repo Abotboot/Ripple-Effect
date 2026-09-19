@@ -1,0 +1,21 @@
+.study-counter { --study-accent: #b3d4ca; }
+.study-counter .particle-number { margin-bottom: 18px; }
+.study-counter .particle-number > span:first-child { font-size: clamp(58px, 6.6vw, 92px); letter-spacing: -.04em; }
+.study-progress { height: 2px; overflow: hidden; background: #d3e5de1c; margin: 20px 0; }
+.study-progress > span { display: block; width: 100%; height: 100%; background: var(--study-accent); transform: scaleX(var(--study-progress)); transform-origin: left; }
+.study-counter-context { margin: 0; max-width: 440px; font-size: 15px; line-height: 1.75; color: #d9e4df; }
+.study-counter-actions { display: flex; gap: 8px 20px; flex-wrap: wrap; margin-top: 14px; }
+.study-counter-actions button { display: inline-flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 44px; padding: 8px 0; color: var(--study-accent); font: inherit; font-size: 13px; background: none; border: 0; border-bottom: 1px solid #78968d66; cursor: pointer; }
+.study-counter-actions button:hover { color: #f1f7f3; border-color: currentColor; }
+.study-counter-actions button:disabled { color: #9aa9a4; cursor: default; }
+.study-counter-actions button:focus-visible { outline: 2px solid #d5ece2; outline-offset: 5px; }
+.study-breakdown:not([hidden]) { display: grid; grid-template-columns: 104px minmax(0, 1fr); align-items: start; gap: 22px; margin-top: 24px; padding: 20px 0; border-block: 1px solid #d3e5de26; }
+.study-dot-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; padding-top: 5px; }
+.study-dot-grid span { aspect-ratio: 1; background: #596661; }
+.study-dot-grid span[data-nano=true] { background: var(--study-accent); }
+.study-breakdown p { margin: 0; font-size: 13px; line-height: 1.65; color: #bbc9c3; }
+.study-breakdown p + p { margin-top: 8px; }
+.study-breakdown strong { color: #e3ede7; font-weight: 500; }
+.study-counter-boundary { margin: 18px 0 0; color: #a9b9b2; font-size: 12px; line-height: 1.65; }
+@media (max-width: 450px) { .study-counter .particle-number > span:first-child { font-size: clamp(47px, 12vw, 66px); } .study-breakdown:not([hidden]) { grid-template-columns: 88px minmax(0, 1fr); gap: 16px; } }
+@media (prefers-reduced-motion: reduce) { .study-progress > span { transform: none; } }

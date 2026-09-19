@@ -1,4 +1,5 @@
 import type { UtilityWithStats } from './types'
+import { summaryPresentation } from './assessment-presentation'
 
 export interface WaterReportCardItemViewModel {
   name: string
@@ -52,22 +53,14 @@ export function buildWaterReportCardViewModel(
 
   const summaries = utility.contaminantSummaries || []
 
-  const compared = (status: string | undefined) =>
-    status === 'above_benchmark' || status === 'below_benchmark'
-
-  const measured = (s: typeof summaries[number]) =>
-    s.isVerified && s.hasData && s.latestLevel != null &&
-    Number.isFinite(s.latestLevel)
-
-  const legalAssessed = summaries.filter(s =>
-    measured(s) && compared(s.legalBenchmarkStatus))
-  const healthAssessed = summaries.filter(s =>
-    measured(s) && compared(s.healthBenchmarkStatus))
+  const assessments = summaries.map(summaryPresentation)
+  const legalAssessed = assessments.filter(s => s.legal.ratio != null)
+  const healthAssessed = assessments.filter(s => s.health.ratio != null)
 
   const legalAbove = legalAssessed.filter(s =>
-    s.legalBenchmarkStatus === 'above_benchmark').length
+    s.legal.status === 'above_benchmark').length
   const healthAbove = healthAssessed.filter(s =>
-    s.healthBenchmarkStatus === 'above_benchmark').length
+    s.health.status === 'above_benchmark').length
 
   const hasAssessedVerifiedData = legalAssessed.length > 0 || healthAssessed.length > 0
 
@@ -100,8 +93,6 @@ export function buildWaterReportCardViewModel(
     legalStatusText = `${legalAbove} above / ${legalAssessed.length} assessed`
     if (legalAbove > 0) {
       legalCardTone = 'rose'
-    } else {
-      legalCardTone = 'emerald'
     }
     const unassessedCount = summaries.length - legalAssessed.length
     legalSublabel = unassessedCount > 0 ? `${unassessedCount} not assessed` : 'All tracked contaminants assessed'
@@ -110,51 +101,11 @@ export function buildWaterReportCardViewModel(
   // Key findings (top 3)
   const keyFindings: WaterReportCardItemViewModel[] = summaries.slice(0, 3).map((item) => {
     const name = item.contaminant?.name || (item as any).name || 'Contaminant'
-    const val = item.latestLevel
-    const hasMeas = item.hasData && val != null && Number.isFinite(val)
-    const unit = item.unit || ''
-    const valueText = hasMeas ? `${val} ${unit}`.trim() : '— Not measured'
-
-    let statusText = 'NOT ASSESSED'
-    let dotColor = '#94a3b8' // slate
-    let textColor = '#94a3b8'
-
-    if (!hasMeas) {
-      statusText = 'NO MEASUREMENT RECORDED'
-    } else if (!item.isVerified) {
-      if (item.isIllustrative || item.healthBenchmarkStatus === 'illustrative' || item.legalBenchmarkStatus === 'illustrative') {
-        statusText = 'ILLUSTRATIVE BENCHMARK'
-        dotColor = '#a855f7'
-        textColor = '#c084fc'
-      } else {
-        statusText = 'UNREVIEWED SAMPLE'
-        dotColor = '#94a3b8'
-        textColor = '#94a3b8'
-      }
-    } else {
-      // Verified and measured
-      if (item.legalBenchmarkStatus === 'above_benchmark') {
-        statusText = 'EXCEEDS LEGAL LIMIT'
-        dotColor = '#f43f5e'
-        textColor = '#f43f5e'
-      } else if (item.healthBenchmarkStatus === 'above_benchmark') {
-        statusText = 'EXCEEDS HEALTH GUIDELINE'
-        dotColor = '#f59e0b'
-        textColor = '#fbbf24'
-      } else if (item.legalBenchmarkStatus === 'below_benchmark' || item.healthBenchmarkStatus === 'below_benchmark') {
-        statusText = 'BELOW BENCHMARK'
-        dotColor = '#10b981'
-        textColor = '#34d399'
-      } else if (item.legalBenchmarkStatus === 'incompatible_units' || item.healthBenchmarkStatus === 'incompatible_units') {
-        statusText = 'UNIT MISMATCH'
-        dotColor = '#94a3b8'
-        textColor = '#94a3b8'
-      } else if (item.legalBenchmarkStatus === 'no_benchmark' || item.healthBenchmarkStatus === 'no_benchmark') {
-        statusText = 'NO BENCHMARK AVAILABLE'
-        dotColor = '#94a3b8'
-        textColor = '#94a3b8'
-      }
-    }
+    const assessment = summaryPresentation(item)
+    const valueText = assessment.valueText
+    const statusText = assessment.tone === 'danger' ? 'EXCEEDS LEGAL LIMIT' : assessment.tone === 'warning' ? 'EXCEEDS HEALTH GUIDELINE' : assessment.label.toUpperCase()
+    const dotColor = assessment.tone === 'danger' ? '#f43f5e' : assessment.tone === 'warning' ? '#f59e0b' : '#94a3b8'
+    const textColor = assessment.tone === 'warning' ? '#fbbf24' : dotColor
 
     return {
       name,

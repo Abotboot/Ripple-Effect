@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
+import { sampleBenchmarkStatus } from '@/lib/sample-read-model'
+import { getProvenancePresentation } from '@/lib/provenance'
 
 // GET /api/readings/recent
 // Returns recent citizen-submitted readings for the public home feed.
@@ -8,11 +10,8 @@ import { db } from '@/lib/db'
 // for display, and parses the reporter name out of the notes field.
 export async function GET() {
 
-  const readings = await db.sample.findMany({
-    where: { quality: 'citizen' },
-    take: 12,
-    orderBy: { createdAt: 'desc' },
-    select: {
+  const { samples: readings, dataStatus } = await readSamples({
+      provenance: true, verificationStatus: true, quality: true,
       id: true,
       level: true,
       unit: true,
@@ -23,10 +22,10 @@ export async function GET() {
       notes: true,
       source: true,
       robot: true,
-      contaminant: { select: { id: true, name: true, slug: true, healthGuideline: true, legalLimit: true } },
+      contaminant: { select: { id: true, name: true, slug: true, healthGuideline: true, legalLimit: true,
+        healthGuidelineUnit: true, legalLimitUnit: true } },
       utility: { select: { id: true, name: true, city: true, state: true } },
-    },
-  })
+  }, { where: { quality: 'citizen' }, take: 12, orderBy: { createdAt: 'desc' } })
 
   // Parse reporter name from notes (format: "reporter:email | name:Jane | ...")
   const items = readings.map((r) => {
@@ -36,10 +35,8 @@ export async function GET() {
       if (m) reporterName = m[1].trim()
     }
     const c = r.contaminant
-    const exceedsHealth =
-      c.healthGuideline != null && c.healthGuideline > 0 && r.level > c.healthGuideline
-    const exceedsLegal =
-      c.legalLimit != null && c.legalLimit > 0 && r.level > c.legalLimit
+    const healthBenchmarkStatus = sampleBenchmarkStatus({ ...r, benchmark: c.healthGuideline, benchmarkUnit: c.healthGuidelineUnit })
+    const legalBenchmarkStatus = sampleBenchmarkStatus({ ...r, benchmark: c.legalLimit, benchmarkUnit: c.legalLimitUnit })
     return {
       id: r.id,
       level: r.level,
@@ -49,16 +46,21 @@ export async function GET() {
       sampleDate: r.sampleDate.toISOString(),
       createdAt: r.createdAt.toISOString(),
       source: r.source,
+      provenance: r.provenance,
+      verificationStatus: r.verificationStatus,
+      reviewLabel: getProvenancePresentation(r).badgeLabel,
+      healthBenchmarkStatus,
+      legalBenchmarkStatus,
       robot: r.robot,
       reporterName,
       contaminant: { name: c.name, slug: c.slug },
       utility: r.utility
         ? { name: r.utility.name, city: r.utility.city, state: r.utility.state }
         : null,
-      exceedsHealth,
-      exceedsLegal,
+      exceedsHealth: healthBenchmarkStatus === 'above_benchmark',
+      exceedsLegal: legalBenchmarkStatus === 'above_benchmark',
     }
   })
 
-  return NextResponse.json({ items, count: items.length })
+  return NextResponse.json({ items, count: items.length, dataStatus }, { headers: sampleReadHeaders(dataStatus) })
 }

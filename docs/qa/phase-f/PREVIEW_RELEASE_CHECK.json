@@ -1,0 +1,104 @@
+{
+  "base": "https://deploy-preview-3--rippleeffecter.netlify.app",
+  "applicationRevision": "0104bfda6edf7ebe1cd3ab22a6acb099d4bbef44",
+  "checkedAt": "2026-09-19T14:26:54.496Z",
+  "requests": [
+    {
+      "route": "/api/readings/recent",
+      "status": 200,
+      "bytes": 7710
+    },
+    {
+      "route": "/api/stats?view=map",
+      "status": 200,
+      "bytes": 10714
+    },
+    {
+      "route": "/api/activity",
+      "status": 200,
+      "bytes": 1669
+    },
+    {
+      "route": "/api/utilities/scores",
+      "status": 200,
+      "bytes": 7635
+    },
+    {
+      "route": "/api/stats",
+      "status": 200,
+      "bytes": 14917
+    },
+    {
+      "route": "/api/export?table=samples&format=json",
+      "status": 200,
+      "bytes": 1938874
+    },
+    {
+      "route": "/api/samples?limit=5000",
+      "status": 200,
+      "bytes": 5751714
+    },
+    {
+      "route": "/media/ripple/granules-card.webp",
+      "status": 200,
+      "bytes": 42510
+    },
+    {
+      "route": "/media/ripple/sample-study-panel.webp",
+      "status": 200,
+      "bytes": 59828
+    },
+    {
+      "route": "/media/ripple/particle-world-master.webp",
+      "status": 200,
+      "bytes": 54518
+    },
+    {
+      "route": "/media/ripple/fibers-card.webp",
+      "status": 200,
+      "bytes": 40348
+    },
+    {
+      "route": "/media/ripple/fragments-card.webp",
+      "status": 200,
+      "bytes": 62376
+    },
+    {
+      "route": "/media/ripple/specimen/retail-pet-clean.webp",
+      "status": 200,
+      "bytes": 115010
+    },
+    {
+      "route": "/media/ripple/microscope/opening-v4.png",
+      "status": 200,
+      "bytes": 505513
+    },
+    {
+      "route": "/media/ripple/microscope/terminal-v4.png",
+      "status": 200,
+      "bytes": 958395
+    },
+    {
+      "route": "/media/ripple/microscope/microscope-journey-v4.mp4",
+      "status": 200,
+      "bytes": 2377212
+    }
+  ],
+  "passed": true,
+  "counts": {
+    "utilities": 30,
+    "samples": 3073,
+    "quality": {
+      "verified": 0,
+      "provisional": 0,
+      "citizen": 651,
+      "unreviewed": 2422,
+      "illustrative": 0
+    },
+    "dataStatus": {
+      "status": "degraded",
+      "code": "legacy_sample_schema",
+      "provenanceAvailable": false
+    }
+  }
+}

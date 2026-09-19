@@ -1,0 +1,193 @@
+{
+  "createdAt": "2026-09-19T07:55:58.675Z",
+  "base": "https://deploy-preview-3--rippleeffecter.netlify.app",
+  "applicationRevision": "464ca6007af6ff4a2174dabda37a0d0612070b66",
+  "requestPolicy": "GET only; no database mutation or synthetic response substitution",
+  "http": [
+    {
+      "path": "/api/export?table=utilities&format=json",
+      "method": "GET",
+      "status": 200,
+      "bytes": 22060,
+      "dataStatus": null,
+      "dataCode": null
+    },
+    {
+      "path": "/api/stats?view=map",
+      "method": "GET",
+      "status": 200,
+      "bytes": 10714,
+      "dataStatus": null,
+      "dataCode": null
+    },
+    {
+      "path": "/api/stats",
+      "method": "GET",
+      "status": 200,
+      "bytes": 14917,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/utilities/scores",
+      "method": "GET",
+      "status": 200,
+      "bytes": 7635,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/samples?limit=5000",
+      "method": "GET",
+      "status": 200,
+      "bytes": 5751714,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/export?table=samples&format=json",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1938874,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/utilities/cmrksejq9000hjt08vknl9f7n",
+      "method": "GET",
+      "status": 200,
+      "bytes": 44806,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/utilities/cmrksejpy000fjt08kobvfvig",
+      "method": "GET",
+      "status": 200,
+      "bytes": 44480,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/utilities/compare?ids=cmrksejq9000hjt08vknl9f7n,cmrksejpy000fjt08kobvfvig",
+      "method": "GET",
+      "status": 200,
+      "bytes": 18137,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/contaminants",
+      "method": "GET",
+      "status": 200,
+      "bytes": 17229,
+      "dataStatus": null,
+      "dataCode": null
+    },
+    {
+      "path": "/api/contaminants/cmrksejnf0001jt08gsrorvsw",
+      "method": "GET",
+      "status": 200,
+      "bytes": 13940,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/microplastics/trend",
+      "method": "GET",
+      "status": 200,
+      "bytes": 254,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/readings/recent",
+      "method": "GET",
+      "status": 200,
+      "bytes": 7710,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/activity",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1669,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/dashboard",
+      "method": "GET",
+      "status": 200,
+      "bytes": 810,
+      "dataStatus": "degraded",
+      "dataCode": "legacy_sample_schema"
+    },
+    {
+      "path": "/api/utilities/near?lat=41.8781&lng=-87.6298&radius=300",
+      "method": "GET",
+      "status": 200,
+      "bytes": 5323,
+      "dataStatus": null,
+      "dataCode": null
+    }
+  ],
+  "checks": [
+    {
+      "name": "Complete public record reconciliation",
+      "passed": true,
+      "utilities": 30,
+      "mapLocations": 30,
+      "samples": 3073,
+      "sourcesAndUnitsPreserved": true,
+      "completeIdSetSHA256": "babaeebaf39cf98bf25f8b6db3ecbe7acd92b252aecf360f352058783701e2eb",
+      "legacySchema": true,
+      "fabricatedSafetyScores": false,
+      "qualityCounts": {
+        "verified": 0,
+        "provisional": 0,
+        "citizen": 651,
+        "unreviewed": 2422,
+        "illustrative": 0
+      }
+    },
+    {
+      "name": "Detail, compare, contaminant, trend and recent public reads",
+      "passed": true
+    }
+  ],
+  "browser": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "passed": true,
+      "markers": 30,
+      "kenny": true,
+      "newMicroscope": true,
+      "specimen": true,
+      "counter": true,
+      "writes": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedResponses": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "passed": true,
+      "markers": 30,
+      "kenny": true,
+      "newMicroscope": true,
+      "specimen": true,
+      "counter": true,
+      "writes": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedResponses": []
+    }
+  ],
+  "success": true,
+  "browserVersion": "152.0.7977.83",
+  "completedAt": "2026-09-19T07:56:44.146Z"
+}

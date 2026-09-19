@@ -1,146 +1,135 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type MouseEvent } from 'react'
+import { createBottleScene, specimenCrop, type BottleScene, type SpecimenForm, type SpecimenPosition } from './bottle-scene'
 import './specimen-inspector.css'
 
-const BOTTLE = 'M -37 -193 L 37 -193 L 37 -157 C 37 -132 93 -127 93 -85 L 93 180 Q 93 207 65 207 L -65 207 Q -93 207 -93 180 L -93 -85 C -93 -127 -37 -132 -37 -157 Z'
+const photoSource = '/media/ripple/specimen/retail-pet-clean.webp'
+const motionQuery = '(prefers-reduced-motion: reduce)'
+const readReduced = () => matchMedia(motionQuery).matches
+const serverReduced = () => false
+function subscribeReduced(notify: () => void) {
+  const preference = matchMedia(motionQuery)
+  preference.addEventListener('change', notify)
+  return () => preference.removeEventListener('change', notify)
+}
+const regions = [
+  { name: 'Shoulder', y: .26, title: 'Fill line and shoulder', note: 'Follow the water line and the change in shape below the cap. Reflections and molded edges belong to the bottle image; they are not evidence of particles.' },
+  { name: 'Label', y: .52, title: 'Label and container', note: 'The printed label describes the illustrated product. It supplies no particle measurement. Its claims are not a laboratory result for the water shown.' },
+  { name: 'Ribs', y: .78, title: 'Ribbing and folds', note: 'The lower wall has molded ridges, small folds and bright reflections. Those visible structures are the container, not a count of material suspended in water.' },
+] as const
 
 export function SpecimenInspector() {
+  const photo = useRef<HTMLImageElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
+  const positionControl = useRef<HTMLInputElement>(null)
   const [uv, setUv] = useState(false)
-  const [angle, setAngle] = useState(0)
-  const [fallback, setFallback] = useState(false)
-  const scene = useRef<ReturnType<typeof import('./bottle-scene').createBottleScene> | null>(null)
-  const view = useRef({ uv, angle })
+  const [position, setPosition] = useState<SpecimenPosition>({ x: .5, y: .26 })
+  const [zoom, setZoom] = useState(3)
+  const [form, setForm] = useState<SpecimenForm>('all')
+  const [paused, setPaused] = useState(false)
+  const [imageReady, setImageReady] = useState(false)
+  const [imageFailed, setImageFailed] = useState(false)
+  const [canvasUnavailable, setCanvasUnavailable] = useState(false)
+  const [attempt, setAttempt] = useState(0)
+  const reducedMotion = useSyncExternalStore(subscribeReduced, readReduced, serverReduced)
+  const scene = useRef<BottleScene | null>(null)
+  const view = useRef({ uv, position, zoom, form, paused, reducedMotion })
+  const crop = specimenCrop(position, zoom)
+  const region = regions.reduce((nearest, candidate) => Math.abs(candidate.y - position.y) < Math.abs(nearest.y - position.y) ? candidate : nearest)
+
+  useLayoutEffect(() => {
+    view.current = { uv, position, zoom, form, paused, reducedMotion }
+    scene.current?.update(view.current)
+  }, [uv, position, zoom, form, paused, reducedMotion])
 
   useEffect(() => {
-    view.current = { uv, angle }
-    scene.current?.update(uv, angle)
-  }, [uv, angle])
-
-  useEffect(() => {
-    if (fallback) return
-    let cancelled = false
-    const element = canvas.current
-    if (!element) return
-    const observer = new IntersectionObserver(entries => {
-      if (!entries.some(entry => entry.isIntersecting)) return
-      observer.disconnect()
-      import('./bottle-scene').then(({ createBottleScene }) => {
-        if (cancelled) return
+    const element = canvas.current, source = photo.current
+    if (!imageReady || canvasUnavailable || !element || !source) return
+    let disposed = false, visible = false
+    let current: BottleScene | null = null
+    const fail = () => { if (!disposed) setCanvasUnavailable(true) }
+    const activate = () => current?.setVisible(visible && !document.hidden)
+    const observer = new IntersectionObserver(([entry]) => {
+      if (disposed) return
+      visible = entry.isIntersecting && entry.intersectionRatio > 0
+      if (visible && !current) {
         try {
-          scene.current = createBottleScene(element)
-          scene.current.update(view.current.uv, view.current.angle)
-        } catch { setFallback(true) }
-      }).catch(() => { if (!cancelled) setFallback(true) })
-    }, { rootMargin: '400px' })
+          current = createBottleScene(element, source, fail)
+          scene.current = current; current.update(view.current)
+        } catch { fail() }
+      }
+      activate()
+    }, { threshold: [0, .01] })
     observer.observe(element)
-    return () => { cancelled = true; observer.disconnect(); scene.current?.dispose(); scene.current = null }
-  }, [fallback])
-
-  useEffect(() => {
-    if (!fallback) return
-    const element = canvas.current
-    const context = element?.getContext('2d')
-    if (!element || !context) return
-    const draw = () => {
-      const { width, height } = element.getBoundingClientRect()
-      if (!width || !height) return
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      element.width = Math.round(width * dpr)
-      element.height = Math.round(height * dpr)
-      const c = context
-      c.setTransform(dpr, 0, 0, dpr, 0, 0)
-      c.clearRect(0, 0, width, height)
-      const scale = Math.min(width / 360, height / 550)
-      const radians = angle * Math.PI / 180
-      c.translate(width / 2, height / 2 + 12)
-      c.scale(scale, scale)
-
-      // Axially symmetric bottle: rotating meridians and inclusions supply depth.
-      c.strokeStyle = uv ? '#8b467d' : '#244e4a'
-      c.lineWidth = 1
-      c.beginPath(); c.ellipse(0, 229, 127, 16, 0, 0, Math.PI * 2); c.stroke()
-      c.setLineDash([2, 9])
-      c.beginPath(); c.moveTo(-149, -237); c.lineTo(-149, 215); c.moveTo(149, -237); c.lineTo(149, 215); c.stroke()
-      c.setLineDash([])
-      const bottle = new Path2D(BOTTLE)
-      const glass = c.createLinearGradient(-93, 0, 93, 0)
-      glass.addColorStop(0, uv ? '#271126' : '#133e40')
-      glass.addColorStop(.2, uv ? '#100d20' : '#629b9a')
-      glass.addColorStop(.42, uv ? '#090e19' : '#143d41')
-      glass.addColorStop(.8, uv ? '#130d23' : '#315d61')
-      glass.addColorStop(1, uv ? '#422049' : '#87b5ac')
-      c.fillStyle = glass; c.fill(bottle)
-      c.strokeStyle = uv ? '#ff71ba' : '#acd5cc'; c.lineWidth = 1.5; c.stroke(bottle)
-      c.save(); c.clip(bottle)
-      for (let i = 0; i < 12; i++) {
-        const phase = radians + i * Math.PI / 6
-        c.strokeStyle = uv ? `rgba(247,102,193,${.15 + (Math.cos(phase) + 1) * .15})` : 'rgba(202,244,235,.12)'
-        c.beginPath(); c.ellipse(Math.sin(phase) * 70, 27, 16, 186, 0, 0, Math.PI * 2); c.stroke()
-      }
-      for (let y = -79; y < 200; y += 29) {
-        c.strokeStyle = uv ? '#864477' : '#89b8b270'
-        c.beginPath(); c.ellipse(0, y, 96, 9, 0, 0, Math.PI * 2); c.stroke()
-      }
-      if (uv) {
-        for (let i = 0; i < 105; i++) {
-          const phase = i * 2.39996 + radians
-          const depth = Math.cos(phase)
-          const x = Math.sin(phase) * (20 + i % 67)
-          const y = -126 + ((i * 71) % 311)
-          c.globalAlpha = .35 + (depth + 1) * .325
-          c.fillStyle = i % 3 ? '#ff6ca8' : '#37f6cb'
-          c.strokeStyle = c.fillStyle
-          if (i % 4 === 0) {
-            c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + 9, y - 6, x + 4, y + 10); c.stroke()
-          } else { c.beginPath(); c.arc(x, y, depth > 0 ? 2.5 : 1.4, 0, Math.PI * 2); c.fill() }
-        }
-        c.globalAlpha = 1
-      } else {
-        c.save(); c.translate(Math.sin(radians) * 65, 15); c.scale(Math.cos(radians), 1)
-        c.fillStyle = '#d4e9df'; c.fillRect(-84, -40, 168, 99)
-        c.fillStyle = '#153d36'; c.textAlign = 'center'; c.font = '12px monospace'; c.fillText('SPECIMEN / 001', 0, -9)
-        c.font = '34px Georgia'; c.fillText('CLEAR', 0, 29)
-        c.restore()
-      }
-      c.restore()
-      c.fillStyle = uv ? '#392441' : '#cadbd2'; c.fillRect(-41, -221, 82, 27)
-      c.strokeStyle = uv ? '#ef8bda' : '#577b71'
-      for (let x = -35; x < 41; x += 7) { c.beginPath(); c.moveTo(x, -218); c.lineTo(x, -197); c.stroke() }
-      element.dataset.rendered = uv ? 'uv' : 'macro'
-      element.dataset.angle = String(angle)
+    document.addEventListener('visibilitychange', activate)
+    return () => {
+      disposed = true; observer.disconnect(); document.removeEventListener('visibilitychange', activate)
+      current?.dispose(); if (scene.current === current) scene.current = null
     }
-    const observer = new ResizeObserver(draw)
-    observer.observe(element); draw()
-    return () => observer.disconnect()
-  }, [uv, angle, fallback])
+  }, [imageReady, canvasUnavailable, attempt])
 
-  return <section className="specimen-stage" aria-labelledby="specimen-title" data-mode={uv ? 'uv' : 'macro'}>
-    <div className="specimen-copy">
-      <p className="specimen-kicker">SPECIMEN 001 / OPTICAL INTERROGATION</p>
-      <h2 id="specimen-title">Change the lens.<br /><em>Not the water.</em></h2>
-      <p>A familiar silhouette. A less familiar scale. Switch the view to explore an illustrated world beneath the surface.</p>
-      <div className="specimen-modes" role="group" aria-label="Specimen view">
-        <button type="button" aria-pressed={!uv} onClick={() => setUv(false)}>Macro view</button>
-        <button type="button" aria-pressed={uv} onClick={() => setUv(true)}>UV view</button>
-      </div>
-      <div className="specimen-readout" aria-live="polite" aria-atomic="true">
-        <h3>{uv ? 'Below the visible threshold.' : 'Clarity is an appearance.'}</h3>
-        <p>{uv ? 'The colored fragments and fibers are an illustration. Their size, number and distribution do not represent measurements of this bottle.' : 'A clear bottle cannot tell you how many micro- or nanoplastic particles its water contains.'}</p>
-        <dl><div><dt>{uv ? 'Study average / per liter' : 'Instrument'}</dt><dd>{uv ? '~240,000 particles' : 'Unaided eye'}</dd></div>
-          <div><dt>{uv ? 'Nanoplastic share / study' : 'Particle concentration'}</dt><dd>{uv ? '~90%' : 'Not measured'}</dd></div></dl>
-      </div>
-      <p className="specimen-caveat">Illustrative visualization, not spectrometry or a UV test. The 2024 study examined three bottled-water brands; it does not establish this specimen’s contents or a shedding rate.</p>
-      <a href="https://www.nih.gov/news-events/nih-research-matters/plastic-particles-bottled-water" target="_blank" rel="noopener noreferrer">Study context / NIH <span aria-hidden="true">↗</span></a>
+  const choosePoint = (event: MouseEvent<HTMLButtonElement>) => {
+    if (!event.detail) { positionControl.current?.focus(); return }
+    const bounds = event.currentTarget.getBoundingClientRect()
+    setPosition({ x: Math.max(.27, Math.min(.73, (event.clientX - bounds.x) / bounds.width)), y: Math.max(.16, Math.min(.86, (event.clientY - bounds.y) / bounds.height)) })
+  }
+  const retryDetail = () => setCanvasUnavailable(false)
+  const unavailable = imageFailed || canvasUnavailable
+
+  return <section className="specimen-stage" aria-labelledby="specimen-title" data-mode={uv ? 'uv' : 'macro'} data-testid="specimen-inspector">
+    <div className="specimen-heading">
+      <div><p className="specimen-kicker">Bottle inspection</p><h2 id="specimen-title">Inspect the bottle</h2></div>
+      <p>Explore the bottle’s surface, then compare it with a separately illustrated particle view. Appearance alone does not tell us what the water contains.</p>
     </div>
-    <div className="specimen-chamber">
-      <div className="specimen-chamber-label"><span>VESSEL / PET ILLUSTRATION</span><span>{uv ? 'UV / CONCEPT' : 'MACRO / EXTERIOR'}</span></div>
-      <canvas key={fallback ? 'fallback' : 'webgl'} ref={canvas} role="img" aria-label={uv ? 'Illustrated bottle with colored particle and fiber markers, not measurement data' : 'Illustrated clear ribbed water bottle with a pale label'}>Illustrated water bottle. Use the view buttons for accompanying text descriptions.</canvas>
-      <label className="specimen-rotation">Rotate specimen <output>{angle}°</output>
-        <input type="range" min="-180" max="180" step="5" value={angle} aria-label="Rotate specimen" aria-valuetext={`${angle} degrees`} onChange={event => setAngle(Number(event.target.value))} />
-      </label>
-      <p className="specimen-scale">NOT TO SCALE / PARTICLES ENLARGED FOR VISIBILITY</p>
+    <div className="specimen-workbench">
+      <figure className="specimen-overview">
+        <div className="specimen-overview-label"><span>The whole bottle</span><span>Illustrative image</span></div>
+        {imageFailed ? <div className="specimen-image-error" role="status"><p>Bottle image unavailable.</p><button type="button" onClick={() => { setImageFailed(false); setImageReady(false); setCanvasUnavailable(false); setAttempt(value => value + 1) }}>Retry image</button></div> :
+          <button type="button" className="specimen-photo-target" onClick={choosePoint} aria-label="Choose a detail area on the bottle. Keyboard users can use the Detail position control." disabled={!imageReady}>
+            <Image key={attempt} ref={photo} src={attempt ? `${photoSource}?retry=${attempt}` : photoSource} width={1122} height={1402} unoptimized loading="lazy" alt="Illustrative clear retail-style PET water bottle with a white cap, blue-and-white generic label, a fill line and molded ribs" onLoad={() => { setImageReady(true); setImageFailed(false) }} onError={() => { setImageReady(false); setImageFailed(true) }} />
+            {imageReady && <span className="specimen-locator" data-testid="specimen-locator" aria-hidden="true" style={{ left: `${crop.x * 100}%`, top: `${crop.y * 100}%`, width: `${crop.width * 100}%`, height: `${crop.height * 100}%` }}><span>Detail area</span></span>}
+          </button>}
+        <figcaption>Illustrative retail-style PET bottle. The whole-bottle image has no particle overlay. Select the shoulder, label or ribs to examine its surface.</figcaption>
+        <div className="specimen-region-controls" role="group" aria-label="Bottle detail area">
+          {regions.map(item => <button type="button" key={item.name} aria-pressed={position.y === item.y && position.x === .5} onClick={() => setPosition({ x: .5, y: item.y })} disabled={imageFailed}>{item.name}</button>)}
+        </div>
+      </figure>
+
+      <div className="specimen-detail-column">
+        <div className="specimen-chamber">
+          <div className="specimen-toolbar">
+            <div className="specimen-modes" role="group" aria-label="Specimen view" aria-describedby="specimen-caveat">
+              <button type="button" aria-pressed={!uv} data-testid="specimen-macro" onClick={() => setUv(false)}>Bottle detail</button>
+              <button type="button" aria-pressed={uv} data-testid="specimen-uv" onClick={() => setUv(true)}>Illustrative UV</button>
+            </div>
+            {uv && <button type="button" className="specimen-pause" data-testid="specimen-pause" aria-pressed={paused} disabled={reducedMotion || unavailable} onClick={() => setPaused(value => !value)}>{reducedMotion ? 'Motion reduced' : paused ? 'Resume motion' : 'Pause motion'}</button>}
+          </div>
+          <div className="specimen-detail-label"><span>{uv ? 'Particle illustration' : `${region.title} · image detail`}</span><span>{uv ? 'Not a scan result' : `${zoom}× image enlargement`}</span></div>
+          <div className="specimen-detail-surface">
+            <canvas id="specimen-detail-canvas" ref={canvas} data-testid="specimen-detail-canvas" role="img" aria-describedby="specimen-detail-explanation specimen-caveat" aria-label={uv ? 'Separately illustrated small fibers and fragments, not particles detected in the bottle' : `Enlarged image crop: ${region.title}`} hidden={unavailable}>The image detail is described below.</canvas>
+            {!imageReady && !imageFailed && <p className="specimen-detail-message" role="status">Loading the bottle image…</p>}
+            {imageFailed && <p className="specimen-detail-message" role="status">The source image could not be loaded. Retry it on the left.</p>}
+            {canvasUnavailable && <div className="specimen-detail-message"><p role="status">Interactive detail is unavailable. The full bottle image and descriptions remain available.</p><button type="button" onClick={retryDetail}>Retry detail</button></div>}
+          </div>
+          <div className="specimen-detail-controls">
+            <label className="specimen-position">Detail position <output>{Math.round(position.y * 100)}%</output><input ref={positionControl} type="range" min="16" max="86" step="1" value={Math.round(position.y * 100)} disabled={unavailable} aria-label="Detail position" aria-valuetext={`${Math.round(position.y * 100)} percent down the image, near ${region.name.toLowerCase()}`} onChange={event => setPosition(value => ({ ...value, y: Number(event.target.value) / 100 }))} /></label>
+            <div className="specimen-zoom" role="group" aria-label="Image enlargement">{[2, 3, 4].map(value => <button key={value} type="button" disabled={unavailable} aria-pressed={zoom === value} onClick={() => setZoom(value)}>{value}×</button>)}</div>
+          </div>
+          {uv && <div className="specimen-form-controls">
+            <div role="group" aria-label="Show illustrated forms">{(['all', 'fibers', 'fragments'] as const).map(value => <button key={value} type="button" disabled={unavailable} aria-pressed={form === value} onClick={() => setForm(value)}>{value === 'all' ? 'All forms' : value === 'fibers' ? 'Fibers' : 'Fragments'}</button>)}</div>
+            <button className="specimen-scan" type="button" data-testid="specimen-scan" disabled={paused || reducedMotion || unavailable} onClick={() => scene.current?.scan()}>Replay reveal</button>
+          </div>}
+        </div>
+        <div className="specimen-readout" aria-live="polite" aria-atomic="true">
+          <h3>{uv ? 'Examples of shape, not a bottle reading' : region.title}</h3>
+          <p id="specimen-detail-explanation">{uv ? 'These fibers and fragments are added illustrations. Their positions, size and movement are illustrative; they were not detected in this bottle image. The detail window is not a calibrated microscope view.' : region.note}</p>
+        </div>
+        <dl className="specimen-facts"><div><dt>Particle concentration</dt><dd>Not measured</dd></div><div><dt>Material identity</dt><dd>Not determined</dd></div></dl>
+        <p id="specimen-caveat" className="specimen-caveat">UV is an illustration, not spectrometry or a material test. Illustrated forms are not to scale. This bottle has no measured particle count.</p>
+        <a className="specimen-source" href="https://www.nih.gov/news-events/nih-research-matters/plastic-particles-bottled-water" target="_blank" rel="noopener noreferrer" aria-label="Read NIH research context in a new tab">Research context · NIH <span aria-hidden="true">↗</span></a>
+      </div>
     </div>
   </section>
 }

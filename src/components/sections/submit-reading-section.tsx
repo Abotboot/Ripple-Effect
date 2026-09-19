@@ -143,12 +143,12 @@ export function SubmitReadingSection() {
               <ShieldCheck className="h-4 w-4" />
             </div>
             <div className="flex-1 text-sm">
-              <span className="font-medium text-foreground">Citizen readings are clearly labeled.</span>{' '}
+              <span className="font-medium text-foreground">Citizen readings stay separate from reviewed evidence.</span>{' '}
               <span className="text-muted-foreground">
                 Every submission you make is tagged{' '}
                 <QualityBadge quality="citizen" size="xs" /> in the database.
-                We never present unverified data as official; your reading
-                helps identify areas that need lab follow-up.
+                It remains unassessed for safety comparisons unless a separate
+                reviewed workflow establishes eligible source and verification evidence.
               </span>
             </div>
           </div>
@@ -356,7 +356,7 @@ export function SubmitReadingSection() {
                             <span className="font-medium text-amber-700 dark:text-amber-400">
                               {selectedContaminant.healthGuideline != null && selectedContaminant.healthGuideline > 0
                                 ? `${selectedContaminant.healthGuideline} ${selectedContaminant.healthGuidelineUnit ?? ''}`
-                                : 'None set'}
+                                : 'Benchmark unavailable'}
                             </span>
                           </div>
                           <div>
@@ -364,7 +364,7 @@ export function SubmitReadingSection() {
                             <span className="font-medium text-rose-700 dark:text-rose-400">
                               {selectedContaminant.legalLimit != null
                                 ? `${selectedContaminant.legalLimit} ${selectedContaminant.legalLimitUnit ?? ''}`
-                                : 'None (unregulated)'}
+                                : 'Benchmark unavailable'}
                             </span>
                           </div>
                         </div>

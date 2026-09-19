@@ -1,107 +1,172 @@
-import * as THREE from 'three'
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+export type SpecimenForm = 'all' | 'fibers' | 'fragments'
+export type SpecimenPosition = { x: number; y: number }
+export type SpecimenView = {
+  uv: boolean
+  position: SpecimenPosition
+  zoom: number
+  form: SpecimenForm
+  paused: boolean
+  reducedMotion: boolean
+}
 
-// On-demand product render: no animation loop, physics engine or remote assets.
-export function createBottleScene(canvas: HTMLCanvasElement) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true })
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75))
-  renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = .9
-  const scene = new THREE.Scene()
-  scene.background = new THREE.Color('#0a151a')
-  const camera = new THREE.PerspectiveCamera(31, 1, .1, 50)
-  camera.position.set(3.2, 1.3, 7.3)
-  camera.lookAt(0, .1, 0)
-  const pmrem = new THREE.PMREMGenerator(renderer)
-  const room = new RoomEnvironment()
-  const environment = pmrem.fromScene(room, .04)
-  scene.environment = environment.texture
-  room.dispose()
-  pmrem.dispose()
-  const bottle = new THREE.Group()
-  bottle.rotation.z = -.09
-  scene.add(bottle)
-  const textures: THREE.Texture[] = []
-  const geometries: THREE.BufferGeometry[] = []
-  const materials: THREE.Material[] = []
-  function mesh(geometry: THREE.BufferGeometry, material: THREE.Material, y = 0) {
-    geometries.push(geometry)
-    if (!materials.includes(material)) materials.push(material)
-    const object = new THREE.Mesh(geometry, material)
-    object.position.y = y
-    bottle.add(object)
-    return object
-  }
-  const pet = new THREE.MeshPhysicalMaterial({ color: '#e5fbff', metalness: 0, roughness: .095, transmission: .96, thickness: .065, ior: 1.47, clearcoat: 1, clearcoatRoughness: .08, envMapIntensity: 1.6, side: THREE.FrontSide })
-  const profile = [[0,-1.65],[.36,-1.65],[.52,-1.58],[.57,-1.45],[.58,-1.3],[.57,-.8],[.57,.5],[.56,.87],[.51,1.03],[.38,1.2],[.25,1.32],[.225,1.45],[.225,1.66]]
-  const body = mesh(new THREE.LatheGeometry(profile.map(([r,y])=>new THREE.Vector2(r,y)),96),pet)
-  const water = mesh(new THREE.CylinderGeometry(.525,.525,2.35,80),new THREE.MeshPhysicalMaterial({ color:'#f2fffc',roughness:.025,transmission:1,thickness:.65,ior:1.333 }),-.31)
-  const meniscus = mesh(new THREE.TorusGeometry(.515,.012,8,80),pet,.87)
-  meniscus.rotation.x = Math.PI/2
-  for (const y of [-1.42,-1.23,-1.04,.42,.61,.80]) {
-    const rib=mesh(new THREE.TorusGeometry(.563,.024,12,96),pet,y)
-    rib.rotation.x=Math.PI/2
-  }
-  for (let i=0;i<5;i++) {
-    const foot=mesh(new THREE.SphereGeometry(.20,24,16),pet,-1.53)
-    foot.scale.set(1,.53,1)
-    foot.position.x=Math.sin(i*Math.PI*2/5)*.33
-    foot.position.z=Math.cos(i*Math.PI*2/5)*.33
-  }
-  const capMaterial=new THREE.MeshStandardMaterial({color:'#e5e9e3',roughness:.32,metalness:.05})
-  mesh(new THREE.CylinderGeometry(.27,.27,.30,80),capMaterial,1.64)
-  for(let i=0;i<48;i++) {
-    const ridge=mesh(new THREE.BoxGeometry(.014,.25,.018),capMaterial,1.64)
-    const a=i*Math.PI*2/48
-    ridge.position.x=Math.sin(a)*.271;ridge.position.z=Math.cos(a)*.271;ridge.rotation.y=a
-  }
-  const seal=mesh(new THREE.TorusGeometry(.239,.027,10,80),capMaterial,1.43)
-  seal.rotation.x=Math.PI/2
-  const labelCanvas=document.createElement('canvas')
-  labelCanvas.width=1536;labelCanvas.height=512
-  const c=labelCanvas.getContext('2d')!
-  c.fillStyle='#eeeae0';c.fillRect(0,0,1536,512)
-  c.fillStyle='#174d40';c.fillRect(0,0,1536,13);c.fillRect(0,499,1536,13)
-  c.textAlign='center';c.fillStyle='#173e35'
-  c.font='22px monospace';c.fillText('R I P P L E   /   S T U D I O',768,98)
-  c.font='112px Georgia';c.fillText('Still water.',768,257)
-  c.font='24px monospace';c.fillText('SPECIMEN 001   /   PET',768,333)
-  c.font='18px monospace';c.fillText('OPTICAL STUDY   ·   NOT A COMMERCIAL PRODUCT',768,404)
-  for(let i=0;i<35;i++){c.fillRect(80+i*4,190,1+i%3,124)}
-  c.textAlign='left';c.font='17px monospace'
-  ;['CLARITY ≠ PURITY','RESEARCH VISUALIZATION','500 mL / ILLUSTRATION'].forEach((s,i)=>c.fillText(s,1110,190+i*40))
-  const labelTexture=new THREE.CanvasTexture(labelCanvas)
-  labelTexture.colorSpace=THREE.SRGBColorSpace;labelTexture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());textures.push(labelTexture)
-  const label=mesh(new THREE.CylinderGeometry(.584,.584,1.04,96,1,true),new THREE.MeshStandardMaterial({map:labelTexture,roughness:.5,metalness:.03}),-.23)
-  label.rotation.y=-2.73
-  const particles=new THREE.Group();bottle.add(particles)
-  const uvMaterial=new THREE.MeshBasicMaterial({color:'#ff498e'})
-  materials.push(uvMaterial)
-  const particleGeometry=new THREE.SphereGeometry(.014,8,6);geometries.push(particleGeometry)
-  for(let i=0;i<95;i++) {
-    const particle=new THREE.Mesh(particleGeometry,uvMaterial)
-    const a=i*2.39996,r=.45*Math.sqrt((i+.5)/95)
-    particle.position.set(Math.sin(a)*r,-1.3+(i*71%220)/100,Math.cos(a)*r)
-    particles.add(particle)
-  }
-  const wire=new THREE.LineSegments(new THREE.WireframeGeometry(body.geometry),new THREE.LineBasicMaterial({color:'#59d3c4',transparent:true,opacity:.12}))
-  geometries.push(wire.geometry);materials.push(wire.material);bottle.add(wire)
-  const key=new THREE.DirectionalLight('#ffffff',1.5);key.position.set(-3,4,5);scene.add(key)
-  const rim=new THREE.DirectionalLight('#83ffe0',2);rim.position.set(4,2,-3);scene.add(rim)
-  scene.add(new THREE.AmbientLight('#c4e2ef',.8))
-  let uv=false,angle=0
-  function draw() {
-    const {width,height}=canvas.getBoundingClientRect()
-    if(!width||!height)return
-    renderer.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix()
-    bottle.rotation.y=angle*Math.PI/180
-    body.visible=!uv;water.visible=!uv;label.visible=!uv;wire.visible=uv;particles.visible=uv
-    renderer.render(scene,camera)
-    canvas.dataset.rendered=uv?'uv':'macro';canvas.dataset.angle=String(angle);canvas.dataset.renderer='webgl'
-  }
-  const observer=new ResizeObserver(draw);observer.observe(canvas)
+const clamp = (value: number, low: number, high: number) => Math.max(low, Math.min(high, value))
+
+/** Normalized square crop of the single bottle image, also used by the locator. */
+export function specimenCrop(position: SpecimenPosition, zoom: number) {
+  const width = 1 / clamp(zoom, 2, 4)
+  const height = width * 1122 / 1402
   return {
-    update(nextUv:boolean,nextAngle:number){uv=nextUv;angle=nextAngle;draw()},
-    dispose(){observer.disconnect();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());environment.dispose();renderer.dispose();renderer.forceContextLoss()},
+    x: clamp(position.x - width / 2, 0, 1 - width),
+    y: clamp(position.y - height / 2, 0, 1 - height),
+    width,
+    height,
   }
 }
+
+// These tiny authored marks exist only in the enlarged, explicitly illustrative
+// detail. They are never put on the full bottle and never extracted from it.
+const forms = Array.from({ length: 12 }, (_, index) => ({
+  x: .22 + ((index * 37) % 57) / 100,
+  y: .15 + ((index * 29) % 70) / 100,
+  fiber: index % 3 === 0,
+  phase: index * 2.39996,
+  size: .008 + (index % 4) * .0018,
+}))
+
+export function createBottleScene(canvas: HTMLCanvasElement, image: HTMLImageElement, onFailure: () => void) {
+  const context = canvas.getContext('2d', { alpha: false })
+  if (!context) throw new Error('Canvas detail is unavailable')
+  delete canvas.dataset.disposed
+  canvas.dataset.running = 'false'
+  let view: SpecimenView = { uv: false, position: { x: .5, y: .26 }, zoom: 3, form: 'all', paused: false, reducedMotion: false }
+  let visible = false, disposed = false, frame: number | undefined
+  let lastFrame = 0, elapsed = 0, scanProgress = 1, renderedFrames = 0
+  let width = 0, height = 0, dpr = 1
+
+  const state = () => {
+    canvas.dataset.motion = !visible ? 'offscreen' : view.reducedMotion ? 'reduced-motion' : view.paused ? 'paused' : view.uv ? 'active' : 'idle'
+  }
+  const cancel = () => {
+    if (frame !== undefined) cancelAnimationFrame(frame)
+    frame = undefined; lastFrame = 0; canvas.dataset.running = 'false'
+  }
+  const render = () => {
+    if (disposed || !visible || !image.complete || !image.naturalWidth) return
+    const bounds = canvas.getBoundingClientRect()
+    if (!bounds.width || !bounds.height) return
+    const nextDpr = Math.min(window.devicePixelRatio || 1, 2)
+    if (bounds.width !== width || bounds.height !== height || nextDpr !== dpr) {
+      width = bounds.width; height = bounds.height; dpr = nextDpr
+      canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr)
+    }
+    const c = context
+    c.setTransform(dpr, 0, 0, dpr, 0, 0)
+    c.globalAlpha = 1
+    c.fillStyle = '#f8f8f6'; c.fillRect(0, 0, width, height)
+    const crop = specimenCrop(view.position, view.zoom)
+    c.drawImage(image, crop.x * image.naturalWidth, crop.y * image.naturalHeight, crop.width * image.naturalWidth, crop.height * image.naturalHeight, 0, 0, width, height)
+
+    let visibleForms = 0
+    if (view.uv) {
+      // Keep a faint view of the same crop behind an editorial overlay. The
+      // persistent HTML label makes clear that this is not a UV scan result.
+      c.fillStyle = 'rgba(10,22,25,.90)'; c.fillRect(0, 0, width, height)
+      const field = c.createRadialGradient(width * .62, height * .36, 0, width * .5, height * .5, width * .72)
+      field.addColorStop(0, 'rgba(112,151,142,.10)'); field.addColorStop(1, 'rgba(7,17,19,0)')
+      c.fillStyle = field; c.fillRect(0, 0, width, height)
+      c.save(); c.beginPath(); c.rect(width * .09, height * .08, width * .82, height * .84); c.clip()
+      for (const item of forms) {
+        if (view.form !== 'all' && view.form !== (item.fiber ? 'fibers' : 'fragments')) continue
+        const alpha = scanProgress < 1 ? clamp((scanProgress - item.y) * 10 + .2, 0, 1) : 1
+        if (!alpha) continue
+        visibleForms++
+        const x = (item.x + Math.sin(elapsed * .13 + item.phase) * .0025) * width
+        const y = (item.y + Math.cos(elapsed * .10 + item.phase) * .002) * height
+        const size = item.size * Math.min(width, height)
+        c.save(); c.translate(x, y); c.rotate(item.phase + Math.sin(elapsed * .14 + item.phase) * .035)
+        c.globalAlpha = alpha * (.62 + (item.phase % 1) * .28)
+        if (item.fiber) {
+          c.strokeStyle = '#c0d8cc'; c.lineWidth = Math.max(.75, width / 480)
+          c.beginPath(); c.moveTo(-size * .85, -size * .15)
+          c.bezierCurveTo(-size * .30, -size * .55, size * .30, size * .5, size * .9, size * .10)
+          c.stroke()
+        } else {
+          c.fillStyle = 'rgba(217,224,211,.50)'; c.strokeStyle = '#c8d9d0'; c.lineWidth = .6
+          c.beginPath(); c.moveTo(-size * .26, -size * .32); c.lineTo(size * .34, -size * .18)
+          c.lineTo(size * .23, size * .26); c.lineTo(-size * .18, size * .38); c.lineTo(-size * .36, size * .06)
+          c.closePath(); c.fill(); c.stroke()
+        }
+        c.restore()
+      }
+      if (scanProgress < 1) {
+        const y = scanProgress * height
+        c.globalAlpha = Math.sin(scanProgress * Math.PI) * .38
+        const band = c.createLinearGradient(0, y - 16, 0, y + 3)
+        band.addColorStop(0, 'rgba(169,205,196,0)'); band.addColorStop(1, 'rgba(169,205,196,.28)')
+        c.fillStyle = band; c.fillRect(width * .09, y - 16, width * .82, 19)
+        c.strokeStyle = '#a9cdc4'; c.lineWidth = .7; c.beginPath(); c.moveTo(width * .09, y); c.lineTo(width * .91, y); c.stroke()
+      }
+      c.restore()
+    }
+    c.globalAlpha = 1
+    canvas.dataset.renderer = 'photo-canvas'
+    canvas.dataset.rendered = view.uv ? 'uv' : 'macro'
+    canvas.dataset.form = view.form
+    canvas.dataset.visibleForms = String(visibleForms)
+    canvas.dataset.zoom = String(view.zoom)
+    canvas.dataset.position = `${view.position.x.toFixed(3)},${view.position.y.toFixed(3)}`
+    canvas.dataset.crop = JSON.stringify(crop)
+    canvas.dataset.transition = view.uv && scanProgress < 1 ? 'scanning' : 'settled'
+    canvas.dataset.scanProgress = scanProgress.toFixed(3)
+    canvas.dataset.renderCount = String(++renderedFrames)
+    state()
+  }
+  const request = () => {
+    if (disposed || !visible || frame !== undefined) return
+    canvas.dataset.running = 'true'; frame = requestAnimationFrame(tick)
+  }
+  const tick = (now: number) => {
+    frame = undefined
+    if (disposed || !visible) { cancel(); return }
+    // Motion is bounded to this small detail window. Macro, pause and reduced
+    // motion draw only when needed; hidden/offscreen views request no frames.
+    if (lastFrame && now - lastFrame < 50) { request(); return }
+    const dt = lastFrame ? Math.min((now - lastFrame) / 1000, .06) : 1 / 25
+    lastFrame = now
+    if (!view.paused && !view.reducedMotion && view.uv) {
+      elapsed += dt; scanProgress = Math.min(1, scanProgress + dt / 1.35)
+    }
+    try { render() } catch { cancel(); onFailure(); return }
+    if (view.uv && !view.paused && !view.reducedMotion) request()
+    else { canvas.dataset.running = 'false'; lastFrame = 0 }
+  }
+  const resize = new ResizeObserver(request)
+  resize.observe(canvas)
+  return {
+    update(next: SpecimenView) {
+      if (disposed) return
+      const changed = next.uv !== view.uv || next.form !== view.form || next.zoom !== view.zoom || next.position.x !== view.position.x || next.position.y !== view.position.y
+      if (next.uv && !view.uv) scanProgress = 0
+      view = next
+      if (view.reducedMotion || (view.paused && changed)) scanProgress = 1
+      if (view.paused || view.reducedMotion || !view.uv) cancel()
+      state(); request()
+    },
+    setVisible(next: boolean) {
+      if (disposed || visible === next) return
+      visible = next
+      if (visible) request(); else cancel()
+      state()
+    },
+    scan() {
+      if (disposed || !view.uv || view.paused || view.reducedMotion) return
+      scanProgress = 0; request()
+    },
+    dispose() {
+      if (disposed) return
+      disposed = true; visible = false; cancel(); resize.disconnect(); canvas.dataset.disposed = 'true'
+    },
+  }
+}
+
+export type BottleScene = ReturnType<typeof createBottleScene>
