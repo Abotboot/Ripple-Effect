@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import Image from 'next/image'
-import { CinematicIntro, type IntroOutcome } from './cinematic-intro'
+import { flushSync } from 'react-dom'
+import { CinematicIntro, type CinematicIntroHandle, type IntroOutcome } from './cinematic-intro'
 import { artworkJourney, type ArtworkCategory, type ArtworkPhase } from '@/lib/artwork-journey'
 import { PhotoParticleScene } from '../sections/photo-particle-scene'
 import './tank.css'
@@ -61,6 +62,7 @@ export function TankHero({ children }: { children: ReactNode }) {
   const media = useRef<HTMLDivElement>(null)
   const editorial = useRef<HTMLDivElement>(null)
   const entryEnter = useRef<HTMLButtonElement>(null)
+  const intro = useRef<CinematicIntroHandle>(null)
   const pendingFocus = useRef(false)
   const active = phase === 'video' || phase === 'entering'
   const showEntryCover = hydrated && (replayCover || !entered && !returning && !reduced) && !active
@@ -190,11 +192,13 @@ export function TankHero({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('resize', updateOffset)
   }, [active, phase])
   const watch = useCallback(() => {
-    if (matchMedia(motionQuery).matches) { finish('reduced-motion'); return }
-    remember()
-    pendingFocus.current = true
-    setPlaybackError(false); setCategory('all'); setPaused(false); setReveal(false); setPhase('video')
-  }, [remember, finish])
+    flushSync(() => {
+      remember()
+      pendingFocus.current = true
+      setPlaybackError(false); setCategory('all'); setPaused(false); setReveal(false); setPhase('video')
+    })
+    intro.current?.play()
+  }, [remember])
   const replay = useCallback(() => {
     window.dispatchEvent(new Event('ripple-cinematic-start'))
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
@@ -263,7 +267,7 @@ export function TankHero({ children }: { children: ReactNode }) {
         <div className="ripple-ambient ripple-ambient-terminal" />
         <Image src={artworkJourney.terminalPoster} alt="" fill sizes="100vw" unoptimized loading="eager" className="ripple-terminal-image" />
       </div>}
-      {phase === 'video' && <CinematicIntro onComplete={finish} />}
+      {phase === 'video' && <CinematicIntro ref={intro} onComplete={finish} />}
     </div>
     <div ref={editorial} className={`tank-editorial ripple-editorial${active && !reveal ? ' is-awaiting-cue' : ''}`} aria-hidden={showEntryCover || active && !reveal || undefined}>
       <p className="tank-eyebrow">A RIPPLE EFFECT INITIATIVE</p>

@@ -1,25 +1,29 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useImperativeHandle, useLayoutEffect, useRef, useState, type Ref } from 'react'
 import { artworkJourney } from '@/lib/artwork-journey'
 
 export type IntroOutcome = 'complete' | 'skip' | 'reduced-motion' | 'error'
-type Phase = 'loading' | 'playing' | 'paused' | 'handoff' | 'error'
+type Phase = 'loading' | 'playing' | 'paused' | 'blocked' | 'handoff' | 'error'
+export type CinematicIntroHandle = { play: () => void }
 
-export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutcome) => void }) {
+export function CinematicIntro({ onComplete, ref }: { onComplete: (outcome: IntroOutcome) => void; ref?: Ref<CinematicIntroHandle> }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const ambientRef = useRef<HTMLCanvasElement>(null)
   const effectEpoch = useRef(0)
   const callback = useRef(onComplete)
+  const playAction = useRef<() => void>(() => {})
+  useImperativeHandle(ref, () => ({ play: () => playAction.current() }), [])
   const [phase, setPhase] = useState<Phase>('loading')
   useLayoutEffect(() => { callback.current = onComplete }, [onComplete])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const video = videoRef.current
     if (!video) return
     const epoch = ++effectEpoch.current
     let disposed = false
     let completed = false
+    let blocked = false
     let offscreen = false
     let playAttempt = 0
     let pendingPlays = 0
@@ -86,8 +90,15 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
       })
     }
     const shouldSuspend = () => document.hidden || offscreen
+    const playFailed = (error: unknown) => {
+      if (error instanceof DOMException && error.name === 'NotAllowedError') {
+        blocked = true
+        setPhase('blocked')
+      } else finish('error')
+    }
     const play = () => {
       if (disposed || completed || shouldSuspend()) return
+      blocked = false
       const attempt = ++playAttempt
       lastProgress = performance.now()
       setPhase('loading')
@@ -107,13 +118,13 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
           }
           setPhase('playing')
           scheduleFrame()
-        }).catch(() => {
-          if (!disposed && !completed && attempt === playAttempt && !shouldSuspend()) finish('error')
+        }).catch(error => {
+          if (!disposed && !completed && attempt === playAttempt && !shouldSuspend()) playFailed(error)
         }).finally(() => {
           if (--pendingPlays === 0) video.removeEventListener('play', stopRetiredPlay)
         })
-      } catch {
-        if (!disposed && !completed && attempt === playAttempt && !shouldSuspend()) finish('error')
+      } catch (error) {
+        if (!disposed && !completed && attempt === playAttempt && !shouldSuspend()) playFailed(error)
       }
     }
     const suspend = () => {
@@ -123,7 +134,7 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
       lastProgress = performance.now()
       if (!completed && !disposed) setPhase('paused')
     }
-    const visibility = () => { if (shouldSuspend()) suspend(); else play() }
+    const visibility = () => { if (shouldSuspend()) suspend(); else if (!blocked) play(); else setPhase('blocked') }
     const reduce = () => { if (preference.matches) finish('reduced-motion') }
     const keyboard = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -138,7 +149,7 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
     }
     const failed = () => finish('error')
     const playing = () => {
-      if (disposed || completed || shouldSuspend()) {
+      if (disposed || completed || blocked || shouldSuspend()) {
         video.pause()
         return
       }
@@ -174,7 +185,7 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
     observer.observe(video)
 
     const watchdog = window.setInterval(() => {
-      if (disposed || completed || shouldSuspend()) {
+      if (disposed || completed || blocked || shouldSuspend()) {
         lastProgress = performance.now()
         return
       }
@@ -185,17 +196,17 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
       if (performance.now() - lastProgress > 10000) finish('error')
     }, 500)
 
-    if (preference.matches) finish('reduced-motion')
-    else {
-      video.muted = true
-      video.defaultMuted = true
-      video.src = artworkJourney.src
-      play()
-    }
+    video.muted = true
+    video.defaultMuted = true
+    video.src = artworkJourney.src
+    // Enter calls this synchronously in its click handler, preserving Safari's
+    // user gesture. Reduced motion still bypasses automatic entry, not this opt-in.
+    playAction.current = play
 
     return () => {
       disposed = true
       completed = true
+      playAction.current = () => {}
       if (releaseTimer !== undefined) clearTimeout(releaseTimer)
       clearInterval(watchdog)
       observer.disconnect()
@@ -230,8 +241,9 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
         Your browser cannot play this journey.
       </video>
       <button type="button" className="ripple-entry-skip" onClick={() => callback.current('skip')}>Skip intro</button>
+      {phase === 'blocked' && <button type="button" className="ripple-play-retry" data-testid="journey-play-retry" onClick={() => playAction.current()}>Play intro</button>}
       <span className="sr-only" role="status" aria-live="polite">
-        {phase === 'loading' ? 'Loading microscope journey.' : phase === 'paused' ? 'Microscope journey paused while out of view.' : 'Microscope journey playing.'}
+        {phase === 'blocked' ? 'Tap Play intro to start the video.' : phase === 'loading' ? 'Loading microscope journey.' : phase === 'paused' ? 'Microscope journey paused while out of view.' : 'Microscope journey playing.'}
       </span>
     </div>
   )
