@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { createPortal } from 'react-dom'
 import {
   X, Download, Copy, Share2, Check,
 } from 'lucide-react'
@@ -25,6 +26,31 @@ export function WaterReportCardModal({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [copied, setCopied] = useState(false)
   const [dataUrl, setDataUrl] = useState<string | null>(null)
+  const closeButton = useRef<HTMLButtonElement>(null)
+  const dialog = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open || !utility) return
+    const previous = document.activeElement as HTMLElement | null
+    const overflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeButton.current?.focus({ preventScroll: true })
+    const keyboard = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { event.preventDefault(); onClose() }
+      if (event.key === 'Tab') {
+        const controls = [...(dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href]') ?? [])].filter(node => node.getClientRects().length)
+        const first = controls[0], last = controls.at(-1)
+        if (!first || !last) return
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+      }
+    }
+    document.addEventListener('keydown', keyboard)
+    return () => {
+      document.body.style.overflow = overflow
+      document.removeEventListener('keydown', keyboard)
+      previous?.focus({ preventScroll: true })
+    }
+  }, [open, utility, onClose])
 
   useEffect(() => {
     if (!open || !utility) return
@@ -298,9 +324,9 @@ export function WaterReportCardModal({
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer')
   }
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6">
+      <div data-lenis-prevent className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6">
         {/* Backdrop */}
         <motion.div
           className="fixed inset-0 bg-black/80 backdrop-blur-md"
@@ -312,7 +338,9 @@ export function WaterReportCardModal({
 
         {/* Modal Window */}
         <motion.div
-          className="relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-border/80 bg-background shadow-2xl max-h-[92vh] flex flex-col"
+          ref={dialog}
+          role="dialog" aria-modal="true" aria-label="Community water quality card" data-testid="water-report-card-dialog"
+          className="relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-border/80 bg-background shadow-2xl max-h-[92dvh] flex flex-col"
           initial={{ scale: 0.95, opacity: 0, y: 15 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 15 }}
@@ -325,9 +353,11 @@ export function WaterReportCardModal({
               Community Water Quality Card
             </h3>
             <Button
+              ref={closeButton}
+              aria-label="Close report card"
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-full"
+              className="h-11 w-11 shrink-0"
               onClick={onClose}
             >
               <X className="h-4 w-4" />
@@ -370,7 +400,8 @@ export function WaterReportCardModal({
               {utility.name} · {utility.city}, {utility.state}
             </div>
 
-            <div className="flex items-center gap-2 ml-auto">
+            <div className="flex flex-wrap items-center justify-end gap-2 ml-auto">
+              <Button variant="outline" size="sm" onClick={onClose}>Back</Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -403,6 +434,6 @@ export function WaterReportCardModal({
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>, document.body
   )
 }

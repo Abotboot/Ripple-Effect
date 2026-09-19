@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { createPortal } from 'react-dom'
 import {
   X, Building2, MapPin, Globe, AlertTriangle, ShieldCheck,
   TrendingUp, FlaskConical, Info, Download, Share2, Printer,
@@ -87,13 +88,14 @@ export function UtilityDetailDialog({
   }, [utilityId])
   const { healthCompared, legalCompared, healthAbove, legalAbove } = utilityComparisons(utility?.contaminantSummaries ?? [])
 
-  return (
+  if (typeof document === 'undefined') return null
+  return createPortal(
     <>
       <AnimatePresence>
         {utility && (
           <motion.div
             data-lenis-prevent
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
+            className="fixed inset-0 z-[110] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -106,7 +108,7 @@ export function UtilityDetailDialog({
               aria-labelledby={headingId}
               tabIndex={-1}
               data-testid="utility-detail-dialog"
-              className="relative flex max-h-[92vh] sm:max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:max-w-4xl sm:rounded-2xl"
+              className="relative flex h-[100dvh] sm:h-auto sm:max-h-[88dvh] w-full flex-col overflow-hidden bg-background shadow-2xl sm:max-w-4xl"
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 40, opacity: 0 }}
@@ -114,8 +116,9 @@ export function UtilityDetailDialog({
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="relative shrink-0 overflow-hidden bg-[#203c35] px-5 py-5 text-[#e5efeb] sm:px-7">
+              <div className="relative shrink-0 overflow-hidden bg-[#203c35] px-5 py-4 pt-[max(16px,env(safe-area-inset-top))] text-[#e5efeb] sm:px-7">
                 <div className="mb-3 flex justify-end gap-1.5">
+                  <button type="button" onClick={onClose} className="mr-auto flex min-h-11 shrink-0 items-center gap-2 text-sm text-white sm:hidden" aria-label="Back to results">← Back</button>
                   <button
                     onClick={() => setShareCardOpen(true)}
                     aria-label="Share community card"
@@ -131,7 +134,7 @@ export function UtilityDetailDialog({
                     window.open(`/api/samples?utilityId=${utility.id}&limit=5000`, '_blank')
                   }}
                   aria-label="Download samples"
-                  className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
                   title="Download samples (JSON)"
                 >
                   <Download className="h-4 w-4" />
@@ -207,7 +210,7 @@ Learn more at https://arippleeffectinitiative.org
                 <MapPin className="h-3 w-3" />
                 {utility.city}, {utility.state} · PWSID {utility.pwsid}
               </div>
-              <h2 id={headingId} style={{ color: '#e5efeb' }} className="mt-1.5 text-xl font-bold leading-tight sm:text-2xl">
+              <h2 id={headingId} style={{ color: '#e5efeb' }} className="mt-1.5 line-clamp-3 text-lg font-bold leading-tight sm:text-2xl">
                 {utility.name}
               </h2>
               <div className="mt-3 flex flex-wrap gap-1.5">
@@ -226,7 +229,7 @@ Learn more at https://arippleeffectinitiative.org
 
             {/* Body */}
             <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain" tabIndex={0} role="region" aria-label="Utility measurements" data-testid="utility-detail-scroll">
-              <div className="space-y-6 p-5 sm:p-7 pb-12">
+              <div className="space-y-6 p-5 sm:p-7 pb-[max(48px,env(safe-area-inset-bottom))]">
                 {/* Summary stats */}
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   <StatTile
@@ -316,7 +319,7 @@ Learn more at https://arippleeffectinitiative.org
         open={shareCardOpen}
         onClose={() => setShareCardOpen(false)}
       />
-    </>
+    </>, document.body
   )
 }
 

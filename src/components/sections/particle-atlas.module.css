@@ -26,9 +26,9 @@
 .card[aria-selected=true] .selection { color: var(--atlas-aqua); }
 .card:hover { border-color: var(--atlas-aqua); }
 .scene { display: block; position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; isolation: isolate; background: #09191b; }
-.light { position: absolute; inset: 0; background: radial-gradient(ellipse at 25% 10%, #42777955, transparent 65%), linear-gradient(155deg, #18353955, #030c10); }
-.scene[data-form=fragments] .light { background: radial-gradient(ellipse at 80% 60%, #37586455, transparent 70%), #08131c; }
-.scene[data-form=granules] .light { background: radial-gradient(ellipse at 30% 80%, #5e66503d, transparent 70%), #101918; }
+.light { position: absolute; inset: 0; background: linear-gradient(155deg, #18353955, #030c1077), url('/media/ripple/illustrations/water-background.webp') center / cover; }
+.scene[data-form=fragments] .light { filter: hue-rotate(12deg) brightness(.8); }
+.scene[data-form=granules] .light { filter: hue-rotate(-18deg) brightness(.85); }
 .depth { position: absolute; inset: 0; transform: translate(var(--look-x, 0px), var(--look-y, 0px)); transition: transform .25s ease-out; }
 .atlas[data-motion=false] .depth { transform: none; transition: none; }
 .particle { position: absolute; width: 78%; left: 8%; top: 12%; animation: particle-drift 8s ease-in-out infinite alternate; animation-play-state: paused; }

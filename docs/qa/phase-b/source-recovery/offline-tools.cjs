@@ -110,7 +110,7 @@ function loadPlaywright() {
       throw Error('Local Playwright is missing. Set PLAYWRIGHT_MODULE to an existing absolute package directory; no download is attempted.');
     }
   }
-  const { chromium } = require(modulePath);
+  const { chromium, webkit } = require(modulePath);
   if (!chromium) throw Error('Installed Playwright package does not expose Chromium');
   let executablePath = process.env.PLAYWRIGHT_BROWSER_EXECUTABLE || chromium.executablePath();
   if (!path.isAbsolute(executablePath) || /^(?:\\\\|\/\/)/.test(executablePath) || executablePath.includes('\0')) {
@@ -121,7 +121,7 @@ function loadPlaywright() {
   }
   executablePath = fs.realpathSync(executablePath);
   if (/^(?:\\\\|\/\/)/.test(executablePath)) throw Error('Network browser executables are not allowed');
-  return { chromium, version: pkg.version, executablePath };
+  return { chromium, webkit, version: pkg.version, executablePath };
 }
 
 async function serveScene(html, candidate = false) {

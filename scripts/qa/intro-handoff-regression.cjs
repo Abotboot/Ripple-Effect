@@ -24,14 +24,18 @@ async function live(page) {
 }
 
 ;(async () => {
-  const { chromium } = loadPlaywright()
-  const browser = await chromium.launch({ channel: 'chrome', headless: true })
+  const playwright = loadPlaywright()
+  const engine = process.env.QA_BROWSER === 'webkit' ? 'webkit' : 'chromium'
+  report.engine = engine
+  const browser = await playwright[engine].launch({ ...(engine === 'chromium' ? { channel: 'chrome' } : {}), headless: true })
   try {
-    for (const viewport of [{ width: 1280, height: 720 }, { width: 320, height: 568 }]) {
+    for (const viewport of [{ width: 1280, height: 720 }, { width: 414, height: 896 }, { width: 320, height: 568 }]) {
       const label = `${viewport.width}x${viewport.height}`
       const context = await browser.newContext({ viewport, recordVideo: { dir: output, size: viewport } })
       const page = await context.newPage()
-      await page.goto(base, { waitUntil: 'domcontentloaded' })
+      page.setDefaultTimeout(20000)
+      page.on('pageerror', error => { report.pageErrors ??= []; report.pageErrors.push(error.message) })
+      await page.goto(base + '/#home', { waitUntil: 'domcontentloaded' })
       await id(page, 'journey-enter').waitFor()
       assert.equal(await id(page, 'journey-video').count(), 0)
       await id(page, 'journey-enter').click()
@@ -47,6 +51,8 @@ async function live(page) {
       assert(nextOpacity < firstOpacity, 'Terminal frame must visibly dissolve')
       await page.screenshot({ path: path.join(output, `${label}-dissolve.png`) })
       await live(page)
+      const replayBounds = await id(page, 'journey-watch').boundingBox()
+      assert(replayBounds.y >= 0 && replayBounds.y + replayBounds.height <= viewport.height, 'Replay is visible above the fold')
       await page.waitForFunction(() => document.querySelector('[data-testid="artwork-field"]')?.dataset.running === 'true')
       assert.equal(await id(page, 'artwork-field').getAttribute('data-entrance'), '1.0000', 'No second camera zoom')
       assert.equal(await id(page, 'artwork-field').evaluate(node => getComputedStyle(node).opacity), '1')
@@ -70,6 +76,7 @@ async function live(page) {
     for (const scenario of ['reduced', 'escape-handoff', 'animation-disabled', 'artwork-failure', 'video-failure']) {
       const context = await browser.newContext({ reducedMotion: scenario === 'reduced' ? 'reduce' : 'no-preference' })
       const page = await context.newPage()
+      page.setDefaultTimeout(20000)
       if (scenario === 'artwork-failure') await page.route('**/particle-world-master.webp', route => route.abort())
       if (scenario === 'video-failure') await page.route('**/microscope-journey-v4.mp4', route => route.abort())
       await page.goto(base, { waitUntil: 'domcontentloaded' })
@@ -78,6 +85,11 @@ async function live(page) {
         assert.equal(await id(page, 'journey-video').count(), 0)
         assert.equal(await id(page, 'journey-handoff').count(), 0)
         assert.equal(await id(page, 'journey-enter').count(), 0)
+        await id(page, 'journey-watch').click()
+        await id(page, 'journey-enter').waitFor()
+        await id(page, 'journey-enter').click()
+        await live(page)
+        assert.equal(await id(page, 'journey-video').count(), 0, 'Manual reduced-motion preview stays static')
       } else {
         if (scenario === 'animation-disabled') await page.addStyleTag({ content: '.ripple-handoff { animation: none !important; }' })
         await id(page, 'journey-enter').click()

@@ -229,6 +229,7 @@ export function CinematicIntro({ onComplete }: { onComplete: (outcome: IntroOutc
       >
         Your browser cannot play this journey.
       </video>
+      <button type="button" className="ripple-entry-skip" onClick={() => callback.current('skip')}>Skip intro</button>
       <span className="sr-only" role="status" aria-live="polite">
         {phase === 'loading' ? 'Loading microscope journey.' : phase === 'paused' ? 'Microscope journey paused while out of view.' : 'Microscope journey playing.'}
       </span>
