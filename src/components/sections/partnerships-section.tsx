@@ -1,6 +1,7 @@
 'use client'
 
 import './editorial-pages.css'
+import { useState } from 'react'
 
 import { motion } from 'framer-motion'
 import {
@@ -42,13 +43,9 @@ const PARTNERS: Partner[] = [
       'Our fiscal sponsor. HCB lets donations be tax-deductible in the US and handles the financial plumbing so every dollar goes to clean water.',
     url: 'https://hcb.hackclub.com',
   },
-  {
-    name: 'Your organization here',
-    type: 'Nonprofit Partner',
-    blurb:
-      'We partner with schools, nonprofits, and community groups to put the identifier in more hands and grow the volunteer water network.',
-  },
 ]
+
+const DONOR_GRAPH = 'https://graph.hcb.hackclub.com/a-ripple-effect-initiative-arei'
 
 const WHY_PARTNER = [
   {
@@ -72,6 +69,7 @@ const WHY_PARTNER = [
 ]
 
 export function PartnershipsSection({ onNavigate }: { onNavigate?: (s: Section) => void }) {
+  const [graphFailed, setGraphFailed] = useState(false)
   return (
     <div className="editorial-page">
       {/* Hero */}
@@ -123,7 +121,7 @@ export function PartnershipsSection({ onNavigate }: { onNavigate?: (s: Section) 
                     <div className="mb-3 flex items-center justify-between">
                       <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white">
                         {p.logo ? (
-                          /* eslint-disable-next-line @next/next/no-img-element */
+                           
                           <img src={p.logo} alt={`${p.name} logo`} className="h-full w-full rounded-xl object-cover" />
                         ) : (
                           <Building2 className="h-5 w-5" />
@@ -149,6 +147,23 @@ export function PartnershipsSection({ onNavigate }: { onNavigate?: (s: Section) 
                 </Card>
               </motion.div>
             ))}
+
+            <motion.div variants={item}>
+              <Card className="h-full" data-testid="donor-graph-card">
+                <CardContent className="flex h-full flex-col p-6">
+                  <h3 className="text-lg font-bold text-foreground">Our donors</h3>
+                  <div className="my-4 flex min-h-[88px] flex-1 items-center justify-center">
+                    {graphFailed ? <p className="text-sm text-muted-foreground">Donor graph temporarily unavailable.</p> : (
+                      // HCB serves a changing SVG; load it directly to keep donor updates current.
+                      <img src={DONOR_GRAPH} alt="Donor graph for A Ripple Effect Initiative (AREI)" loading="lazy" decoding="async" className="block h-auto max-w-full" onError={() => setGraphFailed(true)} />
+                    )}
+                  </div>
+                  <a href={DONOR_GRAPH} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+                    View donor graph <ArrowRight className="h-3.5 w-3.5" />
+                  </a>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* Become a partner card */}
             <motion.div variants={item}>
