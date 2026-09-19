@@ -8,14 +8,16 @@
 .ripple-ambient { position: absolute; inset: -24px; width: calc(100% + 48px); height: calc(100% + 48px); object-fit: cover; background-size: cover; background-position: center; filter: blur(24px) brightness(.7); pointer-events: none; }
 .ripple-ambient-opening { background-image: url('/media/ripple/microscope/opening-v4.png'); }
 .ripple-ambient-terminal { background-image: url('/media/ripple/microscope/terminal-v4.png'); }
-.ripple-intro-video, .ripple-entry-image, .ripple-hero[data-terminal=true] .ripple-stage-image {
+.ripple-intro-video, .ripple-entry-image, .ripple-terminal-image {
   --half-frame-width: min(50cqw, 88.8889cqh);
   --half-frame-height: min(50cqh, 28.125cqw);
   mask-image: linear-gradient(90deg, transparent calc(50% - var(--half-frame-width)), #000 calc(50% - var(--half-frame-width) + 12px), #000 calc(50% + var(--half-frame-width) - 12px), transparent calc(50% + var(--half-frame-width))), linear-gradient(0deg, transparent calc(50% - var(--half-frame-height)), #000 calc(50% - var(--half-frame-height) + 12px), #000 calc(50% + var(--half-frame-height) - 12px), transparent calc(50% + var(--half-frame-height)));
   mask-composite: intersect;
 }
-.ripple-hero[data-terminal=true] .ripple-particle-stage .ripple-stage-image { visibility: visible; }
-.ripple-hero[data-terminal=true] .ripple-particle-stage .ripple-artwork-canvas { opacity: 0; pointer-events: none; }
+.ripple-handoff { position: absolute; inset: 0; z-index: 2; background: #020403; pointer-events: none; }
+.ripple-terminal-image { object-fit: contain; object-position: center; }
+.ripple-hero[data-state=entering] .ripple-handoff { animation: ripple-terminal-dissolve 1.1s ease-in-out forwards; }
+@keyframes ripple-terminal-dissolve { from { opacity: 1; } to { opacity: 0; } }
 .ripple-entry-cover {
   position: fixed;
   inset: 0;
@@ -158,12 +160,6 @@ body.ripple-cinematic-active button[aria-label="Scroll to top"] {
   object-position: center;
 }
 .ripple-hero[data-state=video] .ripple-artwork-canvas { opacity: 0; }
-.ripple-hero[data-state=entering] .ripple-particle-stage.is-field-ready .ripple-stage-image { visibility: visible; }
-.ripple-hero[data-state=entering] .ripple-particle-stage.is-field-ready .ripple-artwork-canvas {
-  opacity: 0;
-  animation: ripple-entry-canvas-reveal .58s ease-out forwards;
-}
-@keyframes ripple-entry-canvas-reveal { to { opacity: 1; } }
 .ripple-hero[data-state=video] .ripple-editorial.is-awaiting-cue { visibility: hidden; transition: none; }
 .ripple-playback-error { margin: 16px 7vw 0; padding: 12px 14px; color: #e5d3b6; background: #211c16; border: 1px solid #b9a47f66; font-size: 13px; line-height: 1.6; }
 @media (max-width: 1100px) {
@@ -206,5 +202,5 @@ body.ripple-cinematic-active button[aria-label="Scroll to top"] {
 }
 @media (prefers-reduced-motion: reduce) {
   .ripple-editorial { transition: none; }
-  .ripple-hero[data-state=entering] .ripple-particle-stage.is-field-ready .ripple-artwork-canvas { animation: none; opacity: 1; }
+  .ripple-hero[data-state=entering] .ripple-handoff { animation-duration: .001s; }
 }

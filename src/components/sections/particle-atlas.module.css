@@ -45,9 +45,6 @@
 .card:is(:hover, :focus-visible) .particle[data-layer='0'] img { opacity: 1; }
 .motionToggle { display: inline-block; min-height: 44px; margin-top: 4px; padding: 6px 0; border: 0; background: none; color: var(--atlas-aqua); font: inherit; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
 .features { margin: 0; color: var(--atlas-muted); font-size: 14px; line-height: 1.6; }
-.reference { margin-top: 16px; color: var(--atlas-muted); font-size: 12px; }
-.reference summary { cursor: pointer; min-height: 44px; padding-block: 12px; }
-.reference img { display: block; width: min(100%, 320px); height: auto; margin-top: 12px; }
 @keyframes particle-drift { from { transform: translate3d(-3px, 5px, 0) rotate(-2deg); } to { transform: translate3d(5px, -6px, 0) rotate(3deg); } }
 .card:focus-visible, .panel:focus-visible, .link:focus-visible, .motionToggle:focus-visible { outline: 2px solid var(--atlas-ink); outline-offset: 4px; }
 .panel { margin-top: 20px; padding: 24px; border: 1px solid var(--atlas-line); background: #121c1e; }

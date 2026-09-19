@@ -55,7 +55,6 @@ export function TankHero({ children }: { children: ReactNode }) {
   const [reveal, setReveal] = useState(true)
   const [entered, setEntered] = useState(false)
   const [replayCover, setReplayCover] = useState(false)
-  const [holdTerminal, setHoldTerminal] = useState(false)
   const [category, setCategory] = useState<ArtworkCategory>('all')
   const [paused, setPaused] = useState(false)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -84,10 +83,10 @@ export function TankHero({ children }: { children: ReactNode }) {
     }
   }, [])
   const finish = useCallback((outcome: IntroOutcome) => {
-    // Keep the actual final frame. Do not run the old second camera move.
-    setHoldTerminal(outcome === 'complete')
+    // Dissolve the unchanged terminal frame into the artwork; never hold it forever.
     pendingFocus.current = true
-    setPhase('live'); setReveal(true); setPaused(false)
+    setPhase(outcome === 'complete' ? 'entering' : 'live')
+    setReveal(outcome !== 'complete'); setPaused(false)
     setPlaybackError(outcome === 'error')
     remember()
   }, [remember])
@@ -99,11 +98,16 @@ export function TankHero({ children }: { children: ReactNode }) {
   const failed = useCallback(() => {
     setStatus('error')
     // An artwork download/Canvas2D failure must not cut short a playable video.
-    // Its natural end will return to usable HTML and the static artwork instead.
-    if (currentPhase.current === 'video') return
+    // The handoff also works over static artwork if the renderer fails.
+    if (currentPhase.current === 'video' || currentPhase.current === 'entering') return
     setPhase('live'); setReveal(true)
   }, [])
-  const revealCopy = useCallback(() => setReveal(true), [])
+  useEffect(() => {
+    if (phase !== 'entering') return
+    // Release the page even if a browser suppresses animationend.
+    const timeout = window.setTimeout(settled, 1600)
+    return () => window.clearTimeout(timeout)
+  }, [phase, settled])
   useEffect(() => {
     const preference = matchMedia(motionQuery)
     const change = () => { if (preference.matches) {
@@ -201,7 +205,6 @@ export function TankHero({ children }: { children: ReactNode }) {
   const watch = useCallback(() => {
     if (matchMedia(motionQuery).matches) { remember(); focusSearch(); return }
     remember()
-    setHoldTerminal(false)
     pendingFocus.current = true
     setPlaybackError(false); setCategory('all'); setPaused(false); setReveal(false); setPhase('video')
   }, [remember, focusSearch])
@@ -218,7 +221,7 @@ export function TankHero({ children }: { children: ReactNode }) {
   }, [remember])
   const description = forms.find(form => form.id === category)!.description
 
-  return <section ref={root} className="tank-hero ripple-hero" aria-labelledby="tank-title" data-testid="ripple-hero" data-state={phase} data-terminal={holdTerminal}>
+  return <section ref={root} className="tank-hero ripple-hero" aria-labelledby="tank-title" data-testid="ripple-hero" data-state={phase}>
     {showEntryCover && <div
       className="ripple-entry-cover"
       data-testid="journey-entry-cover"
@@ -263,11 +266,16 @@ export function TankHero({ children }: { children: ReactNode }) {
       </div>
     </div>}
     <div ref={media} className="ripple-media" data-testid="ripple-media">
-      {(active || holdTerminal) && <div className="ripple-ambient ripple-ambient-terminal" aria-hidden="true" />}
       <div className={`ripple-particle-stage${status === 'ready' ? ' is-field-ready' : ''}`} role="img" aria-label={rippleAssets.master.alt} data-testid="particle-stage" data-renderer={status === 'ready' ? 'interactive-artwork' : 'master-static'}>
-        {!imageFailed ? <Image src={active || holdTerminal ? artworkJourney.terminalPoster : rippleAssets.master.src} alt={holdTerminal ? 'View through the microscope eyepiece' : rippleAssets.master.alt} width={1920} height={1080} sizes="100vw" unoptimized loading="eager" className="ripple-stage-image" data-testid="hero-artwork" onError={() => setImageFailed(true)} /> : <p className="ripple-artwork-fallback">Artwork unavailable. Water search is still available.</p>}
-        <ArtworkFieldCanvas phase={phase} paused={paused || showEntryCover || holdTerminal} reduced={reduced} category={category} onReady={ready} onError={failed} onReveal={revealCopy} onSettled={settled} />
+        {!imageFailed ? <Image src={rippleAssets.master.src} alt={rippleAssets.master.alt} width={1920} height={1080} sizes="100vw" unoptimized loading="eager" className="ripple-stage-image" data-testid="hero-artwork" onError={() => setImageFailed(true)} /> : <p className="ripple-artwork-fallback">Artwork unavailable. Water search is still available.</p>}
+        <ArtworkFieldCanvas phase={phase} paused={paused || showEntryCover || active} reduced={reduced} category={category} onReady={ready} onError={failed} />
       </div>
+      {active && <div className="ripple-handoff" data-testid="journey-handoff" aria-hidden="true" onAnimationEnd={event => {
+        if (event.target === event.currentTarget && event.animationName === 'ripple-terminal-dissolve') settled()
+      }}>
+        <div className="ripple-ambient ripple-ambient-terminal" />
+        <Image src={artworkJourney.terminalPoster} alt="" fill sizes="100vw" unoptimized loading="eager" className="ripple-terminal-image" />
+      </div>}
       {phase === 'video' && <CinematicIntro onComplete={finish} />}
     </div>
     <div ref={editorial} className={`tank-editorial ripple-editorial${active && !reveal ? ' is-awaiting-cue' : ''}`} aria-hidden={showEntryCover || active && !reveal || undefined}>
@@ -279,7 +287,7 @@ export function TankHero({ children }: { children: ReactNode }) {
     <div className="ripple-workbench" aria-label="Illustration controls">
       {!active && <>
         <div className="ripple-form-selector"><span className="ripple-control-label">Highlight a form</span>
-          <div className="ripple-category-buttons" role="group" aria-label="Highlight particle category">{forms.map(form => <button type="button" key={form.id} data-testid={`field-${form.id}`} disabled={!hydrated || status !== 'ready'} aria-pressed={!holdTerminal && category === form.id} onClick={() => { setHoldTerminal(false); setCategory(form.id) }}>{form.label}</button>)}</div>
+          <div className="ripple-category-buttons" role="group" aria-label="Highlight particle category">{forms.map(form => <button type="button" key={form.id} data-testid={`field-${form.id}`} disabled={!hydrated || status !== 'ready'} aria-pressed={category === form.id} onClick={() => setCategory(form.id)}>{form.label}</button>)}</div>
         </div>
         <div className="ripple-workbench-actions">
           <button type="button" className="ripple-motion-button" data-testid="field-pause" disabled={!hydrated || status !== 'ready' || reduced} aria-pressed={paused || reduced} onClick={() => setPaused(value => !value)}>{reduced ? 'Reduced motion' : paused ? 'Resume artwork' : 'Pause artwork'}</button>

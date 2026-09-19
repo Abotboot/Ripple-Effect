@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import Image from 'next/image'
-import { rippleAssets } from '@/lib/ripple-assets'
 import styles from './particle-atlas.module.css'
 
 const categories = [
@@ -10,19 +9,16 @@ const categories = [
     id: 'fibers',
     title: 'Fibers',
     description: 'Long, fine strands',
-    asset: rippleAssets.fibers,
   },
   {
     id: 'fragments',
     title: 'Fragments',
     description: 'Irregular flakes and chips',
-    asset: rippleAssets.fragments,
   },
   {
     id: 'granules',
     title: 'Granules',
     description: 'Compact, rounded pieces',
-    asset: rippleAssets.granules,
   },
 ] as const
 
@@ -102,7 +98,7 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
             </button>
           ))}
         </div>
-        {categories.map(({ id, title, description, asset }, index) => (
+        {categories.map(({ id, title, description }, index) => (
           <div
             key={id}
             id={`atlas-panel-${id}`}
@@ -118,14 +114,13 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
               <span>{description}</span>
             </div>
             <p className={styles.features}>{id === 'fibers' ? 'Follow the curve and fine strands along its edge.' : id === 'fragments' ? 'Look for folded surfaces, sharp edges and uneven thickness.' : 'Compare the rounded outlines and rough surfaces.'}</p>
-            <details className={styles.reference}><summary>View original illustration</summary><Image src={asset.src} alt={asset.alt} width={asset.width} height={asset.height} sizes="(max-width: 699px) 80vw, 320px" loading="lazy" /></details>
           </div>
         ))}
         <div className={styles.footer}>
           <p className={styles.note}>Particle illustrations. Identification requires a sample test.</p>
           <div className={styles.footerLinks}>
             {onMethodology && <button type="button" className={styles.link} onClick={onMethodology}>Methodology &amp; sources <span aria-hidden="true">↗</span></button>}
-            <a className={styles.link} href="#specimen-study">Try the specimen controls <span aria-hidden="true">↓</span></a>
+            <a className={styles.link} href="#sample-study">Examine a sample <span aria-hidden="true">↓</span></a>
           </div>
         </div>
       </div>

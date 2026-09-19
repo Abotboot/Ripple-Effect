@@ -6,11 +6,9 @@ export const artworkJourney = {
   width: 1280,
   height: 720,
   durationSeconds: 2.966016,
-  // The live boundary is the approved video's actual decoded final lens-interior frame.
-  // HTML reveals in the live phase, not at an arbitrary time inside the video.
+  // Hold the decoded lens frame at its original framing, then dissolve to the
+  // artwork. HTML reveals after this handoff, never on top of a stuck lens.
   textRevealAtSeconds: Number.POSITIVE_INFINITY,
-  entranceSeconds: 3.4,
-  revealProgress: 0.72,
 } as const
 
 export type ArtworkCategory = 'all' | 'fibers' | 'fragments' | 'granules'

@@ -65,9 +65,7 @@ export function buildWaterReportCardViewModel(
   const hasAssessedVerifiedData = legalAssessed.length > 0 || healthAssessed.length > 0
 
   const title = utility.name.length > 36 ? utility.name.slice(0, 34) + '…' : utility.name
-  const pop = utility.population ?? (utility as any).populationServed
-  const popText = pop ? ` · ${pop.toLocaleString()} residents served` : ''
-  const locationSubtitle = `${utility.city}, ${utility.state}${popText}`
+  const locationSubtitle = `${utility.city}, ${utility.state}`
 
   // Health guideline exceedances
   let healthExceedancesText = '—'
