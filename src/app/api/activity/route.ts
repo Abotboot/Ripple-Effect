@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
+import { sampleBenchmarkStatus } from '@/lib/sample-read-model'
+import { getProvenancePresentation } from '@/lib/provenance'
 
 // GET /api/activity - recent activity across the platform.
 // Returns a unified feed of the latest samples, reports, chapter signups,
@@ -7,11 +10,9 @@ import { db } from '@/lib/db'
 // "Recent activity" feed to show the site is alive.
 export async function GET() {
 
-  const [samples, reports, chapters, donations] = await Promise.all([
-    db.sample.findMany({
-      take: 5,
-      orderBy: { sampleDate: 'desc' },
-      select: {
+  const [sampleRead, reports, chapters, donations] = await Promise.all([
+    readSamples({
+        provenance: true, verificationStatus: true, quality: true,
         id: true,
         level: true,
         unit: true,
@@ -19,9 +20,9 @@ export async function GET() {
         treatmentStatus: true,
         source: true,
         utility: { select: { name: true, city: true, state: true } },
-        contaminant: { select: { name: true, slug: true, healthGuideline: true, legalLimit: true } },
-      },
-    }),
+        contaminant: { select: { name: true, slug: true, healthGuideline: true, legalLimit: true,
+          healthGuidelineUnit: true, legalLimitUnit: true } },
+    }, { take: 5, orderBy: { sampleDate: 'desc' } }),
     db.report.findMany({
       take: 4,
       orderBy: { createdAt: 'desc' },
@@ -63,6 +64,7 @@ export async function GET() {
       },
     }),
   ])
+  const { samples, dataStatus } = sampleRead
 
   type ActivityItem = {
     id: string
@@ -78,10 +80,8 @@ export async function GET() {
 
   for (const s of samples) {
     const c = s.contaminant
-    const exceedsHealth =
-      c.healthGuideline != null && c.healthGuideline > 0 && s.level > c.healthGuideline
-    const exceedsLegal =
-      c.legalLimit != null && c.legalLimit > 0 && s.level > c.legalLimit
+    const exceedsHealth = sampleBenchmarkStatus({ ...s, benchmark: c.healthGuideline, benchmarkUnit: c.healthGuidelineUnit }) === 'above_benchmark'
+    const exceedsLegal = sampleBenchmarkStatus({ ...s, benchmark: c.legalLimit, benchmarkUnit: c.legalLimitUnit }) === 'above_benchmark'
     items.push({
       id: 'sample-' + s.id,
       type: 'sample',
@@ -90,8 +90,8 @@ export async function GET() {
       subtitle: s.utility
         ? `${s.utility.name} · ${s.utility.city}, ${s.utility.state}`
         : 'Community measurement',
-      meta: `${s.treatmentStatus} · ${s.source}`,
-      tone: exceedsLegal ? 'warning' : exceedsHealth ? 'warning' : 'ok',
+      meta: `${s.treatmentStatus} · ${s.source} · ${getProvenancePresentation(s).badgeLabel}`,
+      tone: exceedsLegal || exceedsHealth ? 'warning' : 'default',
     })
   }
 
@@ -134,6 +134,7 @@ export async function GET() {
   items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   return NextResponse.json({
+    dataStatus,
     items: items.slice(0, 12),
     counts: {
       samples: samples.length,
@@ -141,5 +142,5 @@ export async function GET() {
       chapters: chapters.length,
       donations: donations.length,
     },
-  })
+  }, { headers: sampleReadHeaders(dataStatus) })
 }

@@ -6,6 +6,7 @@ import { computeSafetyScore } from '@/lib/safety-score'
 import { isEligibleForScoring, normalizeProvenance } from '@/lib/provenance'
 import type { UtilityWithStats } from '@/lib/types'
 import type { Sample, Contaminant } from '@prisma/client'
+import { readSamples, SAMPLE_READ_FIELDS, sampleReadHeaders } from '@/lib/sample-read'
 
 // GET /api/utilities/[id] - returns the utility with contaminant summaries
 export async function GET(
@@ -18,9 +19,8 @@ export async function GET(
     return NextResponse.json({ error: 'Utility not found' }, { status: 404 })
   }
 
-  const samples = await db.sample.findMany({
+  const { samples, dataStatus } = await readSamples({ ...SAMPLE_READ_FIELDS, contaminant: true }, {
     where: { utilityId: id },
-    include: { contaminant: true },
   })
 
   // Group samples by contaminant
@@ -73,6 +73,7 @@ export async function GET(
   })
 
   const result: UtilityWithStats = {
+    dataStatus,
     ...utility,
     contaminantSummaries,
     totalSamples: samples.length,
@@ -81,7 +82,7 @@ export async function GET(
     safetyScore,
   }
 
-  return NextResponse.json(result)
+  return NextResponse.json(result, { headers: sampleReadHeaders(dataStatus) })
 }
 
 // PUT /api/utilities/[id] (admin only)

@@ -2,8 +2,9 @@
 
 import './editorial-pages.css'
 
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { geoAlbersUsa } from 'd3-geo'
 import {
   ComposableMap,
   Geographies,
@@ -26,12 +27,17 @@ import { api } from '@/lib/api'
 import type { Stats, UtilityWithStats, Utility } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
 import { cn } from '@/lib/utils'
+import { assessmentKind, hasFiniteCoordinates, unavailableAssessment } from '@/lib/sample-read-model'
 
-type MapUtility = Stats['mapUtilities'][number]
+type MapUtility = Pick<Stats['mapUtilities'][number], 'id' | 'name' | 'city' | 'state' | 'pwsid' | 'latitude' | 'longitude' | 'population' | 'assessment'> &
+  Partial<Pick<Stats['mapUtilities'][number], 'contaminantExceedances'>>
 
 // US states TopoJSON from CDN (loaded once, cached by the browser).
 // This is the standard us-atlas simplified states-10m dataset (~100KB).
 const US_STATES_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json'
+// The composite US projection clips valid coordinates elsewhere in the world.
+// Keep those records in the list, but never pass a null projection into Marker.
+const isOnUSMap = geoAlbersUsa()
 
 // Major US cities for the "search near me" quick-pick
 const QUICK_CITIES = [
@@ -44,27 +50,37 @@ const QUICK_CITIES = [
 ]
 
 function tierFor(u: MapUtility): { label: string; color: string; ring: string } {
-  if (u.legalExceedances > 0) {
-    return { label: 'Above legal limit', color: '#e11d48', ring: '#fecdd3' }
+  const kind = assessmentKind(u.assessment)
+  if (kind === 'legal') {
+    return { label: 'Records above legal limit', color: '#e11d48', ring: '#fecdd3' }
   }
-  if (u.healthExceedances >= 5) {
-    return { label: 'Many health exceedances', color: '#f59e0b', ring: '#fde68a' }
+  if (kind === 'health') {
+    return { label: 'Records above health guideline', color: '#d97706', ring: '#fde68a' }
   }
-  if (u.healthExceedances > 0) {
-    return { label: 'Some health exceedances', color: '#06b6d4', ring: '#a5f3fc' }
+  if (kind === 'compared') {
+    return { label: 'No exceedance in compared records', color: '#708d9b', ring: '#cbd5e1' }
   }
-  return { label: 'Within guidelines', color: '#10b981', ring: '#a7f3d0' }
+  return { label: kind === 'unavailable' ? 'Comparisons unavailable' : 'Not assessed', color: '#87919b', ring: '#cbd5e1' }
 }
 
 export function MapSection() {
   const [stats, setStats] = useState<Stats | null>(null)
-  const [scores, setScores] = useState<Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> | null>(null)
+  const [locations, setLocations] = useState<MapUtility[] | null>(null)
+  const [unmappedCount, setUnmappedCount] = useState(0)
+  const [mapError, setMapError] = useState<string | null>(null)
+  const [assessmentError, setAssessmentError] = useState<string | null>(null)
+  const [assessmentLoading, setAssessmentLoading] = useState(true)
+  const [detailError, setDetailError] = useState<MapUtility | (Utility & { distanceMiles?: number }) | null>(null)
+  const [reload, setReload] = useState(0)
+  const [geography, setGeography] = useState<Record<string, unknown> | null>(null)
+  const [geographyError, setGeographyError] = useState(false)
+  const [geographyReload, setGeographyReload] = useState(0)
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<UtilityWithStats | null>(null)
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null)
   const [hovered, setHovered] = useState<MapUtility | null>(null)
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
-  const [filterTier, setFilterTier] = useState<'all' | 'legal' | 'health' | 'clean'>('all')
+  const [filterTier, setFilterTier] = useState<'all' | 'legal' | 'health' | 'unassessed' | 'compared'>('all')
   // Contaminant filter chips (separate from tier filter; ANDed together)
   const [contaminantFilter, setContaminantFilter] = useState<'all' | 'microplastics' | 'pfas' | 'lead' | 'dbp'>('all')
   // Radius search state
@@ -73,34 +89,70 @@ export function MapSection() {
   const [radiusMiles, setRadiusMiles] = useState(300)
   const [nearby, setNearby] = useState<Array<Utility & { distanceMiles: number }> | null>(null)
   const [radiusLoading, setRadiusLoading] = useState(false)
+  const [radiusError, setRadiusError] = useState(false)
+  const radiusRequest = useRef(0)
+  const detailRequest = useRef(0)
+  const retryData = () => {
+    setLoading(true); setAssessmentLoading(true); setMapError(null); setAssessmentError(null)
+    setLocations(null); setStats(null); setHovered(null)
+    setFilterTier('all'); setContaminantFilter('all')
+    setReload(value => value + 1)
+  }
 
   useEffect(() => {
-    api.getStats().then((s) => {
-      setStats(s)
-      setLoading(false)
-    }).catch(() => setLoading(false))
-    // Fetch safety scores for tooltips (non-blocking)
-    api.getUtilityScores()
-      .then((r) => {
-        const map: Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> = {}
-        for (const s of r.scores) {
-          map[s.id] = { score: s.score, grade: s.grade, label: s.label, color: s.color, bgColor: s.bgColor }
+    let active = true
+    const controller = new AbortController()
+    // A dedicated location read never depends on sample metadata, scores or finance.
+    api.getMapLocations(controller.signal)
+      .then(result => {
+        if (!Array.isArray(result.mapUtilities)) throw new Error('Invalid location response')
+        if (active) {
+          setLocations(result.mapUtilities.filter((u: MapUtility) => u && typeof u.id === 'string' && hasFiniteCoordinates(u)))
+          setUnmappedCount(Number.isSafeInteger(result.unmappedCount) && result.unmappedCount >= 0 ? result.unmappedCount : 0)
         }
-        setScores(map)
-      })
-      .catch(() => {})
-  }, [])
+      }).catch(() => { if (active) setMapError('Utility locations could not be loaded.') })
+      .finally(() => { if (active) setLoading(false) })
+    api.getStats().then(result => {
+      if (!Array.isArray(result.mapUtilities)) throw new Error('Invalid assessment response')
+      if (active) setStats(result)
+    }).catch(() => { if (active) setAssessmentError('Sample comparisons could not be loaded. Locations are still available.') })
+      .finally(() => { if (active) setAssessmentLoading(false) })
+    return () => { active = false; controller.abort() }
+  }, [reload])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetch(US_STATES_URL, { signal: controller.signal }).then(async response => {
+      if (!response.ok) throw new Error('Map background request failed')
+      const data = await response.json()
+      if (data.type !== 'Topology' || !data.objects?.states) throw new Error('Invalid map background')
+      if (!controller.signal.aborted) setGeography(data)
+    }).catch(() => { if (!controller.signal.aborted) setGeographyError(true) })
+    return () => controller.abort()
+  }, [geographyReload])
+
+  const mapUtilities = useMemo(() => {
+    const assessments = new Map(stats?.mapUtilities.map(u => [u.id, u]) ?? [])
+    return (locations ?? []).map(location => {
+      const measured = assessments.get(location.id)
+      return { ...location, assessment: measured?.assessment ?? unavailableAssessment(),
+        contaminantExceedances: measured?.contaminantExceedances }
+    })
+  }, [locations, stats])
 
   const runRadiusSearch = useCallback(async (lat: number, lng: number, radius: number) => {
+    const request = ++radiusRequest.current
     setRadiusLoading(true)
+    setRadiusError(false)
+    setNearby(null)
     try {
       const res = await api.nearbyUtilities(lat, lng, radius)
-      setNearby(res.utilities)
-    } catch (e) {
-      console.error('Radius search failed', e)
-      setNearby([])
+      if (!Array.isArray(res.utilities)) throw new Error('Invalid nearby response')
+      if (request === radiusRequest.current) setNearby(res.utilities.filter(u => hasFiniteCoordinates(u) && Number.isFinite(u.distanceMiles) && u.distanceMiles >= 0))
+    } catch {
+      if (request === radiusRequest.current) setRadiusError(true)
     } finally {
-      setRadiusLoading(false)
+      if (request === radiusRequest.current) setRadiusLoading(false)
     }
   }, [])
 
@@ -111,30 +163,33 @@ export function MapSection() {
   }, [radiusMiles, runRadiusSearch])
 
   const openUtility = async (u: MapUtility | (Utility & { distanceMiles?: number })) => {
+    const request = ++detailRequest.current
+    setDetailError(null)
     setLoadingDetail(u.id)
     try {
       const detail = await api.getUtility(u.id)
-      setSelected(detail)
-    } catch (e) {
-      console.error('Failed to load utility', e)
+      if (request === detailRequest.current) setSelected(detail)
+    } catch {
+      if (request === detailRequest.current) setDetailError(u)
     } finally {
-      setLoadingDetail(null)
+      if (request === detailRequest.current) setLoadingDetail(null)
     }
   }
 
   // Apply tier filter AND contaminant filter (both conditions must pass)
   const visibleUtilities = useMemo(() => {
-    if (!stats) return []
-    return stats.mapUtilities.filter((u) => {
+    return mapUtilities.filter((u) => {
+      const kind = assessmentKind(u.assessment)
       // Tier filter
-      if (filterTier === 'legal' && !(u.legalExceedances > 0)) return false
-      if (filterTier === 'health' && !(u.legalExceedances === 0 && u.healthExceedances > 0)) return false
-      if (filterTier === 'clean' && !(u.healthExceedances === 0 && u.legalExceedances === 0)) return false
+      if (filterTier === 'legal' && kind !== 'legal') return false
+      if (filterTier === 'health' && kind !== 'health') return false
+      if (filterTier === 'compared' && kind !== 'compared') return false
+      if (filterTier === 'unassessed' && kind !== 'unavailable' && kind !== 'not_assessed') return false
       // Contaminant filter (ANDed with tier)
       if (contaminantFilter !== 'all' && !u.contaminantExceedances?.[contaminantFilter]) return false
       return true
     })
-  }, [stats, filterTier, contaminantFilter])
+  }, [mapUtilities, filterTier, contaminantFilter])
 
   // If radius mode is active, further filter to nearby utilities
   const displayedUtilities = useMemo(() => {
@@ -144,21 +199,22 @@ export function MapSection() {
   }, [visibleUtilities, radiusMode, nearby])
 
   const tierCounts = useMemo(() => {
-    if (!stats) return { legal: 0, health: 0, clean: 0 }
+    if (!stats) return { legal: null, health: null, unassessed: null, compared: null }
     return {
-      legal: stats.mapUtilities.filter((u) => u.legalExceedances > 0).length,
-      health: stats.mapUtilities.filter((u) => u.legalExceedances === 0 && u.healthExceedances > 0).length,
-      clean: stats.mapUtilities.filter((u) => u.healthExceedances === 0 && u.legalExceedances === 0).length,
+      legal: mapUtilities.filter(u => assessmentKind(u.assessment) === 'legal').length,
+      health: mapUtilities.filter(u => assessmentKind(u.assessment) === 'health').length,
+      unassessed: mapUtilities.filter(u => ['unavailable', 'not_assessed'].includes(assessmentKind(u.assessment))).length,
+      compared: mapUtilities.filter(u => assessmentKind(u.assessment) === 'compared').length,
     }
-  }, [stats])
+  }, [mapUtilities, stats])
 
   // Per-contaminant counts (utilities with that contaminant flagged).
   // Computed against the full mapUtilities list so the chip counts reflect
   // total availability, independent of the current tier selection.
   const contaminantCounts = useMemo(() => {
-    if (!stats) return { microplastics: 0, pfas: 0, lead: 0, dbp: 0 }
+    if (!stats) return { microplastics: null, pfas: null, lead: null, dbp: null }
     const acc = { microplastics: 0, pfas: 0, lead: 0, dbp: 0 }
-    for (const u of stats.mapUtilities) {
+    for (const u of mapUtilities) {
       const ce = u.contaminantExceedances
       if (ce?.microplastics) acc.microplastics++
       if (ce?.pfas) acc.pfas++
@@ -166,7 +222,7 @@ export function MapSection() {
       if (ce?.dbp) acc.dbp++
     }
     return acc
-  }, [stats])
+  }, [mapUtilities, stats])
 
   const anyFilterActive = filterTier !== 'all' || contaminantFilter !== 'all'
 
@@ -187,24 +243,43 @@ export function MapSection() {
             Water utilities across America
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
-            Every dot is a water utility in our database. Color shows how its
-            measured contaminants compare to health and legal limits. Click any
-            dot for the full breakdown, or search for utilities near you.
+            Each dot is a recorded utility location. Comparisons use eligible reviewed
+            measurements where available; an unassessed location is not a safety finding.
+            Select a dot for its records, or search by distance from a city.
           </p>
         </div>
 
+        {mapError && <div role="alert" className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4">
+          <p>{mapError} Please retry to see recorded locations.</p>
+          <Button onClick={retryData}>Retry locations</Button>
+        </div>}
+        {assessmentError && <div role="alert" className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4">
+          <p>{assessmentError}</p>
+          <Button variant="outline" onClick={retryData}>Retry comparisons</Button>
+        </div>}
+        {stats?.dataStatus?.status === 'degraded' && <p role="status" className="mb-4 rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+          Historical sample records are available, but their verification metadata is unavailable.
+          These records remain unreviewed and do not establish safety or benchmark compliance.
+        </p>}
+        {detailError && <div role="alert" className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4">
+          <p>Records for {detailError.name} could not be loaded.</p>
+          <Button variant="outline" onClick={() => openUtility(detailError)}>Retry utility records</Button>
+        </div>}
+
         {/* Tier filter chips + clear-filters button */}
         <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
-          <span className="sr-only">Filter utilities by contamination tier</span>
+          <span className="sr-only">Filter utilities by recorded comparisons</span>
           {([
-            { id: 'all', label: 'All', count: stats?.mapUtilities.length ?? 0, color: '#64748b' },
-            { id: 'clean', label: 'Within guidelines', count: tierCounts.clean, color: '#10b981' },
-            { id: 'health', label: 'Health exceedances', count: tierCounts.health, color: '#06b6d4' },
+            { id: 'all', label: 'All locations', count: locations ? mapUtilities.length : null, color: '#64748b' },
+            { id: 'unassessed', label: 'Not assessed', count: tierCounts.unassessed, color: '#87919b' },
+            { id: 'compared', label: 'No recorded exceedance', count: tierCounts.compared, color: '#708d9b' },
+            { id: 'health', label: 'Health exceedances', count: tierCounts.health, color: '#d97706' },
             { id: 'legal', label: 'Above legal limit', count: tierCounts.legal, color: '#e11d48' },
           ] as const).map((t) => (
             <button
               key={t.id}
               onClick={() => setFilterTier(t.id)}
+              disabled={t.id !== 'all' && !stats}
               aria-pressed={filterTier === t.id}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all',
@@ -219,7 +294,7 @@ export function MapSection() {
                 <span className="ml-1 inline-block h-3 w-4 animate-pulse rounded bg-muted-foreground/20" />
               ) : (
                 <span className={cn('ml-0.5 rounded-full px-1.5 text-[10px]', filterTier === t.id ? 'bg-white/20' : 'bg-muted')}>
-                  {t.count}
+                  {t.count ?? '—'}
                 </span>
               )}
             </button>
@@ -246,17 +321,18 @@ export function MapSection() {
             By contaminant
           </span>
           {([
-            { id: 'all', label: 'All', count: stats?.mapUtilities.length ?? 0, Icon: null as null | typeof Microscope },
-            { id: 'microplastics', label: 'Microplastics only', count: contaminantCounts.microplastics, Icon: Microscope },
-            { id: 'pfas', label: 'PFAS only', count: contaminantCounts.pfas, Icon: FlaskConical },
-            { id: 'lead', label: 'Lead only', count: contaminantCounts.lead, Icon: Droplets },
-            { id: 'dbp', label: 'Disinfection byproducts', count: contaminantCounts.dbp, Icon: Beaker },
+            { id: 'all', label: 'All', count: locations ? mapUtilities.length : null, Icon: null as null | typeof Microscope },
+            { id: 'microplastics', label: 'Microplastics recorded', count: contaminantCounts.microplastics, Icon: Microscope },
+            { id: 'pfas', label: 'PFAS above guideline', count: contaminantCounts.pfas, Icon: FlaskConical },
+            { id: 'lead', label: 'Lead above guideline', count: contaminantCounts.lead, Icon: Droplets },
+            { id: 'dbp', label: 'DBPs above guideline', count: contaminantCounts.dbp, Icon: Beaker },
           ] as const).map((c) => {
             const selected = contaminantFilter === c.id
             return (
               <button
                 key={c.id}
                 onClick={() => setContaminantFilter(c.id)}
+                disabled={c.id !== 'all' && !stats}
                 aria-pressed={selected}
                 className={cn(
                   'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all',
@@ -271,7 +347,7 @@ export function MapSection() {
                   <span className="ml-1 inline-block h-3 w-4 animate-pulse rounded bg-muted-foreground/20" />
                 ) : (
                   <span className={cn('ml-0.5 rounded-full px-1.5 text-[10px]', selected ? 'bg-white/20' : 'bg-muted')}>
-                    {c.count}
+                    {c.count ?? '—'}
                   </span>
                 )}
               </button>
@@ -290,7 +366,7 @@ export function MapSection() {
                 <div>
                   <div className="text-sm font-semibold text-foreground">Find utilities near you</div>
                   <div className="text-[11px] text-muted-foreground">
-                    Geospatial radius search (haversine, PostGIS-ready)
+                    Choose a city and distance to find recorded utility locations.
                   </div>
                 </div>
               </div>
@@ -334,9 +410,12 @@ export function MapSection() {
                     size="sm"
                     className="h-8"
                     onClick={() => {
+                      radiusRequest.current++
                       setRadiusMode(false)
                       setRadiusCenter(null)
                       setNearby(null)
+                      setRadiusError(false)
+                      setRadiusLoading(false)
                     }}
                   >
                     <X className="h-3.5 w-3.5" />
@@ -345,6 +424,11 @@ export function MapSection() {
                 )}
               </div>
             </div>
+            {radiusMode && radiusError && <div role="alert" className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+              <span>Nearby search failed. Showing all loaded locations until it can be retried.</span>
+              <Button variant="outline" size="sm" onClick={() => radiusCenter && runRadiusSearch(radiusCenter.lat, radiusCenter.lng, radiusMiles)}>Retry nearby search</Button>
+            </div>}
+            {radiusMode && radiusLoading && <p role="status" className="mt-3 text-sm text-muted-foreground">Searching nearby utilities…</p>}
             {radiusMode && nearby && (
               <div className="mt-3 flex items-center gap-2 rounded-md bg-primary/5 px-3 py-2 text-sm">
                 {radiusLoading ? (
@@ -362,6 +446,19 @@ export function MapSection() {
             )}
           </CardContent>
         </Card>
+
+        {geographyError && <div role="alert" className="mb-4 flex flex-wrap items-center gap-3 text-sm">
+          <span>The map background could not load. Available locations remain in the list below.</span>
+          <Button variant="outline" size="sm" onClick={() => { setGeographyError(false); setGeographyReload(value => value + 1) }}>Retry map background</Button>
+        </div>}
+        {!loading && locations && mapUtilities.length === 0 && <p role="status" className="mb-4 rounded-lg border border-border p-4">
+          No utility locations with usable coordinates were returned.{unmappedCount > 0 ? ` ${unmappedCount} utility records have no usable coordinates.` : ''}
+        </p>}
+        {!loading && locations && mapUtilities.length > 0 && displayedUtilities.length === 0 && <div role="status" className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-border p-4">
+          <span>No locations match the current filters. Unreviewed records do not qualify as benchmark findings.</span>
+          {anyFilterActive && <Button variant="outline" onClick={clearFilters}>Clear filters</Button>}
+        </div>}
+        {!loading && locations && assessmentLoading && <p role="status" className="mb-3 text-sm text-muted-foreground">Locations loaded. Checking available sample comparisons…</p>}
 
         {/* The Map */}
         <Card className="overflow-hidden shadow-lg">
@@ -383,7 +480,7 @@ export function MapSection() {
                   style={{ width: '100%', height: '100%' }}
                 >
                   <ZoomableGroup zoom={1} minZoom={0.8} maxZoom={4}>
-                    <Geographies geography={US_STATES_URL}>
+                    {geography && <Geographies geography={geography}>
                       {({ geographies }: { geographies: Array<{ rsmKey: string; properties: { name: string } }> }) =>
                         geographies.map((geo) => (
                           <Geography
@@ -404,7 +501,7 @@ export function MapSection() {
                           />
                         ))
                       }
-                    </Geographies>
+                    </Geographies>}
 
                     {/* Radius circle (visual indicator) */}
                     {radiusMode && radiusCenter && (
@@ -425,6 +522,7 @@ export function MapSection() {
 
                     {/* Utility markers */}
                     {displayedUtilities.map((u, i) => {
+                      if (!isOnUSMap([u.longitude, u.latitude])) return null
                       const tier = tierFor(u)
                       const isHovered = hovered?.id === u.id
                       const isLoading = loadingDetail === u.id
@@ -433,14 +531,20 @@ export function MapSection() {
                       return (
                         <Marker
                           key={u.id}
+                          data-testid="utility-map-marker"
+                          data-assessment={assessmentKind(u.assessment)}
                           coordinates={[u.longitude, u.latitude]}
                           onMouseEnter={() => setHovered(u)}
                           onMouseLeave={() => { setHovered(null); setTooltipPos(null) }}
                           onClick={() => openUtility(u)}
+                          tabIndex={0}
+                          role="button"
+                          aria-label={`${u.name}: ${tier.label}`}
+                          onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openUtility(u) } }}
                           style={{ default: { cursor: 'pointer' }, hover: { cursor: 'pointer' } }}
                         >
                           {/* Pulse ring for legal exceedances */}
-                          {u.legalExceedances > 0 && (
+                          {(u.assessment?.legalAbove ?? 0) > 0 && (
                             <circle
                               r={radius + 3}
                               fill="none"
@@ -476,7 +580,7 @@ export function MapSection() {
                             strokeWidth={1.5}
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: i * 0.04, type: 'spring', stiffness: 200 }}
+                            transition={{ delay: Math.min(i * 0.015, 0.3), type: 'spring', stiffness: 200 }}
                             style={{ transformOrigin: 'center', filter: isHovered ? 'brightness(1.15)' : 'none' }}
                           />
                           {/* Loading spinner */}
@@ -530,38 +634,20 @@ export function MapSection() {
                   >
                     <div className="flex items-start justify-between gap-2">
                     <div className="text-sm font-semibold text-foreground">{hovered.name}</div>
-                    {scores?.[hovered.id] && (
-                      <div
-                        className={`flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-lg ${scores[hovered.id].bgColor}`}
-                        title={`Safety score: ${scores[hovered.id].score}/100`}
-                      >
-                        <span className={`text-sm font-extrabold tabular-nums leading-none ${scores[hovered.id].color}`}>{scores[hovered.id].score}</span>
-                        <span className={`text-[8px] font-bold leading-none ${scores[hovered.id].color}`}>{scores[hovered.id].grade}</span>
-                      </div>
-                    )}
                   </div>
                     <div className="mt-0.5 text-xs text-muted-foreground">
                       {hovered.city}, {hovered.state} · pop. {hovered.population.toLocaleString()}
                     </div>
-                    {scores?.[hovered.id] && (
-                      <div className="mt-1 text-[10px] font-medium text-muted-foreground">
-                        Safety: <span className={scores[hovered.id].color}>{scores[hovered.id].label}</span>
-                      </div>
-                    )}
+                    <div className="mt-1 text-xs text-muted-foreground">{tierFor(hovered).label}</div>
                     <div className="mt-1.5 flex flex-wrap gap-1.5 text-[10px]">
-                      {hovered.healthExceedances > 0 && (
+                      {hovered.assessment?.healthCompared != null && hovered.assessment.healthCompared > 0 && (
                         <span className="rounded bg-amber-100 px-1.5 py-0.5 font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
-                          {hovered.healthExceedances} health
+                          {hovered.assessment.healthAbove} above / {hovered.assessment.healthCompared} health comparisons
                         </span>
                       )}
-                      {hovered.legalExceedances > 0 && (
+                      {hovered.assessment?.legalCompared != null && hovered.assessment.legalCompared > 0 && (
                         <span className="rounded bg-rose-100 px-1.5 py-0.5 font-medium text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
-                          {hovered.legalExceedances} legal
-                        </span>
-                      )}
-                      {hovered.healthExceedances === 0 && hovered.legalExceedances === 0 && (
-                        <span className="rounded bg-emerald-100 px-1.5 py-0.5 font-medium text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
-                          Within guidelines
+                          {hovered.assessment.legalAbove} above / {hovered.assessment.legalCompared} legal comparisons
                         </span>
                       )}
                     </div>
@@ -572,13 +658,13 @@ export function MapSection() {
                 {/* Legend (bottom-left) */}
                 <div className="absolute bottom-3 left-3 rounded-lg border border-border/60 bg-card/90 p-3 backdrop-blur">
                   <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    Contamination tier
+                    Recorded comparisons
                   </div>
                   <div className="space-y-1">
                     {[
-                      { label: 'Within guidelines', color: '#10b981' },
-                      { label: 'Health exceedances', color: '#06b6d4' },
-                      { label: 'Many exceedances', color: '#f59e0b' },
+                      { label: 'Unassessed / unavailable', color: '#87919b' },
+                      { label: 'No exceedance in compared records', color: '#708d9b' },
+                      { label: 'Health exceedances', color: '#d97706' },
                       { label: 'Above legal limit', color: '#e11d48' },
                     ].map((l) => (
                       <div key={l.label} className="flex items-center gap-2 text-[11px]">
@@ -599,11 +685,11 @@ export function MapSection() {
         </Card>
 
         {/* Quick stats */}
-        {!loading && stats && (
+        {!loading && locations && (
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <MiniStat icon={Building2} label="Utilities mapped" value={stats.mapUtilities.length.toString()} />
-            <MiniStat icon={AlertTriangle} label="Above legal limit" value={tierCounts.legal.toString()} tone="warning" />
-            <MiniStat icon={ShieldCheck} label="Within guidelines" value={tierCounts.clean.toString()} tone="ok" />
+            <MiniStat icon={Building2} label="Utility locations" value={mapUtilities.length.toString()} />
+            <MiniStat icon={AlertTriangle} label="Recorded legal exceedances" value={tierCounts.legal?.toString() ?? '—'} tone="warning" />
+            <MiniStat icon={ShieldCheck} label="Not assessed" value={tierCounts.unassessed?.toString() ?? '—'} />
           </div>
         )}
 
@@ -644,7 +730,7 @@ export function MapSection() {
         )}
 
         {/* Full utility list (fallback) */}
-        {!loading && stats && !radiusMode && (
+        {!loading && locations && !radiusMode && (
           <Card className="mt-5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -656,7 +742,8 @@ export function MapSection() {
               <div className="grid gap-2 sm:grid-cols-2">
                 {displayedUtilities
                   .slice()
-                  .sort((a, b) => b.legalExceedances - a.legalExceedances || b.healthExceedances - a.healthExceedances)
+                  .sort((a, b) => (b.assessment?.legalAbove ?? 0) - (a.assessment?.legalAbove ?? 0) ||
+                    (b.assessment?.healthAbove ?? 0) - (a.assessment?.healthAbove ?? 0) || a.name.localeCompare(b.name))
                   .map((u) => {
                     const tier = tierFor(u)
                     return (
@@ -674,16 +761,17 @@ export function MapSection() {
                           <div className="text-xs text-muted-foreground">
                             {u.city}, {u.state} · {u.population.toLocaleString()} residents served
                           </div>
+                          <div className="mt-1 text-xs text-muted-foreground">{tier.label}</div>
                         </div>
                         <div className="flex shrink-0 gap-1.5 text-[10px]">
-                          {u.healthExceedances > 0 && (
+                          {(u.assessment?.healthAbove ?? 0) > 0 && (
                             <span className="rounded bg-amber-50 px-1.5 py-0.5 font-medium text-amber-700">
-                              {u.healthExceedances}H
+                              {u.assessment?.healthAbove}H
                             </span>
                           )}
-                          {u.legalExceedances > 0 && (
+                          {(u.assessment?.legalAbove ?? 0) > 0 && (
                             <span className="rounded bg-rose-50 px-1.5 py-0.5 font-medium text-rose-700">
-                              {u.legalExceedances}L
+                              {u.assessment?.legalAbove}L
                             </span>
                           )}
                         </div>

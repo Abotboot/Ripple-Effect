@@ -163,6 +163,6 @@ export function TankHero({ children }: { children: ReactNode }) {
       </>}
       <p className="ripple-field-description" data-testid="field-description" aria-live="polite">{description}</p>
     </div>
-    <p className="ripple-proof-status" data-testid="journey-proof-status" role="status">{phase === 'video' ? 'Approved microscope shot.' : phase === 'entering' ? 'Live artwork continuation.' : `${playbackError ? 'Video unavailable. ' : ''}${staticOnly ? reduced ? 'Reduced motion · static artwork.' : 'Motion unavailable · static artwork.' : status === 'ready' ? 'Interactive artwork · not a laboratory measurement.' : 'Loading artwork controls…'}`}</p>
+    <p className="ripple-proof-status" data-testid="journey-proof-status" role="status">{phase === 'video' ? 'Microscope camera illustration.' : phase === 'entering' ? 'Live artwork continuation.' : `${playbackError ? 'Video unavailable. ' : ''}${staticOnly ? reduced ? 'Reduced motion · static artwork.' : 'Motion unavailable · static artwork.' : status === 'ready' ? 'Interactive artwork · not a laboratory measurement.' : 'Loading artwork controls…'}`}</p>
   </section>
 }

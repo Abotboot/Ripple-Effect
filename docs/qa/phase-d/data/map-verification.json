@@ -1,0 +1,255 @@
+{
+  "status": "passed",
+  "scope": "Local app, every API request intercepted with synthetic fixtures; no live data or writes",
+  "sourceSHA256": "f226c3944f06d48d0d5b9a3436644e3cb4bfca6038039dd6e070d1161fc219b6",
+  "cases": [
+    {
+      "name": "desktop-sample-failure",
+      "status": "passed",
+      "viewport": 1440,
+      "markers": 2,
+      "requests": [
+        {
+          "path": "/api/activity",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/scores",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats?view=map",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/fixture-one",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/fixture-one",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats?view=map",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        }
+      ],
+      "browserErrors": [],
+      "zeroWrites": true,
+      "backdrop": "503 injected; list and markers survive"
+    },
+    {
+      "name": "mobile-legacy-locations",
+      "status": "passed",
+      "viewport": 390,
+      "markers": 2,
+      "requests": [
+        {
+          "path": "/api/activity",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/scores",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats?view=map",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        }
+      ],
+      "browserErrors": [],
+      "zeroWrites": true,
+      "backdrop": "Public us-atlas states loaded"
+    },
+    {
+      "name": "location-failure-retry",
+      "status": "passed",
+      "viewport": 1440,
+      "markers": 2,
+      "requests": [
+        {
+          "path": "/api/activity",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/scores",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats?view=map",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats?view=map",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        }
+      ],
+      "browserErrors": [],
+      "zeroWrites": true,
+      "backdrop": "Public us-atlas states loaded"
+    },
+    {
+      "name": "partial-comparisons-filters",
+      "status": "passed",
+      "viewport": 1440,
+      "markers": 1,
+      "requests": [
+        {
+          "path": "/api/activity",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/scores",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats?view=map",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        }
+      ],
+      "browserErrors": [],
+      "zeroWrites": true,
+      "backdrop": "Public us-atlas states loaded"
+    },
+    {
+      "name": "nearby-failure-retry",
+      "status": "passed",
+      "viewport": 390,
+      "markers": 1,
+      "requests": [
+        {
+          "path": "/api/activity",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/readings/recent",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/scores",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats?view=map",
+          "method": "GET"
+        },
+        {
+          "path": "/api/stats",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/near?lat=41.8781&lng=-87.6298&radius=300",
+          "method": "GET"
+        },
+        {
+          "path": "/api/utilities/near?lat=41.8781&lng=-87.6298&radius=300",
+          "method": "GET"
+        }
+      ],
+      "browserErrors": [],
+      "zeroWrites": true,
+      "backdrop": "Public us-atlas states loaded"
+    }
+  ],
+  "browser": "152.0.7977.83"
+}

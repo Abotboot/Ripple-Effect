@@ -1,15 +1,31 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
+import { hasFiniteCoordinates, unavailableAssessment, sampleBenchmarkStatus } from '@/lib/sample-read-model'
+import type { SampleAssessment } from '@/lib/types'
 import {
   isEligibleForScoring,
-  getBenchmarkStatus,
   getProvenancePresentation,
-  areUnitsCompatible,
   normalizeToBenchmarkUnit,
 } from '@/lib/provenance'
 
 // GET /api/stats - returns high-level platform impact numbers
-export async function GET() {
+export async function GET(req?: NextRequest) {
+  // The map can load real locations even when a separate measurement read fails.
+  // No Sample table, scores, donations, or counts are queried by this view.
+  if (req?.nextUrl.searchParams.get('view') === 'map') {
+    const utilities = await db.utility.findMany({
+      select: { id: true, state: true, population: true, latitude: true,
+        longitude: true, name: true, city: true, pwsid: true },
+      orderBy: [{ state: 'asc' }, { name: 'asc' }],
+    })
+    const mapUtilities = utilities.filter(hasFiniteCoordinates).map(u => ({
+      ...u, assessment: unavailableAssessment(),
+    }))
+    return NextResponse.json({ mapUtilities, locationsCount: mapUtilities.length,
+      unmappedCount: utilities.length - mapUtilities.length, assessments: 'not_requested' },
+    { headers: { 'Cache-Control': 'no-store' } })
+  }
 
   const [
     utilitiesCount,
@@ -21,7 +37,7 @@ export async function GET() {
     donations,
     trackedByUsCount,
     utilities,
-    samples,
+    sampleRead,
   ] = await Promise.all([
     db.utility.count(),
     db.contaminant.count(),
@@ -37,8 +53,7 @@ export async function GET() {
         longitude: true, name: true, city: true, pwsid: true,
       },
     }),
-    db.sample.findMany({
-      select: {
+    readSamples({
         level: true,
         unit: true,
         treatmentStatus: true,
@@ -56,9 +71,9 @@ export async function GET() {
             legalLimitUnit: true,
           },
         },
-      },
     }),
   ])
+  const { samples, dataStatus } = sampleRead
 
   const states = new Set(utilities.map((u) => u.state))
   const populationServed = utilities.reduce((s, u) => s + u.population, 0)
@@ -92,26 +107,37 @@ export async function GET() {
     pfas: boolean
     lead: boolean
     dbp: boolean
+    sampleCount: number
+    eligibleSampleCount: number
+    healthCompared: number
+    legalCompared: number
   }
   const utilityExceedances = new Map<string, UtilityExceed>()
 
   // Slugs grouped by contaminant filter bucket
   const PFAS_SLUGS = new Set(['pfoa', 'pfos'])
-  const DBP_SLUGS = new Set(['thm', 'hAA5'])
+  const DBP_SLUGS = new Set(['thm', 'haa5'])
+  let healthCompared = 0
+  let legalCompared = 0
+  let eligibleSampleCount = 0
 
   for (const s of samples) {
-    if (!s.utilityId) continue
-    const slug = s.contaminant.slug
-    const cur = utilityExceedances.get(s.utilityId) ?? {
+    const slug = s.contaminant.slug.toLowerCase()
+    const cur = (s.utilityId ? utilityExceedances.get(s.utilityId) : undefined) ?? {
       health: 0,
       legal: 0,
       microplastics: false,
       pfas: false,
       lead: false,
       dbp: false,
+      sampleCount: 0,
+      eligibleSampleCount: 0,
+      healthCompared: 0,
+      legalCompared: 0,
     }
+    cur.sampleCount++
 
-    const healthStatus = getBenchmarkStatus({
+    const healthStatus = sampleBenchmarkStatus({
       level: s.level,
       unit: s.unit,
       benchmark: s.contaminant.healthGuideline,
@@ -122,7 +148,7 @@ export async function GET() {
       source: s.source,
     })
 
-    const legalStatus = getBenchmarkStatus({
+    const legalStatus = sampleBenchmarkStatus({
       level: s.level,
       unit: s.unit,
       benchmark: s.contaminant.legalLimit,
@@ -135,6 +161,8 @@ export async function GET() {
 
     const healthExceeded = healthStatus === 'above_benchmark'
     const legalExceeded = legalStatus === 'above_benchmark'
+    if (healthExceeded || healthStatus === 'below_benchmark') { healthCompared++; cur.healthCompared++ }
+    if (legalExceeded || legalStatus === 'below_benchmark') { legalCompared++; cur.legalCompared++ }
 
     if (healthExceeded) {
       healthExceedances++
@@ -148,8 +176,10 @@ export async function GET() {
     // Per-contaminant flag tracking for map filter chips:
     // Only flag verified/reviewed measurements, not synthetic demo data
     const eligible = isEligibleForScoring(s)
+    if (eligible) { eligibleSampleCount++; cur.eligibleSampleCount++ }
     if (slug === 'microplastics') {
-      if (eligible && s.level > 0) cur.microplastics = true
+      const normalized = normalizeToBenchmarkUnit(s.level, s.unit, 'particles/l')
+      if (eligible && normalized != null && normalized > 0) cur.microplastics = true
     } else if (PFAS_SLUGS.has(slug)) {
       if (healthExceeded) cur.pfas = true
     } else if (slug === 'lead') {
@@ -158,12 +188,21 @@ export async function GET() {
       if (healthExceeded) cur.dbp = true
     }
 
-    utilityExceedances.set(s.utilityId, cur)
+    if (s.utilityId) utilityExceedances.set(s.utilityId, cur)
   }
+
+  const assess = (counts: { sampleCount: number; eligibleSampleCount: number;
+    healthCompared: number; legalCompared: number; health: number; legal: number }): SampleAssessment => ({
+    status: counts.healthCompared + counts.legalCompared > 0 ? 'assessed' : 'not_assessed',
+    sampleCount: counts.sampleCount, eligibleSampleCount: counts.eligibleSampleCount,
+    healthCompared: counts.healthCompared, legalCompared: counts.legalCompared,
+    healthAbove: counts.healthCompared > 0 ? counts.health : null,
+    legalAbove: counts.legalCompared > 0 ? counts.legal : null,
+  })
 
   // Map-friendly utility list with exceedance counts + per-contaminant flags
   const mapUtilities = utilities
-    .filter((u) => u.latitude != null && u.longitude != null)
+    .filter(hasFiniteCoordinates)
     .map((u) => {
       const ex = utilityExceedances.get(u.id)
       return {
@@ -175,6 +214,9 @@ export async function GET() {
         latitude: u.latitude,
         longitude: u.longitude,
         population: u.population,
+        assessment: assess({ sampleCount: ex?.sampleCount ?? 0, eligibleSampleCount: ex?.eligibleSampleCount ?? 0,
+          healthCompared: ex?.healthCompared ?? 0, legalCompared: ex?.legalCompared ?? 0,
+          health: ex?.health ?? 0, legal: ex?.legal ?? 0 }),
         healthExceedances: ex?.health ?? 0,
         legalExceedances: ex?.legal ?? 0,
         contaminantExceedances: {
@@ -213,6 +255,9 @@ export async function GET() {
   }
 
   return NextResponse.json({
+    dataStatus,
+    sampleAssessment: assess({ sampleCount: samples.length, eligibleSampleCount, healthCompared, legalCompared,
+      health: healthExceedances, legal: legalExceedances }),
     utilitiesCount,
     contaminantsCount,
     samplesCount,
@@ -230,5 +275,5 @@ export async function GET() {
     trackedByUsCount,
     qualityCounts,
     mapUtilities,
-  })
+  }, { headers: sampleReadHeaders(dataStatus) })
 }

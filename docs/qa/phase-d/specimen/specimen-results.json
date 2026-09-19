@@ -1,0 +1,924 @@
+{
+  "createdAt": "2026-09-19T07:16:15.640Z",
+  "base": "http://localhost:3020",
+  "checks": [
+    {
+      "name": "layout-1440",
+      "passed": true,
+      "apiRequests": [],
+      "browserErrors": [],
+      "transition": {
+        "engine": "three.js r182",
+        "motion": "active",
+        "running": "true",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "scanning",
+        "inspection": "0.368",
+        "scanProgress": "0.051",
+        "form": "all",
+        "visibleForms": "26",
+        "renderCount": "4",
+        "width": 665,
+        "height": 540
+      },
+      "fibers": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "fibers",
+        "visibleForms": "9",
+        "renderCount": "80",
+        "width": 665,
+        "height": 540
+      },
+      "fragments": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "fragments",
+        "visibleForms": "17",
+        "renderCount": "81",
+        "width": 665,
+        "height": 540
+      },
+      "geometry": {
+        "clipped": [],
+        "controls": [
+          {
+            "text": "Macro view",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "UV view",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Resume motion",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "All forms",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Fibers",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Fragments",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Scan again ↻",
+            "height": 44,
+            "disabled": true
+          },
+          {
+            "text": "Rotate specimen",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Reset angle",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Research context · NIH ↗",
+            "height": 44,
+            "disabled": false
+          }
+        ],
+        "filterBarDisplay": "flex",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "selectedHover": {
+        "color": "rgb(16, 32, 26)",
+        "background": "rgb(195, 223, 215)",
+        "contrast": 11.947019922573398
+      },
+      "hashes": {
+        "macro": "90f0cb3ac00aeeec5252f487325cfe910e381b7b9c0de4a3d5ea2939573d0b8a",
+        "uv": "c4d7605c82114495e9259e04112ac29ad12ca7cfa2ecc289bc745ed4c8e7fab8",
+        "rotated": "3dc335918d5869f66aec54e1942d023e8bd3f727ffd3e3a9fefe07d66e64c92a"
+      }
+    },
+    {
+      "name": "layout-1024",
+      "passed": true,
+      "apiRequests": [],
+      "browserErrors": [],
+      "transition": {
+        "engine": "three.js r182",
+        "motion": "active",
+        "running": "true",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "scanning",
+        "inspection": "0.306",
+        "scanProgress": "0.040",
+        "form": "all",
+        "visibleForms": "26",
+        "renderCount": "4",
+        "width": 527,
+        "height": 399
+      },
+      "fibers": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "fibers",
+        "visibleForms": "9",
+        "renderCount": "67",
+        "width": 527,
+        "height": 399
+      },
+      "fragments": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "fragments",
+        "visibleForms": "17",
+        "renderCount": "68",
+        "width": 527,
+        "height": 399
+      },
+      "geometry": {
+        "clipped": [],
+        "controls": [
+          {
+            "text": "Macro view",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "UV view",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Resume motion",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "All forms",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Fibers",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Fragments",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Scan again ↻",
+            "height": 44,
+            "disabled": true
+          },
+          {
+            "text": "Rotate specimen",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Reset angle",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Research context · NIH ↗",
+            "height": 44,
+            "disabled": false
+          }
+        ],
+        "filterBarDisplay": "flex",
+        "viewport": {
+          "width": 1024,
+          "height": 768
+        }
+      },
+      "selectedHover": {
+        "color": "rgb(16, 32, 26)",
+        "background": "rgb(195, 223, 215)",
+        "contrast": 11.947019922573398
+      },
+      "hashes": {
+        "macro": "b022a9adb8238240e837730202dc080e329cb04716e2867795e11fdf56191ef4",
+        "uv": "3cf29242f64571268f04b3cf12fd75b7546c42514e2d47a77e7d98ec460e07f7",
+        "rotated": "8295700f22cc5e43cdbe2f7029767d7863751013eb7fb7d33bfdfc1ff30d9092"
+      }
+    },
+    {
+      "name": "layout-768",
+      "passed": true,
+      "apiRequests": [],
+      "browserErrors": [],
+      "transition": {
+        "engine": "three.js r182",
+        "motion": "active",
+        "running": "true",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "scanning",
+        "inspection": "0.307",
+        "scanProgress": "0.040",
+        "form": "all",
+        "visibleForms": "26",
+        "renderCount": "4",
+        "width": 673,
+        "height": 510
+      },
+      "fibers": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "fibers",
+        "visibleForms": "9",
+        "renderCount": "65",
+        "width": 673,
+        "height": 510
+      },
+      "fragments": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "fragments",
+        "visibleForms": "17",
+        "renderCount": "66",
+        "width": 673,
+        "height": 510
+      },
+      "geometry": {
+        "clipped": [],
+        "controls": [
+          {
+            "text": "Macro view",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "UV view",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Resume motion",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "All forms",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Fibers",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Fragments",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Scan again ↻",
+            "height": 44,
+            "disabled": true
+          },
+          {
+            "text": "Rotate specimen",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Reset angle",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Research context · NIH ↗",
+            "height": 44,
+            "disabled": false
+          }
+        ],
+        "filterBarDisplay": "flex",
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        }
+      },
+      "selectedHover": {
+        "color": "rgb(16, 32, 26)",
+        "background": "rgb(195, 223, 215)",
+        "contrast": 11.947019922573398
+      },
+      "hashes": {
+        "macro": "f7806bd29766d1f8fda776913a21af54661213b27bb343515915d26e4ea1fd11",
+        "uv": "b570c35407430cd8768cab569801901e241ca861546195f1ce9ecbe94c2d9670",
+        "rotated": "26cb0b8ed9d6e4cbccdfad6aaa012ab00bbf0aa76280ba1686232a6343066cd5"
+      }
+    },
+    {
+      "name": "layout-390",
+      "passed": true,
+      "apiRequests": [],
+      "browserErrors": [],
+      "transition": {
+        "engine": "three.js r182",
+        "motion": "active",
+        "running": "true",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "scanning",
+        "inspection": "0.307",
+        "scanProgress": "0.040",
+        "form": "all",
+        "visibleForms": "26",
+        "renderCount": "4",
+        "width": 341,
+        "height": 370
+      },
+      "fibers": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "fibers",
+        "visibleForms": "9",
+        "renderCount": "67",
+        "width": 341,
+        "height": 370
+      },
+      "fragments": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "fragments",
+        "visibleForms": "17",
+        "renderCount": "68",
+        "width": 341,
+        "height": 370
+      },
+      "geometry": {
+        "clipped": [],
+        "controls": [
+          {
+            "text": "Macro view",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "UV view",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Resume motion",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "All forms",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Fibers",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Fragments",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Scan again ↻",
+            "height": 44,
+            "disabled": true
+          },
+          {
+            "text": "Rotate specimen",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Reset angle",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Research context · NIH ↗",
+            "height": 44,
+            "disabled": false
+          }
+        ],
+        "filterBarDisplay": "flex",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
+      },
+      "selectedHover": {
+        "color": "rgb(16, 32, 26)",
+        "background": "rgb(195, 223, 215)",
+        "contrast": 11.947019922573398
+      },
+      "hashes": {
+        "macro": "ecf3b81205ff4f0053e76ed3f7ac857fc37e6b89d05df78ce59b74a6f4fc4b39",
+        "uv": "43ee70e5618eb4db132518e7385804067a14d318033dd891b7a4ba35ffad2a94",
+        "rotated": "43a20c5aeb664d711788fb27da9eb2d6bd6036f1fa456661e9cb9eb1b124429d"
+      }
+    },
+    {
+      "name": "layout-320",
+      "passed": true,
+      "apiRequests": [],
+      "browserErrors": [],
+      "transition": {
+        "engine": "three.js r182",
+        "motion": "active",
+        "running": "true",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "scanning",
+        "inspection": "0.307",
+        "scanProgress": "0.040",
+        "form": "all",
+        "visibleForms": "26",
+        "renderCount": "4",
+        "width": 279,
+        "height": 370
+      },
+      "fibers": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "fibers",
+        "visibleForms": "9",
+        "renderCount": "66",
+        "width": 279,
+        "height": 370
+      },
+      "fragments": {
+        "engine": "three.js r182",
+        "motion": "paused",
+        "running": "false",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "fragments",
+        "visibleForms": "17",
+        "renderCount": "67",
+        "width": 279,
+        "height": 370
+      },
+      "geometry": {
+        "clipped": [],
+        "controls": [
+          {
+            "text": "Macro view",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "UV view",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Resume motion",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "All forms",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Fibers",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Fragments",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Scan again ↻",
+            "height": 44,
+            "disabled": true
+          },
+          {
+            "text": "Rotate specimen",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Reset angle",
+            "height": 44,
+            "disabled": false
+          },
+          {
+            "text": "Research context · NIH ↗",
+            "height": 44,
+            "disabled": false
+          }
+        ],
+        "filterBarDisplay": "flex",
+        "viewport": {
+          "width": 320,
+          "height": 568
+        }
+      },
+      "selectedHover": {
+        "color": "rgb(16, 32, 26)",
+        "background": "rgb(195, 223, 215)",
+        "contrast": 11.947019922573398
+      },
+      "hashes": {
+        "macro": "ecd8784c83e11c23584b819d0082eb6c565c9807f4ce507eeefe1e59c88f96ff",
+        "uv": "56749a3377d40227b5dcbeb860f9848759935d65fc24986941f0d61688b520aa",
+        "rotated": "b6835049ee8d7dd4410ae5b7a562f798bb0b3bea9ffa02e5c8605582e1698d8f"
+      }
+    },
+    {
+      "name": "lifecycle",
+      "passed": true,
+      "apiRequests": [],
+      "browserErrors": [],
+      "scanPaused": {
+        "before": {
+          "engine": "three.js r182",
+          "motion": "paused",
+          "running": "false",
+          "rendered": "uv",
+          "renderer": "webgl",
+          "angle": "0",
+          "renderedAngle": "0.00",
+          "transition": "scanning",
+          "inspection": "1.000",
+          "scanProgress": "0.041",
+          "form": "all",
+          "visibleForms": "26",
+          "renderCount": "56",
+          "width": 665,
+          "height": 540
+        },
+        "after": {
+          "engine": "three.js r182",
+          "motion": "paused",
+          "running": "false",
+          "rendered": "uv",
+          "renderer": "webgl",
+          "angle": "0",
+          "renderedAngle": "0.00",
+          "transition": "scanning",
+          "inspection": "1.000",
+          "scanProgress": "0.041",
+          "form": "all",
+          "visibleForms": "26",
+          "renderCount": "56",
+          "width": 665,
+          "height": 540
+        }
+      },
+      "offscreen": {
+        "before": {
+          "engine": "three.js r182",
+          "motion": "offscreen",
+          "running": "false",
+          "rendered": "uv",
+          "renderer": "webgl",
+          "angle": "0",
+          "renderedAngle": "0.00",
+          "transition": "settled",
+          "inspection": "1.000",
+          "scanProgress": "1.000",
+          "form": "all",
+          "visibleForms": "26",
+          "renderCount": "115",
+          "width": 665,
+          "height": 540
+        },
+        "after": {
+          "engine": "three.js r182",
+          "motion": "offscreen",
+          "running": "false",
+          "rendered": "uv",
+          "renderer": "webgl",
+          "angle": "0",
+          "renderedAngle": "0.00",
+          "transition": "settled",
+          "inspection": "1.000",
+          "scanProgress": "1.000",
+          "form": "all",
+          "visibleForms": "26",
+          "renderCount": "115",
+          "width": 665,
+          "height": 540
+        }
+      },
+      "paused": {
+        "before": {
+          "engine": "three.js r182",
+          "motion": "paused",
+          "running": "false",
+          "rendered": "uv",
+          "renderer": "webgl",
+          "angle": "0",
+          "renderedAngle": "0.00",
+          "transition": "settled",
+          "inspection": "1.000",
+          "scanProgress": "1.000",
+          "form": "all",
+          "visibleForms": "26",
+          "renderCount": "119",
+          "width": 665,
+          "height": 540
+        },
+        "after": {
+          "engine": "three.js r182",
+          "motion": "paused",
+          "running": "false",
+          "rendered": "uv",
+          "renderer": "webgl",
+          "angle": "0",
+          "renderedAngle": "0.00",
+          "transition": "settled",
+          "inspection": "1.000",
+          "scanProgress": "1.000",
+          "form": "all",
+          "visibleForms": "26",
+          "renderCount": "119",
+          "width": 665,
+          "height": 540
+        }
+      },
+      "hidden": {
+        "before": {
+          "engine": "three.js r182",
+          "motion": "offscreen",
+          "running": "false",
+          "rendered": "uv",
+          "renderer": "webgl",
+          "angle": "0",
+          "renderedAngle": "0.00",
+          "transition": "settled",
+          "inspection": "1.000",
+          "scanProgress": "1.000",
+          "form": "all",
+          "visibleForms": "26",
+          "renderCount": "121",
+          "width": 665,
+          "height": 540
+        },
+        "after": {
+          "engine": "three.js r182",
+          "motion": "offscreen",
+          "running": "false",
+          "rendered": "uv",
+          "renderer": "webgl",
+          "angle": "0",
+          "renderedAngle": "0.00",
+          "transition": "settled",
+          "inspection": "1.000",
+          "scanProgress": "1.000",
+          "form": "all",
+          "visibleForms": "26",
+          "renderCount": "121",
+          "width": 665,
+          "height": 540
+        }
+      },
+      "reduced": {
+        "before": {
+          "engine": "three.js r182",
+          "motion": "reduced-motion",
+          "running": "false",
+          "rendered": "uv",
+          "renderer": "webgl",
+          "angle": "0",
+          "renderedAngle": "0.00",
+          "transition": "settled",
+          "inspection": "1.000",
+          "scanProgress": "1.000",
+          "form": "all",
+          "visibleForms": "26",
+          "renderCount": "124",
+          "width": 665,
+          "height": 540
+        },
+        "after": {
+          "engine": "three.js r182",
+          "motion": "reduced-motion",
+          "running": "false",
+          "rendered": "uv",
+          "renderer": "webgl",
+          "angle": "0",
+          "renderedAngle": "0.00",
+          "transition": "settled",
+          "inspection": "1.000",
+          "scanProgress": "1.000",
+          "form": "all",
+          "visibleForms": "26",
+          "renderCount": "124",
+          "width": 665,
+          "height": 540
+        }
+      },
+      "visibilityMethod": "Synthetic document.hidden and visibilitychange; not native tab backgrounding"
+    },
+    {
+      "name": "reduced-motion",
+      "passed": true,
+      "apiRequests": [],
+      "browserErrors": [],
+      "before": {
+        "engine": "three.js r182",
+        "running": "false",
+        "motion": "reduced-motion",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "all",
+        "visibleForms": "26",
+        "renderCount": "3",
+        "width": 665,
+        "height": 540
+      },
+      "after": {
+        "engine": "three.js r182",
+        "running": "false",
+        "motion": "reduced-motion",
+        "rendered": "uv",
+        "renderer": "webgl",
+        "angle": "0",
+        "renderedAngle": "0.00",
+        "transition": "settled",
+        "inspection": "1.000",
+        "scanProgress": "1.000",
+        "form": "all",
+        "visibleForms": "26",
+        "renderCount": "3",
+        "width": 665,
+        "height": 540
+      }
+    },
+    {
+      "name": "fallback-unavailable",
+      "passed": true,
+      "apiRequests": [],
+      "browserErrors": [],
+      "result": {
+        "rendered": "uv",
+        "renderer": "2d-fallback",
+        "angle": "0",
+        "form": "fibers",
+        "transition": "settled",
+        "running": "false",
+        "motion": "static-fallback",
+        "renderCount": "5",
+        "width": 665,
+        "height": 540
+      },
+      "disabled3DRotation": true
+    },
+    {
+      "name": "fallback-context-loss",
+      "passed": true,
+      "apiRequests": [],
+      "browserErrors": [],
+      "result": {
+        "rendered": "uv",
+        "renderer": "2d-fallback",
+        "angle": "0",
+        "form": "fibers",
+        "transition": "settled",
+        "running": "false",
+        "motion": "static-fallback",
+        "renderCount": "5",
+        "width": 665,
+        "height": 540
+      },
+      "disabled3DRotation": true
+    }
+  ],
+  "failures": [],
+  "recordings": [
+    {
+      "name": "layout-1440",
+      "file": "recordings\\layout-1440.webm",
+      "bytes": 770054,
+      "sha256": "0a0393f2c918fd7845d508135790cdbd8e3ae05852b7fe51d42c754c60ba17af"
+    },
+    {
+      "name": "layout-390",
+      "file": "recordings\\layout-390.webm",
+      "bytes": 236703,
+      "sha256": "8d510d7b081af05950282e3969eb2da00d619c8a1986c2414f1467ea92e9549b"
+    }
+  ],
+  "success": true,
+  "browser": "152.0.7977.83",
+  "completedAt": "2026-09-19T07:16:57.146Z"
+}

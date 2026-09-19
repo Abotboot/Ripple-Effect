@@ -1,5 +1,22 @@
 // Shared types between frontend and backend
 
+export type DataReadStatus = {
+  status: 'available' | 'degraded'
+  code: 'legacy_sample_schema' | null
+  provenanceAvailable: boolean
+}
+
+/** Null means unavailable/not comparable; zero is reserved for an actual counted subset. */
+export type SampleAssessment = {
+  status: 'assessed' | 'not_assessed' | 'unavailable'
+  sampleCount: number | null
+  eligibleSampleCount: number | null
+  healthCompared: number | null
+  legalCompared: number | null
+  healthAbove: number | null
+  legalAbove: number | null
+}
+
 export type Utility = {
   id: string
   pwsid: string
@@ -103,6 +120,7 @@ export type ContaminantSummary = {
 }
 
 export type UtilityWithStats = Utility & {
+  dataStatus?: DataReadStatus
   contaminantSummaries: ContaminantSummary[]
   totalSamples: number
   exceedances: number
@@ -188,6 +206,9 @@ export type Donation = {
 }
 
 export type Stats = {
+  dataStatus?: DataReadStatus
+  sampleAssessment?: SampleAssessment
+  microplasticsCohortCount?: number
   utilitiesCount: number
   contaminantsCount: number
   samplesCount: number
@@ -202,7 +223,7 @@ export type Stats = {
   healthExceedances: number
   legalExceedances: number
   trackedByUsCount: number
-  qualityCounts: { verified: number; provisional: number; citizen: number }
+  qualityCounts: { verified: number; provisional: number; citizen: number; unreviewed?: number; illustrative?: number }
   mapUtilities: Array<{
     id: string
     name: string
@@ -212,6 +233,7 @@ export type Stats = {
     latitude: number
     longitude: number
     population: number
+    assessment?: SampleAssessment
     healthExceedances: number
     legalExceedances: number
     contaminantExceedances: {

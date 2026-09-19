@@ -10,6 +10,8 @@ import type {
   Volunteer,
   Chapter,
   Donation,
+  SampleAssessment,
+  DataReadStatus,
 } from './types'
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
@@ -72,6 +74,17 @@ export const api = {
     }),
 
   getStats: () => req<Stats>(`/api/stats`),
+
+  getMapLocations: (signal?: AbortSignal) => req<{
+    mapUtilities: Array<Pick<Utility, 'id' | 'name' | 'city' | 'state' | 'pwsid' | 'population'> & {
+      latitude: number
+      longitude: number
+      assessment: SampleAssessment
+    }>
+    locationsCount: number
+    unmappedCount: number
+    assessments: 'not_requested'
+  }>('/api/stats?view=map', { signal }),
 
   // -- Admin --
   login: (email: string, password: string) =>
@@ -268,10 +281,12 @@ export const api = {
 
   // -- Microplastics trend --
   getMicroplasticsTrend: () => req<{
-    trend: Array<{ quarter: string; label: string; treatedAvg: number; untreatedAvg: number; maxLevel: number }>
-    direction: 'up' | 'down' | 'flat'
-    pctChange: number
+    trend: Array<{ quarter: string; label: string; treatedAvg: number | null; untreatedAvg: number | null; maxLevel: number | null }>
+    direction: 'up' | 'down' | 'flat' | null
+    pctChange: number | null
     totalSamples: number
+    reviewedSampleCount?: number
+    dataStatus?: DataReadStatus
     dateRange: { from: string; to: string } | null
   }>(`/api/microplastics/trend`),
 

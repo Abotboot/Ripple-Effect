@@ -21,12 +21,15 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { api } from '@/lib/api'
+import { areUnitsCompatible, normalizeToBenchmarkUnit, getProvenancePresentation } from '@/lib/provenance'
+import type { DataReadStatus } from '@/lib/types'
 import type { Section } from '@/components/site/site-header'
 import { MicroplasticsTrendSection } from '@/components/sections/microplastics-trend-section'
 import { ContaminantSpectrumChart } from '@/components/d3/contaminant-spectrum-chart'
 import { MicroplasticsFlowChart } from '@/components/d3/microplastics-flow-chart'
 
 type ContaminantDetail = {
+  dataStatus?: DataReadStatus
   contaminant: {
     id: string
     slug: string
@@ -43,18 +46,22 @@ type ContaminantDetail = {
     city: string
     state: string
     pwsid: string
-    latestLevel: number
-    avgLevel: number
-    maxLevel: number
+    latestLevel: number | null
+    avgLevel: number | null
+    maxLevel: number | null
     sampleCount: number
     unit: string
+    source?: string
+    provenance?: string
+    verificationStatus?: string
   }>
   totals: {
     samples: number
     utilities: number
-    avgTreated: number
-    avgUntreated: number
-    maxLevel: number
+    avgTreated: number | null
+    avgUntreated: number | null
+    maxLevel: number | null
+    reviewedSampleCount?: number
   }
 }
 
@@ -270,6 +277,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
   const [data, setData] = useState<ContaminantDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [errored, setErrored] = useState(false)
+  const [reload, setReload] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -297,36 +305,31 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [reload])
 
   // Shown instead of a chart if the API failed or returned no usable data,
   // so cards never render as a permanently blank box.
   const chartError = !loading && (!data || errored) && (
-    <div className="flex h-[220px] items-center justify-center rounded-lg border border-dashed border-border px-6 text-center text-sm text-muted-foreground">
-      {errored
-        ? 'Live data is temporarily unavailable. Please refresh in a moment.'
-        : 'No microplastics measurements recorded yet.'}
+    <div className="flex h-[220px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border px-6 text-center text-sm text-muted-foreground">
+      <p>{errored ? 'Recorded data is temporarily unavailable.' : 'No microplastics measurements recorded yet.'}</p>
+      {errored && <Button variant="outline" onClick={() => { setLoading(true); setErrored(false); setReload(value => value + 1) }}>Retry recorded data</Button>}
     </div>
   )
 
-  const treatmentComparison = data
+  const treatmentComparison = data && data.totals.avgTreated != null && data.totals.avgUntreated != null &&
+    Number.isFinite(data.totals.avgTreated) && Number.isFinite(data.totals.avgUntreated)
     ? [
         { name: 'Untreated source', value: +data.totals.avgUntreated.toFixed(2), color: 'var(--chart-5)' },
-        { name: 'After treatment', value: +data.totals.avgTreated.toFixed(2), color: 'var(--chart-1)' },
+        { name: 'Treated samples', value: +data.totals.avgTreated.toFixed(2), color: 'var(--chart-1)' },
       ]
     : []
 
-  const reductionPct =
-    data && data.totals.avgUntreated > 0
-      ? Math.max(
-          0,
-          Math.round(
-            ((data.totals.avgUntreated - data.totals.avgTreated) /
-              data.totals.avgUntreated) *
-              100
-          )
-        )
-      : 0
+  const cityObservations = (data?.utilityStats ?? []).flatMap(u => {
+    if (u.latestLevel == null || !Number.isFinite(u.latestLevel) || u.latestLevel < 0 || !areUnitsCompatible(u.unit, 'particles/l')) return []
+    const level = normalizeToBenchmarkUnit(u.latestLevel, u.unit, 'particles/l')
+    return level == null ? [] : [{ city: `${u.city}, ${u.state}`, level: +level.toFixed(2),
+      source: u.source ?? 'Unknown', review: getProvenancePresentation(u).badgeLabel }]
+  }).sort((a, b) => b.level - a.level)
 
   return (
     <div className="editorial-page">
@@ -404,14 +407,13 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
           />
           <Stat
             icon={TrendingDown}
-            label="Treatment reduces by"
-            value={reductionPct ? `${reductionPct}%` : '—'}
-            tone="ok"
+            label="Reviewed samples"
+            value={data?.totals.reviewedSampleCount?.toString() ?? '—'}
           />
           <Stat
             icon={AlertTriangle}
-            label="Peak measured"
-            value={data ? `${data.totals.maxLevel.toFixed(1)} p/L` : '—'}
+            label="Peak reviewed"
+            value={data?.totals.maxLevel != null && Number.isFinite(data.totals.maxLevel) ? `${data.totals.maxLevel.toFixed(1)} p/L` : '—'}
             tone="warning"
           />
         </div>
@@ -445,12 +447,9 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <div className="text-muted-foreground">
                 <span className="font-medium text-foreground">About this data: </span>
-                Sample ranges are calibrated to published research &mdash; the WHO 2019
-                report <em>&ldquo;Microplastics in drinking-water&rdquo;</em> and the Orb Media 2017
-                survey of 14 countries. Specific city measurements shown
-                here are illustrative simulations within those published ranges, not
-                lab-verified results. We replace them with real readings as volunteers
-                collect data.{' '}
+                City observations retain their recorded source and review status; they are not safety findings.
+                Averages include only compatible, reviewed institutional measurements, normalized to particles per liter.
+                {data?.dataStatus?.status === 'degraded' && ' Verification metadata is unavailable for historical records, so these remain unreviewed.'}{' '}
                 <button
                   onClick={() => onNavigate?.('sources')}
                   className="font-medium text-primary hover:underline"
@@ -465,11 +464,11 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Droplets className="h-4 w-4 text-primary" />
-                    Why untreated water matters
+                    Reviewed treatment cohorts
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Average microplastic particles per liter (p/L) in untreated
-                    source water vs after treatment, the gap is what reaches people.
+                    Average reported particles per liter in separate untreated and treated cohorts.
+                    These are not matched before-and-after tests of treatment effectiveness.
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -477,6 +476,10 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                     <Skeleton className="h-[260px] w-full" />
                   ) : chartError ? (
                     <div className="flex h-[260px] items-center justify-center">{chartError}</div>
+                  ) : treatmentComparison.length === 0 ? (
+                    <div role="status" className="flex h-[260px] items-center justify-center px-6 text-center text-sm text-muted-foreground">
+                      Both compatible reviewed cohorts are not available. Missing averages are not zero measurements.
+                    </div>
                   ) : (
                     <div className="h-[260px]">
                       <ResponsiveContainer width="100%" height="100%">
@@ -507,12 +510,6 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                       </ResponsiveContainer>
                     </div>
                   )}
-                  {reductionPct > 0 && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      On average, treatment removes <strong className="text-emerald-600 dark:text-emerald-400">{reductionPct}%</strong> of
-                      microplastics, which is exactly why we measure the untreated source.
-                    </p>
-                  )}
                 </CardContent>
               </Card>
 
@@ -520,30 +517,24 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-base">
                     <BarChart3 className="h-4 w-4 text-primary" />
-                    Microplastics by city
+                    Reported observations by city
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Latest measured microplastic levels across all water sources in our database.
+                    Latest values from each utility's selected review cohort. Source and review status appear in the tooltip.
                   </p>
                 </CardHeader>
                 <CardContent>
                   {loading ? (
                     <Skeleton className="h-[300px] w-full" />
-                  ) : !data || data.utilityStats.length === 0 ? (
+                  ) : chartError ? chartError : cityObservations.length === 0 ? (
                     <div className="flex h-[300px] items-center justify-center rounded-lg border border-dashed border-border px-6 text-center text-sm text-muted-foreground">
-                      No microplastics measurements recorded yet.
+                      No reported observations with compatible concentration units are available.
                     </div>
                   ) : (
                     <div className="h-[300px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
-                          data={data.utilityStats
-                            .slice()
-                            .sort((a, b) => b.latestLevel - a.latestLevel)
-                            .map((u) => ({
-                              city: `${u.city}, ${u.state}`,
-                              level: +u.latestLevel.toFixed(2),
-                            }))}
+                          data={cityObservations}
                           layout="vertical"
                           margin={{ top: 4, right: 20, bottom: 4, left: 8 }}
                         >
@@ -563,7 +554,8 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                           <Tooltip
                             cursor={{ fill: 'var(--muted)' }}
                             contentStyle={tooltipStyle}
-                            formatter={(v: number) => [`${v} particles/L`, 'Latest level']}
+                            formatter={(v: number, _name: string, item: { payload?: { review?: string; source?: string } }) =>
+                              [`${v} particles/L`, `${item.payload?.review ?? 'Unreviewed'} · ${item.payload?.source ?? 'Unknown source'}`]}
                           />
                           <Bar dataKey="level" radius={[0, 4, 4, 0]} barSize={16} fill="var(--chart-1)" />
                         </BarChart>

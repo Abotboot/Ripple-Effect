@@ -112,7 +112,7 @@ const TEAM_GROUPS: TeamGroup[] = [
     accent: 'border-amber-400/40 bg-amber-500/5',
     members: [
       { name: 'Sujhav', title: 'Finance', photo: '/team/sujhav.jpg' },
-      { name: 'Aryash', title: 'Finance', photo: '/team/aryash.jpg' },
+      { name: 'Kenny', title: 'Finance' },
     ],
   },
 ]
@@ -354,7 +354,6 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
                               <CardContent className="flex flex-col items-center p-6 text-center">
                                 <div className={`mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full text-2xl font-extrabold ${initialsColor(i)}`}>
                                   {m.photo ? (
-                                    /* eslint-disable-next-line @next/next/no-img-element */
                                     <img
                                       src={m.photo}
                                       alt={m.name}

@@ -185,6 +185,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
 
       {/* Stats bar */}
       <StatsBar stats={stats} />
+      {stats?.dataStatus?.status === 'degraded' && <div className="mx-auto max-w-7xl border-b border-border px-4 py-4 text-sm leading-relaxed text-muted-foreground sm:px-6 lg:px-8" role="status" data-testid="legacy-data-notice"><strong className="font-medium text-foreground">Historical records are available.</strong> Their verification metadata is not available in this database version. Locations and original observations are shown; safety scores and reviewed comparisons are withheld until that evidence can be verified.</div>}
 
       {/* Polite live region for screen readers */}
       <div aria-live="polite" className="sr-only">
@@ -490,14 +491,14 @@ function StatsBar({ stats }: { stats: Stats | null }) {
       icon: Droplets,
       label: 'Samples',
       value: stats.samplesCount,
-      hint: 'community + lab',
+      hint: 'stored observations',
     },
     {
       icon: AlertTriangle,
-      label: 'Health exceedances',
-      value: stats.healthExceedances,
-      hint: 'above EWG guideline',
-      tone: 'warning' as const,
+      label: 'Above health guideline',
+      value: stats.sampleAssessment?.healthAbove ?? null,
+      hint: (stats.sampleAssessment?.healthCompared ?? 0) > 0 ? `${stats.sampleAssessment!.healthCompared} comparable reviewed readings` : 'Not assessed — no comparable reviewed readings',
+      tone: (stats.sampleAssessment?.healthAbove ?? 0) > 0 ? 'warning' as const : undefined,
     },
   ]
   return (
@@ -534,13 +535,13 @@ function StatsBar({ stats }: { stats: Stats | null }) {
                   {label}
                 </span>
               </div>
-              <AnimatedCounter
+              {typeof value === 'number' && Number.isFinite(value) ? <AnimatedCounter
                 value={value}
                 className={cn(
                   'mt-2 text-2xl font-bold tabular-nums sm:text-3xl',
                   tone === 'warning' ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'
                 )}
-              />
+              /> : <p className="mt-2 text-2xl font-bold tabular-nums sm:text-3xl" aria-label="Not assessed">—</p>}
               <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>
             </motion.div>
           </div>
@@ -1018,10 +1019,10 @@ function RecentlyAddedAndQuality({
               <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <ShieldCheck className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-foreground">Data you can trust</h3>
+              <h3 className="text-base font-bold text-foreground">Read the evidence label</h3>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                Every measurement is tagged with a quality level so you know
-                exactly how much confidence to place in it.
+                Source and review status describe what is known about a record.
+                Unreviewed and illustrative observations are not verified measurements.
               </p>
 
               {qualityCounts && (
@@ -1056,13 +1057,14 @@ function RecentlyAddedAndQuality({
                     textColor="text-sky-700 dark:text-sky-300"
                     desc="Community submitted"
                   />
+                  <QualityRow icon={Info} label="Unreviewed" count={qualityCounts.unreviewed ?? 0} total={stats?.samplesCount ?? 0} color="bg-slate-500" colorLight="bg-slate-100 dark:bg-slate-900/40" textColor="text-slate-700 dark:text-slate-300" desc="Verification evidence not established" />
+                  <QualityRow icon={Info} label="Illustrative" count={qualityCounts.illustrative ?? 0} total={stats?.samplesCount ?? 0} color="bg-slate-400" colorLight="bg-slate-100 dark:bg-slate-900/40" textColor="text-slate-700 dark:text-slate-300" desc="Synthetic examples, not measured samples" />
                 </div>
               )}
 
               <p className="mt-4 text-[11px] text-muted-foreground">
-                We never present unverified data as fact. Citizen readings are
-                clearly labeled and help identify areas that need official
-                follow-up testing.
+                A missing review label or benchmark is not a safety verdict.
+                Check the source, method, units and collection date before interpreting a result.
               </p>
             </CardContent>
           </Card>

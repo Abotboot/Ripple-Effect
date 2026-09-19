@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { readSamples, SAMPLE_READ_FIELDS, sampleReadHeaders } from '@/lib/sample-read'
 
 // GET /api/samples?utilityId=&contaminantId=&treatmentStatus=&limit=
 export async function GET(req: NextRequest) {
@@ -8,16 +9,19 @@ export async function GET(req: NextRequest) {
   const utilityId = sp.get('utilityId')
   const contaminantId = sp.get('contaminantId')
   const treatmentStatus = sp.get('treatmentStatus')
-  const limit = Math.min(parseInt(sp.get('limit') ?? '500'), 5000)
+  const requestedLimit = sp.get('limit') ?? '500'
+  if (!/^\d+$/.test(requestedLimit) || Number(requestedLimit) < 1 || !Number.isSafeInteger(Number(requestedLimit))) {
+    return NextResponse.json({ error: 'limit must be a positive integer' }, { status: 400 })
+  }
+  const limit = Math.min(Number(requestedLimit), 5000)
 
   const where: Record<string, unknown> = {}
   if (utilityId) where.utilityId = utilityId
   if (contaminantId) where.contaminantId = contaminantId
   if (treatmentStatus) where.treatmentStatus = treatmentStatus
 
-  const samples = await db.sample.findMany({
+  const { samples, dataStatus } = await readSamples({ ...SAMPLE_READ_FIELDS, contaminant: true, utility: true }, {
     where,
-    include: { contaminant: true, utility: true },
     orderBy: { sampleDate: 'desc' },
     take: limit,
   })
@@ -28,7 +32,7 @@ export async function GET(req: NextRequest) {
     notes: s.notes ? s.notes.replace(/reporter:[^|]+(\| )?/g, '').trim() : null,
   }))
 
-  return NextResponse.json(sanitized)
+  return NextResponse.json(sanitized, { headers: sampleReadHeaders(dataStatus) })
 }
 
 // POST /api/samples (admin only) - add a single measurement

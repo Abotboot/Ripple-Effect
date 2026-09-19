@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { rippleAssets } from '@/lib/ripple-assets'
+import { ParticleStudyCounter } from './particle-study-counter'
 import './water-narrative.css'
 
 const researchSource = 'https://www.nih.gov/news-events/nih-research-matters/plastic-particles-bottled-water'
@@ -46,10 +47,7 @@ export function WaterNarrative({ contributeHref = '#submit' }: { contributeHref?
         <div className="research-layout">
           <div className="research-finding">
             <h3 className="particle-study-title">Bottled-water study · 2024</h3>
-            <div className="particle-number" aria-label="Approximately 240,000 particles per liter on average in the study">
-              <span aria-hidden="true">≈240,000</span>
-              <span className="particle-unit" aria-hidden="true">particles per liter, on average</span>
-            </div>
+            <ParticleStudyCounter />
             <p>The study examined three bottled-water brands. About 90% of the detected particles were nanoplastics.</p>
             <p className="research-context-note">A reported study average for micro- and nanoplastic particles. Concentrations varied across the tested samples.</p>
           </div>

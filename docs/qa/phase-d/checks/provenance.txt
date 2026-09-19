@@ -1,0 +1,9 @@
+[QA-Provenance] Starting data safety & provenance regression tests...
+[QA-Provenance] PASS: Legacy raw verified string correctly mapped to Unreviewed.
+[QA-Provenance] PASS: Synthetic demo data correctly identified as Illustrative.
+[QA-Provenance] PASS: True regulatory record correctly identified as Verified.
+[QA-Provenance] PASS: Cohort isolation verified for averages AND trend dataset.
+[QA-Provenance] PASS: Bidirectional unit conversions and compatibility verified.
+[QA-Provenance] PASS: Contradictory & rejected metadata correctly guarded.
+[QA-Provenance] PASS: Single-observation score correctly suppressed.
+[QA-Provenance] ALL REGRESSION TESTS PASSED CLEANLY.

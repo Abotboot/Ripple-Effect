@@ -1,0 +1,133 @@
+{
+  "createdAt": "2026-09-19T07:26:15.347Z",
+  "baseline": "be0f622eece788684de60c9e5de17be010363e0f",
+  "checks": [
+    {
+      "name": "legacy-data-contracts",
+      "command": [
+        "node",
+        "docs/qa/phase-d/data/check.cjs"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "provenance",
+      "command": [
+        "node",
+        "scripts/qa/run-regression.cjs",
+        "provenance"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "public-read-safety",
+      "command": [
+        "node",
+        "scripts/qa/run-regression.cjs",
+        "read-path"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "unit-and-report-regressions",
+      "command": [
+        "node",
+        "scripts/qa/run-regression.cjs",
+        "remaining"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "preserved-artwork",
+      "command": [
+        "node",
+        "--test",
+        "scripts/qa/phase-b-assets.mjs"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "new-microscope-delivery",
+      "command": [
+        "node",
+        "scripts/qa/phase-d-microscope.cjs"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "typescript",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "scoped-lint",
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "src/app/api/activity/route.ts",
+        "src/app/api/contaminants/[id]/route.ts",
+        "src/app/api/dashboard/route.ts",
+        "src/app/api/export/route.ts",
+        "src/app/api/microplastics/trend/route.ts",
+        "src/app/api/readings/recent/route.ts",
+        "src/app/api/samples/route.ts",
+        "src/app/api/stats/route.ts",
+        "src/app/api/utilities/[id]/route.ts",
+        "src/app/api/utilities/compare/route.ts",
+        "src/app/api/utilities/scores/route.ts",
+        "src/components/atmosphere/bottle-scene.ts",
+        "src/components/atmosphere/specimen-inspector.tsx",
+        "src/components/atmosphere/tank-hero.tsx",
+        "src/components/atmosphere/water-narrative.tsx",
+        "src/components/sections/about-section.tsx",
+        "src/components/sections/home-section.tsx",
+        "src/components/sections/map-section.tsx",
+        "src/components/sections/microplastics-section.tsx",
+        "src/components/sections/microplastics-trend-section.tsx",
+        "src/lib/api.ts",
+        "src/lib/artwork-journey.ts",
+        "src/lib/types.ts",
+        "docs/qa/phase-d/data/check.cjs",
+        "docs/qa/phase-d/data/map-browser.cjs",
+        "docs/qa/phase-d/specimen/review-specimen.cjs",
+        "docs/qa/phase-d/specimen/typecheck-specimen.cjs",
+        "scripts/qa/phase-d-checks.cjs",
+        "scripts/qa/phase-d-counter.cjs",
+        "scripts/qa/phase-d-integration.cjs",
+        "scripts/qa/phase-d-microscope.cjs",
+        "src/components/atmosphere/particle-study-counter.tsx",
+        "src/components/atmosphere/specimen-fallback.ts",
+        "src/lib/sample-read-cohort.ts",
+        "src/lib/sample-read-model.ts",
+        "src/lib/sample-read.ts"
+      ],
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "name": "production-build",
+      "command": [
+        "node",
+        "node_modules/next/dist/bin/next",
+        "build"
+      ],
+      "passed": true,
+      "exitCode": 0
+    }
+  ],
+  "success": true,
+  "completedAt": "2026-09-19T07:26:56.860Z"
+}

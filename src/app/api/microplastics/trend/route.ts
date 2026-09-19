@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
+import { reviewedConcentration } from '@/lib/sample-read-cohort'
 
 // GET /api/microplastics/trend
 // Returns microplastics levels over time (avg per quarter) for treated
@@ -11,15 +13,15 @@ export async function GET() {
     return NextResponse.json({ error: 'Microplastics contaminant not found.' }, { status: 404 })
   }
 
-  const samples = await db.sample.findMany({
-    where: { contaminantId: mp.id },
-    select: {
+  const { samples, dataStatus } = await readSamples({
+      provenance: true, verificationStatus: true, source: true, quality: true,
       level: true,
       unit: true,
       sampleDate: true,
       treatmentStatus: true,
       utility: { select: { city: true, state: true } },
-    },
+  }, {
+    where: { contaminantId: mp.id },
     orderBy: { sampleDate: 'asc' },
   })
 
@@ -34,11 +36,16 @@ export async function GET() {
     maxLevel: number
   }
   const quarterMap = new Map<string, Quarter>()
+  let reviewedSampleCount = 0
 
   for (const s of samples) {
+    const level = reviewedConcentration(s, 'particles/l')
+    if (level == null || !['Treated', 'Untreated'].includes(s.treatmentStatus)) continue
     const d = new Date(s.sampleDate)
-    const year = d.getFullYear()
-    const month = d.getMonth()
+    if (!Number.isFinite(d.getTime())) continue
+    reviewedSampleCount++
+    const year = d.getUTCFullYear()
+    const month = d.getUTCMonth()
     const q = Math.floor(month / 3) + 1
     const key = `${year}-Q${q}`
     const label = `Q${q} ${year}`
@@ -56,13 +63,13 @@ export async function GET() {
     }
     const entry = quarterMap.get(key)!
     if (s.treatmentStatus === 'Untreated') {
-      entry.untreatedSum += s.level
+      entry.untreatedSum += level
       entry.untreatedCount++
     } else {
-      entry.treatedSum += s.level
+      entry.treatedSum += level
       entry.treatedCount++
     }
-    if (s.level > entry.maxLevel) entry.maxLevel = s.level
+    if (level > entry.maxLevel) entry.maxLevel = level
   }
 
   const trend = Array.from(quarterMap.values())
@@ -70,18 +77,20 @@ export async function GET() {
     .map((q) => ({
       quarter: q.quarter,
       label: q.label,
-      treatedAvg: q.treatedCount > 0 ? +(q.treatedSum / q.treatedCount).toFixed(2) : 0,
-      untreatedAvg: q.untreatedCount > 0 ? +(q.untreatedSum / q.untreatedCount).toFixed(2) : 0,
+      treatedAvg: q.treatedCount > 0 ? +(q.treatedSum / q.treatedCount).toFixed(2) : null,
+      untreatedAvg: q.untreatedCount > 0 ? +(q.untreatedSum / q.untreatedCount).toFixed(2) : null,
+      treatedCount: q.treatedCount,
+      untreatedCount: q.untreatedCount,
       maxLevel: +q.maxLevel.toFixed(2),
     }))
 
   // Compute overall trend direction (first vs last treated avg).
-  const treatedValues = trend.filter((t) => t.treatedAvg > 0)
-  let direction: 'up' | 'down' | 'flat' = 'flat'
-  let pctChange = 0
+  const treatedValues = trend.flatMap(t => t.treatedAvg == null ? [] : [t.treatedAvg])
+  let direction: 'up' | 'down' | 'flat' | null = null
+  let pctChange: number | null = null
   if (treatedValues.length >= 2) {
-    const first = treatedValues[0].treatedAvg
-    const last = treatedValues[treatedValues.length - 1].treatedAvg
+    const first = treatedValues[0]
+    const last = treatedValues[treatedValues.length - 1]
     if (first > 0) {
       pctChange = Math.round(((last - first) / first) * 100)
       direction = pctChange > 5 ? 'up' : pctChange < -5 ? 'down' : 'flat'
@@ -89,6 +98,10 @@ export async function GET() {
   }
 
   return NextResponse.json({
+    dataStatus,
+    reviewedSampleCount,
+    cohort: 'reviewed_institutional',
+    unit: 'particles/l',
     trend,
     direction,
     pctChange,
@@ -96,5 +109,5 @@ export async function GET() {
     dateRange: trend.length > 0
       ? { from: trend[0].label, to: trend[trend.length - 1].label }
       : null,
-  })
+  }, { headers: sampleReadHeaders(dataStatus) })
 }

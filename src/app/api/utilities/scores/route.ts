@@ -1,18 +1,19 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { computeSafetyScore } from '@/lib/safety-score'
-import { isEligibleForScoring, normalizeProvenance, normalizeToBenchmarkUnit } from '@/lib/provenance'
+import { isEligibleForScoring, normalizeProvenance } from '@/lib/provenance'
+import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
+import { sampleBenchmarkStatus } from '@/lib/sample-read-model'
 
 // GET /api/utilities/scores
 // Returns a lightweight safety score for every utility, for at-a-glance
 // display on search result cards, map tooltips, and rankings.
 export async function GET() {
 
-  const utilities = await db.utility.findMany({
-    select: {
-      id: true,
-      samples: {
-        select: {
+  const [utilities, { samples, dataStatus }] = await Promise.all([
+    db.utility.findMany({ select: { id: true } }),
+    readSamples({
+          utilityId: true,
           level: true,
           unit: true,
           quality: true,
@@ -29,12 +30,18 @@ export async function GET() {
               legalLimitUnit: true,
             },
           },
-        },
-      },
-    },
-  })
+    }),
+  ])
+  const byUtility = new Map<string, typeof samples>()
+  for (const sample of samples) {
+    if (!sample.utilityId) continue
+    const list = byUtility.get(sample.utilityId) ?? []
+    list.push(sample)
+    byUtility.set(sample.utilityId, list)
+  }
 
   const scores = utilities.map((u) => {
+    const utilitySamples = byUtility.get(u.id) ?? []
     let legalExceedances = 0
     let healthExceedances = 0
     let verified = 0
@@ -45,7 +52,7 @@ export async function GET() {
     const seenHealth = new Set<string>()
     const contamIds = new Set<string>()
 
-    for (const s of u.samples) {
+    for (const s of utilitySamples) {
       contamIds.add(s.contaminantId)
       const p = normalizeProvenance(s)
       const eligible = isEligibleForScoring(s)
@@ -61,16 +68,14 @@ export async function GET() {
       // Only reviewed regulatory or lab measurements can establish an exceedance
       if (eligible) {
         const c = s.contaminant
-        if (c.healthGuideline != null && c.healthGuideline > 0 && !seenHealth.has(s.contaminantId)) {
-          const norm = normalizeToBenchmarkUnit(s.level, s.unit, c.healthGuidelineUnit || s.unit)
-          if (norm != null && norm > c.healthGuideline) {
+        if (!seenHealth.has(s.contaminantId)) {
+          if (sampleBenchmarkStatus({ ...s, benchmark: c.healthGuideline, benchmarkUnit: c.healthGuidelineUnit }) === 'above_benchmark') {
             healthExceedances++
             seenHealth.add(s.contaminantId)
           }
         }
-        if (c.legalLimit != null && c.legalLimit > 0 && !seenLegal.has(s.contaminantId)) {
-          const norm = normalizeToBenchmarkUnit(s.level, s.unit, c.legalLimitUnit || s.unit)
-          if (norm != null && norm > c.legalLimit) {
+        if (!seenLegal.has(s.contaminantId)) {
+          if (sampleBenchmarkStatus({ ...s, benchmark: c.legalLimit, benchmarkUnit: c.legalLimitUnit }) === 'above_benchmark') {
             legalExceedances++
             seenLegal.add(s.contaminantId)
           }
@@ -82,7 +87,7 @@ export async function GET() {
       legalExceedances,
       healthExceedances,
       totalContaminants: contamIds.size,
-      totalSamples: u.samples.length,
+      totalSamples: utilitySamples.length,
       verifiedSamples: verified,
       provisionalSamples: provisional,
       citizenSamples: citizen,
@@ -90,6 +95,8 @@ export async function GET() {
 
     return {
       id: u.id,
+      sampleCount: utilitySamples.length,
+      eligibleSampleCount: verified,
       score: score.score,
       grade: score.grade,
       status: score.status,
@@ -100,5 +107,5 @@ export async function GET() {
     }
   })
 
-  return NextResponse.json({ scores })
+  return NextResponse.json({ scores, dataStatus }, { headers: sampleReadHeaders(dataStatus) })
 }
