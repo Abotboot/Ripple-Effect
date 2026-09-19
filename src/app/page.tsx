@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import '@/components/site/tank-system.css'
 import { SmoothCurrent } from '@/components/atmosphere/smooth-current'
-import { FluidCursor } from '@/components/atmosphere/fluid-cursor'
 import { SiteHeader, type Section } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { ScrollToTop } from '@/components/site/scroll-to-top'
@@ -105,7 +104,6 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       <SmoothCurrent />
-      <FluidCursor />
       <SiteHeader current={section} onNavigate={setSection} />
       <main className="flex-1">
         {section === 'home' && <HomeSection onNavigate={setSection} />}

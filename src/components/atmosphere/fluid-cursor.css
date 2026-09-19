@@ -1,5 +1,0 @@
-[data-fluid-cursor] { --fluid-x: -100px; --fluid-y: -100px; position: fixed; z-index: 9999; top: 0; left: 0; width: 4px; height: 4px; margin: -2px 0 0 -2px; transform: translate3d(var(--fluid-x), var(--fluid-y), 0); pointer-events: none; }
-[data-fluid-cursor][data-visible=false] { display: none; }
-[data-fluid-cursor]::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: #c0d8cf; opacity: .65; }
-[data-fluid-cursor][data-state=link]::before { background: #1df2b3; }
-@media (prefers-reduced-motion: reduce) { [data-fluid-cursor] { display: none; } }

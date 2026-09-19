@@ -192,7 +192,7 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
             </button>
           </div>
           <p className="max-w-xs sm:max-w-md text-center sm:text-right">
-            Educational &amp; research data; not medical or regulatory advice. Always verify with your utility&apos;s annual CCR.
+            Research and education. For local guidance, check your utility&apos;s annual water report.
           </p>
         </div>
       </div>
