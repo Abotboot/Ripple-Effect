@@ -1,0 +1,84 @@
+{
+  "createdAt": "2026-09-19T05:10:25.250Z",
+  "url": "https://deploy-preview-2--rippleeffecter.netlify.app/motion-study",
+  "expectedCommit": "5d5dacf023432cf8dde61e71068aa1ea0262ba8b",
+  "success": true,
+  "checks": [
+    {
+      "width": 1440,
+      "height": 900,
+      "passed": true,
+      "http": 200,
+      "video": {
+        "src": "https://deploy-preview-2--rippleeffecter.netlify.app/media/ripple/live/microscope-original.mp4",
+        "duration": 5
+      },
+      "evidence": {
+        "end": {
+          "trusted": true,
+          "time": 5,
+          "duration": 5,
+          "rate": 1
+        },
+        "boundary": {
+          "entrance": 0
+        },
+        "seeks": 0,
+        "sameCanvas": true
+      },
+      "categories": [
+        "all",
+        "fibers",
+        "fragments",
+        "granules"
+      ],
+      "paused": {
+        "draws": "126",
+        "time": "3.6491",
+        "running": "false"
+      },
+      "drawerCount": 0,
+      "apiRequests": 0,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "passed": true,
+      "http": 200,
+      "video": {
+        "src": "https://deploy-preview-2--rippleeffecter.netlify.app/media/ripple/live/microscope-original.mp4",
+        "duration": 5
+      },
+      "evidence": {
+        "end": {
+          "trusted": true,
+          "time": 5,
+          "duration": 5,
+          "rate": 1
+        },
+        "boundary": {
+          "entrance": 0
+        },
+        "seeks": 0,
+        "sameCanvas": true
+      },
+      "categories": [
+        "all",
+        "fibers",
+        "fragments",
+        "granules"
+      ],
+      "paused": {
+        "draws": "123",
+        "time": "3.5988",
+        "running": "false"
+      },
+      "drawerCount": 0,
+      "apiRequests": 0,
+      "errors": []
+    }
+  ],
+  "browser": "152.0.7977.83",
+  "completedAt": "2026-09-19T05:10:52.766Z"
+}

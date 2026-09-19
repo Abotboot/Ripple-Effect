@@ -95,6 +95,11 @@ recorded transitions captured exact black in the actual browser's last video
 frame and first canvas frame, and retained the same canvas into live operation.
 The separate native **200% zoom** run passed without horizontal overflow.
 
+The final published desktop/mobile checks also passed with all category
+controls, paused-frame stability, no injected review toolbar, no API requests,
+and no console or page errors. See [the deployed results](deployed/results.json)
+and [finalization notes](FINALIZATION.md) for the exact tested revision.
+
 All eight fixture/media/type/lint/build gates passed. Repository-wide lint still
 reports **61 errors and 3 warnings**, all in files unchanged from `e7269d8`.
 The separate design review passed **7/7 cases**. Exact timings and raw results,

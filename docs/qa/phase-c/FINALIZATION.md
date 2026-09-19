@@ -25,6 +25,27 @@ Reference: https://docs.netlify.com/deploy/review-deploys/netlify-drawer-for-fee
 
 ## Published-build verification
 
+The final published check completed at **2026-09-19T05:10:52.766Z** against
+code revision **5d5dacf023432cf8dde61e71068aa1ea0262ba8b**, after its Netlify
+commit status reported success. Both **1440×900** and **390×844** cases passed
+in Chrome 152.0.7977.83. The five-second original video ended naturally at rate
+1 with no seeking; its black terminal frame matched the first live canvas,
+and the same canvas continued into the artwork.
+
+All four category selections and paused-frame stability passed. There were
+**zero Netlify Drawer iframes, zero API requests, zero console/page errors,
+and no horizontal overflow**. The desktop and mobile granule screenshots were
+reviewed for crop edges; the bright rectangular surroundings are gone.
+
+Measured results: [deployed/results.json](deployed/results.json).
+Published screenshots: [desktop artwork](deployed/1440-all.png),
+[desktop granules](deployed/1440-granules.png),
+[mobile artwork](deployed/390-all.png), and
+[mobile granules](deployed/390-granules.png).
+
+This deployment evidence is committed separately from the tested application
+revision; it changes documentation and screenshots only.
+
 `scripts/qa/phase-c-deployed.cjs` verifies the actual published study route in
 desktop and mobile Chromium contexts. It captures the natural final video frame
 and initial live canvas, verifies optical-black equality and canvas identity,
