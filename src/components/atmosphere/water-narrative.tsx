@@ -20,7 +20,7 @@ export function WaterNarrative({ contributeHref = '#submit', onMethodology }: { 
             loading="lazy"
             unoptimized
           />
-          <figcaption>Raman microscope.<br /><PhotographCredit photo={particlePhotographs.sample} edited /></figcaption>
+          <figcaption>Raman microscope.<br /><PhotographCredit photo={particlePhotographs.sample} /></figcaption>
         </figure>
         <div className="sample-examination-copy">
           <p className="narrative-label">From image to evidence</p>
