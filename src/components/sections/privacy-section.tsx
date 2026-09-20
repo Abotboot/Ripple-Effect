@@ -25,7 +25,7 @@ export function PrivacySection() {
           <p>
             A Ripple Effect Initiative (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;)
             operates the website at{' '}
-            <span className="font-medium text-foreground">rippleeffecter.netlify.app</span>. We are
+            <span className="font-medium text-foreground">arippleeffectinitiative.org</span>. We are
             committed to protecting your privacy and being transparent about the data we collect.
             This Privacy Policy explains what information we gather, how we use it, and your rights
             regarding that information.

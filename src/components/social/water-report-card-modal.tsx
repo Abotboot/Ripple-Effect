@@ -272,7 +272,7 @@ export function WaterReportCardModal({
 
       ctx.font = 'bold 15px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#38bdf8'
-      ctx.fillText('Check your local water: rippleeffecter.netlify.app', W - 460, 585)
+      ctx.fillText(`Check your local water: ${window.location.host}`, W - 460, 585, 390)
 
       // Save as data URL for quick preview
       setDataUrl(canvas.toDataURL('image/png'))
@@ -320,7 +320,7 @@ export function WaterReportCardModal({
   const handleShareX = () => {
     const vm = buildWaterReportCardViewModel(utility)
     const text = encodeURIComponent(vm.shareText)
-    const url = encodeURIComponent('https://rippleeffecter.netlify.app/#map')
+    const url = encodeURIComponent(`${window.location.origin}/#map`)
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer')
   }
 
