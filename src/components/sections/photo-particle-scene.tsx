@@ -6,17 +6,17 @@ import styles from './photo-particle-scene.module.css'
 
 type Form = 'fibers' | 'fragments' | 'granules'
 const particles = [
-  { id: 'fibers', file: 'fiber', alt: 'Photo-derived fiber with dark surface deposits', x: 13, y: 9, size: 36, angle: -25 },
-  { id: 'fragments', file: 'fragment', alt: 'Photo-derived green plastic fragment', x: 61, y: 35, size: 35, angle: 14 },
-  { id: 'granules', file: 'pellet', alt: 'Photo-derived white plastic pellet', x: 12, y: 59, size: 32, angle: -20 },
-  { id: 'granules', file: 'cream', alt: 'Photo-derived pale rounded particle', x: 69, y: 5, size: 18, angle: 16 },
-  { id: 'fragments', file: 'ring', alt: 'Photo-derived dark ring-shaped particle', x: 4, y: 38, size: 17, angle: 8 },
-  { id: 'fragments', file: 'turquoise', alt: 'Photo-derived textured turquoise fragment', x: 41, y: 60, size: 23, angle: -25 },
-  { id: 'fragments', file: 'clear', alt: 'Photo-derived translucent angular flake', x: 44, y: 8, size: 18, angle: 18 },
-  { id: 'fragments', file: 'foam', alt: 'Photo-derived white irregular fragment', x: 39, y: 33, size: 15, angle: 15 },
-  { id: 'fragments', file: 'black', alt: 'Photo-derived black textured fragment', x: 64, y: 81, size: 19, angle: -30 },
-  { id: 'fragments', file: 'grey', alt: 'Photo-derived grey flake', x: 81, y: 23, size: 13, angle: 0 },
-  { id: 'fragments', file: 'chip', alt: 'Photo-derived small turquoise chip', x: 29, y: 86, size: 13, angle: 25 },
+  { id: 'fibers', file: 'fiber', alt: 'fiber with dark surface deposits', x: 13, y: 9, size: 36, angle: -25 },
+  { id: 'fragments', file: 'fragment', alt: 'green plastic fragment', x: 61, y: 35, size: 35, angle: 14 },
+  { id: 'granules', file: 'pellet', alt: 'white plastic pellet', x: 12, y: 59, size: 32, angle: -20 },
+  { id: 'granules', file: 'cream', alt: 'pale rounded particle', x: 69, y: 5, size: 18, angle: 16 },
+  { id: 'fragments', file: 'ring', alt: 'dark ring-shaped particle', x: 4, y: 38, size: 17, angle: 8 },
+  { id: 'fragments', file: 'turquoise', alt: 'textured turquoise fragment', x: 41, y: 60, size: 23, angle: -25 },
+  { id: 'fragments', file: 'clear', alt: 'translucent angular flake', x: 44, y: 8, size: 18, angle: 18 },
+  { id: 'fragments', file: 'foam', alt: 'white irregular fragment', x: 39, y: 33, size: 15, angle: 15 },
+  { id: 'fragments', file: 'black', alt: 'black textured fragment', x: 64, y: 81, size: 19, angle: -30 },
+  { id: 'fragments', file: 'grey', alt: 'grey flake', x: 81, y: 23, size: 13, angle: 0 },
+  { id: 'fragments', file: 'chip', alt: 'small turquoise chip', x: 29, y: 86, size: 13, angle: 25 },
 ] as const
 
 // Stable placement avoids hydration changes. Repeated sprites are decorative,
@@ -52,7 +52,7 @@ export function PhotoParticleScene({ subject = 'all', selected = 'all', paused =
   }, [])
   const displayed = hero ? scatter : particles.filter(particle => subject === 'all' || subject === particle.id)
   return <span ref={root} className={styles.scene} data-testid={hero ? 'hero-cutout-scene' : 'photo-cutout-scene'} data-subject={subject} data-dense={hero} data-motion={visible && !paused}
-    role={hero ? 'img' : undefined} aria-label={hero ? 'Dense field of tiny photo-derived particles at varying depths' : undefined}
+    role={hero ? 'img' : undefined} aria-label={hero ? 'Dense field of tiny particles at varying depths' : undefined}
     onPointerDown={event => { pointerStart.current = { x: event.clientX, y: event.clientY } }}
     onPointerCancel={() => { pointerStart.current = null }}
     onPointerUp={event => {
