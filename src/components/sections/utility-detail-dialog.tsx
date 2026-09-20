@@ -437,7 +437,7 @@ export function ContaminantDetailCard({
               Latest
             </div>
             <div className="mt-0.5 font-semibold tabular-nums text-foreground">
-              {status.hasData && latestLevel != null ? latestLevel.toFixed(2) : '— Not measured'}{' '}
+              {status.hasData && latestLevel != null ? latestLevel.toFixed(2) : 'Not measured'}{' '}
               <span className="text-[10px] font-normal text-muted-foreground">{unit}</span>
             </div>
           </div>

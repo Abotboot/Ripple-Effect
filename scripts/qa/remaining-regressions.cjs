@@ -24,7 +24,7 @@ function reportFor(contaminant, sample) {
 function assertNotAssessed(vm) {
   assert.equal(vm.legalStatusText, 'Not Assessed');
   assert.equal(vm.legalCardTone, 'neutral');
-  assert.equal(vm.healthExceedancesText, '—');
+  assert.equal(vm.healthExceedancesText, 'N/A');
   assert.equal(vm.hasAssessedVerifiedData, false);
   assert.doesNotMatch(vm.shareText, /no (?:health guideline )?exceedances|no violations|clean bill|within legal limits/i);
 }

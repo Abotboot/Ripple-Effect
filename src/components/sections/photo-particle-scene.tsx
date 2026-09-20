@@ -34,8 +34,8 @@ const scatter = Array.from({ length: 160 }, (_, index) => {
     opacity: .3 + seed(251) * .65, blur: index % 4 === 0 ? 1.1 : 0 }
 })
 
-export function PhotoParticleScene({ subject = 'all', selected = 'all', paused = false, onSelect, hero = false }: {
-  subject?: Form | 'all'; selected?: Form | 'all'; paused?: boolean; onSelect?: (form: Form) => void; hero?: boolean
+export function PhotoParticleScene({ subject = 'all', selected = 'all', paused = false, allowReducedMotion = false, onSelect, hero = false }: {
+  subject?: Form | 'all'; selected?: Form | 'all'; paused?: boolean; allowReducedMotion?: boolean; onSelect?: (form: Form) => void; hero?: boolean
 }) {
   const root = useRef<HTMLSpanElement>(null)
   const [visible, setVisible] = useState(false)
@@ -50,8 +50,51 @@ export function PhotoParticleScene({ subject = 'all', selected = 'all', paused =
     document.addEventListener('visibilitychange', update)
     return () => { observer.disconnect(); document.removeEventListener('visibilitychange', update); if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current) }
   }, [])
+  useEffect(() => {
+    const scene = root.current
+    const surface = hero ? scene?.closest<HTMLElement>('.ripple-hero') : scene?.closest<HTMLElement>('[role="tab"]') ?? scene
+    if (!scene || !surface) return
+    const nodes = Array.from(scene.querySelectorAll<HTMLElement>('[data-particle]'))
+    const preference = matchMedia('(prefers-reduced-motion: reduce)')
+    let latest = { x: 0, y: 0 }
+    const reset = () => {
+      if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current)
+      pointerFrame.current = null
+      nodes.forEach(node => { node.style.setProperty('--push-x', '0px'); node.style.setProperty('--push-y', '0px') })
+    }
+    const move = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse' || paused || !visible || preference.matches && !allowReducedMotion) return
+      latest = { x: event.clientX, y: event.clientY }
+      // Keep one scheduled frame. High-polling mice must not cancel it repeatedly.
+      if (pointerFrame.current !== null) return
+      pointerFrame.current = requestAnimationFrame(() => {
+        pointerFrame.current = null
+        const offsets = nodes.map(node => {
+          const box = node.getBoundingClientRect()
+          const dx = box.x + box.width / 2 - latest.x, dy = box.y + box.height / 2 - latest.y
+          const distance = Math.hypot(dx, dy), influence = Math.max(0, 1 - distance / 220)
+          return { x: dx / Math.max(distance, 1) * influence * 28, y: dy / Math.max(distance, 1) * influence * 28 }
+        })
+        nodes.forEach((node, index) => {
+          node.style.setProperty('--push-x', `${offsets[index].x}px`)
+          node.style.setProperty('--push-y', `${offsets[index].y}px`)
+        })
+      })
+    }
+    surface.addEventListener('pointermove', move, { passive: true })
+    surface.addEventListener('pointerleave', reset)
+    surface.addEventListener('pointercancel', reset)
+    preference.addEventListener('change', reset)
+    return () => {
+      reset()
+      surface.removeEventListener('pointermove', move)
+      surface.removeEventListener('pointerleave', reset)
+      surface.removeEventListener('pointercancel', reset)
+      preference.removeEventListener('change', reset)
+    }
+  }, [hero, paused, visible, allowReducedMotion])
   const displayed = hero ? scatter : particles.filter(particle => subject === 'all' || subject === particle.id)
-  return <span ref={root} className={styles.scene} data-testid={hero ? 'hero-cutout-scene' : 'photo-cutout-scene'} data-subject={subject} data-dense={hero} data-motion={visible && !paused}
+  return <span ref={root} className={styles.scene} data-testid={hero ? 'hero-cutout-scene' : 'photo-cutout-scene'} data-subject={subject} data-dense={hero} data-motion={visible && !paused} data-motion-override={allowReducedMotion}
     role={hero ? 'img' : undefined} aria-label={hero ? 'Dense field of tiny particles at varying depths' : undefined}
     onPointerDown={event => { pointerStart.current = { x: event.clientX, y: event.clientY } }}
     onPointerCancel={() => { pointerStart.current = null }}
@@ -63,25 +106,7 @@ export function PhotoParticleScene({ subject = 'all', selected = 'all', paused =
       const form = event.target.closest<HTMLElement>('[data-form]')?.dataset.form
       if (form === 'fibers' || form === 'fragments' || form === 'granules') onSelect(form)
     }}
-    onPointerMove={event => {
-      if (event.pointerType !== 'mouse' || paused || !visible || matchMedia('(prefers-reduced-motion: reduce)').matches) return
-      const { clientX, clientY } = event
-      if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current)
-      pointerFrame.current = requestAnimationFrame(() => {
-        pointerFrame.current = null
-        root.current?.querySelectorAll<HTMLElement>('[data-particle]').forEach(node => {
-          const box = node.getBoundingClientRect()
-          const dx = box.x + box.width / 2 - clientX, dy = box.y + box.height / 2 - clientY
-          const distance = Math.hypot(dx, dy), influence = Math.max(0, 1 - distance / 220)
-          node.style.setProperty('--push-x', `${dx / Math.max(distance, 1) * influence * 20}px`)
-          node.style.setProperty('--push-y', `${dy / Math.max(distance, 1) * influence * 20}px`)
-        })
-      })
-    }}
-    onPointerLeave={() => {
-      if (pointerFrame.current !== null) { cancelAnimationFrame(pointerFrame.current); pointerFrame.current = null }
-      root.current?.querySelectorAll<HTMLElement>('[data-particle]').forEach(node => { node.style.setProperty('--push-x', '0px'); node.style.setProperty('--push-y', '0px') })
-    }}>
+    >
     <span className={styles.light} aria-hidden="true" />
     {displayed.map((particle, index) => {
       const content = <span className={styles.reaction}><span className={styles.float}><Image src={`/media/ripple/photo-cutouts/${particle.file}.webp`} alt={hero ? '' : particle.alt} width={960} height={960} sizes={hero ? '64px' : '(max-width: 699px) 28vw, 360px'} loading={hero ? 'eager' : 'lazy'} unoptimized data-testid={hero && index === 1 ? 'hero-artwork' : undefined} onError={() => setFailed(true)} /></span></span>

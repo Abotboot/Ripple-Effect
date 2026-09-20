@@ -391,7 +391,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 The EWG Tap Water Database, EPA SDWIS, and nearly every state
-                water portal omit microplastics entirely &mdash; there is no federal
+                water portal omit microplastics entirely. There is no federal
                 limit and no routine monitoring requirement. A Ripple Effect
                 Initiative tracks it anyway, because what you can&apos;t see can
                 still hurt you.
@@ -407,22 +407,22 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
           <Stat
             icon={FlaskConical}
             label="Water sources tested"
-            value={data ? data.totals.utilities.toString() : '—'}
+            value={data ? data.totals.utilities.toString() : 'N/A'}
           />
           <Stat
             icon={Droplets}
             label="Total samples"
-            value={data ? data.totals.samples.toString() : '—'}
+            value={data ? data.totals.samples.toString() : 'N/A'}
           />
           <Stat
             icon={TrendingDown}
             label="Reviewed samples"
-            value={data?.totals.reviewedSampleCount?.toString() ?? '—'}
+            value={data?.totals.reviewedSampleCount?.toString() ?? 'N/A'}
           />
           <Stat
             icon={AlertTriangle}
             label="Peak reviewed"
-            value={data?.totals.maxLevel != null && Number.isFinite(data.totals.maxLevel) ? `${data.totals.maxLevel.toFixed(1)} p/L` : '—'}
+            value={data?.totals.maxLevel != null && Number.isFinite(data.totals.maxLevel) ? `${data.totals.maxLevel.toFixed(1)} p/L` : 'N/A'}
             tone="warning"
           />
         </div>
@@ -987,7 +987,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                 <div className="mt-4 flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
                   <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                   <span>
-                    Companion mobile app in the works &mdash; volunteers will be able
+                    Companion mobile app in the works. Volunteers will be able
                     to read microplastics counts off the identifier and push
                     readings straight into this database from the field.
                   </span>

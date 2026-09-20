@@ -89,7 +89,7 @@ export function ParticleStudyCounter() {
     </div>
     <div id="study-size-breakdown" className="study-breakdown" hidden={!breakdown}>
       <div className="study-dot-grid" aria-hidden="true">{Array.from({ length: 100 }, (_, i) => <span key={i} data-nano={i < 90} />)}</div>
-      <div><p><strong>About 90% were nanoplastics.</strong></p><p>The remaining share were larger microplastics. Each mark represents about 1% of the study total—not an individual particle.</p></div>
+      <div><p><strong>About 90% were nanoplastics.</strong></p><p>The remaining share were larger microplastics. Each mark represents about 1% of the study total, not an individual particle.</p></div>
     </div>
     <p className="study-counter-boundary">Published research, not a live reading or a measurement of your water.</p>
   </div>

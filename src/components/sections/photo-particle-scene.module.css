@@ -1,6 +1,6 @@
 .scene { display: block; position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; isolation: isolate; background: #071618; }
 .light { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 55% 35%, #17494e80, transparent 65%), linear-gradient(145deg, #102f3270, #040c10); }
-.particle { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size); rotate: var(--angle); padding: 0; border: 0; background: none; transition: opacity .25s, filter .25s; }
+.particle { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size); translate: var(--push-x, 0px) var(--push-y, 0px); rotate: var(--angle); padding: 0; border: 0; background: none; transition: translate .25s ease-out, opacity .25s, filter .25s; }
 .scene[data-dense=true] { background: #06181b; }
 .scene[data-dense=true] .light { background: radial-gradient(ellipse at 62% 22%, #285f6970, transparent 65%), linear-gradient(170deg, #15424c90, #030d13); }
 .scene[data-dense=true] .particle { opacity: var(--opacity); cursor: pointer; }
@@ -8,12 +8,12 @@
 .scene[data-dense=true] .particle[data-dimmed=true] { opacity: .09; }
 .scene[data-dense=true] .particle:is(:hover, [data-highlighted=true]) { opacity: 1; filter: none; }
 button.particle { cursor: pointer; touch-action: manipulation; }
-.reaction { display: block; width: 100%; height: 100%; transform: translate(var(--push-x, 0px), var(--push-y, 0px)); transition: transform .45s ease-out; }
+.reaction { display: block; width: 100%; height: 100%; }
 .float { display: block; width: 100%; height: 100%; animation: specimen-float var(--duration, 9s) ease-in-out var(--delay, 0s) infinite alternate; animation-play-state: paused; }
 .particle img { display: block; width: 100%; height: 100%; object-fit: contain; filter: brightness(.8) saturate(.75) drop-shadow(0 0 8px #5ee7d01c); transition: filter .25s; }
 .scene:not([data-subject=all]) .particle[data-primary=true] { inset: 7%; width: 86%; height: 86%; rotate: 0deg; z-index: 1; }
 .scene[data-subject=granules] .particle[data-primary=true] { inset: -6%; width: 112%; height: 112%; }
-.scene[data-motion=false] .reaction { transform: none; }
+.scene[data-motion=false] .particle { translate: none; }
 .scene[data-motion=true] .float { animation-play-state: running; }
 .particle[data-dimmed=true] { opacity: .25; }
 .particle:is(:hover, :focus-visible, [data-highlighted=true]) { opacity: 1; }
@@ -21,5 +21,5 @@ button.particle { cursor: pointer; touch-action: manipulation; }
 button.particle:focus-visible { outline: 2px solid #b8d8cb; outline-offset: -14px; }
 .error { position: absolute; bottom: 12px; left: 12px; color: #b6c0bd; font-size: 12px; }
 @keyframes specimen-float { from { transform: translate3d(-3px, 4px, 0) rotate(-2deg); } to { transform: translate3d(4px, -6px, 0) rotate(2deg); } }
-@media (prefers-reduced-motion: reduce) { .float { animation: none; } .reaction { transform: none; } .particle, .particle img, .reaction { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .scene:not([data-motion-override=true]) .float { animation: none; } .scene:not([data-motion-override=true]) .particle { translate: none; transition: none; } .scene:not([data-motion-override=true]) .particle img { transition: none; } }
 @media (max-width: 600px) { .scene[data-dense=true] .particle:nth-of-type(n+103) { display: none; } }

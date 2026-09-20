@@ -41,7 +41,7 @@ export function PrivacySection() {
           <div className="space-y-3 ml-7">
             <div>
               <h3 className="font-semibold text-foreground">Water Alert Subscriptions</h3>
-              <p>Email address and ZIP code &mdash; used solely to send you contaminant data alerts for your area.</p>
+              <p>Email address and ZIP code are used solely to send you contaminant data alerts for your area.</p>
             </div>
             <div>
               <h3 className="font-semibold text-foreground">Community Reports</h3>
@@ -114,10 +114,10 @@ export function PrivacySection() {
           <div className="ml-7 space-y-2">
             <p>You have the right to:</p>
             <ul className="list-disc ml-4 space-y-1">
-              <li><span className="font-medium text-foreground">Access</span> &mdash; Request a copy of the personal data we hold about you</li>
-              <li><span className="font-medium text-foreground">Correction</span> &mdash; Ask us to correct inaccurate data</li>
-              <li><span className="font-medium text-foreground">Deletion</span> &mdash; Ask us to delete your personal data</li>
-              <li><span className="font-medium text-foreground">Unsubscribe</span> &mdash; Remove yourself from water alert emails at any time</li>
+              <li><span className="font-medium text-foreground">Access</span>: Request a copy of the personal data we hold about you</li>
+              <li><span className="font-medium text-foreground">Correction</span>: Ask us to correct inaccurate data</li>
+              <li><span className="font-medium text-foreground">Deletion</span>: Ask us to delete your personal data</li>
+              <li><span className="font-medium text-foreground">Unsubscribe</span>: Remove yourself from water alert emails at any time</li>
             </ul>
             <p>To exercise any of these rights, email us at{' '}
               <a href={`mailto:${EMAIL}`} className="font-medium text-primary hover:underline">{EMAIL}</a>.

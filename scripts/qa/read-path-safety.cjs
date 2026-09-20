@@ -385,7 +385,7 @@ function checkReportCardViewModel() {
 
   const vmA = buildWaterReportCardViewModel(unreviewedUtility);
   assert.equal(vmA.legalStatusText, 'Not Assessed', 'Unreviewed utility must show Not Assessed, never Within Legal Limits');
-  assert.equal(vmA.healthExceedancesText, '—', 'Unreviewed utility must show dash for health exceedances');
+  assert.equal(vmA.healthExceedancesText, 'N/A', 'Unreviewed utility must show N/A for health exceedances');
   assert.equal(vmA.keyFindings[0].statusText, 'UNREVIEWED SAMPLE', 'Unreviewed sample must show UNREVIEWED SAMPLE');
   assert.equal(vmA.shareText.includes('Clean bill'), false, 'Share text must NEVER output "Clean bill"');
   assert.equal(vmA.shareText.includes('Within Legal Limits'), false, 'Share text must NEVER output "Within Legal Limits"');

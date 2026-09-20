@@ -539,7 +539,7 @@ function StatsBar({ stats }: { stats: Stats | null }) {
       icon: AlertTriangle,
       label: 'Above health guideline',
       value: healthCompared > 0 ? stats.sampleAssessment?.healthAbove ?? null : null,
-      hint: healthCompared > 0 ? `${healthCompared} comparable reviewed readings` : 'Not assessed — no comparable reviewed readings',
+      hint: healthCompared > 0 ? `${healthCompared} comparable reviewed readings` : 'Not assessed: no comparable reviewed readings',
       tone: healthCompared > 0 && (stats.sampleAssessment?.healthAbove ?? 0) > 0 ? 'warning' as const : undefined,
     },
   ]
@@ -583,7 +583,7 @@ function StatsBar({ stats }: { stats: Stats | null }) {
                   'mt-2 text-2xl font-bold tabular-nums sm:text-3xl',
                   tone === 'warning' ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'
                 )}
-              /> : <p className="mt-2 text-2xl font-bold tabular-nums sm:text-3xl" aria-label="Not assessed">—</p>}
+              /> : <p className="mt-2 text-2xl font-bold tabular-nums sm:text-3xl" aria-label="Not assessed">N/A</p>}
               <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>
             </motion.div>
           </div>

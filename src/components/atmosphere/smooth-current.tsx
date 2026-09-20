@@ -35,16 +35,9 @@ export function SmoothCurrent() {
     }
 
     configure()
-    const startIntro = () => { lenis?.scrollTo(0, { immediate: true, force: true }); lenis?.stop() }
-    const endIntro = () => { lenis?.start(); lenis?.scrollTo(0, { immediate: true, force: true }) }
-    window.addEventListener('ripple-cinematic-start', startIntro)
-    window.addEventListener('ripple-cinematic-end', endIntro)
-    if (document.body.classList.contains('ripple-cinematic-active')) startIntro()
     preference.addEventListener('change', configure)
 
     return () => {
-      window.removeEventListener('ripple-cinematic-start', startIntro)
-      window.removeEventListener('ripple-cinematic-end', endIntro)
       if (tickerCb) gsap.ticker.remove(tickerCb)
       lenis?.destroy()
       preference.removeEventListener('change', configure)
