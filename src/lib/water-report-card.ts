@@ -38,7 +38,7 @@ export function buildWaterReportCardViewModel(
       title: 'Water Quality Report',
       locationSubtitle: '',
       totalContaminantsCount: 0,
-      healthExceedancesText: '—',
+      healthExceedancesText: 'N/A',
       healthCardTone: 'neutral',
       healthSublabel: 'No verified benchmarks available',
       legalStatusHeader: 'LEGAL LIMIT COMPARISONS',
@@ -68,7 +68,7 @@ export function buildWaterReportCardViewModel(
   const locationSubtitle = `${utility.city}, ${utility.state}`
 
   // Health guideline exceedances
-  let healthExceedancesText = '—'
+  let healthExceedancesText = 'N/A'
   let healthCardTone: 'amber' | 'neutral' = 'neutral'
   let healthSublabel = summaries.length ? `${summaries.length} not assessed` : 'No data recorded'
 

@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { particlePhotographs } from '@/lib/particle-photographs'
 import { PhotographCredit } from './photograph-credit'
 import { PhotoParticleScene } from './photo-particle-scene'
+import { useParticleMotion } from '@/hooks/use-particle-motion'
 import styles from './particle-atlas.module.css'
 
 const categories = [
@@ -27,7 +28,7 @@ const categories = [
 
 export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } = {}) {
   const [selected, setSelected] = useState(0)
-  const [paused, setPaused] = useState(false)
+  const motion = useParticleMotion()
   const tabs = useRef<Array<HTMLButtonElement | null>>([])
 
   const moveSelection = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
@@ -52,7 +53,7 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
             <p className={styles.eyebrow}>Particle atlas</p>
             <h2 id="particle-atlas-title">Compare particle forms</h2>
           </div>
-          <div><p className={styles.intro}>Three forms to explore.</p><button className={styles.motionToggle} type="button" aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume motion' : 'Pause motion'}</button></div>
+          <div><p className={styles.intro}>Three forms to explore.</p><button className={styles.motionToggle} type="button" aria-pressed={motion.paused} onClick={motion.toggle}>{motion.label}</button></div>
         </div>
         <div className={styles.grid} role="tablist" aria-label="Particle form" aria-orientation="horizontal">
           {categories.map(({ id, title, description }, index) => (
@@ -71,7 +72,7 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
               onKeyDown={event => moveSelection(event, index)}
             >
               <span className={styles.scene} data-form={id}>
-                <PhotoParticleScene subject={id} selected={selected === index ? id : 'all'} paused={paused} />
+                <PhotoParticleScene subject={id} selected={selected === index ? id : 'all'} paused={motion.paused} allowReducedMotion={motion.override} />
               </span>
               <span className={styles.cardLabel}>
                 <span id={`atlas-label-${id}`} className={styles.cardTitle}>{title}</span>

@@ -167,12 +167,12 @@ export function MicroplasticsTrendSection() {
                     <FlaskConical className="h-3 w-3" />
                     Reviewed samples
                   </div>
-                  <div className="mt-1 text-lg font-bold tabular-nums text-foreground">{data.reviewedSampleCount ?? '—'}</div>
+                  <div className="mt-1 text-lg font-bold tabular-nums text-foreground">{data.reviewedSampleCount ?? 'N/A'}</div>
                 </div>
                 <div className="rounded-lg border border-border bg-muted/30 p-3">
                   <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Period</div>
                   <div className="mt-1 text-sm font-semibold text-foreground">
-                    {data.dateRange ? `${data.dateRange.from} – ${data.dateRange.to}` : '—'}
+                    {data.dateRange ? `${data.dateRange.from} – ${data.dateRange.to}` : 'N/A'}
                   </div>
                 </div>
                 <div className="rounded-lg border border-border bg-muted/30 p-3">
@@ -181,7 +181,7 @@ export function MicroplasticsTrendSection() {
                     Latest treated avg
                   </div>
                   <div className="mt-1 text-lg font-bold tabular-nums text-foreground">
-                    {data.trend.at(-1)?.treatedAvg ?? '—'} p/L
+                    {data.trend.at(-1)?.treatedAvg ?? 'N/A'} p/L
                   </div>
                 </div>
                 <div className="rounded-lg border border-border bg-muted/30 p-3">
@@ -190,13 +190,13 @@ export function MicroplasticsTrendSection() {
                     Peak measured
                   </div>
                   <div className="mt-1 text-lg font-bold tabular-nums text-foreground">
-                    {data.trend.some(t => t.maxLevel != null) ? Math.max(...data.trend.flatMap(t => t.maxLevel == null ? [] : [t.maxLevel])) : '—'} p/L
+                    {data.trend.some(t => t.maxLevel != null) ? Math.max(...data.trend.flatMap(t => t.maxLevel == null ? [] : [t.maxLevel])) : 'N/A'} p/L
                   </div>
                 </div>
               </div>
 
               <p className="mt-3 text-[11px] text-muted-foreground">
-                {data.totalSamples} total records; {data.reviewedSampleCount ?? '—'} compatible reviewed observations plotted.
+                {data.totalSamples} total records; {data.reviewedSampleCount ?? 'N/A'} compatible reviewed observations plotted.
                 Missing treatment cohorts remain gaps. These observations do not establish a national or causal treatment trend.
               </p>
             </>

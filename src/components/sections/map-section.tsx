@@ -290,7 +290,7 @@ export function MapSection() {
                 <span className="ml-1 inline-block h-3 w-4 animate-pulse rounded bg-muted-foreground/20" />
               ) : (
                 <span className={cn('ml-0.5 rounded-full px-1.5 text-[10px]', filterTier === t.id ? 'bg-white/20' : 'bg-muted')}>
-                  {t.count ?? '—'}
+                  {t.count ?? 'N/A'}
                 </span>
               )}
             </button>
@@ -343,7 +343,7 @@ export function MapSection() {
                   <span className="ml-1 inline-block h-3 w-4 animate-pulse rounded bg-muted-foreground/20" />
                 ) : (
                   <span className={cn('ml-0.5 rounded-full px-1.5 text-[10px]', selected ? 'bg-white/20' : 'bg-muted')}>
-                    {c.count ?? '—'}
+                    {c.count ?? 'N/A'}
                   </span>
                 )}
               </button>
@@ -684,8 +684,8 @@ export function MapSection() {
         {!loading && locations && (
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
             <MiniStat icon={Building2} label="Utility locations" value={mapUtilities.length.toString()} />
-            <MiniStat icon={AlertTriangle} label="Recorded legal exceedances" value={tierCounts.legal?.toString() ?? '—'} tone="warning" />
-            <MiniStat icon={ShieldCheck} label="Not assessed" value={tierCounts.unassessed?.toString() ?? '—'} />
+            <MiniStat icon={AlertTriangle} label="Recorded legal exceedances" value={tierCounts.legal?.toString() ?? 'N/A'} tone="warning" />
+            <MiniStat icon={ShieldCheck} label="Not assessed" value={tierCounts.unassessed?.toString() ?? 'N/A'} />
           </div>
         )}
 

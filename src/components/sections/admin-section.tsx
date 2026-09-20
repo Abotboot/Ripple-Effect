@@ -321,7 +321,7 @@ function ReportsAdmin() {
         {visible.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             {filter === 'pending'
-              ? '🎉 Nothing waiting for review — the queue is clear.'
+              ? '🎉 Nothing waiting for review. The queue is clear.'
               : 'No reports in this view.'}
           </p>
         ) : visible.map((r) => {
@@ -617,10 +617,10 @@ function ContaminantsAdmin() {
                   </div>
                   <div className="flex flex-wrap gap-2 text-xs">
                     <Badge variant="outline" title="Health guideline" className="border-amber-800 bg-amber-950 text-amber-200">
-                      HG: {c.healthGuideline ?? '—'} {c.healthGuidelineUnit ?? ''}
+                      HG: {c.healthGuideline ?? 'N/A'} {c.healthGuidelineUnit ?? ''}
                     </Badge>
                     <Badge variant="outline" title="Maximum contaminant level (legal limit)" className="border-rose-800 bg-rose-950 text-rose-200">
-                      MCL: {c.legalLimit ?? '—'} {c.legalLimitUnit ?? ''}
+                      MCL: {c.legalLimit ?? 'N/A'} {c.legalLimitUnit ?? ''}
                     </Badge>
                     {!c.regulated && (
                       <Badge variant="outline" className="border-slate-600 bg-slate-800 text-slate-200">Unregulated</Badge>
@@ -1291,7 +1291,7 @@ function CitizenReadingsAdmin() {
               Data queue ({readings.length})
             </CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              Review citizen readings and robot measurements together &mdash; the
+              Review citizen readings and robot measurements together. The
               badge on each row tells you whether the data came from our own
               robot or from an external source.
             </p>
@@ -1337,7 +1337,7 @@ function CitizenReadingsAdmin() {
         {visible.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             {tab === 'pending'
-              ? 'Nothing waiting for review — the queue is clear.'
+              ? 'Nothing waiting for review. The queue is clear.'
               : 'No readings in this view.'}
           </p>
         ) : visible.map((r) => {

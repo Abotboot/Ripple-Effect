@@ -65,7 +65,7 @@ export function summaryPresentation(summary: ContaminantSummary) {
   return {
     health, legal, label, tone, hasData,
     reviewed: hasData && !summary.isIllustrative && summary.isVerified !== false && isEligibleForScoring(summary),
-    valueText: hasData ? `${summary.latestLevel} ${summary.unit || '(unit unavailable)'}` : '— Not measured',
+    valueText: hasData ? `${summary.latestLevel} ${summary.unit || '(unit unavailable)'}` : 'Not measured',
   }
 }
 

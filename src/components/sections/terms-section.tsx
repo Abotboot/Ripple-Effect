@@ -74,7 +74,7 @@ export function TermsSection() {
           </div>
           <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 dark:border-amber-900/50 dark:bg-amber-950/20 space-y-2">
             <p className="font-semibold text-foreground">
-              Independent Platform — No Official Government Affiliation
+              Independent Platform: No Official Government Affiliation
             </p>
             <ul className="list-disc ml-5 space-y-1.5">
               <li>
@@ -182,7 +182,7 @@ export function TermsSection() {
             <HeartHandshake className="h-5 w-5 text-primary" />
             <h2 className="text-xl font-bold text-foreground">11. Binding Individual Arbitration &amp; Class Action Waiver</h2>
           </div>
-          <p className="font-semibold text-foreground">PLEASE READ THIS SECTION CAREFULLY — IT AFFECTS YOUR LEGAL RIGHTS.</p>
+          <p className="font-semibold text-foreground">PLEASE READ THIS SECTION CAREFULLY. IT AFFECTS YOUR LEGAL RIGHTS.</p>
           <p className="mt-2">
             <strong>Informal Dispute Resolution:</strong> Prior to filing any formal claim, you agree to contact us at <a href={`mailto:${EMAIL}`} className="text-primary hover:underline">{EMAIL}</a> and attempt in good faith to resolve the dispute informally for at least thirty (30) days.
           </p>

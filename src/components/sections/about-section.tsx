@@ -197,7 +197,7 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
             </h2>
             <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
               We are a volunteer crew building a community water database. We make
-              local water data open, searchable, and actionable &mdash; and we track
+              local water data open, searchable, and actionable, and we track
               microplastics that almost no one else does.
             </p>
           </motion.div>
@@ -223,8 +223,8 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
             <div className="mt-4 space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>
                 A crew of students and volunteers noticed something strange:
-                microplastics &mdash; tiny plastic particles that have been
-                found in freshwater around the world &mdash; weren&apos;t
+                microplastics, tiny plastic particles that have been
+                found in freshwater around the world, weren&apos;t
                 in any public water database. Not the EPA. Not the EWG. Not
                 state portals. There was no federal limit, no routine
                 monitoring requirement, and no easy way for a community to
@@ -233,7 +233,7 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
               <p>
                 So they started building. First, a low-cost microplastics
                 identifier that anyone could build and operate. Then, an
-                open database to publish what they measured &mdash; alongside
+                open database to publish what they measured alongside
                 the regulated-contaminant data already collected by federal
                 and nonprofit databases, so the full picture sits in one
                 place.
@@ -242,7 +242,7 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
                 Today, any volunteer can take the identifier, test their own
                 local freshwater, and add their readings to this database. The
                 result is a growing, community-powered map of what&apos;s
-                actually in our water &mdash; including the things almost no
+                actually in our water, including the things almost no
                 one else is tracking.
               </p>
             </div>
@@ -307,7 +307,7 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
                 <Skeleton className="h-7 w-16" />
               ) : (
                 <span className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-                  {value ?? '—'}
+                  {value ?? 'N/A'}
                 </span>
               )}
               <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -385,7 +385,7 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
                   </div>
                   <p className="text-sm text-muted-foreground">
                     <span className="font-medium text-foreground">We meet virtually every Monday at 6:30 PM.</span>{' '}
-                    Want to sit in? Email us &mdash; newcomers are always welcome.
+                    Want to sit in? Email us. Newcomers are always welcome.
                   </p>
                 </div>
               </div>

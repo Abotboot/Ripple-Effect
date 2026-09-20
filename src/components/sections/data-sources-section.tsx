@@ -219,12 +219,12 @@ export function DataSourcesSection() {
                 and the regulated contaminants already on file. EPA UCMR tells
                 us which emerging contaminants (currently PFAS and lithium) are
                 being studied by federal regulators. USGS NWIS gives us
-                source-water context &mdash; what&apos;s in the rivers, lakes, and
+                source-water context: what&apos;s in the rivers, lakes, and
                 aquifers before treatment. The WHO 2019 microplastics report is
                 our calibration baseline for measurement ranges. EPA ECHO lets
                 us show a utility&apos;s compliance history, and the CDC rounds out
                 the public-health context for private wells and outbreaks.
-                Everything we add on top &mdash; especially microplastics &mdash; is
+                Everything we add on top, especially microplastics, is
                 collected by our volunteer chapters and published here, openly.
               </p>
             </motion.div>
@@ -285,7 +285,7 @@ export function DataSourcesSection() {
             <p className="text-muted-foreground">
               <span className="font-medium text-foreground">Provenance: </span>
               We link to each source exactly as published. We do not modify or
-              re-host their data &mdash; we cross-reference it and supplement it
+              re-host their data. We cross-reference it and supplement it
               with our own microplastics measurements, which are clearly labeled
               by collection date, chapter, and method.
             </p>
