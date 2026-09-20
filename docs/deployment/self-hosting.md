@@ -7,7 +7,7 @@ Target domain: `arippleeffectinitiative.org`. The current code is a Next.js appl
 Use a host supporting a persistent Node.js process, HTTPS, environment variables, outbound PostgreSQL connectivity, and the project's full media directory. Build from the repository root:
 
 ```sh
-npm ci
+npm ci --include=dev
 npm run build
 npm start
 ```
@@ -27,7 +27,7 @@ Admin accounts and sessions live in PostgreSQL. Moving the web server does not r
 
 ### Prepared free deployment
 
-The existing Neon `Ripple` production branch contains the application's tables and is on the Free plan. Render's existing workspace has a Free web-service option. Prepared settings: service `arei-web`, Node runtime, GitHub `Abotboot/Ripple-Effect`, branch `main`, Ohio region, build `npm ci && npm run build`, start `npm start`, and `PORT=10000`. Credentials must be entered privately; they are not stored in this document.
+The existing Neon `Ripple` production branch contains the application's tables and is on the Free plan. Render service `arei-web` (`srv-danjglajnfac738rpj00`) uses Node 22, GitHub `Abotboot/Ripple-Effect`, branch `main`, Ohio region, build `npm ci --include=dev && npm run build`, start `npm start`, and `PORT=10000`. Including development dependencies explicitly keeps TypeScript and Tailwind available when `NODE_ENV=production` is set. Preview: `https://arei-web.onrender.com`. Credentials are configured privately with the user's approval; they are not stored in this document.
 
 Render Free sleeps after idle periods and shares workspace limits. At preparation the dashboard showed 750 instance hours, 5 GB bandwidth, 500 build minutes, and two included custom domains per month. This removes the Netlify dependency, not usage limits. No payment method or paid compute is needed for this configuration. Confirm deployment succeeds and the database connection works before changing DNS.
 

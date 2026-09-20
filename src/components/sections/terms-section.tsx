@@ -25,7 +25,7 @@ export function TermsSection() {
           <h2 className="text-xl font-bold text-foreground mb-3">1. Acceptance of Terms &amp; Eligibility</h2>
           <p>
             By accessing, browsing, submitting data to, or using the A Ripple Effect Initiative website
-            (&ldquo;rippleeffecter.netlify.app&rdquo;, the &ldquo;Site&rdquo;, or &ldquo;Platform&rdquo;),
+            (&ldquo;arippleeffectinitiative.org&rdquo;, the &ldquo;Site&rdquo;, or &ldquo;Platform&rdquo;),
             you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree,
             you must immediately discontinue using this Platform.
           </p>
