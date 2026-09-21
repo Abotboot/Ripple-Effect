@@ -1,5 +1,6 @@
 import type { UtilityWithStats } from './types'
 import { summaryPresentation } from './assessment-presentation'
+import { officialAssessment, officialContaminants } from './official-monitoring'
 
 export interface WaterReportCardItemViewModel {
   name: string
@@ -48,6 +49,25 @@ export function buildWaterReportCardViewModel(
       hasAssessedVerifiedData: false,
       keyFindings: [],
       shareText: 'Explore freshwater quality and contaminant data on A Ripple Effect Initiative.',
+    }
+  }
+
+  if (utility.officialMonitoring) {
+    const report = utility.officialMonitoring, assessment = officialAssessment(report)
+    const findings = officialContaminants(report)
+    return {
+      title: utility.name.length > 36 ? utility.name.slice(0, 34) + '…' : utility.name,
+      locationSubtitle: `${utility.city}, ${utility.state} · EPA UCMR 5`,
+      totalContaminantsCount: findings.length,
+      healthExceedancesText: `${report.records.length} EPA results`, healthCardTone: 'neutral',
+      healthSublabel: 'PFOA and PFOS monitoring',
+      legalStatusHeader: 'FEDERAL MCL BENCHMARK', legalStatusText: `${assessment.legalAbove} above / ${assessment.legalCompared} compared`,
+      legalCardTone: (assessment.legalAbove ?? 0) > 0 ? 'rose' : 'neutral',
+      legalSublabel: '4 ppt each; not a compliance finding', hasAssessedVerifiedData: true,
+      keyFindings: findings.map(item => ({ name: item.name, valueText: item.maximum,
+        statusText: item.above ? `${item.above} RESULTS ABOVE 4 PPT` : 'NO RESULTS ABOVE 4 PPT',
+        dotColor: item.above ? '#f43f5e' : '#94a3b8', textColor: item.above ? '#f43f5e' : '#94a3b8' })),
+      shareText: `${utility.name}: ${assessment.legalAbove} of ${assessment.legalCompared} EPA UCMR 5 PFOA/PFOS results above the 4 ppt federal MCL benchmark. Historical sample comparisons, not compliance findings. Source: ${report.sourceUrl}`,
     }
   }
 

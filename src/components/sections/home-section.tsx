@@ -14,7 +14,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { api } from '@/lib/api'
-import type { Utility, Stats, UtilityWithStats } from '@/lib/types'
+import type { Utility, Stats, UtilityWithStats, SampleAssessment } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
 import { TankHero } from '@/components/atmosphere/tank-hero'
 import { WaterNarrative } from '@/components/atmosphere/water-narrative'
@@ -323,6 +323,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                       <UtilityCard
                         utility={u}
                         score={scores?.[u.id]}
+                        assessment={stats?.mapUtilities.find(item => item.id === u.id)?.assessment}
                         assessmentState={scoresFailed ? 'error' : scores === null ? 'loading' : scores[u.id] ? 'available' : 'missing'}
                         onOpen={() => openUtility(u)}
                         loading={loadingDetail === u.id}
@@ -335,6 +336,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
                     <UtilityCard
                       utility={u}
                       score={scores?.[u.id]}
+                      assessment={stats?.mapUtilities.find(item => item.id === u.id)?.assessment}
                       assessmentState={scoresFailed ? 'error' : scores === null ? 'loading' : scores[u.id] ? 'available' : 'missing'}
                       onOpen={() => openUtility(u)}
                       loading={loadingDetail === u.id}
@@ -531,16 +533,16 @@ function StatsBar({ stats }: { stats: Stats | null }) {
     },
     {
       icon: Droplets,
-      label: 'Samples',
-      value: stats.samplesCount,
-      hint: 'stored observations',
+      label: stats.officialMonitoring?.results ? 'EPA PFAS results' : 'Samples',
+      value: stats.officialMonitoring?.results || stats.samplesCount,
+      hint: stats.officialMonitoring?.results ? `PFOA / PFOS · ${stats.officialMonitoring.utilities} utilities` : 'stored observations',
     },
     {
       icon: AlertTriangle,
-      label: 'Above health guideline',
-      value: healthCompared > 0 ? stats.sampleAssessment?.healthAbove ?? null : null,
-      hint: healthCompared > 0 ? `${healthCompared} comparable reviewed readings` : 'Not assessed: no comparable reviewed readings',
-      tone: healthCompared > 0 && (stats.sampleAssessment?.healthAbove ?? 0) > 0 ? 'warning' as const : undefined,
+      label: stats.officialMonitoring?.results ? 'Above MCL benchmark' : 'Above health guideline',
+      value: stats.officialMonitoring?.results ? stats.officialMonitoring.above : healthCompared > 0 ? stats.sampleAssessment?.healthAbove ?? null : null,
+      hint: stats.officialMonitoring?.results ? 'Historical EPA results · 4 ppt each' : healthCompared > 0 ? `${healthCompared} comparable reviewed readings` : 'No comparable reviewed readings',
+      tone: (stats.officialMonitoring?.above ?? stats.sampleAssessment?.healthAbove ?? 0) > 0 ? 'warning' as const : undefined,
     },
   ]
   return (
@@ -600,6 +602,7 @@ function AnimatedCounter({ value, className }: { value: number; className?: stri
 function UtilityCard({
   utility,
   score,
+  assessment,
   assessmentState,
   onOpen,
   loading,
@@ -608,6 +611,7 @@ function UtilityCard({
   onRequestTesting,
 }: {
   utility: Utility
+  assessment?: SampleAssessment
   score?: { score: number; grade: string; label: string; color: string; bgColor: string }
   assessmentState: 'loading' | 'available' | 'missing' | 'error'
   onOpen: () => void
@@ -631,7 +635,12 @@ function UtilityCard({
               {utility.name}
             </h3>
           </div>
-          {score ? (
+          {assessment?.status === 'assessed' ? (
+            <div className="max-w-32 shrink-0 text-right text-xs">
+              <span className={(assessment.legalAbove ?? 0) > 0 ? 'font-semibold text-rose-400' : 'text-muted-foreground'}>{(assessment.legalAbove ?? 0) > 0 ? 'Above MCL benchmark' : 'No recorded exceedance'}</span>
+              <span className="mt-1 block text-muted-foreground">{assessment.legalCompared} compared results</span>
+            </div>
+          ) : score ? (
             <div
               className={`flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl ${score.bgColor}`}
               title={`Safety score: ${score.score}/100 (${score.label})`}
@@ -673,7 +682,7 @@ function UtilityCard({
           </Badge>
         </div>
 
-        {assessmentState === 'missing' && (
+        {assessmentState === 'missing' && assessment?.status !== 'assessed' && (
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
             <span>No reviewed measurement is available for an assessment.</span>
             {onRequestTesting && (

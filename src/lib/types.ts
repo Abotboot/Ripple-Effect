@@ -120,6 +120,7 @@ export type ContaminantSummary = {
 }
 
 export type UtilityWithStats = Utility & {
+  officialMonitoring?: import('./official-monitoring').OfficialMonitoring | null
   dataStatus?: DataReadStatus
   contaminantSummaries: ContaminantSummary[]
   totalSamples: number
@@ -206,6 +207,7 @@ export type Donation = {
 }
 
 export type Stats = {
+  officialMonitoring?: { utilities: number; results: number; above: number; sourceUrl: string }
   dataStatus?: DataReadStatus
   sampleAssessment?: SampleAssessment
   microplasticsCohortCount?: number

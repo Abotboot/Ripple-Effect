@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { directoryMatchesForPwsid, getOfficialMonitoring, withOfficialIdentity } from '@/lib/epa-data'
 
 // GET /api/utilities?q=...
 // Search by ZIP code, utility name, city, state, or PWSID.
@@ -20,6 +21,7 @@ export async function GET(req: NextRequest) {
     utilities = await db.utility.findMany({
       where: {
         OR: [
+          ...directoryMatchesForPwsid(upper),
           { name: { contains: q } },
           { city: { contains: q } },
           { state: { contains: q } },
@@ -34,7 +36,11 @@ export async function GET(req: NextRequest) {
     })
   }
 
-  return NextResponse.json(utilities)
+  const results = utilities.map(withOfficialIdentity)
+  // A retired, incorrect seed ID must not find a different water supplier.
+  const exactPwsid = /^(?:[A-Z0-9]{2}\d{7}|UTAH\d{5})$/.test(q.toUpperCase())
+  return NextResponse.json(exactPwsid ? results.filter(utility => utility.pwsid === q.toUpperCase() ||
+    getOfficialMonitoring(utility)?.systems.some(system => system.pwsid === q.toUpperCase())) : results)
 }
 
 // POST /api/utilities  (admin only)

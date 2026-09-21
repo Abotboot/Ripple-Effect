@@ -231,7 +231,7 @@ export function MapSection() {
             { id: 'unassessed', label: 'Not assessed', count: tierCounts.unassessed, color: '#87919b' },
             { id: 'compared', label: 'No recorded exceedance', count: tierCounts.compared, color: '#708d9b' },
             { id: 'health', label: 'Health exceedances', count: tierCounts.health, color: '#d97706' },
-            { id: 'legal', label: 'Above legal limit', count: tierCounts.legal, color: '#e11d48' },
+            { id: 'legal', label: 'Above MCL benchmark', count: tierCounts.legal, color: '#e11d48' },
           ] as const).map((t) => (
             <button
               key={t.id}
@@ -430,16 +430,17 @@ export function MapSection() {
             { label: 'Not assessed', color: '#87919b' },
             { label: 'No recorded exceedance', color: '#708d9b' },
             { label: 'Above health guideline', color: '#d97706' },
-            { label: 'Above legal limit', color: '#e11d48' },
+            { label: 'Above MCL benchmark', color: '#e11d48' },
           ].map(item => <span key={item.label} className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />{item.label}</span>)}
         </div>
         <p className="mb-4 text-xs text-muted-foreground">Zoom in for streets and neighborhoods. Pins locate utilities, not service-area boundaries.</p>
+        {stats?.officialMonitoring && stats.officialMonitoring.utilities > 0 && <p className="mb-4 text-sm text-muted-foreground"><a href={stats.officialMonitoring.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">EPA UCMR 5</a>: PFOA/PFOS results for {stats.officialMonitoring.utilities} utilities. Colors compare historical samples with the 4 ppt federal MCL; they do not indicate regulatory violations.</p>}
 
         {/* Quick stats */}
         {!loading && locations && (
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
             <MiniStat icon={Building2} label="Utility locations" value={mapUtilities.length.toString()} />
-            <MiniStat icon={AlertTriangle} label="Recorded legal exceedances" value={tierCounts.legal?.toString() ?? 'N/A'} tone="warning" />
+            <MiniStat icon={AlertTriangle} label="Utilities above MCL benchmark" value={tierCounts.legal?.toString() ?? 'N/A'} tone="warning" />
             <MiniStat icon={ShieldCheck} label="Not assessed" value={tierCounts.unassessed?.toString() ?? 'N/A'} />
           </div>
         )}

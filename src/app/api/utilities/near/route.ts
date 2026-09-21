@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withOfficialIdentity } from '@/lib/epa-data'
 
 // GET /api/utilities/near?lat=41.88&lng=-87.63&radius=500
 // Returns utilities within `radius` miles of the given point, sorted by distance.
@@ -40,7 +41,7 @@ export async function GET(req: NextRequest) {
   const withDistance = utilities
     .map((u) => {
       const dist = haversine(lat, lng, u.latitude!, u.longitude!)
-      return { ...u, distanceMiles: +dist.toFixed(1) }
+      return { ...withOfficialIdentity(u), distanceMiles: +dist.toFixed(1) }
     })
     .filter((u) => u.distanceMiles <= radiusMiles)
     .sort((a, b) => a.distanceMiles - b.distanceMiles)

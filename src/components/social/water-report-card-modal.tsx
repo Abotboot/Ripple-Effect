@@ -179,7 +179,7 @@ export function WaterReportCardModal({
 
       ctx.font = '700 13px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = isHealthWarn ? '#fbbf24' : '#94a3b8'
-      ctx.fillText('HEALTH GUIDELINE COMPARISONS', card2X + 25, cardY + 32)
+      ctx.fillText(utility.officialMonitoring ? 'EPA MONITORING RESULTS' : 'HEALTH GUIDELINE COMPARISONS', card2X + 25, cardY + 32)
       ctx.font = vm.healthExceedancesText.length > 6 ? '900 24px system-ui, -apple-system, sans-serif' : '900 44px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = isHealthWarn ? '#fef3c7' : '#ffffff'
       ctx.fillText(vm.healthExceedancesText, card2X + 25, cardY + 74)
@@ -268,7 +268,7 @@ export function WaterReportCardModal({
 
       ctx.font = '500 14px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#64748b'
-      ctx.fillText('Untreated freshwater and microplastics database. Crowdsourced & verified.', 70, 585)
+      ctx.fillText(utility.officialMonitoring ? 'EPA UCMR 5 · Historical PFOA/PFOS monitoring' : 'Untreated freshwater and microplastics database. Crowdsourced & verified.', 70, 585)
 
       ctx.font = 'bold 15px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#38bdf8'
