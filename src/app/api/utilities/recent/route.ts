@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withOfficialIdentity } from '@/lib/epa-data'
 
 // GET /api/utilities/recent
 // Returns the most recently added utilities (by createdAt), with a small
@@ -26,7 +27,7 @@ export async function GET() {
 
   return NextResponse.json({
     utilities: recent.map((u) => ({
-      ...u,
+      ...withOfficialIdentity(u),
       sampleCount: u._count.samples,
       _count: undefined,
     })),

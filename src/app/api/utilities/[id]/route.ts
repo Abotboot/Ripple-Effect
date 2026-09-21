@@ -7,6 +7,7 @@ import { isEligibleForScoring, normalizeProvenance } from '@/lib/provenance'
 import type { UtilityWithStats } from '@/lib/types'
 import type { Sample, Contaminant } from '@prisma/client'
 import { readSamples, SAMPLE_READ_FIELDS, sampleReadHeaders } from '@/lib/sample-read'
+import { getOfficialMonitoring, withOfficialIdentity } from '@/lib/epa-data'
 
 // GET /api/utilities/[id] - returns the utility with contaminant summaries
 export async function GET(
@@ -17,6 +18,12 @@ export async function GET(
   const utility = await db.utility.findUnique({ where: { id } })
   if (!utility) {
     return NextResponse.json({ error: 'Utility not found' }, { status: 404 })
+  }
+
+  const officialMonitoring = getOfficialMonitoring(utility)
+  if (_req.nextUrl?.searchParams.get('view') === 'official') {
+    return NextResponse.json(officialMonitoring ?? { error: 'No EPA results matched' },
+      { status: officialMonitoring ? 200 : 404, headers: { 'Cache-Control': 'no-store' } })
   }
 
   const { samples, dataStatus } = await readSamples({ ...SAMPLE_READ_FIELDS, contaminant: true }, {
@@ -74,7 +81,8 @@ export async function GET(
 
   const result: UtilityWithStats = {
     dataStatus,
-    ...utility,
+    ...withOfficialIdentity(utility),
+    officialMonitoring,
     contaminantSummaries,
     totalSamples: samples.length,
     exceedances,

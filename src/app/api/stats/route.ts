@@ -3,6 +3,8 @@ import { db } from '@/lib/db'
 import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
 import { hasFiniteCoordinates, unavailableAssessment, sampleBenchmarkStatus } from '@/lib/sample-read-model'
 import type { SampleAssessment } from '@/lib/types'
+import { getOfficialMonitoring, withOfficialIdentity } from '@/lib/epa-data'
+import { officialAssessment } from '@/lib/official-monitoring'
 import {
   isEligibleForScoring,
   getProvenancePresentation,
@@ -20,7 +22,7 @@ export async function GET(req?: NextRequest) {
       orderBy: [{ state: 'asc' }, { name: 'asc' }],
     })
     const mapUtilities = utilities.filter(hasFiniteCoordinates).map(u => ({
-      ...u, assessment: unavailableAssessment(),
+      ...withOfficialIdentity(u), assessment: unavailableAssessment(),
     }))
     return NextResponse.json({ mapUtilities, locationsCount: mapUtilities.length,
       unmappedCount: utilities.length - mapUtilities.length, assessments: 'not_requested' },
@@ -205,23 +207,25 @@ export async function GET(req?: NextRequest) {
     .filter(hasFiniteCoordinates)
     .map((u) => {
       const ex = utilityExceedances.get(u.id)
+      const official = getOfficialMonitoring(u)
+      const epaAssessment = official ? officialAssessment(official) : null
       return {
         id: u.id,
         name: u.name,
         city: u.city,
         state: u.state,
-        pwsid: u.pwsid,
+        pwsid: withOfficialIdentity(u).pwsid,
         latitude: u.latitude,
         longitude: u.longitude,
         population: u.population,
-        assessment: assess({ sampleCount: ex?.sampleCount ?? 0, eligibleSampleCount: ex?.eligibleSampleCount ?? 0,
+        assessment: epaAssessment ?? assess({ sampleCount: ex?.sampleCount ?? 0, eligibleSampleCount: ex?.eligibleSampleCount ?? 0,
           healthCompared: ex?.healthCompared ?? 0, legalCompared: ex?.legalCompared ?? 0,
           health: ex?.health ?? 0, legal: ex?.legal ?? 0 }),
-        healthExceedances: ex?.health ?? 0,
-        legalExceedances: ex?.legal ?? 0,
+        healthExceedances: official ? 0 : ex?.health ?? 0,
+        legalExceedances: epaAssessment?.legalAbove ?? ex?.legal ?? 0,
         contaminantExceedances: {
           microplastics: ex?.microplastics ?? false,
-          pfas: ex?.pfas ?? false,
+          pfas: official ? (epaAssessment?.legalAbove ?? 0) > 0 : ex?.pfas ?? false,
           lead: ex?.lead ?? false,
           dbp: ex?.dbp ?? false,
         },
@@ -255,6 +259,11 @@ export async function GET(req?: NextRequest) {
   }
 
   return NextResponse.json({
+    officialMonitoring: utilities.reduce((total, utility) => {
+      const report = getOfficialMonitoring(utility)
+      if (report) { total.utilities++; total.results += report.records.length; total.above += officialAssessment(report).legalAbove ?? 0; total.sourceUrl = report.sourceUrl }
+      return total
+    }, { utilities: 0, results: 0, above: 0, sourceUrl: '' }),
     dataStatus,
     sampleAssessment: assess({ sampleCount: samples.length, eligibleSampleCount, healthCompared, legalCompared,
       health: healthExceedances, legal: legalExceedances }),

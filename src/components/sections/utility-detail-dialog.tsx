@@ -20,6 +20,8 @@ import { SourceBadge } from '@/components/source-badge'
 import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
 import { normalizeToBenchmarkUnit } from '@/lib/provenance'
 import { hasPublishedScore, summaryPresentation, utilityComparisons } from '@/lib/assessment-presentation'
+import { OfficialMonitoringPanel } from './official-monitoring-panel'
+import { officialResultText, officialResultStatus } from '@/lib/official-monitoring'
 
 function escapeHtml(str: unknown): string {
   if (str == null) return ''
@@ -131,7 +133,7 @@ export function UtilityDetailDialog({
                   href={`/api/export?format=csv&table=samples`}
                   onClick={(e) => {
                     e.preventDefault()
-                    window.open(`/api/samples?utilityId=${utility.id}&limit=5000`, '_blank')
+                    window.open(utility.officialMonitoring ? `/api/utilities/${utility.id}?view=official` : `/api/samples?utilityId=${utility.id}&limit=5000`, '_blank')
                   }}
                   aria-label="Download samples"
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
@@ -144,6 +146,13 @@ export function UtilityDetailDialog({
                     // Open a printable report in a new window
                     const w = window.open('', '_blank', 'width=800,height=900')
                     if (!w) return
+                    if (utility.officialMonitoring) {
+                      const report = utility.officialMonitoring
+                      w.document.write(`<!doctype html><html><head><title>${escapeHtml(utility.name)} | EPA monitoring</title><style>body{font:14px system-ui;margin:32px}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:8px;border-bottom:1px solid #ccc}</style></head><body><h1>${escapeHtml(utility.name)}</h1><h2>EPA UCMR 5: PFOA and PFOS</h2><p>${report.records.length} results. Federal MCL benchmark: 4 ppt each. Historical sample comparisons, not compliance findings. &lt; means below the laboratory reporting limit.</p><p>${report.systems.map(s => `${escapeHtml(s.name)} (${escapeHtml(s.pwsid)})`).join('<br>')}</p><p>Source: <a href="${escapeHtml(report.sourceUrl)}">EPA UCMR 5, ${escapeHtml(report.release)}</a></p><table><thead><tr><th>Date / sample</th><th>Compound</th><th>Result</th><th>Comparison</th></tr></thead><tbody>${report.records.map(r => `<tr><td>${escapeHtml(r.date)}<br>${escapeHtml(r.pwsid)} / ${escapeHtml(r.sampleId)} / ${escapeHtml(r.samplePointId)}</td><td>${escapeHtml(r.contaminant)}</td><td>${escapeHtml(officialResultText(r))}</td><td>${officialResultStatus(r) === 'above' ? 'Above MCL benchmark' : officialResultStatus(r) === 'not_above' ? 'Not above MCL benchmark' : 'Comparison unavailable'}</td></tr>`).join('')}</tbody></table></body></html>`)
+                      w.document.close()
+                      setTimeout(() => w.print(), 500)
+                      return
+                    }
                     const score = utility.safetyScore
                     const name = escapeHtml(utility.name)
                     const city = escapeHtml(utility.city)
@@ -208,7 +217,7 @@ Learn more at https://arippleeffectinitiative.org
               </div>
               <div className="flex items-center gap-1.5 text-xs font-medium text-white/80">
                 <MapPin className="h-3 w-3" />
-                {utility.city}, {utility.state} · PWSID {utility.pwsid}
+                {utility.city}, {utility.state} · PWSID {utility.officialMonitoring?.systems.map(system => system.pwsid).join(', ') ?? utility.pwsid}
               </div>
               <h2 id={headingId} style={{ color: '#e5efeb' }} className="mt-1.5 line-clamp-3 text-lg font-bold leading-tight sm:text-2xl">
                 {utility.name}
@@ -230,6 +239,9 @@ Learn more at https://arippleeffectinitiative.org
             {/* Body */}
             <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain" tabIndex={0} role="region" aria-label="Utility measurements" data-testid="utility-detail-scroll">
               <div className="space-y-6 p-5 sm:p-7 pb-[max(48px,env(safe-area-inset-bottom))]">
+                {utility.officialMonitoring && <OfficialMonitoringPanel report={utility.officialMonitoring} />}
+                <details open={utility.officialMonitoring ? undefined : true} className="space-y-6">
+                <summary className={utility.officialMonitoring ? 'cursor-pointer text-sm text-muted-foreground' : 'hidden'}>Other historical records</summary>
                 {/* Summary stats */}
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   <StatTile
@@ -308,6 +320,7 @@ Learn more at https://arippleeffectinitiative.org
                   Benchmarks are displayed only when supplied with the record. A missing
                   limit is not a finding that a contaminant is unregulated or safe.
                 </p>
+                </details>
               </div>
             </div>
           </motion.div>
