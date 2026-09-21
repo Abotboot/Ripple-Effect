@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { sampleImportFields } from '@/lib/sample-import'
 
 // POST /api/import
 // Body: { table: 'utilities'|'contaminants'|'samples'|'reports', format: 'csv'|'json', content: string }
@@ -132,6 +133,7 @@ async function importContaminant(r: Record<string, unknown>) {
 }
 
 async function importSample(r: Record<string, unknown>) {
+  const measurement = sampleImportFields(r)
   let utilityId = r.utilityId ? String(r.utilityId) : null
   let contaminantId = r.contaminantId ? String(r.contaminantId) : null
 
@@ -151,10 +153,7 @@ async function importSample(r: Record<string, unknown>) {
     data: {
       utilityId,
       contaminantId,
-      level: Number(r.level),
-      unit: String(r.unit ?? 'ppb'),
-      sampleDate: r.sampleDate ? new Date(String(r.sampleDate)) : new Date(),
-      source: String(r.source ?? 'Utility CCR'),
+      ...measurement,
       treatmentStatus: String(r.treatmentStatus ?? 'Treated'),
       location: r.location ? String(r.location) : null,
       notes: r.notes ? String(r.notes) : null,
