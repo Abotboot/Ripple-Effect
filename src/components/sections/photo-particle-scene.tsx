@@ -96,6 +96,7 @@ export function PhotoParticleScene({ subject = 'all', selected = 'all', paused =
   const displayed = hero ? scatter : particles.filter(particle => subject === 'all' || subject === particle.id)
   return <span ref={root} className={styles.scene} data-testid={hero ? 'hero-cutout-scene' : 'photo-cutout-scene'} data-subject={subject} data-dense={hero} data-motion={visible && !paused} data-motion-override={allowReducedMotion}
     role={hero ? 'img' : undefined} aria-label={hero ? 'Dense field of tiny particles at varying depths' : undefined}
+    onDragStart={event => event.preventDefault()}
     onPointerDown={event => { pointerStart.current = { x: event.clientX, y: event.clientY } }}
     onPointerCancel={() => { pointerStart.current = null }}
     onPointerUp={event => {
@@ -109,7 +110,7 @@ export function PhotoParticleScene({ subject = 'all', selected = 'all', paused =
     >
     <span className={styles.light} aria-hidden="true" />
     {displayed.map((particle, index) => {
-      const content = <span className={styles.reaction}><span className={styles.float}><Image src={`/media/ripple/photo-cutouts/${particle.file}.webp`} alt={hero ? '' : particle.alt} width={960} height={960} sizes={hero ? '64px' : '(max-width: 699px) 28vw, 360px'} loading={hero ? 'eager' : 'lazy'} unoptimized data-testid={hero && index === 1 ? 'hero-artwork' : undefined} onError={() => setFailed(true)} /></span></span>
+      const content = <span className={styles.reaction}><span className={styles.float}><Image src={`/media/ripple/photo-cutouts/${particle.file}.webp`} alt={hero ? '' : particle.alt} width={960} height={960} sizes={hero ? '64px' : '(max-width: 699px) 28vw, 360px'} loading={hero ? 'eager' : 'lazy'} draggable={false} unoptimized data-testid={hero && index === 1 ? 'hero-artwork' : undefined} onError={() => setFailed(true)} /></span></span>
       const placement = { '--x': `${particle.x}%`, '--y': `${particle.y}%`, '--size': `${particle.size}%`, '--angle': `${particle.angle}deg`, '--duration': `${9 + index % 5}s`, '--delay': `${-index * 1.7}s`, '--opacity': 'opacity' in particle ? particle.opacity : 1, '--blur': `${'blur' in particle ? particle.blur : 0}px` } as CSSProperties
       const properties = { className: styles.particle, style: placement, 'data-particle': particle.file, 'data-form': particle.id, 'data-primary': index === 0, 'data-dimmed': selected !== 'all' && selected !== particle.id, 'data-highlighted': selected === particle.id }
       return onSelect && !hero
