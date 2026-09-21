@@ -4,14 +4,9 @@ import './editorial-pages.css'
 
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { geoAlbersUsa } from 'd3-geo'
-import {
-  ComposableMap,
-  Geographies,
-  Geography,
-  Marker,
-  ZoomableGroup,
-} from 'react-simple-maps'
+import dynamic from 'next/dynamic'
+
+const UtilityStreetMap = dynamic(() => import('./utility-street-map'), { ssr: false, loading: () => <Skeleton className="h-[500px] sm:h-[600px] w-full" /> })
 import {
   Map as MapIcon, MapPin, Loader2, AlertTriangle, ShieldCheck, Building2,
   Navigation, Search, X, RotateCcw,
@@ -28,16 +23,11 @@ import type { Stats, UtilityWithStats, Utility } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
 import { cn } from '@/lib/utils'
 import { assessmentKind, hasFiniteCoordinates, unavailableAssessment } from '@/lib/sample-read-model'
+import { utilityMapTier as tierFor } from '@/lib/map-presentation'
 
 type MapUtility = Pick<Stats['mapUtilities'][number], 'id' | 'name' | 'city' | 'state' | 'pwsid' | 'latitude' | 'longitude' | 'population' | 'assessment'> &
   Partial<Pick<Stats['mapUtilities'][number], 'contaminantExceedances'>>
 
-// US states TopoJSON from CDN (loaded once, cached by the browser).
-// This is the standard us-atlas simplified states-10m dataset (~100KB).
-const US_STATES_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json'
-// The composite US projection clips valid coordinates elsewhere in the world.
-// Keep those records in the list, but never pass a null projection into Marker.
-const isOnUSMap = geoAlbersUsa()
 
 // Major US cities for the "search near me" quick-pick
 const QUICK_CITIES = [
@@ -49,20 +39,6 @@ const QUICK_CITIES = [
   { name: 'Seattle, WA', lat: 47.6062, lng: -122.3321 },
 ]
 
-function tierFor(u: MapUtility): { label: string; color: string; ring: string } {
-  const kind = assessmentKind(u.assessment)
-  if (kind === 'legal') {
-    return { label: 'Records above legal limit', color: '#e11d48', ring: '#fecdd3' }
-  }
-  if (kind === 'health') {
-    return { label: 'Records above health guideline', color: '#d97706', ring: '#fde68a' }
-  }
-  if (kind === 'compared') {
-    return { label: 'No exceedance in compared records', color: '#708d9b', ring: '#cbd5e1' }
-  }
-  return { label: kind === 'unavailable' ? 'Comparisons unavailable' : 'Not assessed', color: '#87919b', ring: '#cbd5e1' }
-}
-
 export function MapSection() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [locations, setLocations] = useState<MapUtility[] | null>(null)
@@ -72,14 +48,9 @@ export function MapSection() {
   const [assessmentLoading, setAssessmentLoading] = useState(true)
   const [detailError, setDetailError] = useState<MapUtility | (Utility & { distanceMiles?: number }) | null>(null)
   const [reload, setReload] = useState(0)
-  const [geography, setGeography] = useState<Record<string, unknown> | null>(null)
-  const [geographyError, setGeographyError] = useState(false)
-  const [geographyReload, setGeographyReload] = useState(0)
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<UtilityWithStats | null>(null)
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null)
-  const [hovered, setHovered] = useState<MapUtility | null>(null)
-  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
   const [filterTier, setFilterTier] = useState<'all' | 'legal' | 'health' | 'unassessed' | 'compared'>('all')
   // Contaminant filter chips (separate from tier filter; ANDed together)
   const [contaminantFilter, setContaminantFilter] = useState<'all' | 'microplastics' | 'pfas' | 'lead' | 'dbp'>('all')
@@ -94,7 +65,7 @@ export function MapSection() {
   const detailRequest = useRef(0)
   const retryData = () => {
     setLoading(true); setAssessmentLoading(true); setMapError(null); setAssessmentError(null)
-    setLocations(null); setStats(null); setHovered(null)
+    setLocations(null); setStats(null)
     setFilterTier('all'); setContaminantFilter('all')
     setReload(value => value + 1)
   }
@@ -120,16 +91,6 @@ export function MapSection() {
     return () => { active = false; controller.abort() }
   }, [reload])
 
-  useEffect(() => {
-    const controller = new AbortController()
-    fetch(US_STATES_URL, { signal: controller.signal }).then(async response => {
-      if (!response.ok) throw new Error('Map background request failed')
-      const data = await response.json()
-      if (data.type !== 'Topology' || !data.objects?.states) throw new Error('Invalid map background')
-      if (!controller.signal.aborted) setGeography(data)
-    }).catch(() => { if (!controller.signal.aborted) setGeographyError(true) })
-    return () => controller.abort()
-  }, [geographyReload])
 
   const mapUtilities = useMemo(() => {
     const assessments = new Map(stats?.mapUtilities.map(u => [u.id, u]) ?? [])
@@ -394,6 +355,10 @@ export function MapSection() {
                   }}
                   className="h-8 rounded-md border border-border bg-card px-2 text-xs"
                 >
+                  <option value={1}>1 mi</option>
+                  <option value={5}>5 mi</option>
+                  <option value={10}>10 mi</option>
+                  <option value={25}>25 mi</option>
                   <option value={50}>50 mi</option>
                   <option value={100}>100 mi</option>
                   <option value={300}>300 mi</option>
@@ -443,10 +408,6 @@ export function MapSection() {
           </CardContent>
         </Card>
 
-        {geographyError && <div role="alert" className="mb-4 flex flex-wrap items-center gap-3 text-sm">
-          <span>The map background could not load. Available locations remain in the list below.</span>
-          <Button variant="outline" size="sm" onClick={() => { setGeographyError(false); setGeographyReload(value => value + 1) }}>Retry map background</Button>
-        </div>}
         {!loading && locations && mapUtilities.length === 0 && <p role="status" className="mb-4 rounded-lg border border-border p-4">
           No utility locations with usable coordinates were returned.{unmappedCount > 0 ? ` ${unmappedCount} utility records have no usable coordinates.` : ''}
         </p>}
@@ -456,229 +417,23 @@ export function MapSection() {
         </div>}
         {!loading && locations && assessmentLoading && <p role="status" className="mb-3 text-sm text-muted-foreground">Locations loaded. Checking available sample comparisons…</p>}
 
-        {/* The Map */}
         <Card className="overflow-hidden shadow-lg">
           <CardContent className="p-0">
-            {loading ? (
-              <Skeleton className="h-[500px] sm:h-[600px] w-full rounded-none" />
-            ) : (
-              <div
-                className="relative h-[500px] sm:h-[600px] w-full bg-gradient-to-b from-sky-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800"
-                onMouseMove={(e) => {
-                  if (hovered) setTooltipPos({ x: e.clientX, y: e.clientY })
-                }}
-              >
-                <ComposableMap
-                  projection="geoAlbersUsa"
-                  projectionConfig={{ scale: 1000 }}
-                  width={980}
-                  height={580}
-                  style={{ width: '100%', height: '100%' }}
-                >
-                  <ZoomableGroup zoom={1} minZoom={0.8} maxZoom={4}>
-                    {geography && <Geographies geography={geography}>
-                      {({ geographies }: { geographies: Array<{ rsmKey: string; properties: { name: string } }> }) =>
-                        geographies.map((geo) => (
-                          <Geography
-                            key={geo.rsmKey}
-                            geography={geo}
-                            fill="oklch(0.93 0.02 200)"
-                            stroke="oklch(0.7 0.05 195)"
-                            strokeWidth={0.5}
-                            style={{
-                              default: { outline: 'none', transition: 'fill 0.15s' },
-                              hover: {
-                                fill: 'oklch(0.85 0.05 195)',
-                                outline: 'none',
-                                cursor: 'pointer',
-                              },
-                              pressed: { outline: 'none' },
-                            }}
-                          />
-                        ))
-                      }
-                    </Geographies>}
-
-                    {/* Radius circle (visual indicator) */}
-                    {radiusMode && radiusCenter && (
-                      <Marker
-                        coordinates={[radiusCenter.lng, radiusCenter.lat]}
-                        key={`radius-${radiusCenter.lat}-${radiusCenter.lng}`}
-                      >
-                        <circle
-                          r={Math.min(radiusMiles * 0.8, 120)}
-                          fill="oklch(0.55 0.13 195 / 0.08)"
-                          stroke="oklch(0.55 0.13 195 / 0.5)"
-                          strokeWidth={1.5}
-                          strokeDasharray="4 3"
-                        />
-                        <circle r={4} fill="oklch(0.55 0.13 195)" />
-                      </Marker>
-                    )}
-
-                    {/* Utility markers */}
-                    {displayedUtilities.map((u, i) => {
-                      if (!isOnUSMap([u.longitude, u.latitude])) return null
-                      const tier = tierFor(u)
-                      const isHovered = hovered?.id === u.id
-                      const isLoading = loadingDetail === u.id
-                      const radius = Math.max(5, Math.min(13, 5 + Math.log2(Math.max(u.population, 100000) / 100000) * 1.4))
-                      const isNearby = nearby?.find((n) => n.id === u.id)
-                      return (
-                        <Marker
-                          key={u.id}
-                          data-testid="utility-map-marker"
-                          data-assessment={assessmentKind(u.assessment)}
-                          coordinates={[u.longitude, u.latitude]}
-                          onMouseEnter={() => setHovered(u)}
-                          onMouseLeave={() => { setHovered(null); setTooltipPos(null) }}
-                          onClick={() => openUtility(u)}
-                          tabIndex={0}
-                          role="button"
-                          aria-label={`${u.name}: ${tier.label}`}
-                          onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openUtility(u) } }}
-                          style={{ default: { cursor: 'pointer' }, hover: { cursor: 'pointer' } }}
-                        >
-                          {/* Pulse ring for legal exceedances */}
-                          {(u.assessment?.legalAbove ?? 0) > 0 && (
-                            <circle
-                              r={radius + 3}
-                              fill="none"
-                              stroke={tier.color}
-                              strokeWidth={1.5}
-                              opacity={0.6}
-                            >
-                              <animate
-                                attributeName="r"
-                                values={`${radius + 3};${radius + 10};${radius + 3}`}
-                                dur="2.5s"
-                                repeatCount="indefinite"
-                              />
-                              <animate
-                                attributeName="opacity"
-                                values="0.6;0;0.6"
-                                dur="2.5s"
-                                repeatCount="indefinite"
-                              />
-                            </circle>
-                          )}
-                          {/* Outer ring */}
-                          <circle
-                            r={radius + 2}
-                            fill={tier.ring}
-                            opacity={isHovered ? 1 : 0.7}
-                          />
-                          {/* Main dot */}
-                          <motion.circle
-                            r={radius}
-                            fill={tier.color}
-                            stroke="white"
-                            strokeWidth={1.5}
-                            initial={{ scale: 0, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: Math.min(i * 0.015, 0.3), type: 'spring', stiffness: 200 }}
-                            style={{ transformOrigin: 'center', filter: isHovered ? 'brightness(1.15)' : 'none' }}
-                          />
-                          {/* Loading spinner */}
-                          {isLoading && (
-                            <circle
-                              r={radius + 6}
-                              fill="none"
-                              stroke="oklch(0.55 0.13 195)"
-                              strokeWidth={2}
-                              strokeDasharray="20 10"
-                            >
-                              <animateTransform
-                                attributeName="transform"
-                                type="rotate"
-                                from="0"
-                                to="360"
-                                dur="1s"
-                                repeatCount="indefinite"
-                              />
-                            </circle>
-                          )}
-                          {/* Distance label in radius mode */}
-                          {isNearby && (
-                            <text
-                              y={radius + 14}
-                              textAnchor="middle"
-                              fontSize={9}
-                              fontWeight={600}
-                              fill="oklch(0.3 0.05 195)"
-                              style={{ pointerEvents: 'none', paintOrder: 'stroke' }}
-                              stroke="white"
-                              strokeWidth={2}
-                            >
-                              {isNearby.distanceMiles} mi
-                            </text>
-                          )}
-                        </Marker>
-                      )
-                    })}
-                  </ZoomableGroup>
-                </ComposableMap>
-
-                {/* Floating tooltip */}
-                {hovered && tooltipPos && (
-                  <div
-                    className="pointer-events-none fixed z-50 max-w-[260px] rounded-lg border border-border bg-card/95 p-3 shadow-xl backdrop-blur"
-                    style={{
-                      left: Math.min(tooltipPos.x + 14, (typeof window !== 'undefined' ? window.innerWidth : 9999) - 280),
-                      top: tooltipPos.y + 14,
-                    }}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                    <div className="text-sm font-semibold text-foreground">{hovered.name}</div>
-                  </div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">
-                      {hovered.city}, {hovered.state}
-                    </div>
-                    <div className="mt-1 text-xs text-muted-foreground">{tierFor(hovered).label}</div>
-                    <div className="mt-1.5 flex flex-wrap gap-1.5 text-[10px]">
-                      {hovered.assessment?.healthCompared != null && hovered.assessment.healthCompared > 0 && (
-                        <span className="rounded bg-amber-100 px-1.5 py-0.5 font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
-                          {hovered.assessment.healthAbove} above / {hovered.assessment.healthCompared} health comparisons
-                        </span>
-                      )}
-                      {hovered.assessment?.legalCompared != null && hovered.assessment.legalCompared > 0 && (
-                        <span className="rounded bg-rose-100 px-1.5 py-0.5 font-medium text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
-                          {hovered.assessment.legalAbove} above / {hovered.assessment.legalCompared} legal comparisons
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-1.5 text-[10px] text-primary">Click to view details →</div>
-                  </div>
-                )}
-
-                {/* Legend (bottom-left) */}
-                <div className="absolute bottom-3 left-3 rounded-lg border border-border/60 bg-card/90 p-3 backdrop-blur">
-                  <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    Recorded comparisons
-                  </div>
-                  <div className="space-y-1">
-                    {[
-                      { label: 'Unassessed / unavailable', color: '#87919b' },
-                      { label: 'No exceedance in compared records', color: '#708d9b' },
-                      { label: 'Health exceedances', color: '#d97706' },
-                      { label: 'Above legal limit', color: '#e11d48' },
-                    ].map((l) => (
-                      <div key={l.label} className="flex items-center gap-2 text-[11px]">
-                        <span className="h-2.5 w-2.5 rounded-full ring-2 ring-white" style={{ backgroundColor: l.color }} />
-                        <span className="text-foreground">{l.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Zoom hint (bottom-right) */}
-                <div className="absolute bottom-3 right-3 rounded-md border border-border/60 bg-card/90 px-2.5 py-1 text-[10px] text-muted-foreground backdrop-blur">
-                  Scroll to zoom · Click dot for details
-                </div>
-              </div>
-            )}
+            {loading ? <Skeleton className="h-[500px] sm:h-[600px] w-full rounded-none" /> :
+              <UtilityStreetMap utilities={displayedUtilities} center={radiusMode ? radiusCenter : null}
+                radiusMiles={radiusMiles} loadingId={loadingDetail}
+                onSelect={id => { const utility = displayedUtilities.find(item => item.id === id); if (utility) void openUtility(utility) }} />}
           </CardContent>
         </Card>
+        <div className="my-3 flex flex-wrap gap-x-5 gap-y-2 text-xs" aria-label="Map legend">
+          {[
+            { label: 'Not assessed', color: '#87919b' },
+            { label: 'No recorded exceedance', color: '#708d9b' },
+            { label: 'Above health guideline', color: '#d97706' },
+            { label: 'Above legal limit', color: '#e11d48' },
+          ].map(item => <span key={item.label} className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />{item.label}</span>)}
+        </div>
+        <p className="mb-4 text-xs text-muted-foreground">Zoom in for streets and neighborhoods. Pins locate utilities, not service-area boundaries.</p>
 
         {/* Quick stats */}
         {!loading && locations && (
