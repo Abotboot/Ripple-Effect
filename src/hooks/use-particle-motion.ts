@@ -1,24 +1,11 @@
 'use client'
 
-import { useState, useSyncExternalStore } from 'react'
-
-const query = '(prefers-reduced-motion: reduce)'
-const snapshot = () => matchMedia(query).matches
-const serverSnapshot = () => false
-function subscribe(notify: () => void) {
-  const preference = matchMedia(query)
-  preference.addEventListener('change', notify)
-  return () => preference.removeEventListener('change', notify)
-}
+import { useState } from 'react'
 
 export function useParticleMotion() {
-  const reduced = useSyncExternalStore(subscribe, snapshot, serverSnapshot)
-  const [override, setOverride] = useState(false)
-  const [manualPause, setManualPause] = useState(false)
-  const paused = manualPause || reduced && !override
-  const toggle = () => {
-    if (reduced && !override) { setOverride(true); setManualPause(false) }
-    else setManualPause(value => !value)
-  }
-  return { paused, override, toggle, label: reduced && !override ? 'Enable motion' : paused ? 'Resume motion' : 'Pause motion' }
+  const [paused, setPaused] = useState(false)
+  const toggle = () => setPaused(value => !value)
+  // Particle motion starts on. Pause is an explicit local choice, independent
+  // of the browser preference used by the rest of the site's animations.
+  return { paused, override: true, toggle, label: paused ? 'Resume motion' : 'Pause motion' }
 }

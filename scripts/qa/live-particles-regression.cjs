@@ -21,7 +21,8 @@ async function response(page, scene) {
     const browser = await loadPlaywright()[engine].launch({ headless: true, ...(engine === 'chromium' ? { channel: 'chrome' } : process.env.PLAYWRIGHT_WEBKIT_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_WEBKIT_EXECUTABLE } : {}) })
     try {
       for (const reducedMotion of ['no-preference', 'reduce']) {
-        const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion })
+        const width = engine === 'chromium' ? 3440 : 1920
+        const context = await browser.newContext({ viewport: { width, height: 1080 }, reducedMotion })
         await context.route('**/api/**', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }))
         const page = await context.newPage()
         const media = []
@@ -32,11 +33,19 @@ async function response(page, scene) {
         assert.equal(await page.locator('body').evaluate(node => getComputedStyle(node).position === 'fixed'), false)
         assert.equal(await page.locator('body').innerText().then(text => text.includes('—')), false)
         const hero = page.getByTestId('hero-cutout-scene')
-        if (reducedMotion === 'reduce') {
-          assert.equal(await hero.getAttribute('data-motion'), 'false')
-          await page.getByTestId('field-pause').click()
-        }
+        await page.waitForFunction(() => document.querySelector('[data-testid="hero-cutout-scene"]')?.getAttribute('data-motion') === 'true')
+        assert.equal(await page.getByTestId('field-pause').innerText(), 'Pause motion')
         assert.equal(await response(page, hero), true, `${engine}: hero reacts (${reducedMotion})`)
+        const image = hero.locator('img').first()
+        assert.equal(await image.getAttribute('draggable'), 'false')
+        assert.equal(await image.evaluate(node => getComputedStyle(node).userSelect || getComputedStyle(node).webkitUserSelect), 'none')
+        await page.evaluate(() => { window.__particleDrags = 0; document.addEventListener('dragstart', () => window.__particleDrags++) })
+        const bounds = await hero.boundingBox()
+        await page.mouse.move(bounds.x + bounds.width * .7, bounds.y + bounds.height * .4)
+        await page.mouse.down()
+        await page.mouse.move(bounds.x + bounds.width * .85, bounds.y + bounds.height * .6, { steps: 15 })
+        await page.mouse.up()
+        assert.equal(await page.evaluate(() => window.__particleDrags), 0)
         // Search inputs overlay the scene, but pointer movement must still reach it.
         const input = page.locator('.tank-search input').first()
         await input.hover()
@@ -44,7 +53,6 @@ async function response(page, scene) {
         assert.equal(await hero.locator('[data-particle]').evaluateAll(nodes => nodes.some(node => Math.abs(parseFloat(node.style.getPropertyValue('--push-x'))) > .1)), true)
         const atlas = page.getByTestId('particle-atlas')
         await atlas.scrollIntoViewIfNeeded()
-        if (reducedMotion === 'reduce') await atlas.getByRole('button', { name: 'Enable motion', exact: true }).click()
         for (const id of ['fibers', 'fragments', 'granules']) {
           const card = page.locator(`#atlas-tab-${id}`)
           assert.equal(await response(page, card.getByTestId('photo-cutout-scene')), true, `${engine}: ${id} reacts (${reducedMotion})`)
@@ -53,7 +61,7 @@ async function response(page, scene) {
         }
         await atlas.getByRole('button', { name: 'Pause motion', exact: true }).click()
         assert.equal(await atlas.locator('[data-motion=true]').count(), 0)
-        checks.push(`${engine} ${reducedMotion}: immediate homepage, no video, hero/search/all cards respond, selection and pause work`)
+        checks.push(`${engine} ${width}px ${reducedMotion}: starts moving, no native image drag/selection, hero/search/all cards respond, selection and pause work`)
         await context.close()
       }
       const context = await browser.newContext({ viewport: { width: 414, height: 896 }, isMobile: true, hasTouch: true })
