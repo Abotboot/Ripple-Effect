@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
-import { checkRateLimit } from '@/lib/rate-limit'
+import { normalizeContactEmail } from '@/lib/reading-notes'
+import { clientAddress, consumeThrottles, HOUR, MINUTE } from '@/lib/durable-throttle'
 
 // GET /api/donations - list all donations (admin only)
 export async function GET() {
@@ -25,12 +26,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Submission rejected.' }, { status: 400 })
   }
 
-  // Rate limiting by client IP (max 5 submissions per 10 minutes)
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown'
-  if (!checkRateLimit(`donation:${ip}`, { windowMs: 10 * 60 * 1000, max: 5 })) {
+  const limit = await consumeThrottles([
+    ['donations:client', clientAddress(req), { windowMs: 10 * MINUTE, max: 5 }],
+    ['donations:site', 'all', { windowMs: HOUR, max: 60 }],
+  ])
+  if (!limit.allowed) {
     return NextResponse.json(
-      { error: 'Too many submissions. Please wait 10 minutes before submitting again.' },
-      { status: 429 }
+      { error: 'Too many submissions right now. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSec) } }
     )
   }
 
@@ -50,10 +53,18 @@ export async function POST(req: NextRequest) {
   ]
   const tier = tiers.find(([min]) => amount >= min)?.[1] ?? 'Supporter'
 
+  const email = body.email ? normalizeContactEmail(body.email) : null
+  if (body.email && !email) {
+    return NextResponse.json({ error: 'Please enter a valid email.' }, { status: 400 })
+  }
+  if (amount > 1_000_000) {
+    return NextResponse.json({ error: 'Please enter a valid amount.' }, { status: 400 })
+  }
+
   const created = await db.donation.create({
     data: {
       name: String(body.name).trim().slice(0, 120),
-      email: body.email ? String(body.email).trim().slice(0, 200) : null,
+      email,
       amount,
       tier,
       message: body.message ? String(body.message).trim().slice(0, 1000) : null,
@@ -61,5 +72,5 @@ export async function POST(req: NextRequest) {
       status: 'pledged',
     },
   })
-  return NextResponse.json(created, { status: 201 })
+  return NextResponse.json({ id: created.id, amount: created.amount, tier: created.tier, status: created.status }, { status: 201 })
 }

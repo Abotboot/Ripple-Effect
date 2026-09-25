@@ -1,8 +1,8 @@
 .utility-street-map { position: relative; height: 500px; isolation: isolate; }
-.utility-street-canvas { height: 100%; width: 100%; background: #d8e2df; font-family: inherit; }
+.utility-street-canvas { height: 100%; width: 100%; background: #0b1719; font-family: inherit; }
 .utility-street-map .leaflet-control-zoom a { width: 44px; height: 44px; line-height: 44px; }
-.utility-street-map .leaflet-control-attribution { max-width: calc(100% - 20px); font-size: 11px; color: #273a35; background: #fffffff0; }
-.utility-street-map .leaflet-control-attribution a { color: #075c58; }
+.utility-street-map .leaflet-control-attribution { max-width: calc(100% - 20px); font-size: 11px; }
+
 .utility-street-pin { display: grid; place-items: center; background: transparent; border: 0; }
 .utility-street-dot { display: block; width: 17px; height: 17px; border: 2px solid white; border-radius: 50%; box-shadow: 0 1px 5px #0008; }
 .utility-street-pin:focus-visible { outline: 3px solid #00695c; outline-offset: 2px; border-radius: 50%; }

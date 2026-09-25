@@ -1,52 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { verifyPassword, needsRehash, hashPassword, createSession, SESSION_COOKIE_NAME, SESSION_COOKIE_MAX_AGE } from '@/lib/auth'
+import { verifyPassword, hashPassword, createSession, SESSION_COOKIE_NAME, SESSION_COOKIE_MAX_AGE } from '@/lib/auth'
+import { clearThrottle, clientAddress, consumeThrottle, HOUR, MINUTE, throttleBlocked } from '@/lib/durable-throttle'
 
-// Simple in-memory rate limiting for login attempts.
-// Tracks attempts per IP address. Max 5 attempts per 15 minutes.
-// In production, use Redis or a proper rate-limiter, but this is
-// sufficient for a small volunteer site and prevents brute-force attacks.
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000 // 15 minutes
-const RATE_LIMIT_MAX = 5
-const attemptMap = new Map<string, { count: number; firstAttempt: number }>()
+// Counted in the database so every server instance shares the same limits.
+// Any client: 10 attempts per 15 minutes. One account from one client: 5
+// failures per 15 minutes. One account from anywhere: 50 failures per hour,
+// a ceiling for distributed guessing that a single client cannot reach alone
+// (so nobody can lock the real admin out with a handful of bad requests).
+const CLIENT_RULE = { windowMs: 15 * MINUTE, max: 10 }
+const ACCOUNT_CLIENT_RULE = { windowMs: 15 * MINUTE, max: 5 }
+const ACCOUNT_RULE = { windowMs: HOUR, max: 50 }
 
-function checkRateLimit(key: string): { allowed: boolean; retryAfterSec?: number } {
-  const now = Date.now()
-  const entry = attemptMap.get(key)
+// Unknown accounts still pay for one scrypt run, so response time does not
+// reveal which emails have admin accounts.
+const TIMING_DECOY = hashPassword('ripple-timing-decoy')
 
-  if (!entry || now - entry.firstAttempt > RATE_LIMIT_WINDOW_MS) {
-    attemptMap.set(key, { count: 1, firstAttempt: now })
-    return { allowed: true }
-  }
-
-  entry.count++
-  if (entry.count > RATE_LIMIT_MAX) {
-    const retryAfterSec = Math.ceil((entry.firstAttempt + RATE_LIMIT_WINDOW_MS - now) / 1000)
-    return { allowed: false, retryAfterSec }
-  }
-
-  return { allowed: true }
-}
-
-function getClientIp(req: NextRequest): string {
-  const forwarded = req.headers.get('x-forwarded-for')
-  if (forwarded) return forwarded.split(',')[0].trim()
-  const real = req.headers.get('x-real-ip')
-  if (real) return real
-  return 'unknown'
+function tooMany(retryAfterSec: number, message: string) {
+  return NextResponse.json(
+    { error: `${message} Try again in ${retryAfterSec} seconds.` },
+    { status: 429, headers: { 'Retry-After': String(retryAfterSec) } }
+  )
 }
 
 // POST /api/auth/login { email, password }
 export async function POST(req: NextRequest) {
-  // Rate limit check by IP
-  const ip = getClientIp(req)
-  const ipCheck = checkRateLimit(`ip:${ip}`)
-  if (!ipCheck.allowed) {
-    return NextResponse.json(
-      { error: `Too many login attempts. Try again in ${ipCheck.retryAfterSec} seconds.` },
-      { status: 429, headers: { 'Retry-After': String(ipCheck.retryAfterSec) } }
-    )
-  }
+  const client = clientAddress(req)
+  const ipCheck = await consumeThrottle('login:ip', client, CLIENT_RULE)
+  if (!ipCheck.allowed) return tooMany(ipCheck.retryAfterSec, 'Too many login attempts.')
 
   const body = await req.json().catch(() => null)
   if (!body) {
@@ -61,29 +42,33 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Rate limit check by target email account
-  const emailCheck = checkRateLimit(`email:${email}`)
-  if (!emailCheck.allowed) {
-    return NextResponse.json(
-      { error: `Too many failed login attempts for this account. Try again in ${emailCheck.retryAfterSec} seconds.` },
-      { status: 429, headers: { 'Retry-After': String(emailCheck.retryAfterSec) } }
-    )
+  if (email.length > 254 || password.length > 1024) {
+    return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
+  }
+
+  const accountClient = `${email}\u0000${client}`
+  for (const [scope, id, rule] of [
+    ['login:account-client', accountClient, ACCOUNT_CLIENT_RULE],
+    ['login:account', email, ACCOUNT_RULE],
+  ] as const) {
+    const blocked = await throttleBlocked(scope, id, rule)
+    if (!blocked.allowed) return tooMany(blocked.retryAfterSec, 'Too many failed login attempts for this account.')
   }
 
   const user = await db.user.findUnique({ where: { email } })
-  if (!user || !verifyPassword(password, user.password)) {
+  // Legacy (non-scrypt) hashes never verify; those accounts need a reset.
+  const usable = user?.password.startsWith('scrypt:') ? user.password : null
+  const valid = verifyPassword(password, usable ?? TIMING_DECOY) && usable !== null
+  if (!user || !valid) {
+    await consumeThrottle('login:account-client', accountClient, ACCOUNT_CLIENT_RULE)
+    await consumeThrottle('login:account', email, ACCOUNT_RULE)
     return NextResponse.json(
       { error: 'Invalid email or password' },
       { status: 401 }
     )
   }
 
-  // If the password hash is legacy (weak), upgrade it to scrypt now
-  if (needsRehash(user.password)) {
-    const newHash = hashPassword(password)
-    await db.user.update({ where: { id: user.id }, data: { password: newHash } })
-  }
-
+  await clearThrottle('login:account-client', accountClient)
   const token = await createSession(user.id)
   const res = NextResponse.json({
     user: { id: user.id, email: user.email, name: user.name, role: user.role },

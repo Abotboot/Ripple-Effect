@@ -561,6 +561,46 @@ async function main() {
   }
   console.log(`✓ Seeded ${samples.length} sample measurements`)
 
+  // -- Illustrative field readings placed on the water they came from --
+  const fieldSites: Array<{ pwsid: string; waterBody: string; location: string; latitude: number; longitude: number; slug: string; level: number; monthsAgo: number }> = [
+    { pwsid: 'IL0316040', waterBody: 'Lake Michigan', location: 'Offshore of Montrose Harbor, surface grab', latitude: 41.9655, longitude: -87.615, slug: 'microplastics', level: 6.4, monthsAgo: 1 },
+    { pwsid: 'IL0316040', waterBody: 'Lake Michigan', location: 'Outside Monroe Harbor breakwater', latitude: 41.88, longitude: -87.59, slug: 'microplastics', level: 4.1, monthsAgo: 3 },
+    { pwsid: 'NY7003493', waterBody: 'Hudson River', location: 'Mid-channel off West 72nd Street', latitude: 40.77, longitude: -74.0035, slug: 'microplastics', level: 18.7, monthsAgo: 2 },
+    { pwsid: 'NY7003493', waterBody: 'Upper New York Bay', location: 'Between Governors Island and Liberty Island', latitude: 40.69, longitude: -74.03, slug: 'microplastics', level: 22.3, monthsAgo: 5 },
+    { pwsid: 'CA1910052', waterBody: 'Echo Park Lake', location: 'South basin, near the boathouse', latitude: 34.0726, longitude: -118.2606, slug: 'microplastics', level: 11.2, monthsAgo: 2 },
+    { pwsid: 'TX1010337', waterBody: 'Galveston Bay', location: 'Upper bay, open water', latitude: 29.55, longitude: -94.89, slug: 'microplastics', level: 14.9, monthsAgo: 4 },
+    { pwsid: 'WA5376550', waterBody: 'Lake Union', location: 'Center of the lake', latitude: 47.6392, longitude: -122.3331, slug: 'microplastics', level: 9.8, monthsAgo: 1 },
+    { pwsid: 'WA5376550', waterBody: 'Lake Washington', location: 'Mid-lake, east of Madison Park', latitude: 47.62, longitude: -122.255, slug: 'microplastics', level: 5.2, monthsAgo: 6 },
+    { pwsid: 'CA3610008', waterBody: 'Mission Bay', location: 'Sail Bay, north arm', latitude: 32.7905, longitude: -117.24, slug: 'microplastics', level: 16.5, monthsAgo: 3 },
+    { pwsid: 'FL6020055', waterBody: 'Biscayne Bay', location: 'Central bay, west of Key Biscayne', latitude: 25.65, longitude: -80.21, slug: 'microplastics', level: 12.6, monthsAgo: 2 },
+    { pwsid: 'PA1510001', waterBody: 'Delaware River', location: "Mid-river off Penn's Landing", latitude: 39.9456, longitude: -75.1353, slug: 'microplastics', level: 20.1, monthsAgo: 4 },
+  ]
+  for (const site of fieldSites) {
+    const contaminant = cBySlug[site.slug]
+    const utilityId = utilityIds[site.pwsid]
+    if (!contaminant || !utilityId) continue
+    const sampleDate = new Date()
+    sampleDate.setMonth(sampleDate.getMonth() - site.monthsAgo)
+    await db.sample.create({
+      data: {
+        utilityId,
+        contaminantId: contaminant.id,
+        level: site.level,
+        unit: contaminant.legalLimitUnit || contaminant.healthGuidelineUnit || 'particles/L',
+        sampleDate,
+        source: 'Synthetic demo data',
+        treatmentStatus: 'Untreated',
+        location: site.location,
+        quality: 'illustrative',
+        provenance: 'ILLUSTRATIVE',
+        verificationStatus: 'UNREVIEWED',
+        notes: 'Illustrative field reading placed on its water body; not a real measurement.',
+        collectionPoint: { create: { latitude: site.latitude, longitude: site.longitude, waterBody: site.waterBody } },
+      },
+    })
+  }
+  console.log(`✓ Seeded ${fieldSites.length} illustrative field readings with collection points`)
+
   // -- Community reports --
   await db.report.deleteMany({})
   const reports = [

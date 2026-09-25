@@ -6,7 +6,12 @@ import './water-narrative.css'
 
 const researchSource = 'https://www.nih.gov/news-events/nih-research-matters/plastic-particles-bottled-water'
 
-export function WaterNarrative({ contributeHref = '#submit', onMethodology }: { contributeHref?: string; onMethodology?: () => void } = {}) {
+export function WaterNarrative({ contributeHref = '#submit', onMethodology, showResearch = true }: {
+  contributeHref?: string
+  onMethodology?: () => void
+  /** Hidden where the bottle story already tells the same study. */
+  showResearch?: boolean
+} = {}) {
   return <div className="water-narrative">
     <section id="sample-study" className="particle-stage" aria-labelledby="particle-title">
       <div className="narrative-inner sample-examination-layout">
@@ -37,7 +42,7 @@ export function WaterNarrative({ contributeHref = '#submit', onMethodology }: { 
       </div>
     </section>
 
-    <section className="research-stage" aria-labelledby="siphon-title">
+    {showResearch && <section className="research-stage" aria-labelledby="siphon-title">
       <div className="narrative-inner">
         <div className="research-heading">
           <div>
@@ -58,7 +63,7 @@ export function WaterNarrative({ contributeHref = '#submit', onMethodology }: { 
           </div>
         </div>
       </div>
-    </section>
+    </section>}
 
     <section className="countermeasure-stage" aria-labelledby="countermeasure-title">
       <div className="narrative-inner countermeasure-layout">

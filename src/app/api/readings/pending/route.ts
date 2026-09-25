@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { contributorNotes, loadCollectionPoints, loadContributors } from '@/lib/reading-contributors'
 
 // GET /api/readings/pending?status=pending|approved|all - admin only.
 // Returns citizen-quality samples for moderation, newest first.
@@ -44,23 +45,18 @@ export async function GET(req: NextRequest) {
     },
   })
 
+  const [contributors, points] = await Promise.all([
+    loadContributors(readings),
+    loadCollectionPoints(readings.map(r => r.id)),
+  ])
   const items = readings.map((r) => {
-    let reporterEmail = ''
-    let reporterName = ''
-    let userNotes = ''
-    if (r.notes) {
-      const emailMatch = r.notes.match(/reporter:([^|]+)/)
-      if (emailMatch) reporterEmail = emailMatch[1].trim()
-      const nameMatch = r.notes.match(/name:([^|]+)/)
-      if (nameMatch) reporterName = nameMatch[1].trim()
-      const notesMatch = r.notes.match(/notes:([^|]+)/)
-      if (notesMatch) userNotes = notesMatch[1].trim()
-    }
+    const contributor = contributors.get(r.id)
     return {
       ...r,
-      reporterEmail,
-      reporterName,
-      userNotes,
+      reporterEmail: contributor?.email ?? '',
+      reporterName: contributor?.name ?? '',
+      userNotes: contributorNotes(r.notes),
+      collectionPoint: points.get(r.id) ?? null,
       notes: undefined, // don't re-send the raw notes blob
     }
   })

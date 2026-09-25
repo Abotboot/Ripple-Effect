@@ -26,6 +26,7 @@ export async function sendDiscordReportWebhook(report: {
 
     const payload = {
       username: 'Ripple Water Monitor',
+      allowed_mentions: { parse: [] },
       avatar_url: 'https://raw.githubusercontent.com/feathericons/feather/master/icons/droplet.svg',
       embeds: [
         {
@@ -87,6 +88,7 @@ export async function sendDiscordReadingWebhook(reading: {
   try {
     const payload = {
       username: 'Ripple Water Monitor',
+      allowed_mentions: { parse: [] },
       embeds: [
         {
           title: reading.reviewState === 'provisional-device'
@@ -152,6 +154,7 @@ export async function sendDiscordAlertWebhook(alert: {
 
     const payload = {
       username: 'Ripple Alert System',
+      allowed_mentions: { parse: [] },
       embeds: [
         {
           title: `🚨 Contaminant Threshold Alert: ${alert.contaminantName}`,

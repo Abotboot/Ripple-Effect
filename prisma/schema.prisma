@@ -104,11 +104,52 @@ model Sample {
 
   utility       Utility?     @relation(fields: [utilityId], references: [id], onDelete: Cascade)
   contaminant   Contaminant @relation(fields: [contaminantId], references: [id], onDelete: Cascade)
+  // Side tables keep new data off the Sample row, so Sample reads keep working
+  // on databases where the collection-point migration has not been applied yet.
+  collectionPoint SampleCollectionPoint?
+  contributor     SampleContributor?
 
   @@index([utilityId])
   @@index([contaminantId])
   @@index([sampleDate])
   @@index([quality])
+}
+
+// Where a reading was physically collected: a point on the water itself plus
+// the water body's name. Public. Readings without a row here are unplaced.
+model SampleCollectionPoint {
+  sampleId  String   @id
+  latitude  Float
+  longitude Float
+  waterBody String?
+  createdAt DateTime @default(now())
+
+  sample    Sample   @relation(fields: [sampleId], references: [id], onDelete: Cascade)
+
+  @@index([latitude, longitude])
+}
+
+// Private contact details for a public reading submission. Never returned by
+// public endpoints; stored apart from Sample.notes so no notes parser can leak it.
+model SampleContributor {
+  sampleId  String   @id
+  email     String
+  name      String
+  createdAt DateTime @default(now())
+
+  sample    Sample   @relation(fields: [sampleId], references: [id], onDelete: Cascade)
+
+  @@index([email, createdAt])
+}
+
+// Fixed-window request counters shared by every server instance. Keys are
+// SHA-256 digests, so client IPs and emails are never stored in clear text.
+model RequestThrottle {
+  key         String   @id
+  count       Int
+  windowStart DateTime
+
+  @@index([windowStart])
 }
 
 // Community-submitted water observations. Anyone can submit one (no login required).

@@ -30,6 +30,14 @@ import { ContaminantSpectrumChart } from '@/components/d3/contaminant-spectrum-c
 import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
 import { CinematicPanel } from '@/components/ui/cinematic-panel'
 import { ParticleAtlas } from '@/components/sections/particle-atlas'
+import { useTypedPlaceholder } from '@/hooks/use-typed-placeholder'
+import { SplitWords } from '@/components/motion/split-words'
+import { RollText } from '@/components/motion/roll-text'
+import { WaterTicker, showReadingOnMap } from '@/components/sections/water-ticker'
+import { BottleStory } from '@/components/sections/bottle-story'
+import './home-motion.css'
+
+const SEARCH_EXAMPLES = ['ZIP, city or utility', '60614', 'Seattle, WA', 'Philadelphia Water', '90026', 'Miami-Dade'] as const
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
 
@@ -202,6 +210,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
 
       {/* Stats bar */}
       <StatsBar stats={stats} />
+      <WaterTicker onNavigate={onNavigate} />
       {statsFailed && (
         <div className="mx-auto flex max-w-7xl flex-col gap-3 border-b border-border px-4 py-4 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8" role="alert" data-testid="home-stats-error">
           <div>
@@ -222,10 +231,13 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
       {/* Search results - search-first hierarchy */}
       <section id="search" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              {results ? `Results for "${submittedQuery || q}"` : 'Browse water utilities'}
-            </h2>
+          <div className="home-heading">
+            <span className="home-eyebrow">{results ? 'Search results' : 'Find your water'}</span>
+            {results ? (
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{`Results for "${submittedQuery || q}"`}</h2>
+            ) : (
+              <h2 key="browse" data-split className="text-2xl font-bold tracking-tight sm:text-3xl"><SplitWords text="Browse water utilities" /></h2>
+            )}
             <p className="mt-1 text-sm text-muted-foreground">
               {results
                 ? `${results.length} ${results.length === 1 ? 'utility' : 'utilities'} found. Click any utility to see contaminant breakdown.`
@@ -354,10 +366,12 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
         </div>
       </section>
 
+      <BottleStory onNavigate={onNavigate} />
+
       <ParticleAtlas onMethodology={() => onNavigate?.('sources')} />
 
       <div id="specimen-study">
-        <WaterNarrative onMethodology={() => onNavigate?.('sources')} />
+        <WaterNarrative onMethodology={() => onNavigate?.('sources')} showResearch={false} />
       </div>
 
       {/* Interactive D3 Contaminant Safety Gap Visualizer */}
@@ -498,14 +512,8 @@ function Hero({ q, setQ, onSearch, onNavigate }: {
   return <TankHero>
     <form onSubmit={(event) => { event.preventDefault(); onSearch() }}>
       <label htmlFor="tank-search-input" className="sr-only">Search by ZIP code, city, state, or utility name</label>
-      <input
-        id="tank-search-input"
-        value={q}
-        onChange={(event) => setQ(event.target.value)}
-        placeholder="ZIP, city or utility"
-        aria-label="Search by ZIP code, city, state, or utility name"
-      />
-      <button type="submit" disabled={!q.trim()}>Search water ↗</button>
+      <HeroSearchInput q={q} setQ={setQ} />
+      <button type="submit" disabled={!q.trim()} data-magnetic data-roll><RollText text="Search water ↗" /></button>
     </form>
     <div className="tank-search-links">
       <button onClick={() => onNavigate?.('about')}>ABOUT THE INITIATIVE ↗</button>
@@ -514,6 +522,25 @@ function Hero({ q, setQ, onSearch, onNavigate }: {
   </TankHero>
 }
 
+
+// Owns the typing placeholder so its frequent updates re-render only the input,
+// never the particle scene around it.
+function HeroSearchInput({ q, setQ }: { q: string; setQ: (s: string) => void }) {
+  const [focused, setFocused] = useState(false)
+  const placeholder = useTypedPlaceholder(SEARCH_EXAMPLES, !focused && !q)
+  return (
+    <input
+      id="tank-search-input"
+      value={q}
+      onChange={(event) => setQ(event.target.value)}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      placeholder={placeholder}
+      aria-label="Search by ZIP code, city, state, or utility name"
+      autoComplete="off"
+    />
+  )
+}
 
 function StatsBar({ stats }: { stats: Stats | null }) {
   if (!stats) return null
@@ -546,48 +573,29 @@ function StatsBar({ stats }: { stats: Stats | null }) {
     },
   ]
   return (
-    <div className="border-b border-border/60 bg-card/50">
+    <div className="home-stats border-b border-border/60 bg-card/50">
       <div className="mx-auto grid max-w-7xl grid-cols-2 sm:grid-cols-4">
         {items.map(({ icon: Icon, label, value, hint, tone }, i) => (
           <div
             key={label}
             className={cn(
-              'px-4 py-5 sm:px-6 sm:py-6',
+              'home-stat px-4 py-6 sm:px-6 sm:py-8',
               'sm:border-l sm:border-border/60 first:sm:border-l-0',
               i >= 2 && 'border-t border-border/60 sm:border-t-0',
               i % 2 === 1 && 'border-l border-border/60 sm:border-l-0'
             )}
+            data-reveal
+            data-tone={tone}
+            style={{ '--reveal-delay': `${i * 90}ms` } as React.CSSProperties}
           >
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-            >
-              <div className="flex items-center gap-2">
-                <div
-                  className={cn(
-                    'inline-flex h-7 w-7 items-center justify-center rounded-md',
-                    tone === 'warning'
-                      ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400'
-                      : 'bg-primary/10 text-primary'
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                </div>
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  {label}
-                </span>
-              </div>
-              {typeof value === 'number' && Number.isFinite(value) ? <AnimatedCounter
-                value={value}
-                className={cn(
-                  'mt-2 text-2xl font-bold tabular-nums sm:text-3xl',
-                  tone === 'warning' ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'
-                )}
-              /> : <p className="mt-2 text-2xl font-bold tabular-nums sm:text-3xl" aria-label="Not assessed">N/A</p>}
-              <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>
-            </motion.div>
+            <div className="flex items-center gap-2">
+              <Icon className="home-stat-icon h-3.5 w-3.5" aria-hidden="true" />
+              <span className="home-stat-label">{label}</span>
+            </div>
+            {typeof value === 'number' && Number.isFinite(value)
+              ? <AnimatedCounter value={value} className="home-stat-value" />
+              : <p className="home-stat-value" aria-label="Not assessed">N/A</p>}
+            <div className="home-stat-hint">{hint}</div>
           </div>
         ))}
       </div>
@@ -753,16 +761,18 @@ function EmptyBrowse({ onSearch }: { onSearch: (q: string) => void }) {
         <button
           key={f.zip}
           onClick={() => onSearch(f.zip)}
-          className="group flex items-center justify-between rounded-xl border border-border bg-card p-5 text-left transition-all hover:border-primary/40 hover:shadow-md"
+          className="browse-city group flex items-center justify-between rounded-xl border border-border bg-card p-5 text-left transition-all hover:border-primary/40 hover:shadow-md"
+          data-spotlight
+          data-cursor="Search"
         >
           <div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <MapPin className="h-3 w-3" />
               ZIP {f.zip}
             </div>
-            <div className="mt-1 font-semibold">{f.label}</div>
+            <div className="browse-city-name mt-1 font-semibold">{f.label}</div>
           </div>
-          <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+          <span className="browse-city-arrow" aria-hidden="true"><ArrowRight className="h-4 w-4" /><ArrowRight className="h-4 w-4" /></span>
         </button>
       ))}
     </div>
@@ -846,9 +856,10 @@ function RecentActivityAndAlerts() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent activity feed */}
         <div className="lg:col-span-2">
-          <div className="mb-4 flex items-center gap-2">
-            <ActivityIcon className="h-5 w-5 text-primary" />
-            <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Recent activity</h2>
+          <div className="home-heading mb-4 flex flex-wrap items-center gap-2">
+            <span className="home-eyebrow">Across the network</span>
+            <h2 data-split className="text-xl font-bold tracking-tight sm:text-2xl"><SplitWords text="Recent activity" /></h2>
+            <span className="home-live-pill" aria-hidden="true"><span />Live</span>
             <Badge variant="outline" className="ml-auto bg-secondary/40 text-[10px]">
               {items ? `${items.length} recent` : 'loading…'}
             </Badge>
@@ -1020,9 +1031,9 @@ function RecentlyAddedAndQuality({
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recently added utilities */}
         <div className="lg:col-span-2">
-          <div className="mb-4 flex items-center gap-2">
-            <Clock className="h-5 w-5 text-primary" />
-            <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Recently added utilities</h2>
+          <div className="home-heading mb-4 flex flex-wrap items-center gap-2">
+            <span className="home-eyebrow">New in the database</span>
+            <h2 data-split className="text-xl font-bold tracking-tight sm:text-2xl"><SplitWords text="Recently added utilities" /></h2>
           </div>
           {recentFailed ? (
             <Card>
@@ -1210,6 +1221,7 @@ type CitizenReading = {
   source: string
   robot: boolean
   reporterName: string
+  collectionPoint: { latitude: number; longitude: number; waterBody: string | null } | null
   contaminant: { name: string; slug: string }
   utility: { name: string; city: string; state: string } | null
   exceedsHealth: boolean
@@ -1230,11 +1242,9 @@ function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-4 flex items-center gap-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400">
-          <Beaker className="h-4 w-4" />
-        </div>
-        <div className="flex-1">
-          <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Citizen readings</h2>
+        <div className="home-heading flex-1">
+          <span className="home-eyebrow">From the field</span>
+          <h2 data-split className="text-xl font-bold tracking-tight sm:text-2xl"><SplitWords text="Citizen readings" /></h2>
           <p className="text-sm text-muted-foreground">
             Community-submitted measurements from volunteers using the microplastics identifier.
           </p>
@@ -1280,13 +1290,7 @@ function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {readings.slice(0, 6).map((r, i) => (
-            <motion.div
-              key={r.id}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: Math.min(i * 0.06, 0.3) }}
-            >
+            <div key={r.id} data-reveal style={{ '--reveal-delay': `${Math.min(i, 5) * 70}ms` } as React.CSSProperties}>
               <Card className="h-full border-sky-200/60 dark:border-sky-800/40">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-2">
@@ -1306,6 +1310,9 @@ function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void
                   </div>
 
                   <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                    {r.collectionPoint?.waterBody && (
+                      <p className="citizen-water-name">{r.collectionPoint.waterBody}</p>
+                    )}
                     {r.utility ? (
                       <p className="flex items-center gap-1">
                         <MapPin className="h-3 w-3 shrink-0" />
@@ -1331,9 +1338,14 @@ function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void
                       {r.exceedsLegal ? 'Exceeds legal limit' : 'Exceeds health guideline'}
                     </div>
                   )}
+                  {r.collectionPoint && (
+                    <button type="button" className="citizen-water-link" onClick={() => showReadingOnMap(r.id, onNavigate)} data-cursor="Map">
+                      <span aria-hidden="true" />See it on the water →
+                    </button>
+                  )}
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
       )}

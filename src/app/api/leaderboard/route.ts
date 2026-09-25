@@ -9,11 +9,13 @@ import { db } from '@/lib/db'
 // onboarding status + donations attributed. This is a starting point.
 export async function GET() {
 
-  const chapters = await db.chapter.findMany({
+  // Only chapters the crew has onboarded are public, and only by chapter name:
+  // applicants' personal names and pending/declined applications stay private.
+  const [chapters, totalChapters] = await Promise.all([db.chapter.findMany({
+    where: { status: { in: ['active', 'onboarded'] } },
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
-      name: true,
       chapterName: true,
       city: true,
       state: true,
@@ -21,7 +23,7 @@ export async function GET() {
       status: true,
       createdAt: true,
     },
-  })
+  }), db.chapter.count()])
 
   // Count community reports by state (proxy for chapter activity in that region).
   const reports = await db.report.groupBy({
@@ -30,16 +32,17 @@ export async function GET() {
   })
   const reportByState = new Map(reports.map((r) => [r.state ?? '', r._count.id]))
 
-  // Count samples by utility state (proxy for data coverage).
-  const samples = await db.sample.findMany({
-    select: { utility: { select: { state: true } } },
-  })
+  // Count samples by utility state (proxy for data coverage), aggregated in
+  // the database instead of loading every sample row.
+  const [perUtility, utilities] = await Promise.all([
+    db.sample.groupBy({ by: ['utilityId'], _count: { id: true } }),
+    db.utility.findMany({ select: { id: true, state: true } }),
+  ])
+  const stateOf = new Map(utilities.map((u) => [u.id, u.state]))
   const sampleByState = new Map<string, number>()
-  for (const s of samples) {
-    const st = s.utility?.state
-    if (st) {
-      sampleByState.set(st, (sampleByState.get(st) ?? 0) + 1)
-    }
+  for (const row of perUtility) {
+    const st = row.utilityId ? stateOf.get(row.utilityId) : undefined
+    if (st) sampleByState.set(st, (sampleByState.get(st) ?? 0) + row._count.id)
   }
 
   const leaderboard = chapters.map((c) => {
@@ -51,6 +54,7 @@ export async function GET() {
     const score = reportCount * 3 + sampleCount + statusBonus
     return {
       ...c,
+      chapterName: c.chapterName || (c.city ? `${c.city} chapter` : 'Community chapter'),
       reportCount,
       sampleCount,
       score,
@@ -66,7 +70,7 @@ export async function GET() {
 
   return NextResponse.json({
     leaderboard,
-    totalChapters: chapters.length,
+    totalChapters,
     activeChapters: chapters.filter((c) => c.status === 'active' || c.status === 'onboarded').length,
   })
 }

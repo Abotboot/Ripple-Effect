@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { sendDiscordReportWebhook } from '@/lib/discord-webhook'
-import { checkRateLimit } from '@/lib/rate-limit'
+import { normalizeContactEmail } from '@/lib/reading-notes'
+import { clientAddress, consumeThrottles, HOUR, MINUTE } from '@/lib/durable-throttle'
 
 // GET /api/reports - list all community reports (newest first)
 export async function GET(req: NextRequest) {
   const status = req.nextUrl.searchParams.get('status')
-  const where = status ? { status } : {}
+  const where = status ? { status: String(status).slice(0, 20) } : {}
   const reports = await db.report.findMany({
     where,
     include: { utility: { select: { name: true, city: true, state: true } } },
     orderBy: { createdAt: 'desc' },
+    take: 500,
   })
   // Strip reporterEmail to protect user privacy
   const sanitized = reports.map(({ reporterEmail: _omit, ...rest }) => rest)
@@ -18,9 +20,12 @@ export async function GET(req: NextRequest) {
 }
 
 // POST /api/reports - public submission (rate-limited, no auth required)
+const APPEARANCES = new Set(['normal', 'cloudy', 'discolored', 'odor', 'taste'])
+const SEVERITIES = new Set(['info', 'warning', 'critical'])
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null)
-  if (!body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
@@ -29,12 +34,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Submission rejected.' }, { status: 400 })
   }
 
-  // IP rate-limiting (max 5 submissions per 10 minutes)
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown'
-  if (!checkRateLimit(`report:${ip}`, { windowMs: 10 * 60 * 1000, max: 5 })) {
+  const limit = await consumeThrottles([
+    ['reports:client', clientAddress(req), { windowMs: 10 * MINUTE, max: 5 }],
+    ['reports:site', 'all', { windowMs: HOUR, max: 120 }],
+  ])
+  if (!limit.allowed) {
     return NextResponse.json(
-      { error: 'Too many submissions. Please wait 10 minutes before submitting again.' },
-      { status: 429 }
+      { error: 'Too many submissions right now. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSec) } }
     )
   }
 
@@ -48,15 +55,31 @@ export async function POST(req: NextRequest) {
   const title = String(body.title).slice(0, 200)
   const description = String(body.description).slice(0, 4000)
   const reporterEmail = body.reporterEmail
-    ? String(body.reporterEmail).slice(0, 200)
+    ? normalizeContactEmail(body.reporterEmail)
     : null
+  if (body.reporterEmail && !reporterEmail) {
+    return NextResponse.json({ error: 'Please enter a valid email.' }, { status: 400 })
+  }
   const reporterName = body.reporterName
     ? String(body.reporterName).slice(0, 100)
     : null
+  const appearance = body.appearance == null || body.appearance === '' ? 'normal' : String(body.appearance)
+  const severity = body.severity == null || body.severity === '' ? 'info' : String(body.severity)
+  if (!APPEARANCES.has(appearance) || !SEVERITIES.has(severity)) {
+    return NextResponse.json({ error: 'Choose a listed appearance and severity.' }, { status: 400 })
+  }
+  let utilityId: string | null = null
+  if (body.utilityId) {
+    const utility = typeof body.utilityId === 'string'
+      ? await db.utility.findUnique({ where: { id: body.utilityId }, select: { id: true } })
+      : null
+    if (!utility) return NextResponse.json({ error: 'Utility not found.' }, { status: 404 })
+    utilityId = utility.id
+  }
 
   const created = await db.report.create({
     data: {
-      utilityId: body.utilityId ?? null,
+      utilityId,
       reporterName,
       reporterEmail,
       zipCode: String(body.zipCode).slice(0, 20),
@@ -65,8 +88,8 @@ export async function POST(req: NextRequest) {
       title,
       description,
       contaminant: body.contaminant ? String(body.contaminant).slice(0, 100) : null,
-      appearance: body.appearance ?? 'normal',
-      severity: body.severity ?? 'info',
+      appearance,
+      severity,
       status: 'pending',
     },
   })
@@ -74,6 +97,7 @@ export async function POST(req: NextRequest) {
   // Dispatch real-time report to Discord webhook
   await sendDiscordReportWebhook(created)
 
-  return NextResponse.json(created, { status: 201 })
+  const { reporterEmail: _private, ...publicReport } = created
+  return NextResponse.json(publicReport, { status: 201 })
 }
 

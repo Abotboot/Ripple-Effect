@@ -1,11 +1,13 @@
 'use client'
 
-import { Droplets, Menu, X, Github, BarChart3, Megaphone, Lock, Map, Info, HandHeart, Database, Beaker, HelpCircle, Handshake } from 'lucide-react'
-import { useState, useRef } from 'react'
+import { Droplets, Github, BarChart3, Megaphone, Lock, Map, Info, HandHeart, Database, Beaker, HelpCircle, Handshake } from 'lucide-react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { createPortal } from 'react-dom'
 import './site-chrome.css'
-import { motion, useScroll, useSpring } from 'framer-motion'
-import { Button } from '@/components/ui/button'
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { setScrollLocked } from '@/components/atmosphere/smooth-current'
+import { RollText } from '@/components/motion/roll-text'
 
 export type Section =
   | 'home'
@@ -22,18 +24,18 @@ export type Section =
   | 'privacy'
   | 'terms'
 
-const NAV: Array<{ id: Section; label: string; icon: React.ElementType }> = [
-  { id: 'home', label: 'Home', icon: Droplets },
-  { id: 'about', label: 'About Us', icon: Info },
-  { id: 'partners', label: 'Partnerships', icon: Handshake },
-  { id: 'map', label: 'Map', icon: Map },
-  { id: 'microplastics', label: 'Microplastics', icon: BarChart3 },
-  { id: 'submit', label: 'Submit Reading', icon: Beaker },
-  { id: 'sources', label: 'Data Sources', icon: Database },
-  { id: 'reports', label: 'Community', icon: Megaphone },
-  { id: 'faq', label: 'FAQ', icon: HelpCircle },
-  { id: 'donate', label: 'Donate', icon: HandHeart },
-  { id: 'admin', label: 'Admin', icon: Lock },
+const NAV: Array<{ id: Section; label: string; icon: React.ElementType; blurb: string }> = [
+  { id: 'home', label: 'Home', icon: Droplets, blurb: 'Search your water' },
+  { id: 'about', label: 'About Us', icon: Info, blurb: 'The initiative' },
+  { id: 'partners', label: 'Partnerships', icon: Handshake, blurb: 'Work with us' },
+  { id: 'map', label: 'Map', icon: Map, blurb: 'Readings on the water' },
+  { id: 'microplastics', label: 'Microplastics', icon: BarChart3, blurb: 'Research & records' },
+  { id: 'submit', label: 'Submit Reading', icon: Beaker, blurb: 'Pin your sample' },
+  { id: 'sources', label: 'Data Sources', icon: Database, blurb: 'Where data comes from' },
+  { id: 'reports', label: 'Community', icon: Megaphone, blurb: 'Field reports' },
+  { id: 'faq', label: 'FAQ', icon: HelpCircle, blurb: 'Answers' },
+  { id: 'donate', label: 'Donate', icon: HandHeart, blurb: 'Fund the identifier' },
+  { id: 'admin', label: 'Admin', icon: Lock, blurb: 'Crew sign-in' },
 ]
 
 const DESKTOP_NAV = NAV.filter(({ id }) =>
@@ -41,6 +43,8 @@ const DESKTOP_NAV = NAV.filter(({ id }) =>
 )
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
+
+const subscribeNever = () => () => {}
 
 export function SiteHeader({
   current,
@@ -50,20 +54,65 @@ export function SiteHeader({
   onNavigate: (s: Section) => void
 }) {
   const [open, setOpen] = useState(false)
+  const [hovered, setHovered] = useState<Section | null>(null)
+  const [tucked, setTucked] = useState(false)
+  const [origin, setOrigin] = useState({ x: 0, y: 0 })
+  // True only on the client, so the portal never runs during server rendering.
+  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false)
   const menuButton = useRef<HTMLButtonElement>(null)
+  const firstItem = useRef<HTMLButtonElement>(null)
 
   // Scrolltide-style reading progress: a thin aqua bar along the header edge.
   const { scrollYProgress } = useScroll()
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 25, mass: 0.3 })
 
-  const go = (s: Section) => {
-    onNavigate(s)
-    setOpen(false)
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+  // Tuck the header away while reading down the page; it returns on any upward scroll.
+  useEffect(() => {
+    let last = window.scrollY
+    let frame = 0
+    const onScroll = () => {
+      if (frame) return
+      frame = requestAnimationFrame(() => {
+        frame = 0
+        const y = window.scrollY
+        const delta = y - last
+        if (Math.abs(delta) > 6) {
+          setTucked(delta > 0 && y > 140)
+          last = y
+        }
+        if (y < 140) setTucked(false)
+      })
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(frame) }
+  }, [])
+
+  useEffect(() => {
+    setScrollLocked(open)
+    document.documentElement.classList.toggle('site-menu-open', open)
+    if (open) requestAnimationFrame(() => firstItem.current?.focus({ preventScroll: true }))
+    return () => { setScrollLocked(false); document.documentElement.classList.remove('site-menu-open') }
+  }, [open])
+
+  const toggleMenu = () => {
+    const rect = menuButton.current?.getBoundingClientRect()
+    if (rect) setOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+    setOpen(value => !value)
   }
 
+  const go = (s: Section) => {
+    setOpen(false)
+    onNavigate(s)
+  }
+
+  const radius = typeof window === 'undefined' ? 2000 : Math.hypot(Math.max(origin.x, window.innerWidth - origin.x), window.innerHeight)
+
   return (
-    <header className="site-header sticky top-0 z-50 w-full" onKeyDown={event => { if (event.key === 'Escape' && open) { setOpen(false); menuButton.current?.focus() } }}>
+    <header
+      className="site-header sticky top-0 z-50 w-full"
+      data-tucked={tucked && !open ? '' : undefined}
+      onKeyDown={event => { if (event.key === 'Escape' && open) { setOpen(false); menuButton.current?.focus() } }}
+    >
       <motion.div
         aria-hidden="true"
         style={{ scaleX: progress }}
@@ -93,26 +142,25 @@ export function SiteHeader({
           </span>
         </button>
 
-        {/* Desktop nav */}
-        <nav aria-label="Primary navigation" className="site-nav-desktop hidden xl:flex items-center gap-0.5">
-          {DESKTOP_NAV.map(({ id, label, icon: Icon }) => (
+        {/* Desktop nav: the highlight glides between items instead of jumping. */}
+        <nav aria-label="Primary navigation" className="site-nav-desktop hidden xl:flex items-center gap-0.5" onMouseLeave={() => setHovered(null)}>
+          {DESKTOP_NAV.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => go(id)}
+              onMouseEnter={() => setHovered(id)}
+              onFocus={() => setHovered(id)}
+              onBlur={() => setHovered(null)}
               aria-current={current === id ? 'page' : undefined}
-              className={cn(
-                'group inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors',
-                current === id
-                  ? id === 'donate'
-                    ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
-                    : 'bg-primary/10 text-primary'
-                  : id === 'donate'
-                    ? 'text-rose-600 hover:bg-rose-500/10 dark:text-rose-400'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              )}
+              className="site-nav-item"
             >
-              <Icon className="h-4 w-4" />
-              {label}
+              {hovered === id && (
+                <motion.span layoutId="site-nav-hover" className="site-nav-hover" transition={{ type: 'spring', stiffness: 420, damping: 36 }} aria-hidden="true" />
+              )}
+              {current === id && (
+                <motion.span layoutId="site-nav-active" className="site-nav-active" transition={{ type: 'spring', stiffness: 380, damping: 34 }} aria-hidden="true" />
+              )}
+              <span className="relative">{label}</span>
             </button>
           ))}
         </nav>
@@ -124,9 +172,11 @@ export function SiteHeader({
             className="site-donate-link"
             aria-current={current === 'donate' ? 'page' : undefined}
             data-testid="header-donate"
+            data-magnetic
+            data-roll
           >
             <HandHeart className="h-4 w-4" aria-hidden="true" />
-            Donate
+            <RollText text="Donate" />
           </button>
           <a
             href={REPO_URL}
@@ -138,56 +188,74 @@ export function SiteHeader({
           >
             <Github className="h-4 w-4" aria-hidden="true" />
           </a>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            onClick={() => setOpen((o) => !o)}
+          <button
+            type="button"
+            className="site-menu-toggle"
+            onClick={toggleMenu}
             ref={menuButton}
             aria-label="Toggle menu"
             aria-controls="site-navigation-menu"
             aria-expanded={open}
+            data-open={open ? '' : undefined}
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+            <span aria-hidden="true" /><span aria-hidden="true" />
+          </button>
         </div>
       </div>
 
-      {/* Mobile nav */}
-      {open && (
-        <nav id="site-navigation-menu" aria-label="All sections" data-lenis-prevent className="site-nav-menu px-4 py-3">
-          <div className="mx-auto grid max-w-7xl gap-1 sm:grid-cols-2 lg:grid-cols-3">
-            {NAV.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => go(id)}
-                aria-current={current === id ? 'page' : undefined}
-                className={cn(
-                  'inline-flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                  id === 'donate' && 'site-donate-menu',
-                  current === id
-                    ? id === 'donate'
-                      ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
-                      : 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                )}
+      {/* Full menu: ripples open from the menu button. Portaled to <body>
+          because the header's backdrop-filter would trap a fixed child. */}
+      {mounted && createPortal(<AnimatePresence>
+        {open && (
+          <motion.nav
+            id="site-navigation-menu"
+            aria-label="All sections"
+            data-lenis-prevent
+            className="site-nav-menu"
+            initial={{ clipPath: `circle(0px at ${origin.x}px ${origin.y}px)` }}
+            animate={{ clipPath: `circle(${radius}px at ${origin.x}px ${origin.y}px)` }}
+            exit={{ clipPath: `circle(0px at ${origin.x}px ${origin.y}px)` }}
+            transition={{ duration: 0.75, ease: [0.83, 0, 0.17, 1] }}
+          >
+            <div className="site-nav-menu-inner mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <ol className="site-nav-menu-list">
+                {NAV.map(({ id, label, blurb }, index) => (
+                  <motion.li
+                    key={id}
+                    initial={{ opacity: 0, y: 28 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 12, transition: { duration: 0.2 } }}
+                    transition={{ delay: 0.18 + index * 0.035, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <button
+                      ref={index === 0 ? firstItem : undefined}
+                      onClick={() => go(id)}
+                      aria-current={current === id ? 'page' : undefined}
+                      className={cn('site-nav-menu-item', id === 'donate' && 'site-donate-menu')}
+                    >
+                      <span className="site-nav-menu-index">{String(index + 1).padStart(2, '0')}</span>
+                      <span className="site-nav-menu-label">{label}</span>
+                      <span className="site-nav-menu-blurb">{blurb}</span>
+                    </button>
+                  </motion.li>
+                ))}
+              </ol>
+              <motion.div
+                className="site-nav-menu-foot"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { delay: 0.55 } }}
+                exit={{ opacity: 0, transition: { duration: 0.15 } }}
               >
-                <Icon className="h-4 w-4" />
-                {label}
-              </button>
-            ))}
-            <a
-              href={REPO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <Github className="h-4 w-4" />
-              GitHub Repo
-            </a>
-          </div>
-        </nav>
-      )}
+                <span>One act. Endless impact.</span>
+                <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
+                  <Github className="h-4 w-4" aria-hidden="true" />
+                  GitHub Repo
+                </a>
+              </motion.div>
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>, document.body)}
     </header>
   )
 }

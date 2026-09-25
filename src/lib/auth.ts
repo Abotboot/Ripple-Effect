@@ -1,14 +1,15 @@
 import { cookies } from 'next/headers'
 import { db } from './db'
-import { scryptSync, randomBytes, timingSafeEqual } from 'crypto'
+import { scryptSync, randomBytes, timingSafeEqual, createHash } from 'crypto'
 
 // Secure password hashing using Node's built-in crypto.scryptSync.
 // scrypt is a memory-hard key derivation function designed to be slow
 // and expensive to brute-force. We store hashes as "salt:hash" in the DB.
 //
 // Format: "scrypt:<salt_hex>:<hash_hex>"
-// Old format ("h<hex>") is the legacy weak hash - supported for migration
-// but all new passwords use scrypt.
+// Anything else is rejected. The retired "h<hex>" format was a 32-bit string
+// hash with trivial collisions ("Aa" and "BB" matched), so accounts still
+// holding one must be reset out of band: scripts/maintenance/create-admin.ts.
 
 const SCRYPT_KEYLEN = 64
 const SCRYPT_SALTLEN = 16
@@ -21,67 +22,51 @@ export function hashPassword(s: string): string {
 }
 
 export function verifyPassword(s: string, stored: string): boolean {
-  // Handle legacy weak hashes for migration (h<hex> format)
-  if (stored.startsWith('h') && !stored.startsWith('scrypt:')) {
-    // Legacy weak hash - verify with old algorithm, caller should rehash
-    return legacyHash(s) === stored
-  }
-
   if (!stored.startsWith('scrypt:')) return false
 
   const parts = stored.split(':')
   if (parts.length !== 3) return false
   const salt = Buffer.from(parts[1], 'hex')
   const expectedHash = Buffer.from(parts[2], 'hex')
+  if (salt.length === 0 || expectedHash.length !== SCRYPT_KEYLEN) return false
   const hash = scryptSync(s, salt, SCRYPT_KEYLEN, SCRYPT_PARAMS)
 
   // Use timingSafeEqual to prevent timing attacks
-  if (hash.length !== expectedHash.length) return false
   return timingSafeEqual(hash, expectedHash)
-}
-
-/** Check if a password hash uses the legacy weak algorithm (needs rehashing). */
-export function needsRehash(stored: string): boolean {
-  return !stored.startsWith('scrypt:')
-}
-
-// Legacy hash function - only used for verifying old passwords during migration.
-function legacyHash(s: string): string {
-  let h = 0
-  for (let i = 0; i < s.length; i++) {
-    h = (h << 5) - h + s.charCodeAt(i)
-    h |= 0
-  }
-  return 'h' + Math.abs(h).toString(16)
 }
 
 const SESSION_COOKIE = 'ag_session'
 const SESSION_TTL_HOURS = 12
 
-// Sessions are stored in the database.
+// Sessions are stored in the database as SHA-256 digests of the cookie value,
+// so a leaked database copy cannot be replayed as live admin sessions.
+function sessionDigest(token: string): string {
+  return 'sha256:' + createHash('sha256').update(token).digest('hex')
+}
+
 export async function createSession(userId: string): Promise<string> {
-  const token =
-    randomBytes(32).toString('hex') + Date.now().toString(36)
+  const token = randomBytes(32).toString('base64url')
   await db.session.create({
-    data: { token, userId, expiresAt: new Date(Date.now() + SESSION_TTL_HOURS * 3600_000) },
+    data: { token: sessionDigest(token), userId, expiresAt: new Date(Date.now() + SESSION_TTL_HOURS * 3600_000) },
   })
   return token
 }
 
 export async function getSession(token?: string) {
-  if (!token) return null
-  const session = await db.session.findUnique({ where: { token } })
+  if (!token || token.length > 128) return null
+  const digest = sessionDigest(token)
+  const session = await db.session.findUnique({ where: { token: digest } })
   if (!session) return null
   if (session.expiresAt < new Date()) {
-    await db.session.delete({ where: { token } }).catch(() => {})
+    await db.session.delete({ where: { token: digest } }).catch(() => {})
     return null
   }
   return session
 }
 
 export async function destroySession(token?: string) {
-  if (!token) return
-  await db.session.delete({ where: { token } }).catch(() => {})
+  if (!token || token.length > 128) return
+  await db.session.delete({ where: { token: sessionDigest(token) } }).catch(() => {})
 }
 
 export async function requireAdmin(): Promise<{ id: string; email: string; name: string; role: string } | null> {

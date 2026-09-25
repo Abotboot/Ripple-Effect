@@ -1,0 +1,47 @@
+/* Shared look for Leaflet maps that place readings on the water.
+   Tiles are OpenStreetMap's standard style tinted to the site's night palette:
+   water stays the most distinct surface, so pins read as sitting on it. */
+.water-map-night .leaflet-tile-pane { filter: invert(1) hue-rotate(185deg) saturate(.55) brightness(.92) contrast(.92); }
+.water-map-night .leaflet-container, .water-map-night.leaflet-container { background: #0b1719; }
+
+.water-reading-pin { background: transparent; border: 0; }
+.water-reading-ripple { position: relative; display: block; width: 100%; height: 100%; }
+.water-reading-ripple > * { position: absolute; inset: 0; margin: auto; border-radius: 50%; }
+.water-reading-ripple > b { width: 14px; height: 14px; background: var(--pin); border: 2px solid #04110d; box-shadow: 0 0 0 1px var(--pin), 0 0 18px var(--pin); transition: transform .25s cubic-bezier(.2,.9,.3,1.4); }
+.water-reading-ripple > i { width: 14px; height: 14px; border: 1.5px solid var(--pin); opacity: 0; transform: scale(.6); will-change: transform, opacity; }
+.water-map-animate .water-reading-ripple > i { animation: water-pin-ripple 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+.water-map-animate .water-reading-ripple > i + i { animation-delay: 1.4s; }
+.water-reading-pin:hover .water-reading-ripple > b, .water-reading-pin:focus-visible .water-reading-ripple > b, .water-reading-ripple.is-selected > b { transform: scale(1.35); }
+.water-reading-pin:focus-visible { outline: 2px solid #1df2b3; outline-offset: 2px; border-radius: 50%; }
+@keyframes water-pin-ripple {
+  0% { opacity: .9; transform: scale(.6); }
+  100% { opacity: 0; transform: scale(3.1); }
+}
+
+.water-reading-popup .leaflet-popup-content-wrapper { border-radius: 0; background: #07110f; color: #dcebe5; border: 1px solid #36554b; box-shadow: 0 24px 60px #000a; }
+.water-reading-popup .leaflet-popup-tip { background: #07110f; border: 1px solid #36554b; }
+.water-reading-popup .leaflet-popup-content { margin: 16px 18px; min-width: 220px; font: 13px/1.6 var(--font-geist-sans), sans-serif; }
+.water-reading-popup .leaflet-popup-close-button { color: #a3bcb3; width: 32px; height: 32px; font-size: 20px; }
+.water-popup-kicker { font: 10px/1.6 var(--font-geist-mono), monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--pin, #1df2b3); }
+.water-popup-title { margin: 2px 0 10px; font: 400 26px/1.05 var(--font-tank-display), serif; letter-spacing: -.02em; color: #f1f7f3; }
+.water-popup-level { display: flex; align-items: baseline; gap: 6px; }
+.water-popup-level strong { font: 500 24px/1 var(--font-geist-sans), sans-serif; font-variant-numeric: tabular-nums; color: #f1f7f3; }
+.water-popup-meta { margin-top: 8px; color: #a3bcb3; font-size: 12px; }
+.water-popup-action { margin-top: 12px; min-height: 40px; padding: 8px 12px; border: 1px solid #36554b; color: #dcebe5; font: 11px/1.4 var(--font-geist-mono), monospace; background: transparent; cursor: pointer; transition: background-color .18s ease, border-color .18s ease; }
+.water-popup-action:hover { background: #12302a; border-color: #1df2b3; }
+
+@media (prefers-reduced-motion: reduce) {
+  .water-map-animate .water-reading-ripple > i { animation: none; opacity: .5; transform: scale(1.8); }
+  .water-reading-ripple > b { transition: none; }
+}
+
+/* Controls match the night map instead of Leaflet's default white. */
+.water-map-night .leaflet-bar { border: 1px solid #36554b; border-radius: 0; box-shadow: none; }
+.water-map-night .leaflet-bar a { background: #07110fe6; color: #dcebe5; border-bottom-color: #36554b; border-radius: 0 !important; backdrop-filter: blur(6px); transition: background-color .18s ease, color .18s ease; }
+.water-map-night .leaflet-bar a:hover { background: #12302a; color: #1df2b3; }
+.water-map-night .leaflet-bar a.leaflet-disabled { background: #07110f99; color: #5b7a70; }
+.water-map-night .leaflet-control-attribution { background: #07110fd9; color: #8fb4a6; }
+.water-map-night .leaflet-control-attribution a { color: #a9e5cf; }
+.water-map-night .leaflet-control-scale-line { background: #07110fb3; color: #bcd7cc; border-color: #5b7a70; }
+.water-map-night .leaflet-tooltip { background: #07110f; color: #dcebe5; border: 1px solid #36554b; border-radius: 0; box-shadow: 0 12px 30px #0009; }
+.water-map-night .leaflet-tooltip-top::before { border-top-color: #36554b; }

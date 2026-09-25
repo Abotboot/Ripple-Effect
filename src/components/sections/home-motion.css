@@ -1,0 +1,58 @@
+/* Home page motion details. Shared reveal/split rules live in motion.css. */
+
+/* Stats: editorial numerals with a rule that draws in when revealed. */
+.home-stats { position: relative; }
+.home-stat { position: relative; isolation: isolate; transition: background-color .4s ease; }
+.home-stat::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px; background: linear-gradient(90deg, #1df2b3, transparent 85%); scale: 0 1; transform-origin: left; transition: scale 1.4s var(--ease-out-expo) calc(var(--reveal-delay, 0ms) + 200ms); }
+.home-stat[data-revealed]::before, :root:not(.motion-ready) .home-stat::before { scale: 1 1; }
+.home-stat[data-tone=warning]::before { background: linear-gradient(90deg, #ff5d73, transparent 85%); }
+.home-stat:hover { background-color: #0b1714; }
+.home-stat-icon { color: #1df2b3; }
+.home-stat[data-tone=warning] .home-stat-icon { color: #ff8a9a; }
+.home-stat-label { font: 10px/1.5 var(--font-geist-mono), monospace; letter-spacing: .14em; text-transform: uppercase; color: #a4bdb3; }
+.home-stat-value { display: block; margin-top: 10px; font: 400 clamp(40px, 5vw, 64px)/.95 var(--font-tank-display), serif; letter-spacing: -.035em; font-variant-numeric: tabular-nums lining-nums; color: #eef6f2; }
+.home-stat[data-tone=warning] .home-stat-value { color: #ff8a9a; }
+.home-stat-hint { margin-top: 8px; font-size: 11px; color: #8fa89f; }
+
+/* City shortcuts: the arrow swaps out as a new one slides in. */
+.browse-city { position: relative; overflow: hidden; transition: border-color .3s ease, translate .45s var(--ease-out-expo); }
+.browse-city:hover { translate: 0 -2px; }
+.browse-city-name { font: 400 26px/1.1 var(--font-tank-display), serif !important; letter-spacing: -.02em; transition: color .3s ease; }
+.browse-city:hover .browse-city-name { color: #fff; }
+.browse-city-arrow { position: relative; display: inline-flex; width: 16px; height: 16px; overflow: hidden; color: #1df2b3; }
+.browse-city-arrow > svg { position: absolute; inset: 0; transition: translate .5s var(--ease-out-expo); }
+.browse-city-arrow > svg:last-child { translate: -120% 0; }
+.browse-city:hover .browse-city-arrow > svg:first-child { translate: 120% 0; }
+.browse-city:hover .browse-city-arrow > svg:last-child { translate: 0 0; }
+
+/* Live indicator for the activity feed. */
+.home-live-pill { display: inline-flex; align-items: center; gap: 7px; margin-left: 4px; padding: 3px 9px; border: 1px solid #1f4a3c; color: #1df2b3; font: 10px/1.4 var(--font-geist-mono), monospace; letter-spacing: .14em; text-transform: uppercase; }
+.home-live-pill > span { position: relative; width: 6px; height: 6px; border-radius: 50%; background: #1df2b3; }
+.home-live-pill > span::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1px solid #1df2b3; animation: ticker-live 2s ease-out infinite; }
+
+/* Citizen readings: named water and a jump to the map. */
+.citizen-water-name { font: 400 20px/1.15 var(--font-tank-display), serif; color: #e6ede8; }
+.citizen-water-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; min-height: 36px; color: #1df2b3; font: 11px/1.4 var(--font-geist-mono), monospace; letter-spacing: .04em; }
+.citizen-water-link > span { position: relative; width: 6px; height: 6px; border-radius: 50%; background: #1df2b3; box-shadow: 0 0 8px #1df2b3; }
+.citizen-water-link:hover { color: #afffe4; }
+
+/* Banners and link cards lift with the pointer spotlight. */
+.home-data section > button, .home-data section > .grid > :is(a, button) { transition: border-color .3s ease, translate .45s var(--ease-out-expo), box-shadow .3s ease; }
+.home-data section > button:hover, .home-data section > .grid > :is(a, button):hover { translate: 0 -2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .home-stat::before { transition: none; scale: 1 1; }
+  .browse-city, .browse-city-arrow > svg { transition: none; }
+  .home-live-pill > span::after { animation: none; }
+}
+
+/* Lower home sections share the editorial voice of the hero and footer. */
+.home-heading { row-gap: 4px; }
+.home-heading .home-eyebrow { flex-basis: 100%; font: 10px/1.8 var(--font-geist-mono), monospace; letter-spacing: .16em; text-transform: uppercase; color: #1df2b3; }
+.home-data .home-heading h2, .home-data > section:not(.tank-hero):not([aria-labelledby="particle-atlas-title"]) .home-heading h2 { font: 400 clamp(34px, 4vw, 54px)/1.02 var(--font-tank-display), serif; letter-spacing: -.03em; }
+.home-heading .home-eyebrow { display: block; margin-bottom: 6px; }
+.home-data [data-slot=card] { border-color: #1f3530; transition: border-color .3s ease, translate .45s var(--ease-out-expo); }
+.home-data [data-slot=card][role=button]:hover, .home-data [data-slot=card]:has(> [data-slot=card-content] > .flex > button):hover { border-color: #3f7a66; }
+.home-data [data-slot=card][role=button]:hover { translate: 0 -2px; }
+.home-data [data-slot=card][role=button] h3, .home-data [data-slot=card][role=button] .font-semibold { transition: color .25s ease; }
+.home-data [data-slot=card][role=button]:hover :is(h3, .font-semibold) { color: #fff; }

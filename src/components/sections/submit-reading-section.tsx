@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import {
   Beaker, Send, Loader2, CheckCircle2, FlaskConical, Droplets, MapPin,
@@ -20,6 +21,13 @@ import { api } from '@/lib/api'
 import type { Contaminant, Utility } from '@/lib/types'
 import { QualityBadge } from '@/components/quality-badge'
 import './reading-workbench.css'
+import type { CollectionPoint } from './collection-point-picker'
+
+// Leaflet loads only with this form, never with the home route.
+const CollectionPointPicker = dynamic(() => import('./collection-point-picker'), {
+  ssr: false,
+  loading: () => <div className="collection-picker-map" aria-busy="true" />,
+})
 
 export function SubmitReadingSection() {
   const [contaminants, setContaminants] = useState<Contaminant[] | null>(null)
@@ -36,6 +44,7 @@ export function SubmitReadingSection() {
     reporterEmail: '',
     notes: '',
   })
+  const [point, setPoint] = useState<CollectionPoint | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const { toast } = useToast()
@@ -66,10 +75,10 @@ export function SubmitReadingSection() {
       })
       return
     }
-    if (!form.utilityId) {
+    if (!form.utilityId && !point) {
       toast({
-        title: 'Select a utility',
-        description: 'Please select the water utility this reading is from.',
+        title: 'Where was it collected?',
+        description: 'Tap the water on the map where you sampled, or select the utility this reading is from.',
         variant: 'destructive',
       })
       return
@@ -78,7 +87,7 @@ export function SubmitReadingSection() {
     try {
       await api.submitReading({
         contaminantId: form.contaminantId,
-        utilityId: form.utilityId,
+        utilityId: form.utilityId || undefined,
         level: Number(form.level),
         unit: form.unit,
         treatmentStatus: form.treatmentStatus,
@@ -87,6 +96,7 @@ export function SubmitReadingSection() {
         reporterName: form.reporterName,
         reporterEmail: form.reporterEmail,
         notes: form.notes,
+        ...(point ? { latitude: point.latitude, longitude: point.longitude, waterBody: point.waterBody.trim() || undefined } : {}),
       })
       toast({
         title: 'Reading submitted! 🧪',
@@ -99,6 +109,7 @@ export function SubmitReadingSection() {
         sampleDate: new Date().toISOString().slice(0, 10),
         reporterName: '', reporterEmail: '', notes: '',
       })
+      setPoint(null)
     } catch (e) {
       toast({
         title: 'Submission failed',
@@ -111,6 +122,10 @@ export function SubmitReadingSection() {
   }
 
   const selectedContaminant = contaminants?.find((c) => c.id === form.contaminantId)
+  const utilityHint = useMemo(() => {
+    const utility = utilities?.find(u => u.id === form.utilityId)
+    return utility?.latitude != null && utility.longitude != null ? { latitude: utility.latitude, longitude: utility.longitude } : null
+  }, [utilities, form.utilityId])
 
   return (
     <div className="reading-workbench">
@@ -218,7 +233,7 @@ export function SubmitReadingSection() {
                       <div>
                         <Label htmlFor="rutil" className="text-xs">
                           <MapPin className="mr-1 inline h-3 w-3" />
-                          Utility / water system *
+                          Utility / water system
                         </Label>
                         <Select value={form.utilityId} onValueChange={(v) => setForm({ ...form, utilityId: v })}>
                           <SelectTrigger id="rutil"><SelectValue placeholder="Select utility" /></SelectTrigger>
@@ -272,12 +287,21 @@ export function SubmitReadingSection() {
                       </div>
                     </div>
 
+                    {/* Collection point on the water */}
+                    <div className="reading-where">
+                      <div className="reading-where-head">
+                        <strong>Where was it collected?</strong>
+                        <span>Your reading appears on this water on the public map</span>
+                      </div>
+                      <CollectionPointPicker value={point} onChange={setPoint} hint={utilityHint} />
+                    </div>
+
                     {/* Location + date */}
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
                         <Label htmlFor="rloc" className="text-xs">
                           <MapPin className="mr-1 inline h-3 w-3" />
-                          Sampling location
+                          Sampling spot notes
                         </Label>
                         <Input
                           id="rloc"
@@ -379,7 +403,7 @@ export function SubmitReadingSection() {
                       )}
                     </Button>
                     <p className="text-[11px] text-muted-foreground">
-                      By submitting, you certify that you are at least 13 years old and that this reading is for educational/community science purposes per our Terms of Service. Your email is never displayed publicly. Rate limit: 10 readings per email per 24 hours.
+                      By submitting, you certify that you are at least 13 years old and that this reading is for educational/community science purposes per our Terms of Service. Your email is never displayed publicly. The collection point you mark is public. Rate limit: 10 readings per email per 24 hours.
                     </p>
                   </form>
                 )}

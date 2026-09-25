@@ -36,8 +36,29 @@ async function req<T>(url: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T
 }
 
+export type WaterReading = {
+  id: string
+  latitude: number
+  longitude: number
+  waterBody: string | null
+  location: string | null
+  level: number
+  unit: string
+  sampleDate: string
+  source: string
+  robot: boolean
+  reviewLabel: string
+  status: 'legal' | 'health' | 'below' | 'unassessed'
+  contaminant: { name: string; slug: string }
+  utility: { id: string; name: string; city: string; state: string } | null
+}
+
 // -- Utilities --
 export const api = {
+  // Readings placed at their collection point on the water.
+  getWaterReadings: (signal?: AbortSignal) =>
+    req<{ items: WaterReading[]; available: boolean }>(`/api/readings/map`, { signal }),
+
   searchUtilities: (q: string) =>
     req<Utility[]>(`/api/utilities?q=${encodeURIComponent(q)}`),
 
@@ -63,7 +84,7 @@ export const api = {
     req<Report>(`/api/reports`, { method: 'POST', body: JSON.stringify(data) }),
 
   submitVolunteer: (data: Partial<Volunteer>) =>
-    req<Volunteer>(`/api/volunteers`, { method: 'POST', body: JSON.stringify(data) }),
+    req<{ ok: true; message: string }>(`/api/volunteers`, { method: 'POST', body: JSON.stringify(data) }),
 
   listVolunteers: () => req<Volunteer[]>(`/api/volunteers`),
 
@@ -114,7 +135,7 @@ export const api = {
 
   // -- Chapters (Start a Chapter program) --
   submitChapter: (data: Partial<Chapter>) =>
-    req<Chapter>(`/api/chapters`, { method: 'POST', body: JSON.stringify(data) }),
+    req<{ ok: true; message: string }>(`/api/chapters`, { method: 'POST', body: JSON.stringify(data) }),
 
   listChapters: () => req<Chapter[]>(`/api/chapters`),
 
@@ -126,7 +147,7 @@ export const api = {
 
   // -- Donations --
   submitDonation: (data: Partial<Donation>) =>
-    req<Donation>(`/api/donations`, { method: 'POST', body: JSON.stringify(data) }),
+    req<Pick<Donation, 'id' | 'amount' | 'tier' | 'status'>>(`/api/donations`, { method: 'POST', body: JSON.stringify(data) }),
 
   listDonations: () => req<Donation[]>(`/api/donations`),
 
@@ -146,7 +167,7 @@ export const api = {
 
   // -- Alert subscriptions --
   subscribeAlert: (data: { email: string; utilityId?: string; zipCode?: string; contaminantId?: string; threshold?: number }) =>
-    req<{ ok: true; id?: string; alreadySubscribed?: boolean }>(`/api/alerts`, { method: 'POST', body: JSON.stringify(data) }),
+    req<{ ok: true; message: string }>(`/api/alerts`, { method: 'POST', body: JSON.stringify(data) }),
 
   getAlertCount: () => req<{ count: number }>(`/api/alerts`),
 
@@ -163,7 +184,7 @@ export const api = {
 
   // -- Chapter leaderboard --
   getLeaderboard: () => req<{
-    leaderboard: Array<{ id: string; name: string; chapterName: string | null; city: string | null; state: string | null; waterBody: string | null; status: string; createdAt: string; reportCount: number; sampleCount: number; score: number; rank: number }>
+    leaderboard: Array<{ id: string; chapterName: string; city: string | null; state: string | null; waterBody: string | null; status: string; createdAt: string; reportCount: number; sampleCount: number; score: number; rank: number }>
     totalChapters: number
     activeChapters: number
   }>(`/api/leaderboard`),
@@ -180,6 +201,9 @@ export const api = {
     reporterName: string
     reporterEmail: string
     notes?: string
+    latitude?: number
+    longitude?: number
+    waterBody?: string
   }) => req<{ ok: true; id: string; message: string }>(`/api/readings`, {
     method: 'POST',
     body: JSON.stringify(data),
@@ -197,6 +221,7 @@ export const api = {
       source: string
       robot: boolean
       reporterName: string
+      collectionPoint: { latitude: number; longitude: number; waterBody: string | null } | null
       contaminant: { name: string; slug: string }
       utility: { name: string; city: string; state: string } | null
       exceedsHealth: boolean

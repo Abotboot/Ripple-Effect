@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { contributorNotes, loadCollectionPoints, loadContributors } from '@/lib/reading-contributors'
 
 // GET /api/readings/export - admin only.
 // Returns all citizen-quality readings as a CSV file for offline analysis.
@@ -30,19 +31,16 @@ export async function GET(req: NextRequest) {
     },
   })
 
-  // Parse reporter info from notes
+  const [contributors, points] = await Promise.all([
+    loadContributors(readings),
+    loadCollectionPoints(readings.map(r => r.id)),
+  ])
   const rows = readings.map((r) => {
-    let reporterEmail = ''
-    let reporterName = ''
-    let userNotes = ''
-    if (r.notes) {
-      const em = r.notes.match(/reporter:([^|]+)/)
-      if (em) reporterEmail = em[1].trim()
-      const nm = r.notes.match(/name:([^|]+)/)
-      if (nm) reporterName = nm[1].trim()
-      const un = r.notes.match(/notes:([^|]+)/)
-      if (un) userNotes = un[1].trim()
-    }
+    const contributor = contributors.get(r.id)
+    const reporterEmail = contributor?.email ?? ''
+    const reporterName = contributor?.name ?? ''
+    const userNotes = contributorNotes(r.notes)
+    const point = points.get(r.id)
     return {
       id: r.id,
       createdAt: r.createdAt.toISOString(),
@@ -53,6 +51,9 @@ export async function GET(req: NextRequest) {
       unit: r.unit,
       treatmentStatus: r.treatmentStatus,
       location: r.location ?? '',
+      waterBody: point?.waterBody ?? '',
+      latitude: point?.latitude ?? '',
+      longitude: point?.longitude ?? '',
       quality: r.quality,
       reporterName,
       reporterEmail,
@@ -77,7 +78,7 @@ export async function GET(req: NextRequest) {
   // CSV
   const headers = [
     'id', 'createdAt', 'sampleDate', 'contaminant', 'contaminantSlug',
-    'level', 'unit', 'treatmentStatus', 'location', 'quality',
+    'level', 'unit', 'treatmentStatus', 'location', 'waterBody', 'latitude', 'longitude', 'quality',
     'reporterName', 'reporterEmail', 'userNotes',
     'utilityName', 'utilityCity', 'utilityState', 'pwsid',
     'healthGuideline', 'legalLimit', 'exceedsHealth', 'exceedsLegal',
@@ -88,7 +89,7 @@ export async function GET(req: NextRequest) {
     if (/^[=+\-@\t\r]/.test(s)) {
       s = `'${s}`
     }
-    if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+    if (/[",\r\n]/.test(s)) {
       return `"${s.replace(/"/g, '""')}"`
     }
     return s

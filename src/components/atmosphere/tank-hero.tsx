@@ -4,8 +4,10 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import type { ArtworkCategory } from '@/lib/artwork-journey'
 import { useParticleMotion } from '@/hooks/use-particle-motion'
 import { PhotoParticleScene } from '../sections/photo-particle-scene'
+import { SplitWords } from '@/components/motion/split-words'
 import './tank.css'
 import './photo-hero.css'
+import './hero-motion.css'
 
 export { TankCanvas } from './tank-canvas'
 
@@ -32,19 +34,19 @@ export function TankHero({ children }: { children: ReactNode }) {
   }, [])
 
   return <section ref={root} className="tank-hero ripple-hero" aria-labelledby="tank-title" data-testid="ripple-hero" data-state="live">
-    <div className="ripple-media" data-testid="ripple-media">
+    <div className="ripple-media" data-testid="ripple-media" data-ripple-surface>
       <figure className="ripple-photograph" data-testid="particle-stage" data-renderer="photo-derived-cutouts" data-category={category}>
         <PhotoParticleScene hero selected={category} paused={motion.paused} allowReducedMotion={motion.override} onSelect={setCategory} />
         <figcaption><a href="#particle-atlas">Photo sources ↓</a></figcaption>
       </figure>
     </div>
     <div className="tank-editorial ripple-editorial">
-      <p className="tank-eyebrow">A RIPPLE EFFECT INITIATIVE</p>
-      <h1 id="tank-title">Clear water.<br /><em>Look closer.</em></h1>
-      <div className="tank-copy"><p>Explore water measurements and their sources.</p></div>
-      <div className="tank-search">{children}</div>
+      <p className="tank-eyebrow" data-reveal="fade">A RIPPLE EFFECT INITIATIVE</p>
+      <h1 id="tank-title" data-split><SplitWords text="Clear water." /><br /><em><SplitWords text="Look closer." start={2} /></em></h1>
+      <div className="tank-copy" data-reveal style={{ '--reveal-delay': '420ms' } as React.CSSProperties}><p>Explore water measurements and their sources.</p></div>
+      <div className="tank-search" data-reveal style={{ '--reveal-delay': '560ms' } as React.CSSProperties}>{children}</div>
     </div>
-    <div className="ripple-workbench" aria-label="Photograph controls">
+    <div className="ripple-workbench" aria-label="Photograph controls" data-reveal="fade" style={{ '--reveal-delay': '700ms' } as React.CSSProperties}>
       <div className="ripple-form-selector"><span className="ripple-control-label">Highlight a form</span>
         <div className="ripple-category-buttons" role="group" aria-label="Choose particle form">{forms.map(form => <button type="button" key={form.id} data-testid={`field-${form.id}`} aria-pressed={category === form.id} onClick={() => setCategory(form.id)}>{form.label}</button>)}</div>
       </div>

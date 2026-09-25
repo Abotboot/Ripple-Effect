@@ -31,7 +31,13 @@ async function runSeed(): Promise<void> {
   console.log('[ensureSeeded] Database is empty - running inline seed...')
 
   const { hashPassword } = await import('./auth')
-  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'ChangeMe!OnFirstLogin'
+  // Never a well-known default: preview deploys are reachable from the internet.
+  const { randomBytes } = await import('crypto')
+  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || `Ripple-${randomBytes(18).toString('base64url')}`
+  if (!process.env.ADMIN_DEFAULT_PASSWORD) {
+    // The password itself never goes to logs, which hosts retain and share.
+    console.log('[ensureSeeded] ADMIN_DEFAULT_PASSWORD is not set; the admin account got a random password. Set one with scripts/maintenance/create-admin.ts.')
+  }
 
   // Admin user - reads password from env (change immediately after first login).
   await db.user.upsert({

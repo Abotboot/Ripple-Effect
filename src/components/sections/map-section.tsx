@@ -1,6 +1,7 @@
 'use client'
 
 import './editorial-pages.css'
+import './map-section.css'
 
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -18,7 +19,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { api } from '@/lib/api'
+import { api, type WaterReading } from '@/lib/api'
+import { READING_STATUS, type ReadingStatus } from '@/lib/reading-status'
+import { SplitWords } from '@/components/motion/split-words'
 import type { Stats, UtilityWithStats, Utility } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
 import { cn } from '@/lib/utils'
@@ -63,6 +66,12 @@ export function MapSection() {
   const [radiusError, setRadiusError] = useState(false)
   const radiusRequest = useRef(0)
   const detailRequest = useRef(0)
+  // Readings drawn at their collection point on the water
+  const [waterReadings, setWaterReadings] = useState<WaterReading[] | null>(null)
+  const [showUtilities, setShowUtilities] = useState(true)
+  const [showReadings, setShowReadings] = useState(true)
+  const [focusReading, setFocusReading] = useState<{ id: string; nonce: number } | null>(null)
+  const mapAnchor = useRef<HTMLDivElement>(null)
   const retryData = () => {
     setLoading(true); setAssessmentLoading(true); setMapError(null); setAssessmentError(null)
     setLocations(null); setStats(null)
@@ -83,6 +92,28 @@ export function MapSection() {
         }
       }).catch(() => { if (active) setMapError('Utility locations could not be loaded.') })
       .finally(() => { if (active) setLoading(false) })
+    api.getWaterReadings(controller.signal)
+      .then(result => {
+        if (!active) return
+        const items = Array.isArray(result.items) ? result.items.filter(hasFiniteCoordinates) : []
+        setWaterReadings(items)
+        // "See it on the water" links elsewhere hand off a reading to focus.
+        let pending: string | null = null
+        try {
+          pending = sessionStorage.getItem('pendingWaterReading')
+          if (pending) sessionStorage.removeItem('pendingWaterReading')
+        } catch { /* storage blocked */ }
+        if (pending && items.some(r => r.id === pending)) {
+          setShowReadings(true)
+          setFocusReading({ id: pending, nonce: Date.now() })
+          // Bring the map on screen so the flight to the water is visible.
+          window.setTimeout(() => {
+            const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+            mapAnchor.current?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' })
+          }, 350)
+        }
+      })
+      .catch(() => { if (active) setWaterReadings([]) })
     api.getStats().then(result => {
       if (!Array.isArray(result.mapUtilities)) throw new Error('Invalid assessment response')
       if (active) setStats(result)
@@ -91,6 +122,25 @@ export function MapSection() {
     return () => { active = false; controller.abort() }
   }, [reload])
 
+
+  const waterBodies = useMemo(() => {
+    const groups = new Map<string, { name: string; readings: WaterReading[] }>()
+    for (const reading of waterReadings ?? []) {
+      const name = reading.waterBody || reading.location || 'Unnamed water'
+      const key = name.toLowerCase()
+      const group = groups.get(key) ?? { name, readings: [] }
+      group.readings.push(reading)
+      groups.set(key, group)
+    }
+    return [...groups.values()].sort((a, b) => b.readings.length - a.readings.length || a.name.localeCompare(b.name))
+  }, [waterReadings])
+
+  const showOnWater = (reading: WaterReading) => {
+    setShowReadings(true)
+    setFocusReading({ id: reading.id, nonce: Date.now() })
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+    mapAnchor.current?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' })
+  }
 
   const mapUtilities = useMemo(() => {
     const assessments = new Map(stats?.mapUtilities.map(u => [u.id, u]) ?? [])
@@ -195,18 +245,18 @@ export function MapSection() {
   return (
     <div className="editorial-page map-workbench min-h-screen">
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-        <div className="mb-6 text-center">
+        <div className="map-intro mb-8">
           <Badge variant="secondary" className="mb-3 border-primary/20 bg-primary/10 text-primary">
             <MapIcon className="mr-1 h-3 w-3" />
             National Map View
           </Badge>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Water utilities across America
+          <h1 data-split className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <SplitWords text="Every reading," /> <em><SplitWords text="on the water" start={2} /></em> <SplitWords text="it came from." start={5} />
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
-            Each dot is a recorded utility location. Comparisons use eligible reviewed
-            measurements where available; an unassessed location is not a safety finding.
-            Select a dot for its records, or search by distance from a city.
+          <p className="mt-4 max-w-2xl text-muted-foreground" data-reveal>
+            Rippling pins sit on the lake, river or bay where a sample was collected. Solid dots
+            locate water utilities. Comparisons use eligible reviewed measurements; an unassessed
+            location is not a safety finding.
           </p>
         </div>
 
@@ -224,7 +274,7 @@ export function MapSection() {
         </div>}
 
         {/* Tier filter chips + clear-filters button */}
-        <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
+        <div className="map-chip-row mb-3 flex flex-wrap items-center justify-center gap-2">
           <span className="sr-only">Filter utilities by recorded comparisons</span>
           {([
             { id: 'all', label: 'All locations', count: locations ? mapUtilities.length : null, color: '#64748b' },
@@ -272,7 +322,7 @@ export function MapSection() {
         </div>
 
         {/* Contaminant filter chips (ANDed with tier filter) */}
-        <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
+        <div className="map-chip-row mb-5 flex flex-wrap items-center justify-center gap-2">
           <span className="mr-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             <FlaskConical className="h-3 w-3" />
             By contaminant
@@ -327,7 +377,7 @@ export function MapSection() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-1 flex-wrap items-center gap-2">
+              <div className="map-city-row flex flex-1 flex-wrap items-center gap-2">
                 {QUICK_CITIES.map((c) => (
                   <button
                     key={c.name}
@@ -417,14 +467,39 @@ export function MapSection() {
         </div>}
         {!loading && locations && assessmentLoading && <p role="status" className="mb-3 text-sm text-muted-foreground">Locations loaded. Checking available sample comparisons…</p>}
 
-        <Card className="overflow-hidden shadow-lg">
+        <div className="map-layers" role="group" aria-label="Map layers">
+          <button type="button" aria-pressed={showReadings} onClick={() => setShowReadings(value => !value)} data-testid="layer-readings">
+            <span className="map-layer-swatch map-layer-swatch--ripple" aria-hidden="true" />
+            Readings on the water
+            <span className="map-layer-count">{waterReadings ? waterReadings.length : '…'}</span>
+          </button>
+          <button type="button" aria-pressed={showUtilities} onClick={() => setShowUtilities(value => !value)} data-testid="layer-utilities">
+            <span className="map-layer-swatch" aria-hidden="true" />
+            Utility locations
+            <span className="map-layer-count">{locations ? displayedUtilities.length : '…'}</span>
+          </button>
+        </div>
+
+        <div ref={mapAnchor}>
+        <Card className="map-frame gap-0 overflow-hidden py-0 shadow-lg">
           <CardContent className="p-0">
             {loading ? <Skeleton className="h-[500px] sm:h-[600px] w-full rounded-none" /> :
               <UtilityStreetMap utilities={displayedUtilities} center={radiusMode ? radiusCenter : null}
+                readings={showReadings ? waterReadings ?? [] : []} showUtilities={showUtilities}
+                focusReading={focusReading}
                 radiusMiles={radiusMiles} loadingId={loadingDetail}
-                onSelect={id => { const utility = displayedUtilities.find(item => item.id === id); if (utility) void openUtility(utility) }} />}
+                onSelect={id => {
+                  const utility = displayedUtilities.find(item => item.id === id) ?? mapUtilities.find(item => item.id === id)
+                  if (utility) void openUtility(utility)
+                }} />}
           </CardContent>
         </Card>
+        </div>
+        <div className="my-3 flex flex-wrap gap-x-5 gap-y-2 text-xs" aria-label="Water reading legend">
+          {(Object.keys(READING_STATUS) as ReadingStatus[]).map(status => <span key={status} className="inline-flex items-center gap-2">
+            <span className="map-legend-ripple" style={{ '--pin': READING_STATUS[status].color } as React.CSSProperties} />{READING_STATUS[status].label}
+          </span>)}
+        </div>
         <div className="my-3 flex flex-wrap gap-x-5 gap-y-2 text-xs" aria-label="Map legend">
           {[
             { label: 'Not assessed', color: '#87919b' },
@@ -433,7 +508,37 @@ export function MapSection() {
             { label: 'Above MCL benchmark', color: '#e11d48' },
           ].map(item => <span key={item.label} className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />{item.label}</span>)}
         </div>
-        <p className="mb-4 text-xs text-muted-foreground">Zoom in for streets and neighborhoods. Pins locate utilities, not service-area boundaries.</p>
+        <p className="mb-4 text-xs text-muted-foreground">Zoom in for streets and neighborhoods. Utility dots locate utilities, not service-area boundaries; rippling pins mark the exact collection point.</p>
+
+        {waterBodies.length > 0 && (
+          <section className="water-index" aria-labelledby="water-index-title">
+            <div className="water-index-head">
+              <span>Collected on the water</span>
+              <h2 id="water-index-title" data-reveal>{waterBodies.length} {waterBodies.length === 1 ? 'water body' : 'water bodies'}, {waterReadings?.length ?? 0} readings</h2>
+            </div>
+            <div className="water-index-grid">
+              {waterBodies.map((body, index) => {
+                const latest = body.readings[0]
+                const worst = body.readings.find(r => r.status === 'legal') ?? body.readings.find(r => r.status === 'health') ?? latest
+                return (
+                  <button key={body.name} type="button" className="water-index-card" data-reveal data-spotlight
+                    style={{ '--pin': READING_STATUS[worst.status].color, '--reveal-delay': `${Math.min(index, 8) * 60}ms` } as React.CSSProperties}
+                    onClick={() => showOnWater(latest)} data-testid="water-index-card">
+                    <span className="water-index-ripple" aria-hidden="true"><i /><i /><b /></span>
+                    <span className="water-index-name">{body.name}</span>
+                    <span className="water-index-meta">
+                      {body.readings.length} {body.readings.length === 1 ? 'reading' : 'readings'} · latest {latest.level} {latest.unit} {latest.contaminant.name.toLowerCase()}
+                    </span>
+                    <span className="water-index-meta">
+                      {latest.utility ? `${latest.utility.city}, ${latest.utility.state} · ` : ''}{latest.reviewLabel}
+                    </span>
+                    <span className="water-index-cta">Show on the water →</span>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
+        )}
         {stats?.officialMonitoring && stats.officialMonitoring.utilities > 0 && <p className="mb-4 text-sm text-muted-foreground"><a href={stats.officialMonitoring.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">EPA UCMR 5</a>: PFOA/PFOS results for {stats.officialMonitoring.utilities} utilities. Colors compare historical samples with the 4 ppt federal MCL; they do not indicate regulatory violations.</p>}
 
         {/* Quick stats */}

@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { timingSafeEqual } from 'crypto'
 import { db } from '@/lib/db'
 import { sendDiscordReadingWebhook } from '@/lib/discord-webhook'
-import { checkRateLimit } from '@/lib/rate-limit'
+import { normalizeContactEmail } from '@/lib/reading-notes'
+import { isMissingTable, parseCollectionPoint } from '@/lib/reading-contributors'
+import { clientAddress, consumeThrottles, HOUR, MINUTE } from '@/lib/durable-throttle'
 
 // Constant-time comparison so a wrong key leaks no timing information.
 function robotKeyMatches(presented: string | null, expected: string | undefined): boolean {
@@ -23,14 +25,56 @@ function robotKeyMatches(presented: string | null, expected: string | undefined)
 //  - forces source='Citizen Test'
 //  - allows optional utilityId (so readings can be tied to a known utility)
 //    OR a free-text location string (for unmapped water bodies)
-//  - rate-limits by IP and reporter email (max 10 pending readings per email)
+//  - accepts an optional collection point (latitude/longitude on the water,
+//    plus the water body's name) so the reading can be drawn where it was taken
+//  - rate-limits by client, by reporter email, and site-wide, in the database
+
+const PER_CLIENT = { windowMs: 10 * MINUTE, max: 5 }
+const PER_EMAIL = { windowMs: 24 * HOUR, max: 10 }
+const SITE_WIDE = { windowMs: HOUR, max: 120 }
+const TREATMENT = new Set(['Treated', 'Untreated', 'Mixed', 'Unknown'])
+
+function sampleDateFrom(value: unknown): Date | null {
+  if (value == null || value === '') return new Date()
+  if (typeof value !== 'string' && typeof value !== 'number') return null
+  const date = new Date(value)
+  const time = date.getTime()
+  // No dates before 1900 or more than a day ahead (timezone slack).
+  if (!Number.isFinite(time) || time < Date.UTC(1900, 0, 1) || time > Date.now() + 24 * HOUR) return null
+  return date
+}
+
+function unitFrom(value: unknown, fallback: string): string | null {
+  if (value == null || value === '') return fallback
+  if (typeof value !== 'string') return null
+  const unit = value.trim()
+  return unit && unit.length <= 24 ? unit : null
+}
+
+function textFrom(value: unknown, max: number): string | null {
+  if (typeof value !== 'string' && typeof value !== 'number') return null
+  return String(value).trim().slice(0, max) || null
+}
 
 export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => null)
-  if (!body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 })
   }
+  const place = parseCollectionPoint(body)
+  if (!place.ok) {
+    return NextResponse.json({ error: place.error }, { status: 400 })
+  }
+  const sampleDate = sampleDateFrom(body.sampleDate)
+  if (!sampleDate) {
+    return NextResponse.json({ error: 'Collection date must be a valid date that is not in the future.' }, { status: 400 })
+  }
+  const treatmentStatus = body.treatmentStatus == null || body.treatmentStatus === '' ? 'Treated' : String(body.treatmentStatus)
+  if (!TREATMENT.has(treatmentStatus)) {
+    return NextResponse.json({ error: 'Treatment status must be Treated, Untreated, Mixed, or Unknown.' }, { status: 400 })
+  }
+  const location = textFrom(body.location, 120)
 
   // Honeypot check for bots/scanners
   if (body.website || body.honeypot || body.hp_check) {
@@ -69,27 +113,34 @@ export async function POST(req: NextRequest) {
       robotUtilityId = robotUtility.id
       robotUtilityName = robotUtility.name
     }
-    const robotUnit = body.unit ?? robotContaminant.legalLimitUnit ?? robotContaminant.healthGuidelineUnit ?? 'ppb'
+    const robotUnit = unitFrom(body.unit, robotContaminant.legalLimitUnit ?? robotContaminant.healthGuidelineUnit ?? 'ppb')
+    if (!robotUnit) {
+      return NextResponse.json({ error: 'Unit must be a short text label.' }, { status: 400 })
+    }
+    const robotData = {
+      utilityId: robotUtilityId,
+      contaminantId: robotContaminant.id,
+      level: robotLevel,
+      unit: robotUnit,
+      sampleDate,
+      source: 'Ripple Robot',
+      robot: true,
+      treatmentStatus,
+      location,
+      quality: 'provisional',
+      notes: body.deviceId ? `device:${String(body.deviceId).slice(0, 60)}` : null,
+    }
     const robotCreated = await db.sample.create({
-      data: {
-        utilityId: robotUtilityId,
-        contaminantId: robotContaminant.id,
-        level: robotLevel,
-        unit: robotUnit,
-        sampleDate: body.sampleDate ? new Date(body.sampleDate) : new Date(),
-        source: 'Ripple Robot',
-        robot: true,
-        treatmentStatus: body.treatmentStatus ?? 'Treated',
-        location: body.location ? String(body.location).trim().slice(0, 120) : null,
-        quality: 'provisional',
-        notes: body.deviceId ? `device:${String(body.deviceId).slice(0, 60)}` : null,
-      },
+      data: place.point ? { ...robotData, collectionPoint: { create: place.point } } : robotData,
+    }).catch(error => {
+      if (!place.point || !isMissingTable(error)) throw error
+      return db.sample.create({ data: robotData })
     })
     await sendDiscordReadingWebhook({
       contaminantName: robotContaminant.name,
       level: robotLevel,
       unit: robotUnit,
-      location: body.location,
+      location: place.point?.waterBody ?? location,
       reporterName: '🤖 Ripple Robot' + (body.deviceId ? ` (${String(body.deviceId).slice(0, 40)})` : ''),
       utilityName: robotUtilityName || body.utilityName || null,
       notes: body.notes,
@@ -101,17 +152,8 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Rate limiting by client IP (max 5 readings per 10 minutes)
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown'
-  if (!checkRateLimit(`reading:${ip}`, { windowMs: 10 * 60 * 1000, max: 5 })) {
-    return NextResponse.json(
-      { error: 'Too many submissions. Please wait 10 minutes before submitting again.' },
-      { status: 429 }
-    )
-  }
-
   // Required fields
-  if (!body.contaminantId || body.level == null) {
+  if (!body.contaminantId || body.level == null || body.level === '') {
     return NextResponse.json(
       { error: 'Contaminant and measured level are required.' },
       { status: 400 }
@@ -124,14 +166,30 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const email = String(body.reporterEmail).trim().toLowerCase()
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  const email = normalizeContactEmail(body.reporterEmail)
+  if (!email) {
     return NextResponse.json({ error: 'Please enter a valid email.' }, { status: 400 })
+  }
+  const reporterName = textFrom(body.reporterName, 80)
+  if (!reporterName) {
+    return NextResponse.json({ error: 'Your name and email are required so we can verify the reading.' }, { status: 400 })
   }
 
   const level = Number(body.level)
   if (!Number.isFinite(level) || level < 0) {
     return NextResponse.json({ error: 'Level must be a non-negative number.' }, { status: 400 })
+  }
+
+  const limit = await consumeThrottles([
+    ['readings:client', clientAddress(req), PER_CLIENT],
+    ['readings:email', email, PER_EMAIL],
+    ['readings:site', 'all', SITE_WIDE],
+  ])
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many submissions right now. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSec) } }
+    )
   }
 
   // Verify the contaminant exists
@@ -154,47 +212,39 @@ export async function POST(req: NextRequest) {
     utilityName = utility.name
   }
 
-  // Rate-limit: max 10 citizen readings per email in the last 24h
-  const since = new Date(Date.now() - 24 * 3600_000)
-  const recentCount = await db.sample.count({
-    where: {
-      notes: { contains: `reporter:${email}` },
-      createdAt: { gte: since },
-    },
-  })
-  if (recentCount >= 10) {
-    return NextResponse.json(
-      { error: 'Rate limit reached: max 10 citizen readings per email per 24 hours. Please try again tomorrow.' },
-      { status: 429 }
-    )
+  const unit = unitFrom(body.unit, contaminant.legalLimitUnit ?? contaminant.healthGuidelineUnit ?? 'ppb')
+  if (!unit) {
+    return NextResponse.json({ error: 'Unit must be a short text label.' }, { status: 400 })
   }
+  const userNotes = textFrom(body.notes, 500)
 
-  // Build the notes field to store reporter metadata (since the Sample model
-  // doesn't have dedicated reporter fields - this keeps the schema simple
-  // while still recording who submitted it for verification follow-up).
-  const notesParts = [
-    `reporter:${email}`,
-    `name:${String(body.reporterName).trim().slice(0, 80)}`,
-  ]
-  if (body.location) notesParts.push(`location:${String(body.location).trim().slice(0, 120)}`)
-  if (body.notes) notesParts.push(`notes:${String(body.notes).trim().slice(0, 500)}`)
-  const notes = notesParts.join(' | ')
-
-  const unit = body.unit ?? contaminant.legalLimitUnit ?? contaminant.healthGuidelineUnit ?? 'ppb'
-
+  const base = {
+    utilityId,
+    contaminantId: contaminant.id,
+    level,
+    unit,
+    sampleDate,
+    source: 'Citizen Test',
+    treatmentStatus,
+    location,
+    quality: 'citizen',
+  }
+  // Contact details live in SampleContributor, never in the public notes.
+  // Until that table exists, fall back to the legacy notes format; the strict
+  // email rules above keep '|' out of it, and public reads drop the segment.
   const created = await db.sample.create({
     data: {
-      utilityId: utilityId ?? null,
-      contaminantId: contaminant.id,
-      level,
-      unit,
-      sampleDate: body.sampleDate ? new Date(body.sampleDate) : new Date(),
-      source: 'Citizen Test',
-      treatmentStatus: body.treatmentStatus ?? 'Treated',
-      location: body.location ? String(body.location).trim().slice(0, 120) : null,
-      quality: 'citizen',
-      notes,
+      ...base,
+      notes: userNotes,
+      contributor: { create: { email, name: reporterName } },
+      ...(place.point ? { collectionPoint: { create: place.point } } : {}),
     },
+  }).catch(error => {
+    if (!isMissingTable(error)) throw error
+    const legacy = [`reporter:${email}`, `name:${reporterName}`]
+    if (location) legacy.push(`location:${location}`)
+    if (userNotes) legacy.push(`notes:${userNotes}`)
+    return db.sample.create({ data: { ...base, notes: legacy.join(' | ') } })
   })
 
   // Queue/receipt notification only. A public citizen submission is unreviewed
@@ -203,10 +253,10 @@ export async function POST(req: NextRequest) {
     contaminantName: contaminant.name,
     level,
     unit,
-    location: body.location,
-    reporterName: body.reporterName,
-    utilityName: utilityName || body.utilityName || (utilityId ? 'Mapped Utility' : null),
-    notes: body.notes,
+    location: place.point?.waterBody ?? location,
+    reporterName,
+    utilityName: utilityName || (utilityId ? 'Mapped Utility' : null),
+    notes: userNotes,
     reviewState: 'unreviewed',
   })
 

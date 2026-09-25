@@ -8,7 +8,8 @@ import { directoryMatchesForPwsid, getOfficialMonitoring, withOfficialIdentity }
 export async function GET(req: NextRequest) {
 
   const q = req.nextUrl.searchParams.get('q')?.trim() ?? ''
-  const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') ?? '50'), 200)
+  const requested = Number.parseInt(req.nextUrl.searchParams.get('limit') ?? '50', 10)
+  const limit = Number.isFinite(requested) && requested > 0 ? Math.min(requested, 200) : 50
 
   let utilities
   if (!q) {

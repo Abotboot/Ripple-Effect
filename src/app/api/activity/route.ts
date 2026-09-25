@@ -22,7 +22,9 @@ export async function GET() {
         utility: { select: { name: true, city: true, state: true } },
         contaminant: { select: { name: true, slug: true, healthGuideline: true, legalLimit: true,
           healthGuidelineUnit: true, legalLimitUnit: true } },
-    }, { take: 5, orderBy: { sampleDate: 'desc' } }),
+    // Unreviewed citizen readings stay out of the public feed until moderated,
+    // and future-dated rows can never pin themselves to the top.
+    }, { where: { quality: { not: 'citizen' }, sampleDate: { lte: new Date() } }, take: 5, orderBy: { sampleDate: 'desc' } }),
     db.report.findMany({
       take: 4,
       orderBy: { createdAt: 'desc' },
@@ -38,11 +40,11 @@ export async function GET() {
       },
     }),
     db.chapter.findMany({
+      where: { status: { in: ['active', 'onboarded'] } },
       take: 4,
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
-        name: true,
         chapterName: true,
         city: true,
         state: true,
@@ -50,7 +52,9 @@ export async function GET() {
         createdAt: true,
       },
     }),
+    // Pledges are unverified public input; only completed donations appear.
     db.donation.findMany({
+      where: { status: 'completed' },
       take: 4,
       orderBy: { createdAt: 'desc' },
       select: {
@@ -112,7 +116,7 @@ export async function GET() {
       id: 'chapter-' + c.id,
       type: 'chapter',
       date: c.createdAt.toISOString(),
-      title: `New chapter: ${c.chapterName || c.name}`,
+      title: `New chapter: ${c.chapterName || (c.city ? `${c.city} chapter` : 'Community chapter')}`,
       subtitle: [c.city, c.state].filter(Boolean).join(', ') || 'Location TBD',
       meta: c.waterBody ? `testing: ${c.waterBody}` : undefined,
       tone: 'info',

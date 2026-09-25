@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 import { readSamples, SAMPLE_READ_FIELDS, sampleReadHeaders } from '@/lib/sample-read'
+import { publicSampleNotes } from '@/lib/reading-notes'
 
 // GET /api/samples?utilityId=&contaminantId=&treatmentStatus=&limit=
 export async function GET(req: NextRequest) {
@@ -26,10 +27,11 @@ export async function GET(req: NextRequest) {
     take: limit,
   })
 
-  // Sanitize internal reporter contact details from notes in public API
+  // Contributor contact details never leave the server: drop every legacy
+  // "reporter:" segment whole, splitting on the exact field separator.
   const sanitized = samples.map((s) => ({
     ...s,
-    notes: s.notes ? s.notes.replace(/reporter:[^|]+(\| )?/g, '').trim() : null,
+    notes: publicSampleNotes(s.notes),
   }))
 
   return NextResponse.json(sanitized, { headers: sampleReadHeaders(dataStatus) })
