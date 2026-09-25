@@ -2,7 +2,7 @@
 .scene, .scene * { -webkit-user-select: none; user-select: none; }
 .scene img { -webkit-user-drag: none; pointer-events: none; }
 .light { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 55% 35%, #17494e80, transparent 65%), linear-gradient(145deg, #102f3270, #040c10); }
-.particle { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size); translate: var(--push-x, 0px) var(--push-y, 0px); rotate: var(--angle); padding: 0; border: 0; background: none; transition: translate .25s ease-out, opacity .25s, filter .25s; }
+.particle { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size); translate: var(--push-x, 0px) var(--push-y, 0px); rotate: var(--angle); padding: 0; border: 0; background: none; transition: opacity .25s, filter .25s; }
 .scene[data-dense=true] { background: #06181b; }
 .scene[data-dense=true] .light { background: radial-gradient(ellipse at 62% 22%, #285f6970, transparent 65%), linear-gradient(170deg, #15424c90, #030d13); }
 .scene[data-dense=true] .particle { opacity: var(--opacity); cursor: pointer; }

@@ -46,7 +46,7 @@ export function WaterTicker({ onNavigate }: { onNavigate?: (s: Section) => void 
                   tabIndex={copy ? -1 : undefined}
                   onClick={() => showReadingOnMap(reading.id, onNavigate)}
                   style={{ '--pin': READING_STATUS[reading.status].color } as CSSProperties}
-                  data-cursor="Map"
+                 
                 >
                   <span className="water-ticker-dot" aria-hidden="true" />
                   <strong>{reading.waterBody || reading.location || 'Unnamed water'}</strong>

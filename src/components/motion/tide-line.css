@@ -1,0 +1,22 @@
+.tide-line { position: relative; z-index: 2; height: 96px; overflow: hidden; pointer-events: none; }
+.tide-line > svg { position: absolute; left: 0; bottom: 0; width: 200%; height: 100%; animation: tide-drift 24s linear infinite; will-change: transform; }
+.tide-line .tide-back path { fill: rgb(29 242 179 / .11); }
+.tide-line .tide-mid { animation-duration: 17s; animation-direction: reverse; }
+.tide-line .tide-mid path { fill: rgb(20 78 70 / .7); }
+.tide-line .tide-front { animation-duration: 13s; }
+.tide-line .tide-front path { fill: var(--tide-fill); }
+.tide-line .tide-front .tide-crest { fill: none; stroke: rgb(29 242 179 / .6); stroke-width: 1.4px; }
+@keyframes tide-drift { to { transform: translate3d(-50%, 0, 0); } }
+
+/* Just below the hero: the water's surface before the rest of the page. */
+.tide-line--hero { margin-top: 8px; }
+/* Across the top of the footer, above its border. */
+.tide-line--footer { position: absolute; left: 0; right: 0; bottom: 100%; height: 84px; }
+
+@media (max-width: 767px) {
+  .tide-line { height: 64px; }
+  .tide-line--footer { height: 52px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tide-line > svg { animation: none; }
+}

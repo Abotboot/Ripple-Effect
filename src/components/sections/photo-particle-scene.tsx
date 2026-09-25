@@ -40,7 +40,6 @@ export function PhotoParticleScene({ subject = 'all', selected = 'all', paused =
   const root = useRef<HTMLSpanElement>(null)
   const [visible, setVisible] = useState(false)
   const [failed, setFailed] = useState(false)
-  const pointerFrame = useRef<number | null>(null)
   const pointerStart = useRef<{ x: number; y: number } | null>(null)
   useEffect(() => {
     let intersects = false
@@ -48,49 +47,187 @@ export function PhotoParticleScene({ subject = 'all', selected = 'all', paused =
     const observer = new IntersectionObserver(([entry]) => { intersects = entry.isIntersecting; update() })
     if (root.current) observer.observe(root.current)
     document.addEventListener('visibilitychange', update)
-    return () => { observer.disconnect(); document.removeEventListener('visibilitychange', update); if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current) }
+    return () => { observer.disconnect(); document.removeEventListener('visibilitychange', update) }
   }, [])
   useEffect(() => {
     const scene = root.current
     const surface = hero ? scene?.closest<HTMLElement>('.ripple-hero') : scene?.closest<HTMLElement>('[role="tab"]') ?? scene
     if (!scene || !surface) return
-    const nodes = Array.from(scene.querySelectorAll<HTMLElement>('[data-particle]'))
     const preference = matchMedia('(prefers-reduced-motion: reduce)')
-    let latest = { x: 0, y: 0 }
-    const reset = () => {
-      if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current)
-      pointerFrame.current = null
-      nodes.forEach(node => { node.style.setProperty('--push-x', '0px'); node.style.setProperty('--push-y', '0px') })
+    const enabled = () => !paused && visible && (!preference.matches || allowReducedMotion)
+    const nodes = Array.from(scene.querySelectorAll<HTMLElement>('[data-particle]'))
+    const count = nodes.length
+
+    // A small spring-and-collision simulation in scene pixels. Each particle is
+    // tethered to where it was placed; the pointer shoves it with momentum, it
+    // knocks into its neighbours (hero only), spins a little, and drifts home.
+    // The loop runs only while something moves.
+    const home = new Float32Array(count * 2), offset = new Float32Array(count * 2), velocity = new Float32Array(count * 2)
+    const radius = new Float32Array(count), weight = new Float32Array(count), baseAngle = new Float32Array(count)
+    const spin = new Float32Array(count), spinVelocity = new Float32Array(count)
+    const awake = new Uint8Array(count), touched = new Uint8Array(count)
+    let pairs: Float32Array = new Float32Array(0) // [i, j, contact distance] triples
+    let measured = false
+    const measure = () => {
+      for (let i = 0; i < count; i++) {
+        const node = nodes[i], size = node.offsetWidth
+        home[i * 2] = node.offsetLeft + size / 2
+        home[i * 2 + 1] = node.offsetTop + node.offsetHeight / 2
+        radius[i] = size * 0.36
+        // Faint (far) particles react less, like depth in the water.
+        weight[i] = 0.45 + 0.55 * (Number.parseFloat(node.style.getPropertyValue('--opacity')) || 1)
+        baseAngle[i] = Number.parseFloat(node.style.getPropertyValue('--angle')) || 0
+      }
+      const found: number[] = []
+      if (hero) for (let i = 0; i < count; i++) for (let j = i + 1; j < count; j++) {
+        if (!radius[i] || !radius[j]) continue
+        const rest = Math.hypot(home[i * 2] - home[j * 2], home[i * 2 + 1] - home[j * 2 + 1])
+        // Particles that overlap at rest may keep overlapping; only closing in further bumps.
+        if (rest < radius[i] + radius[j] + 60) found.push(i, j, Math.min(radius[i] + radius[j], rest * 0.98))
+      }
+      pairs = Float32Array.from(found)
+      measured = true
     }
+
+    const pointer = { clientX: 0, clientY: 0, x: 0, y: 0, vx: 0, vy: 0, seen: false, movedAt: -1e9 }
+    let burst: { clientX: number; clientY: number } | null = null
+    let frame = 0, last = 0
+
+    const write = (i: number) => {
+      const node = nodes[i]
+      if (!awake[i]) { node.style.removeProperty('translate'); node.style.removeProperty('rotate'); touched[i] = 0; return }
+      node.style.translate = `${offset[i * 2].toFixed(1)}px ${offset[i * 2 + 1].toFixed(1)}px`
+      if (hero) node.style.rotate = `${(baseAngle[i] + spin[i]).toFixed(1)}deg`
+      touched[i] = 1
+    }
+
+    const step = (now: number) => {
+      frame = 0
+      if (!enabled()) return
+      const dt = Math.min(2, (now - (last || now - 16.7)) / 16.7)
+      last = now
+      if (!measured) measure()
+      const box = scene.getBoundingClientRect()
+      const scale = box.width / (scene.offsetWidth || box.width || 1)
+      const active = now - pointer.movedAt < 120
+
+      if (active) {
+        const x = (pointer.clientX - box.left) / scale, y = (pointer.clientY - box.top) / scale
+        pointer.vx = pointer.seen ? (x - pointer.x) / dt : 0
+        pointer.vy = pointer.seen ? (y - pointer.y) / dt : 0
+        pointer.x = x; pointer.y = y; pointer.seen = true
+      } else pointer.seen = false
+      const speed = Math.min(40, Math.hypot(pointer.vx, pointer.vy))
+
+      for (let i = 0; i < count; i++) {
+        if (!radius[i]) continue
+        const ix = i * 2, iy = ix + 1
+        if (active) {
+          const dx = home[ix] + offset[ix] - pointer.x, dy = home[iy] + offset[iy] - pointer.y
+          const reach = 110 + radius[i] * 2, distance = Math.hypot(dx, dy)
+          if (distance < reach) {
+            const falloff = (1 - distance / reach) ** 2, push = (1.4 + speed * 0.1) * falloff * weight[i] * dt
+            const nx = dx / Math.max(distance, 1), ny = dy / Math.max(distance, 1)
+            // Pushed away from the pointer, and dragged a little along with it.
+            velocity[ix] += nx * push + pointer.vx * falloff * 0.15 * weight[i] * dt
+            velocity[iy] += ny * push + pointer.vy * falloff * 0.15 * weight[i] * dt
+            spinVelocity[i] += (nx * pointer.vy - ny * pointer.vx) * falloff * 0.35
+            awake[i] = 1
+          }
+        }
+        if (burst && radius[i]) {
+          const bx = (burst.clientX - box.left) / scale, by = (burst.clientY - box.top) / scale
+          const dx = home[ix] + offset[ix] - bx, dy = home[iy] + offset[iy] - by, distance = Math.hypot(dx, dy)
+          if (distance < 280) {
+            const push = 34 * (1 - distance / 280) ** 2 * weight[i]
+            velocity[ix] += dx / Math.max(distance, 1) * push
+            velocity[iy] += dy / Math.max(distance, 1) * push
+            spinVelocity[i] += (i % 2 ? 1 : -1) * push * 1.5
+            awake[i] = 1
+          }
+        }
+      }
+      burst = null
+
+      // Neighbours bump: separate overlapping pairs and trade momentum.
+      for (let k = 0; k < pairs.length; k += 3) {
+        const i = pairs[k], j = pairs[k + 1]
+        if (!awake[i] && !awake[j]) continue
+        const dx = home[j * 2] + offset[j * 2] - home[i * 2] - offset[i * 2]
+        const dy = home[j * 2 + 1] + offset[j * 2 + 1] - home[i * 2 + 1] - offset[i * 2 + 1]
+        const distance = Math.hypot(dx, dy), contact = pairs[k + 2]
+        if (distance >= contact || distance === 0) continue
+        const nx = dx / distance, ny = dy / distance, overlap = (contact - distance) / 2
+        offset[i * 2] -= nx * overlap; offset[i * 2 + 1] -= ny * overlap
+        offset[j * 2] += nx * overlap; offset[j * 2 + 1] += ny * overlap
+        const approach = (velocity[j * 2] - velocity[i * 2]) * nx + (velocity[j * 2 + 1] - velocity[i * 2 + 1]) * ny
+        if (approach < 0) {
+          const impulse = -approach * 0.8
+          velocity[i * 2] -= nx * impulse; velocity[i * 2 + 1] -= ny * impulse
+          velocity[j * 2] += nx * impulse; velocity[j * 2 + 1] += ny * impulse
+          spinVelocity[i] -= impulse * 0.6; spinVelocity[j] += impulse * 0.6
+        }
+        awake[i] = awake[j] = 1
+      }
+
+      let moving = false
+      const damping = 0.93 ** dt, spinDamping = 0.94 ** dt
+      for (let i = 0; i < count; i++) {
+        if (!awake[i]) { if (touched[i]) write(i); continue }
+        const ix = i * 2, iy = ix + 1
+        // Spring home, then friction.
+        velocity[ix] = (velocity[ix] - offset[ix] * 0.012 * dt) * damping
+        velocity[iy] = (velocity[iy] - offset[iy] * 0.012 * dt) * damping
+        const v = Math.hypot(velocity[ix], velocity[iy])
+        if (v > 26) { velocity[ix] *= 26 / v; velocity[iy] *= 26 / v }
+        offset[ix] = Math.max(-170, Math.min(170, offset[ix] + velocity[ix] * dt))
+        offset[iy] = Math.max(-170, Math.min(170, offset[iy] + velocity[iy] * dt))
+        spinVelocity[i] = (spinVelocity[i] - spin[i] * 0.01 * dt) * spinDamping
+        spin[i] = Math.max(-120, Math.min(120, spin[i] + spinVelocity[i] * dt))
+        const resting = Math.abs(offset[ix]) + Math.abs(offset[iy]) < 0.15 && v < 0.05 && Math.abs(spin[i]) < 0.2 && Math.abs(spinVelocity[i]) < 0.05
+        if (resting) {
+          offset[ix] = offset[iy] = velocity[ix] = velocity[iy] = spin[i] = spinVelocity[i] = 0
+          awake[i] = 0
+        } else moving = true
+        write(i)
+      }
+      if (moving || now - pointer.movedAt < 120) frame = requestAnimationFrame(step)
+      else last = 0
+    }
+    const wake = () => { if (!frame && enabled()) frame = requestAnimationFrame(step) }
+
     const move = (event: PointerEvent) => {
-      if (event.pointerType !== 'mouse' || paused || !visible || preference.matches && !allowReducedMotion) return
-      latest = { x: event.clientX, y: event.clientY }
-      // Keep one scheduled frame. High-polling mice must not cancel it repeatedly.
-      if (pointerFrame.current !== null) return
-      pointerFrame.current = requestAnimationFrame(() => {
-        pointerFrame.current = null
-        const offsets = nodes.map(node => {
-          const box = node.getBoundingClientRect()
-          const dx = box.x + box.width / 2 - latest.x, dy = box.y + box.height / 2 - latest.y
-          const distance = Math.hypot(dx, dy), influence = Math.max(0, 1 - distance / 220)
-          return { x: dx / Math.max(distance, 1) * influence * 28, y: dy / Math.max(distance, 1) * influence * 28 }
-        })
-        nodes.forEach((node, index) => {
-          node.style.setProperty('--push-x', `${offsets[index].x}px`)
-          node.style.setProperty('--push-y', `${offsets[index].y}px`)
-        })
-      })
+      if (event.pointerType === 'touch') return
+      pointer.clientX = event.clientX; pointer.clientY = event.clientY
+      pointer.movedAt = performance.now()
+      wake()
     }
+    // A tap or click drops a pebble: nearby particles scatter from it.
+    const press = (event: PointerEvent) => {
+      if (!(event.target instanceof Node) || !scene.contains(event.target)) return
+      burst = { clientX: event.clientX, clientY: event.clientY }
+      wake()
+    }
+    const settle = () => {
+      cancelAnimationFrame(frame); frame = 0; last = 0
+      for (let i = 0; i < count; i++) {
+        offset[i * 2] = offset[i * 2 + 1] = velocity[i * 2] = velocity[i * 2 + 1] = spin[i] = spinVelocity[i] = 0
+        awake[i] = 0
+        if (touched[i]) write(i)
+      }
+    }
+    const forget = () => { measured = false }
+    if (!enabled()) settle()
     surface.addEventListener('pointermove', move, { passive: true })
-    surface.addEventListener('pointerleave', reset)
-    surface.addEventListener('pointercancel', reset)
-    preference.addEventListener('change', reset)
+    surface.addEventListener('pointerdown', press, { passive: true })
+    window.addEventListener('resize', forget, { passive: true })
+    preference.addEventListener('change', settle)
     return () => {
-      reset()
+      settle()
       surface.removeEventListener('pointermove', move)
-      surface.removeEventListener('pointerleave', reset)
-      surface.removeEventListener('pointercancel', reset)
-      preference.removeEventListener('change', reset)
+      surface.removeEventListener('pointerdown', press)
+      window.removeEventListener('resize', forget)
+      preference.removeEventListener('change', settle)
     }
   }, [hero, paused, visible, allowReducedMotion])
   const displayed = hero ? scatter : particles.filter(particle => subject === 'all' || subject === particle.id)

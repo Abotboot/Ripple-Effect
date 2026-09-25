@@ -2,7 +2,7 @@
    the bottle and the lens clip, scale and opacity on the few layers that move;
    the defaults below are the resting state. With reduced motion the story
    lays out as a static, readable column instead. */
-.bottle-story { position: relative; height: 430vh; background: #05080a; color: #e6ede8; }
+.bottle-story { position: relative; height: 300vh; background: #05080a; color: #e6ede8; }
 .bottle-stage {
   position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; isolation: isolate; contain: layout paint;
 }
@@ -120,9 +120,14 @@
 .bottle-stage[data-step="0"] .bs-rail button[data-i="0"] .bs-rail-dot, .bottle-stage[data-step="1"] .bs-rail button[data-i="1"] .bs-rail-dot,
 .bottle-stage[data-step="2"] .bs-rail button[data-i="2"] .bs-rail-dot, .bottle-stage[data-step="3"] .bs-rail button[data-i="3"] .bs-rail-dot { background: #1df2b3; border-color: #1df2b3; box-shadow: 0 0 10px #1df2b3; }
 
+/* Skip: jumps past the story in the direction the reader is scrolling. */
+.bs-skip { position: absolute; z-index: 3; right: max(2.5vw, 16px); top: calc(50% + 124px); min-height: 40px; padding: 8px 12px; border: 1px solid #2c4a40; background: rgb(5 8 10 / .6); color: #8fb4a6; font: 10px/1.2 var(--font-geist-mono), monospace; letter-spacing: .12em; text-transform: uppercase; transition: color .2s ease, border-color .2s ease; }
+.bs-skip:hover, .bs-skip:focus-visible { color: #e9fff7; border-color: #1df2b3; }
+.bottle-stage[data-dir="down"] .bs-skip-up, .bottle-stage[data-dir="up"] .bs-skip-down { display: none; }
+
 /* Phones: bottle above, copy below, a shorter scroll. */
 @media (max-width: 767px) {
-  .bottle-story { height: 380vh; }
+  .bottle-story { height: 270vh; }
   .bs-bottle { right: auto; left: 50%; top: 30%; width: min(52vw, 34svh); translate: -50% calc(-50% + (1 - var(--intro)) * 6vh); }
   .bs-copy { left: 20px; right: 20px; top: auto; bottom: max(76px, calc(env(safe-area-inset-bottom) + 56px)); translate: none; width: auto; min-height: 40svh; }
   .bs-copy::before { inset: -60px -20px -120px; opacity: 1; background: linear-gradient(transparent, #05080aee 30%); }
@@ -131,6 +136,7 @@
   .bs-chapter p { font-size: 15px; line-height: 1.6; }
   .bs-note { top: auto; bottom: calc(100% + 10px); white-space: normal; max-width: 72vw; }
   .bs-rail { right: 12px; top: 22%; gap: 16px; }
+  .bs-skip { right: 8px; top: calc(22% + 100px); }
   .bs-rail-label { display: none; }
   .bs-particle--wide { display: none; }
   .bs-particle--phone { display: block; }
@@ -155,7 +161,7 @@
   .bottle-story .bs-copy { position: relative; top: auto; translate: none; }
   .bottle-story .bs-chapter { position: relative; top: auto; margin-bottom: 40px; pointer-events: auto; }
   .bottle-story .bs-chapter > * { opacity: 1; translate: none; transition: none; }
-  .bottle-story .bs-rail, .bottle-story .bs-lens-ring, .bottle-story .bs-lens-tag { display: none; }
+  .bottle-story .bs-rail, .bottle-story .bs-lens-ring, .bottle-story .bs-lens-tag, .bottle-story .bs-skip { display: none; }
   .bottle-story .bs-note { position: static; margin-top: 12px; }
 }
 @media (prefers-reduced-motion: reduce) and (max-width: 767px) {

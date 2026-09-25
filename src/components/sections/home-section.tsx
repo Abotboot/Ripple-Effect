@@ -35,6 +35,9 @@ import { SplitWords } from '@/components/motion/split-words'
 import { RollText } from '@/components/motion/roll-text'
 import { WaterTicker, showReadingOnMap } from '@/components/sections/water-ticker'
 import { BottleStory } from '@/components/sections/bottle-story'
+import { ScaleZoom } from '@/components/sections/scale-zoom'
+import { PlasticPath } from '@/components/sections/plastic-path'
+import { TideLine } from '@/components/motion/tide-line'
 import './home-motion.css'
 
 const SEARCH_EXAMPLES = ['ZIP, city or utility', '60614', 'Seattle, WA', 'Philadelphia Water', '90026', 'Miami-Dade'] as const
@@ -207,6 +210,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
         stats={stats}
         onNavigate={onNavigate}
       />
+      <TideLine fill="#090e10" className="tide-line--hero" />
 
       {/* Stats bar */}
       <StatsBar stats={stats} />
@@ -367,6 +371,10 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
       </section>
 
       <BottleStory onNavigate={onNavigate} />
+
+      <ScaleZoom />
+
+      <PlasticPath />
 
       <ParticleAtlas onMethodology={() => onNavigate?.('sources')} />
 
@@ -763,7 +771,6 @@ function EmptyBrowse({ onSearch }: { onSearch: (q: string) => void }) {
           onClick={() => onSearch(f.zip)}
           className="browse-city group flex items-center justify-between rounded-xl border border-border bg-card p-5 text-left transition-all hover:border-primary/40 hover:shadow-md"
           data-spotlight
-          data-cursor="Search"
         >
           <div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -1339,7 +1346,7 @@ function CitizenReadingsFeed({ onNavigate }: { onNavigate?: (s: Section) => void
                     </div>
                   )}
                   {r.collectionPoint && (
-                    <button type="button" className="citizen-water-link" onClick={() => showReadingOnMap(r.id, onNavigate)} data-cursor="Map">
+                    <button type="button" className="citizen-water-link" onClick={() => showReadingOnMap(r.id, onNavigate)}>
                       <span aria-hidden="true" />See it on the water →
                     </button>
                   )}

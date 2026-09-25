@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { flushSync } from 'react-dom'
 import '@/components/site/tank-system.css'
 import { SmoothCurrent, glideToTop, jumpToTop } from '@/components/atmosphere/smooth-current'
-import { MotionSystem, lastPointerPosition } from '@/components/motion/motion-system'
+import { MotionSystem } from '@/components/motion/motion-system'
 import { SiteHeader, type Section } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { ScrollToTop } from '@/components/site/scroll-to-top'
@@ -67,36 +67,14 @@ const VALID_SECTIONS: readonly Section[] = [
   'terms',
 ] as const
 
-type TransitionDocument = Document & {
-  startViewTransition?: (update: () => void) => { ready: Promise<void>; finished: Promise<void> }
-}
-
-// Section changes ripple outward from the tap: the new page is revealed
-// through a circle that grows from the pointer while the old one sinks back.
-function rippleTransition(update: () => void): boolean {
-  const doc = document as TransitionDocument
-  if (!doc.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) return false
-  const { x, y } = lastPointerPosition()
-  const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))
-  const transition = doc.startViewTransition(update)
-  transition.ready.then(() => {
-    const timing = { duration: 900, easing: 'cubic-bezier(.83, 0, .17, 1)' }
-    document.documentElement.animate(
-      { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-      { ...timing, pseudoElement: '::view-transition-new(root)' },
-    )
-    document.documentElement.animate(
-      { transform: ['scale(1)', 'scale(0.94)'], opacity: [1, 0.3], filter: ['brightness(1)', 'brightness(0.55)'] },
-      { ...timing, pseudoElement: '::view-transition-old(root)' },
-    )
-  }).catch(() => {})
-  return true
-}
-
 export default function Home() {
   const [section, setSectionState] = useState<Section>('home')
-  // Browsers without view transitions get a soft rise on each section change.
+  // Each section change fades the new section up gently (not on first load).
   const [stageMotion, setStageMotion] = useState(false)
+  // Home is heavy to build (hero particles, the bottle story, the atlas), so it
+  // stays mounted and is parked, not destroyed, while another section shows.
+  const homeStage = useRef<HTMLDivElement>(null)
+  useEffect(() => { homeStage.current?.toggleAttribute('inert', section !== 'home') }, [section])
 
   useEffect(() => {
     const syncFromHash = () => {
@@ -132,15 +110,12 @@ export default function Home() {
       glideToTop()
       return
     }
-    const apply = () => {
-      flushSync(() => setSectionState(next))
-      syncHash()
-      jumpToTop()
-    }
-    if (!rippleTransition(apply)) {
+    flushSync(() => {
       setStageMotion(!matchMedia('(prefers-reduced-motion: reduce)').matches)
-      apply()
-    }
+      setSectionState(next)
+    })
+    syncHash()
+    jumpToTop()
   }
 
   return (
@@ -149,8 +124,10 @@ export default function Home() {
       <MotionSystem />
       <SiteHeader current={section} onNavigate={setSection} />
       <main className="flex-1">
-        <div key={section} className={stageMotion ? 'section-stage' : undefined}>
-        {section === 'home' && <HomeSection onNavigate={setSection} />}
+        <div ref={homeStage} className={section !== 'home' ? 'section-parked' : stageMotion ? 'section-stage' : undefined} aria-hidden={section !== 'home' || undefined}>
+          <HomeSection onNavigate={setSection} />
+        </div>
+        {section !== 'home' && <div key={section} className={stageMotion ? 'section-stage' : undefined}>
         {section === 'map' && <MapSection />}
         {section === 'microplastics' && <MicroplasticsSection onNavigate={setSection} />}
         {section === 'submit' && <SubmitReadingSection />}
@@ -163,7 +140,7 @@ export default function Home() {
         {section === 'admin' && <AdminSection />}
         {section === 'privacy' && <PrivacySection />}
         {section === 'terms' && <TermsSection />}
-        </div>
+        </div>}
       </main>
       <SiteFooter onNavigate={setSection} />
       <ScrollToTop />

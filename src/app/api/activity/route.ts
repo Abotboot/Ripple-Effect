@@ -52,9 +52,7 @@ export async function GET() {
         createdAt: true,
       },
     }),
-    // Pledges are unverified public input; only completed donations appear.
     db.donation.findMany({
-      where: { status: 'completed' },
       take: 4,
       orderBy: { createdAt: 'desc' },
       select: {
@@ -64,6 +62,7 @@ export async function GET() {
         tier: true,
         anonymous: true,
         message: true,
+        status: true,
         createdAt: true,
       },
     }),
@@ -128,7 +127,8 @@ export async function GET() {
       id: 'donation-' + d.id,
       type: 'donation',
       date: d.createdAt.toISOString(),
-      title: `$${d.amount} ${d.tier} donation`,
+      // Pledges come from the public form and are not yet received; say so.
+      title: `$${d.amount} ${d.tier} ${d.status === 'completed' ? 'donation' : 'pledge'}`,
       subtitle: d.anonymous ? 'Anonymous supporter' : d.name,
       meta: d.message ? `"${d.message.slice(0, 60)}${d.message.length > 60 ? '…' : ''}"` : undefined,
       tone: 'ok',

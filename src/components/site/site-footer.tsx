@@ -5,6 +5,7 @@ import type { Section } from '@/components/site/site-header'
 import './site-chrome.css'
 import { SplitWords } from '@/components/motion/split-words'
 import { ScrollLog } from '@/components/site/scroll-log'
+import { TideLine } from '@/components/motion/tide-line'
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
 
@@ -15,6 +16,7 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
 
   return (
     <footer className="site-footer mt-auto">
+      <TideLine fill="rgb(5 8 10 / .96)" className="tide-line--footer" />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="site-footer-prologue" data-reveal="fade">
           <span>FIELD NOTES / OPEN WATER</span>

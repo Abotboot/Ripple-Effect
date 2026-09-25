@@ -34,7 +34,7 @@ export function TankHero({ children }: { children: ReactNode }) {
   }, [])
 
   return <section ref={root} className="tank-hero ripple-hero" aria-labelledby="tank-title" data-testid="ripple-hero" data-state="live">
-    <div className="ripple-media" data-testid="ripple-media" data-ripple-surface>
+    <div className="ripple-media" data-testid="ripple-media">
       <figure className="ripple-photograph" data-testid="particle-stage" data-renderer="photo-derived-cutouts" data-category={category}>
         <PhotoParticleScene hero selected={category} paused={motion.paused} allowReducedMotion={motion.override} onSelect={setCategory} />
         <figcaption><a href="#particle-atlas">Photo sources ↓</a></figcaption>

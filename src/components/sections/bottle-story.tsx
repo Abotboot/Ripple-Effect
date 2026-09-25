@@ -104,6 +104,8 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
     let geometry = { cx: 0, cy: 0, lens: 64, cover: 0 }
     let lastStep = -1
     let lastCount = -1
+    let lastY = window.scrollY
+    let direction = 'down'
     // Each frame writes only the properties of the few layers that move, and
     // only when a value changed, so style work stays off the rest of the story.
     const written = new Map<string, string>()
@@ -143,7 +145,9 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
       const travel = Math.max(1, rect.height - window.innerHeight)
       const p = clamp(-rect.top / travel)
 
-      const intro = smooth(0, 0.14, p)
+      // The bottle fades in while the section slides up into view, so it is
+      // fully there (not see-through) by the time the story pins.
+      const intro = smooth(0, 1, 1 - rect.top / window.innerHeight)
       const open = smooth(0.2, 0.42, p)
       const flood = smooth(0.46, 0.66, p)
       const nano = smooth(0.76, 0.92, p)
@@ -163,6 +167,12 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
       write(tag, 't', 'translate', `-50% calc(-50% - ${radius.toFixed(1)}px)`)
       write(tag, 't', 'opacity', ringOpacity)
       write(railFill, 'f', 'scale', `1 ${p.toFixed(3)}`)
+
+      // Which way the reader is going decides which way "Skip" jumps.
+      const y = window.scrollY
+      const nextDirection = y > lastY + 2 ? 'down' : y < lastY - 2 ? 'up' : direction
+      lastY = y
+      if (nextDirection !== direction) { direction = nextDirection; view.dataset.dir = direction }
 
       let step = 0
       for (let i = 0; i < CHAPTERS.length; i++) if (p >= CHAPTERS[i].start) step = i
@@ -215,6 +225,14 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
     glideTo(top)
   }
 
+  // Skip past the story in whichever direction the reader is scrolling.
+  const skip = () => {
+    const section = root.current, view = stage.current
+    if (!section || !view) return
+    const top = section.getBoundingClientRect().top + window.scrollY
+    glideTo(view.dataset.dir === 'up' ? Math.max(0, top - window.innerHeight) : top + section.offsetHeight)
+  }
+
   const searchWater = () => {
     const target = document.getElementById('search')
     if (target) glideTo(target.getBoundingClientRect().top + window.scrollY - 24)
@@ -223,7 +241,7 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
 
   return (
     <section ref={root} className="bottle-story" aria-labelledby="bottle-story-title" data-loop>
-      <div ref={stage} className="bottle-stage" data-step="0">
+      <div ref={stage} className="bottle-stage" data-step="0" data-dir="down">
         <div className="bs-backdrop" aria-hidden="true" />
 
         <figure className="bs-bottle">
@@ -257,7 +275,7 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
                     aria-controls={`bs-note-${point.id}`}
                     aria-label={`${point.title}: what it is made of`}
                     onClick={() => setSpot(open ? null : point.id)}
-                    data-cursor={open ? 'Close' : 'Look'}
+                   
                   >
                     <span aria-hidden="true" />
                   </button>
@@ -323,6 +341,11 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
           </article>
           <p className="bs-note">Particles shown are photo-derived illustrations, not to scale.</p>
         </div>
+
+        <button type="button" className="bs-skip" onClick={skip}>
+          <span className="bs-skip-down">Skip story ↓</span>
+          <span className="bs-skip-up">Skip story ↑</span>
+        </button>
 
         <nav className="bs-rail" aria-label="Bottle story chapters">
           <span className="bs-rail-fill" aria-hidden="true" />

@@ -56,7 +56,7 @@
 .site-menu-open body { overflow: hidden; }
 .site-menu-open :is(button[aria-label="Scroll to top"], button[aria-label^="Open search"]) { opacity: 0; pointer-events: none; }
 .site-header :is(button,a):focus-visible, .site-footer :is(button,a):focus-visible { outline: 2px solid #1df2b3; outline-offset: 3px; }
-.site-footer { border-top: 1px solid #29433c; }
+.site-footer { position: relative; border-top: 1px solid transparent; }
 .site-footer-prologue { position: relative; padding: 28px 0 56px; border-bottom: 1px solid #29433c; margin-bottom: 48px; isolation: isolate; overflow: hidden; }
 /* Rings spread from behind the sign-off like a stone dropped in still water. */
 .site-footer-rings { position: absolute; z-index: -1; right: 8%; top: 55%; width: 0; height: 0; pointer-events: none; }
