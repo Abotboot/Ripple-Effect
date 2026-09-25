@@ -17,6 +17,9 @@
   .tide-line { height: 64px; }
   .tide-line--footer { height: 52px; }
 }
+/* Reduce Motion: the same waves, drifting much more slowly. */
 @media (prefers-reduced-motion: reduce) {
-  .tide-line > svg { animation: none; }
+  .tide-line > svg { animation-duration: 70s; }
+  .tide-line .tide-mid { animation-duration: 55s; }
+  .tide-line .tide-front { animation-duration: 45s; }
 }

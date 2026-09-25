@@ -60,6 +60,7 @@ function formatLength(micrometres: number) {
 export function ScaleZoom() {
   const [level, setLevel] = useState(0)
   const camera = useRef<SVGGElement>(null)
+  const drawing = useRef<SVGSVGElement>(null)
   const scaleText = useRef<SVGTextElement>(null)
   const root = useRef<HTMLElement>(null)
   const state = useRef({ scale: scaleFor(0), x: LEVELS[0].centre.x as number, y: LEVELS[0].centre.y as number, frame: 0 })
@@ -78,10 +79,13 @@ export function ScaleZoom() {
     const target = { scale: scaleFor(level), x: LEVELS[level].centre.x, y: LEVELS[level].centre.y }
     const from = { ...state.current }
     cancelAnimationFrame(from.frame)
+    // Reduce Motion: no zoom, just a quick dip to dark between levels.
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      Object.assign(state.current, target)
-      paint()
-      return
+      const svg = drawing.current
+      if (!svg || from.scale === target.scale) { Object.assign(state.current, target); paint(); return }
+      svg.style.opacity = '0'
+      const timer = window.setTimeout(() => { Object.assign(state.current, target); paint(); svg.style.opacity = '' }, 220)
+      return () => clearTimeout(timer)
     }
     const duration = 1500, start = performance.now()
     const logFrom = Math.log(from.scale), logTo = Math.log(target.scale)
@@ -103,7 +107,7 @@ export function ScaleZoom() {
   // Plays through the levels once, the first time it is seen, until touched.
   useEffect(() => {
     const section = root.current
-    if (!section || matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!section) return
     let timer = 0
     const advance = () => {
       timer = window.setTimeout(() => {
@@ -154,8 +158,10 @@ export function ScaleZoom() {
           </div>
         </div>
 
-        <button type="button" className="scale-zoom-stage" onClick={() => choose(level === LEVELS.length - 1 ? 0 : level + 1)} aria-label={level === LEVELS.length - 1 ? 'Zoom back out to 5 millimetres' : `Zoom in to ${LEVELS[level + 1].label}`}>
-          <svg viewBox={`0 0 ${VIEW} ${VIEW}`} role="img" aria-label={`Scale illustration at ${current.label}: ${current.title}`}>
+        {/* The drawing sits in a plain box with a transparent tap target over it:
+            Safari does not reliably size an SVG inside a <button>. */}
+        <div className="scale-zoom-stage">
+          <svg ref={drawing} viewBox={`0 0 ${VIEW} ${VIEW}`} role="img" aria-label={`Scale illustration at ${current.label}: ${current.title}`}>
             <defs>
               <radialGradient id="scale-zoom-glow" cx="50%" cy="45%" r="70%">
                 <stop offset="0" stopColor="#0f3431" />
@@ -182,7 +188,8 @@ export function ScaleZoom() {
             </g>
             <text className="sz-hint" x="200" y="46" textAnchor="middle" aria-hidden="true">{level === LEVELS.length - 1 ? 'Tap to zoom out' : 'Tap to zoom in'}</text>
           </svg>
-        </button>
+          <button type="button" className="scale-zoom-tap" onClick={() => choose(level === LEVELS.length - 1 ? 0 : level + 1)} aria-label={level === LEVELS.length - 1 ? 'Zoom back out to 5 millimetres' : `Zoom in to ${LEVELS[level + 1].label}`} />
+        </div>
       </div>
     </section>
   )

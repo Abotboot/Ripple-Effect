@@ -90,10 +90,9 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
   useEffect(() => {
     const section = root.current, view = stage.current, image = bottle.current, digits = count.current
     if (!section || !view || !image || !digits) return
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      digits.textContent = `≈${format.format(STUDY_AVERAGE)}`
-      return
-    }
+    // With Reduce Motion the story still pins and steps through its chapters,
+    // but layers only fade (see the CSS); nothing zooms, grows or slides.
+    const gentle = matchMedia('(prefers-reduced-motion: reduce)').matches
 
     const figure = image.parentElement as HTMLElement
     const pick = (selector: string) => view.querySelector(selector) as HTMLElement
@@ -153,19 +152,21 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
       const nano = smooth(0.76, 0.92, p)
       const radius = open * geometry.lens + flood * (geometry.cover - geometry.lens)
 
-      write(figure, 'b', '--intro', intro.toFixed(3))
-      write(figure, 'b', '--open', open.toFixed(3))
-      write(figure, 'b', '--flood', flood.toFixed(3))
-      write(micro, 'm', 'clip-path', `circle(${radius.toFixed(1)}px at ${geometry.cx.toFixed(1)}px ${geometry.cy.toFixed(1)}px)`)
-      write(particles, 'p', 'scale', (1.5 - flood * 0.5 - nano * 0.12).toFixed(3))
-      write(particles, 'p', 'opacity', (1 - nano * 0.55).toFixed(3))
-      write(nanoField, 'n', 'opacity', nano.toFixed(3))
-      const ringOpacity = (open * (1 - smooth(0, 0.3, flood))).toFixed(3)
-      write(ring, 'r', 'scale', (radius / geometry.lens).toFixed(3))
-      write(ring, 'r', 'opacity', ringOpacity)
-      // The tag rides the ring's top edge at a constant size.
-      write(tag, 't', 'translate', `-50% calc(-50% - ${radius.toFixed(1)}px)`)
-      write(tag, 't', 'opacity', ringOpacity)
+      if (!gentle) {
+        write(figure, 'b', '--intro', intro.toFixed(3))
+        write(figure, 'b', '--open', open.toFixed(3))
+        write(figure, 'b', '--flood', flood.toFixed(3))
+        write(micro, 'm', 'clip-path', `circle(${radius.toFixed(1)}px at ${geometry.cx.toFixed(1)}px ${geometry.cy.toFixed(1)}px)`)
+        write(particles, 'p', 'scale', (1.5 - flood * 0.5 - nano * 0.12).toFixed(3))
+        write(particles, 'p', 'opacity', (1 - nano * 0.55).toFixed(3))
+        write(nanoField, 'n', 'opacity', nano.toFixed(3))
+        const ringOpacity = (open * (1 - smooth(0, 0.3, flood))).toFixed(3)
+        write(ring, 'r', 'scale', (radius / geometry.lens).toFixed(3))
+        write(ring, 'r', 'opacity', ringOpacity)
+        // The tag rides the ring's top edge at a constant size.
+        write(tag, 't', 'translate', `-50% calc(-50% - ${radius.toFixed(1)}px)`)
+        write(tag, 't', 'opacity', ringOpacity)
+      }
       write(railFill, 'f', 'scale', `1 ${p.toFixed(3)}`)
 
       // Which way the reader is going decides which way "Skip" jumps.

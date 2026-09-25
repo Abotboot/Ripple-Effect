@@ -59,7 +59,8 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pp-flow, .pp-station-ring, .pp-rain path, .pp-ripples circle { animation: none; }
+  .pp-station-ring { animation: none; }
+  .pp-flow { animation-duration: 3.2s; }
   .pp-current { transition: none; stroke-dashoffset: 0; }
   .pp-station { transition: none; opacity: 1; }
 }

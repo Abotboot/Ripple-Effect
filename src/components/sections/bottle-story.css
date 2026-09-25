@@ -26,7 +26,7 @@
 /* Hotspots: only in the first chapter, before the lens opens. */
 .bs-hotspots { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity .4s ease, visibility 0s linear .4s; }
 .bottle-stage[data-step="0"] .bs-hotspots { opacity: var(--intro); visibility: visible; transition: opacity .4s ease; }
-@media (prefers-reduced-motion: no-preference) { .bottle-stage[data-step="0"] .bs-bottle { z-index: 4; } }
+.bottle-stage[data-step="0"] .bs-bottle { z-index: 4; }
 .bs-hotspot { position: absolute; left: var(--hx); top: var(--hy); width: 0; height: 0; }
 .bs-hotspot > button { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; display: grid; place-items: center; }
 .bs-hotspot > button > span { position: relative; width: 22px; height: 22px; border-radius: 50%; background: rgb(5 8 10 / .72); border: 1px solid #1df2b3; box-shadow: 0 0 14px rgb(29 242 179 / .35); transition: rotate .45s var(--ease-out-expo, cubic-bezier(.16,1,.3,1)), background-color .25s ease; }
@@ -148,31 +148,19 @@
   .bs-particle { width: calc(var(--s) * .62); height: calc(var(--s) * .62); margin: calc(var(--s) * -.31) 0 0 calc(var(--s) * -.31); }
 }
 
-/* Reduced motion: no pinning, every chapter visible, final state shown. */
+/* Reduce Motion: the story still pins and steps through its chapters, but
+   every change is a fade; nothing zooms, grows or slides. */
 @media (prefers-reduced-motion: reduce) {
-  .bottle-story { height: auto; }
-  .bottle-story .bottle-stage { position: relative; height: auto; min-height: 100svh; padding: 96px 0 72px; }
-  /* Bottle beside the first chapter, the magnified water further down. */
-  .bottle-story .bs-bottle { --intro: 1; --open: 1; --flood: 0; top: 340px; }
-  .bottle-story .bs-micro { clip-path: circle(30vmin at 72% 64%); }
-  .bottle-story .bs-micro-water { --lens-x: 72%; --lens-y: 64%; }
-  .bottle-story .bs-particles { scale: 1; transform-origin: 72% 64%; }
-  .bottle-story .bs-nano { opacity: .6; }
-  .bottle-story .bs-copy { position: relative; top: auto; translate: none; }
-  .bottle-story .bs-chapter { position: relative; top: auto; margin-bottom: 40px; pointer-events: auto; }
-  .bottle-story .bs-chapter > * { opacity: 1; translate: none; transition: none; }
-  .bottle-story .bs-rail, .bottle-story .bs-lens-ring, .bottle-story .bs-lens-tag, .bottle-story .bs-skip { display: none; }
-  .bottle-story .bs-note { position: static; margin-top: 12px; }
-}
-@media (prefers-reduced-motion: reduce) and (max-width: 767px) {
-  /* Phones: just the bottle above the copy; the lens needs the scroll. */
-  .bottle-story .bs-bottle { top: calc(96px + 24svh); }
-  .bottle-story .bs-micro { display: none; }
-  .bottle-story .bs-copy { left: auto; right: auto; bottom: auto; margin: 58svh 20px 0; }
-  .bottle-story .bs-copy::before { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
+  .bottle-story .bs-bottle { --intro: 1; --open: 0; --flood: 0; transition: opacity .6s ease; }
+  .bottle-story .bottle-stage:not([data-step="0"]) .bs-bottle { opacity: .12; }
+  .bottle-story .bs-micro { clip-path: none; opacity: 0; transition: opacity .6s ease; }
+  .bottle-story .bottle-stage:not([data-step="0"]) .bs-micro { opacity: 1; }
+  .bottle-story .bs-particles { scale: 1; transition: opacity .6s ease; }
+  .bottle-story .bottle-stage[data-step="3"] .bs-particles { opacity: .45; }
+  .bottle-story .bs-nano { transition: opacity .6s ease; }
+  .bottle-story .bottle-stage[data-step="3"] .bs-nano { opacity: .6; }
+  .bottle-story .bs-lens-ring, .bottle-story .bs-lens-tag { display: none; }
+  .bottle-story .bs-chapter > * { translate: none; transition: opacity .45s ease; }
   .bs-particle img, .bs-nano, .bs-hotspot > button::before, .bs-hotspot-note:not([hidden]) { animation: none; }
   .bs-hotspot > button > span { transition: none; }
-  .bs-chapter > * { transition: none; }
 }

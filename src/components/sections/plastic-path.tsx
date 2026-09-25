@@ -68,8 +68,8 @@ export function PlasticPath() {
   useEffect(() => {
     const section = root.current, drawing = svg.current
     if (!section || !drawing) return
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) { drawing.pauseAnimations(); section.dataset.seen = ''; return }
+    // The particles keep flowing with Reduce Motion (they are tiny); the
+    // spinning rings and the scroll pan are what the CSS switches off.
     drawing.pauseAnimations()
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) { section.dataset.seen = ''; drawing.unpauseAnimations() }
@@ -115,7 +115,8 @@ export function PlasticPath() {
                   ? <path d={`M${-rider.size * 2.2} ${rider.lift} q${rider.size * 1.1} ${-rider.size} ${rider.size * 2.2} 0 t${rider.size * 2.2} 0`} stroke={rider.colour} />
                   : <circle cy={rider.lift} r={rider.size} fill={rider.colour} />}
                 <animateMotion dur={`${rider.duration}s`} begin={`${rider.delay}s`} repeatCount="indefinite" rotate="auto" calcMode="linear">
-                  <mpath href={rider.caught ? '#pp-caught' : '#pp-river'} />
+                  {/* Both spellings: older Safari only follows xlink:href on <mpath>. */}
+                  <mpath href={rider.caught ? '#pp-caught' : '#pp-river'} xlinkHref={rider.caught ? '#pp-caught' : '#pp-river'} />
                 </animateMotion>
                 {/* Fade in at the source and out at the end, so the loop never pops. */}
                 <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.92;1" dur={`${rider.duration}s`} begin={`${rider.delay}s`} repeatCount="indefinite" />
