@@ -29,6 +29,12 @@ import type { Section } from '@/components/site/site-header'
 import { MicroplasticsTrendSection } from '@/components/sections/microplastics-trend-section'
 import { ContaminantSpectrumChart } from '@/components/d3/contaminant-spectrum-chart'
 import { MicroplasticsFlowChart } from '@/components/d3/microplastics-flow-chart'
+import { ScaleZoom } from '@/components/sections/scale-zoom'
+import { PlasticPath } from '@/components/sections/plastic-path'
+import { ParticleAtlas } from '@/components/sections/particle-atlas'
+import { WaterNarrative } from '@/components/atmosphere/water-narrative'
+import { glideTo } from '@/components/atmosphere/smooth-current'
+import { peekSectionFocus, takeSectionFocus } from '@/lib/section-focus'
 
 type ContaminantDetail = {
   dataStatus?: DataReadStatus
@@ -286,6 +292,26 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
   const [loading, setLoading] = useState(true)
   const [errored, setErrored] = useState(false)
   const [reload, setReload] = useState(0)
+  // Links from Home can open this page at one of its explainers; the particle
+  // atlas lives in the Plastics tab, so that tab opens for it.
+  const [tab, setTab] = useState(() => (peekSectionFocus() === 'particle-atlas' ? 'plastics' : 'data'))
+  // Back to the water search, which lives on Home.
+  const openSearch = () => {
+    onNavigate?.('home')
+    requestAnimationFrame(() => {
+      const search = document.getElementById('search')
+      if (search) glideTo(search.getBoundingClientRect().top + window.scrollY - 72)
+    })
+  }
+  useEffect(() => {
+    const target = takeSectionFocus()
+    if (!target) return
+    const timer = window.setTimeout(() => {
+      const element = document.getElementById(target)
+      if (element) glideTo(element.getBoundingClientRect().top + window.scrollY - 72)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -428,8 +454,12 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
         </div>
       </section>
 
+      {/* Visual explainers (moved from Home): how small, then how it gets here. */}
+      <ScaleZoom />
+      <PlasticPath />
+
       {/* Tabbed info hub */}
-      <Tabs defaultValue="data" className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+      <Tabs value={tab} onValueChange={setTab} className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
         <TabsList className="mx-auto flex w-full max-w-xl">
           <TabsTrigger value="data" className="flex-1 gap-1.5">
             <BarChart3 className="h-4 w-4" />
@@ -588,6 +618,11 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
             <ContaminantSpectrumChart />
           </div>
 
+          {/* How a sample is examined (Raman microscopy), moved from Home. */}
+          <div id="specimen-study" className="-mx-4 sm:-mx-6 lg:-mx-8">
+            <WaterNarrative onMethodology={() => onNavigate?.('sources')} onSearch={openSearch} showResearch={false} />
+          </div>
+
           {/* What are microplastics / why it matters */}
           <section className="py-12">
             <div className="grid gap-6 lg:grid-cols-3">
@@ -613,6 +648,10 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
 
         {/* -- Tab: plastics & contaminants -- */}
         <TabsContent value="plastics">
+          {/* Photographed particle forms, moved from Home. */}
+          <div className="-mx-4 mb-8 sm:-mx-6 lg:-mx-8">
+            <ParticleAtlas onMethodology={() => onNavigate?.('sources')} />
+          </div>
           <section className="py-4">
             <div className="mb-6 flex items-center gap-2">
               <Microscope className="h-5 w-5 text-primary" />

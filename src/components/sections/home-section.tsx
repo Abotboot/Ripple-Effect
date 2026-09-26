@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, MapPin, Droplets, AlertTriangle, Building2, Users, FlaskConical,
-  ChevronRight, Loader2, ShieldAlert, ShieldCheck, ArrowRight,
+  ChevronRight, Loader2, ShieldAlert, ArrowRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -17,26 +17,23 @@ import { api } from '@/lib/api'
 import type { Utility, Stats, UtilityWithStats, SampleAssessment } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
 import { TankHero } from '@/components/atmosphere/tank-hero'
-import { WaterNarrative } from '@/components/atmosphere/water-narrative'
 import type { Section } from '@/components/site/site-header'
-import { Microscope, HandHeart, Database, Github, Info } from 'lucide-react'
+import { Microscope, HandHeart, Database, Github } from 'lucide-react'
 import { useCountUp, formatCount } from '@/hooks/use-count-up'
 import { Bell, Activity as ActivityIcon, Beaker, Heart, HandHeart as DonationIcon, Clock } from 'lucide-react'
 import { QualityBadge } from '@/components/quality-badge'
 import { SourceBadge } from '@/components/source-badge'
 import { Share2 } from 'lucide-react'
 import { AnimatedCounter as BaseAnimatedCounter } from '@/components/ui/animated-counter'
-import { ContaminantSpectrumChart } from '@/components/d3/contaminant-spectrum-chart'
 import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
 import { CinematicPanel } from '@/components/ui/cinematic-panel'
-import { ParticleAtlas } from '@/components/sections/particle-atlas'
 import { useTypedPlaceholder } from '@/hooks/use-typed-placeholder'
 import { SplitWords } from '@/components/motion/split-words'
 import { RollText } from '@/components/motion/roll-text'
 import { WaterTicker, showReadingOnMap } from '@/components/sections/water-ticker'
 import { BottleStory } from '@/components/sections/bottle-story'
-import { ScaleZoom } from '@/components/sections/scale-zoom'
-import { PlasticPath } from '@/components/sections/plastic-path'
+import { MicroplasticsTeaser } from '@/components/sections/microplastics-teaser'
+import { requestSectionFocus } from '@/lib/section-focus'
 import { TideLine } from '@/components/motion/tide-line'
 import './home-motion.css'
 
@@ -52,13 +49,9 @@ const StillTide = memo(TideLine)
 const StillStats = memo(StatsBar)
 const StillTicker = memo(WaterTicker)
 const StillBottleStory = memo(BottleStory)
-const StillScaleZoom = memo(ScaleZoom)
-const StillPlasticPath = memo(PlasticPath)
-const StillAtlas = memo(ParticleAtlas)
-const StillNarrative = memo(WaterNarrative)
-const StillSpectrum = memo(ContaminantSpectrumChart)
+const StillTeaser = memo(MicroplasticsTeaser)
 const StillActivity = memo(RecentActivityAndAlerts)
-const StillRecentlyAdded = memo(RecentlyAddedAndQuality)
+const StillRecentlyAdded = memo(RecentlyAddedUtilities)
 const StillCitizenFeed = memo(CitizenReadingsFeed)
 
 export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void }) {
@@ -166,7 +159,6 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
     setSearchFailed(false)
   }, [])
 
-  const openSources = useCallback(() => onNavigate?.('sources'), [onNavigate])
   const openUtility = useCallback(
     async (u: { id: string }) => {
       setLoadingDetail(u.id)
@@ -391,20 +383,9 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
 
       <StillBottleStory onNavigate={onNavigate} />
 
-      <StillScaleZoom />
-
-      <StillPlasticPath />
-
-      <StillAtlas onMethodology={openSources} />
-
-      <div id="specimen-study">
-        <StillNarrative onMethodology={openSources} showResearch={false} />
-      </div>
-
-      {/* Interactive D3 Contaminant Safety Gap Visualizer */}
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <StillSpectrum />
-      </section>
+      {/* The microplastics explainers (scale, path, particle forms, sample
+          examination) live on the Microplastics page; Home links to them. */}
+      <StillTeaser onNavigate={onNavigate} />
 
       {/* Recent activity + Alert subscription */}
       <StillActivity />
@@ -536,7 +517,7 @@ function Hero({ q, setQ, onSearch, onNavigate }: {
   stats: Stats | null
   onNavigate?: (s: Section) => void
 }) {
-  return <TankHero>
+  return <TankHero onPhotoSources={() => { requestSectionFocus('particle-atlas'); onNavigate?.('microplastics') }}>
     <form onSubmit={(event) => { event.preventDefault(); onSearch() }}>
       <label htmlFor="tank-search-input" className="sr-only">Search by ZIP code, city, state, or utility name</label>
       <HeroSearchInput q={q} setQ={setQ} />
@@ -1042,7 +1023,7 @@ type RecentUtility = {
   sampleCount: number
 }
 
-function RecentlyAddedAndQuality({
+function RecentlyAddedUtilities({
   onNavigate,
   onOpenUtility,
 }: {
@@ -1052,23 +1033,17 @@ function RecentlyAddedAndQuality({
   const [recent, setRecent] = useState<RecentUtility[] | null>(null)
   const [recentFailed, setRecentFailed] = useState(false)
   const [recentAttempt, setRecentAttempt] = useState(0)
-  const [stats, setStats] = useState<Stats | null>(null)
-
   useEffect(() => {
     api.getRecentUtilities().then((r) => setRecent(r.utilities)).catch(() => { setRecent(null); setRecentFailed(true) })
   }, [recentAttempt])
 
-  useEffect(() => {
-    api.getStats().then(setStats).catch(() => {})
-  }, [])
-
-  const qualityCounts = stats?.qualityCounts
-
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="grid gap-6 lg:grid-cols-3">
+      {/* The evidence-label breakdown that sat beside this list now lives on
+          the data sources page. */}
+      <div>
         {/* Recently added utilities */}
-        <div className="lg:col-span-2">
+        <div>
           <div className="home-heading mb-4 flex flex-wrap items-center gap-2">
             <span className="home-eyebrow">New in the database</span>
             <h2 data-split className="text-xl font-bold tracking-tight sm:text-2xl"><SplitWords text="Recently added utilities" /></h2>
@@ -1082,7 +1057,7 @@ function RecentlyAddedAndQuality({
               </CardContent>
             </Card>
           ) : !recent ? (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-24 w-full" />
               ))}
@@ -1094,7 +1069,7 @@ function RecentlyAddedAndQuality({
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {recent.map((u, i) => (
                 <motion.div
                   key={u.id}
@@ -1148,102 +1123,8 @@ function RecentlyAddedAndQuality({
           )}
         </div>
 
-        {/* Data quality callout */}
-        <div>
-          <Card className="overflow-hidden border-primary/20">
-            <CardContent className="p-5">
-              <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <h3 className="text-base font-bold text-foreground">Read the evidence label</h3>
-              {qualityCounts && (
-                <div className="mt-4 space-y-2">
-                  <QualityRow
-                    icon={ShieldCheck}
-                    label="Verified"
-                    count={qualityCounts.verified}
-                    total={stats?.samplesCount ?? 0}
-                    color="bg-emerald-500"
-                    colorLight="bg-emerald-100 dark:bg-emerald-950/40"
-                    textColor="text-emerald-700 dark:text-emerald-300"
-                    desc="Utility / EPA / certified lab"
-                  />
-                  <QualityRow
-                    icon={FlaskConical}
-                    label="Provisional"
-                    count={qualityCounts.provisional}
-                    total={stats?.samplesCount ?? 0}
-                    color="bg-amber-500"
-                    colorLight="bg-amber-100 dark:bg-amber-950/40"
-                    textColor="text-amber-700 dark:text-amber-300"
-                    desc="Research lab, pending verification"
-                  />
-                  <QualityRow
-                    icon={Users}
-                    label="Citizen"
-                    count={qualityCounts.citizen}
-                    total={stats?.samplesCount ?? 0}
-                    color="bg-sky-500"
-                    colorLight="bg-sky-100 dark:bg-sky-950/40"
-                    textColor="text-sky-700 dark:text-sky-300"
-                    desc="Community submitted"
-                  />
-                  <QualityRow icon={Info} label="Unreviewed" count={qualityCounts.unreviewed ?? 0} total={stats?.samplesCount ?? 0} color="bg-slate-500" colorLight="bg-slate-100 dark:bg-slate-900/40" textColor="text-slate-700 dark:text-slate-300" desc="Verification evidence not established" />
-                  <QualityRow icon={Info} label="Illustrative" count={qualityCounts.illustrative ?? 0} total={stats?.samplesCount ?? 0} color="bg-slate-400" colorLight="bg-slate-100 dark:bg-slate-900/40" textColor="text-slate-700 dark:text-slate-300" desc="Synthetic examples, not measured samples" />
-                </div>
-              )}
-
-              <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-                Source and review status show what evidence supports each record. Missing review or benchmark data remains unassessed; check the method, units, collection date, and source before interpreting a result.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </section>
-  )
-}
-
-function QualityRow({
-  icon: Icon,
-  label,
-  count,
-  total,
-  color,
-  colorLight,
-  textColor,
-  desc,
-}: {
-  icon: React.ElementType
-  label: string
-  count: number
-  total: number
-  color: string
-  colorLight: string
-  textColor: string
-  desc: string
-}) {
-  const pct = total > 0 ? Math.round((count / total) * 100) : 0
-  return (
-    <div className={`rounded-lg border border-border p-2.5 ${colorLight}`}>
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
-          <Icon className={`h-3.5 w-3.5 ${textColor}`} />
-          <span className="text-xs font-semibold text-foreground">{label}</span>
-        </div>
-        <span className={`text-xs font-bold tabular-nums ${textColor}`}>{count}</span>
-      </div>
-      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-background/50">
-        <motion.div
-          className={`h-full ${color}`}
-          initial={{ width: 0 }}
-          whileInView={{ width: `${pct}%` }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-        />
-      </div>
-      <p className="mt-1 text-[10px] text-muted-foreground">{desc} · {pct}%</p>
-    </div>
   )
 }
 

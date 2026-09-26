@@ -80,7 +80,7 @@ export function PlasticPath() {
   }, [])
 
   return (
-    <section ref={root} className="plastic-path" aria-labelledby="plastic-path-title" data-loop>
+    <section ref={root} id="plastic-path" className="plastic-path" aria-labelledby="plastic-path-title" data-loop>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="home-heading">
           <span className="home-eyebrow">The path</span>

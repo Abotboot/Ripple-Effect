@@ -6,9 +6,11 @@ import './water-narrative.css'
 
 const researchSource = 'https://www.nih.gov/news-events/nih-research-matters/plastic-particles-bottled-water'
 
-export function WaterNarrative({ contributeHref = '#submit', onMethodology, showResearch = true }: {
+export function WaterNarrative({ contributeHref = '#submit', onMethodology, onSearch, showResearch = true }: {
   contributeHref?: string
   onMethodology?: () => void
+  /** Where the page has no search of its own, "back to search" calls this. */
+  onSearch?: () => void
   /** Hidden where the bottle story already tells the same study. */
   showResearch?: boolean
 } = {}) {
@@ -36,7 +38,9 @@ export function WaterNarrative({ contributeHref = '#submit', onMethodology, show
             <div><dt>Result</dt><dd>The reported value, units, source, and limitations.</dd></div>
           </dl>
           {onMethodology && <button type="button" className="narrative-link" onClick={onMethodology}>Methodology &amp; sources <span aria-hidden="true">↗</span></button>}
-          <a className="narrative-link" href="#search">Return to water search <span aria-hidden="true">↑</span></a>
+          {onSearch
+            ? <button type="button" className="narrative-link" onClick={onSearch}>Return to water search <span aria-hidden="true">↑</span></button>
+            : <a className="narrative-link" href="#search">Return to water search <span aria-hidden="true">↑</span></a>}
         </div>
       </div>
     </section>
@@ -74,7 +78,9 @@ export function WaterNarrative({ contributeHref = '#submit', onMethodology, show
         <div className="countermeasure-panel">
           <p>Citizen readings stay separate from reviewed utility measurements.</p>
           <a className="countermeasure-action" href={contributeHref}>Contribute a reading <span aria-hidden="true">↗</span></a>
-          <a className="narrative-link" href="#search">Explore existing water data <span aria-hidden="true">↑</span></a>
+          {onSearch
+            ? <button type="button" className="narrative-link" onClick={onSearch}>Explore existing water data <span aria-hidden="true">↑</span></button>
+            : <a className="narrative-link" href="#search">Explore existing water data <span aria-hidden="true">↑</span></a>}
         </div>
       </div>
     </section>

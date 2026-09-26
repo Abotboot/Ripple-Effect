@@ -48,3 +48,6 @@
 @media (prefers-reduced-motion: reduce) {
   .scale-zoom-size, .scale-zoom-title { animation: none; }
 }
+
+/* Same display heading wherever the section is placed (Home or Microplastics). */
+.scale-zoom .home-heading h2 { font: 400 clamp(34px, 4vw, 54px)/1.02 var(--font-tank-display), serif; letter-spacing: -.03em; text-wrap: balance; }

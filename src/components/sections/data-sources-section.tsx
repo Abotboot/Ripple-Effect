@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import {
   Card, CardContent, CardHeader, CardTitle,
 } from '@/components/ui/card'
+import { EvidenceLabelCard } from '@/components/sections/evidence-label-card'
 
 type DataSource = {
   name: string
@@ -198,6 +199,19 @@ export function DataSourcesSection() {
             )
           })}
         </motion.div>
+      </section>
+
+      {/* Evidence labels: what each record's review status means (moved here from Home). */}
+      <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+        <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
+          <div className="lg:col-span-2">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">What the labels mean</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+              Every record carries an evidence label showing who produced it and how far it has been reviewed. Read the label before interpreting a number: unreviewed and illustrative records are not findings. The counts cover every sample in the database.
+            </p>
+          </div>
+          <EvidenceLabelCard />
+        </div>
       </section>
 
       {/* How we use each source */}

@@ -133,7 +133,7 @@ export function ScaleZoom() {
   const current = LEVELS[level]
 
   return (
-    <section ref={root} className="scale-zoom" aria-labelledby="scale-zoom-title">
+    <section ref={root} id="how-small" className="scale-zoom" aria-labelledby="scale-zoom-title">
       <div className="scale-zoom-inner mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="scale-zoom-copy">
           <div className="home-heading">

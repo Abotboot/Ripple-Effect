@@ -1,0 +1,28 @@
+.mp-teaser { padding: clamp(56px, 7vw, 88px) 0; border-top: 1px solid #16312b; }
+.mp-teaser .home-heading .home-eyebrow { display: block; margin-bottom: 6px; }
+.mp-teaser-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+.mp-teaser-card { position: relative; display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 16px; min-height: 104px; padding: 20px; text-align: left; border: 1px solid #2c4a40; background: #0b1417; color: #dcebe5; transition: border-color .25s ease, background-color .25s ease; }
+.mp-teaser-card:hover, .mp-teaser-card:focus-visible { border-color: #1df2b3; background: #0d1c1c; }
+.mp-teaser-card svg { width: 48px; height: 48px; fill: none; stroke: #1df2b3; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: transform .45s var(--ease-out-expo, cubic-bezier(.16,1,.3,1)); }
+.mp-teaser-card svg .mt-fill { fill: #1df2b3; stroke: none; }
+.mp-teaser-card svg .mt-faint { opacity: .35; }
+.mp-teaser-card:hover svg { transform: scale(1.08) rotate(-4deg); }
+.mp-teaser-text { display: grid; gap: 4px; }
+.mp-teaser-text strong { font: 400 22px/1.15 var(--font-tank-display), serif; letter-spacing: -.01em; color: #e9fff7; }
+.mp-teaser-text span { font-size: 14px; line-height: 1.5; color: #9fbcb1; }
+.mp-teaser-arrow { font: 16px var(--font-geist-mono), monospace; color: #1df2b3; transition: translate .3s ease; }
+.mp-teaser-card:hover .mp-teaser-arrow { translate: 4px 0; }
+
+@media (max-width: 899px) {
+  .mp-teaser-grid { grid-template-columns: 1fr; gap: 8px; }
+  .mp-teaser-card { min-height: 0; padding: 16px; grid-template-columns: 40px 1fr auto; }
+  .mp-teaser-card svg { width: 40px; height: 40px; }
+  .mp-teaser-text strong { font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mp-teaser-card svg, .mp-teaser-arrow { transition: none; }
+  .mp-teaser-card:hover svg { transform: none; }
+}
+
+/* Same display heading wherever the section is placed (Home or Microplastics). */
+.mp-teaser .home-heading h2 { font: 400 clamp(34px, 4vw, 54px)/1.02 var(--font-tank-display), serif; letter-spacing: -.03em; text-wrap: balance; }

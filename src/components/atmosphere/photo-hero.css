@@ -6,6 +6,8 @@
    offscreen image each frame. */
 .ripple-photograph::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgb(7 19 21 / .87), rgb(7 19 21 / .73) 35%, rgb(7 19 21 / 0) 66%); }
 .ripple-photograph figcaption { z-index: 1; }
+.ripple-photo-sources { padding: 6px 0; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgb(182 192 189 / .5); }
+.ripple-photo-sources:hover { color: #e9fff7; }
 .ripple-photograph figcaption { position: absolute; bottom: 72px; right: 6vw; max-width: 70%; color: #b6c0bd; font-size: 11px; line-height: 1.6; }
 .photograph-credit a { text-decoration: underline; text-underline-offset: 3px; }
 .photograph-credit a:focus-visible { outline: 2px solid #eeeae1; outline-offset: 3px; }

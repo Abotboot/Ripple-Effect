@@ -18,7 +18,7 @@ const forms: { id: ArtworkCategory; label: string; description: string }[] = [
   { id: 'granules', label: 'Granules', description: 'Rounded or bead-like solid forms.' },
 ]
 
-export function TankHero({ children }: { children: ReactNode }) {
+export function TankHero({ children, onPhotoSources }: { children: ReactNode; onPhotoSources?: () => void }) {
   const [category, setCategory] = useState<ArtworkCategory>('all')
   const motion = useParticleMotion()
   const root = useRef<HTMLElement>(null)
@@ -37,7 +37,8 @@ export function TankHero({ children }: { children: ReactNode }) {
     <div className="ripple-media" data-testid="ripple-media">
       <figure className="ripple-photograph" data-testid="particle-stage" data-renderer="photo-derived-cutouts" data-category={category}>
         <PhotoParticleScene hero selected={category} paused={motion.paused} allowReducedMotion={motion.override} onSelect={setCategory} />
-        <figcaption><a href="#particle-atlas">Photo sources ↓</a></figcaption>
+        {/* The photo credits sit with the particle atlas on the Microplastics page. */}
+        <figcaption>{onPhotoSources ? <button type="button" className="ripple-photo-sources" onClick={onPhotoSources}>Photo sources ↗</button> : <a href="#microplastics">Photo sources ↗</a>}</figcaption>
       </figure>
     </div>
     <div className="tank-editorial ripple-editorial">
