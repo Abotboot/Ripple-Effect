@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, MapPin, Droplets, AlertTriangle, Building2, Users, FlaskConical,
@@ -46,6 +46,21 @@ const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
 
 const POPULAR_ZIPS = ['60614', '10003', '90026', '77007', '85016', '98103']
 
+// The heavy parts of Home that do not depend on the search text, memoized so
+// typing in the search box does not re-render them on every keystroke.
+const StillTide = memo(TideLine)
+const StillStats = memo(StatsBar)
+const StillTicker = memo(WaterTicker)
+const StillBottleStory = memo(BottleStory)
+const StillScaleZoom = memo(ScaleZoom)
+const StillPlasticPath = memo(PlasticPath)
+const StillAtlas = memo(ParticleAtlas)
+const StillNarrative = memo(WaterNarrative)
+const StillSpectrum = memo(ContaminantSpectrumChart)
+const StillActivity = memo(RecentActivityAndAlerts)
+const StillRecentlyAdded = memo(RecentlyAddedAndQuality)
+const StillCitizenFeed = memo(CitizenReadingsFeed)
+
 export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void }) {
   const [q, setQ] = useState('')
   const [submittedQuery, setSubmittedQuery] = useState('')
@@ -77,7 +92,10 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
       })
   }, [statsAttempt])
 
+  // Scores only rank search results, so they load with the first search.
+  const searched = results !== null
   useEffect(() => {
+    if (!searched) return
     api.getUtilityScores()
       .then((r) => {
         const map: Record<string, { score: number; grade: string; label: string; color: string; bgColor: string }> = {}
@@ -91,7 +109,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
         setScores(null)
         setScoresFailed(true)
       })
-  }, [scoresAttempt])
+  }, [scoresAttempt, searched])
 
   const doSearch = useCallback(
     async (query: string) => {
@@ -148,6 +166,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
     setSearchFailed(false)
   }, [])
 
+  const openSources = useCallback(() => onNavigate?.('sources'), [onNavigate])
   const openUtility = useCallback(
     async (u: { id: string }) => {
       setLoadingDetail(u.id)
@@ -210,11 +229,11 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
         stats={stats}
         onNavigate={onNavigate}
       />
-      <TideLine fill="#090e10" className="tide-line--hero" />
+      <StillTide fill="#090e10" className="tide-line--hero" />
 
       {/* Stats bar */}
-      <StatsBar stats={stats} />
-      <WaterTicker onNavigate={onNavigate} />
+      <StillStats stats={stats} />
+      <StillTicker onNavigate={onNavigate} />
       {statsFailed && (
         <div className="mx-auto flex max-w-7xl flex-col gap-3 border-b border-border px-4 py-4 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8" role="alert" data-testid="home-stats-error">
           <div>
@@ -370,31 +389,31 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
         </div>
       </section>
 
-      <BottleStory onNavigate={onNavigate} />
+      <StillBottleStory onNavigate={onNavigate} />
 
-      <ScaleZoom />
+      <StillScaleZoom />
 
-      <PlasticPath />
+      <StillPlasticPath />
 
-      <ParticleAtlas onMethodology={() => onNavigate?.('sources')} />
+      <StillAtlas onMethodology={openSources} />
 
       <div id="specimen-study">
-        <WaterNarrative onMethodology={() => onNavigate?.('sources')} showResearch={false} />
+        <StillNarrative onMethodology={openSources} showResearch={false} />
       </div>
 
       {/* Interactive D3 Contaminant Safety Gap Visualizer */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <ContaminantSpectrumChart />
+        <StillSpectrum />
       </section>
 
       {/* Recent activity + Alert subscription */}
-      <RecentActivityAndAlerts />
+      <StillActivity />
 
       {/* Recently added utilities + Data quality callout */}
-      <RecentlyAddedAndQuality onNavigate={onNavigate} onOpenUtility={openUtility} />
+      <StillRecentlyAdded onNavigate={onNavigate} onOpenUtility={openUtility} />
 
       {/* Citizen readings feed */}
-      <CitizenReadingsFeed onNavigate={onNavigate} />
+      <StillCitizenFeed onNavigate={onNavigate} />
 
       {/* Microplastics distinction banner */}
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -535,9 +554,21 @@ function Hero({ q, setQ, onSearch, onNavigate }: {
 // never the particle scene around it.
 function HeroSearchInput({ q, setQ }: { q: string; setQ: (s: string) => void }) {
   const [focused, setFocused] = useState(false)
-  const placeholder = useTypedPlaceholder(SEARCH_EXAMPLES, !focused && !q)
+  // Types only while the field is on screen: Home stays mounted (parked)
+  // behind other sections, and typing there would keep re-rendering it.
+  const [onScreen, setOnScreen] = useState(false)
+  const field = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    const input = field.current
+    if (!input) return
+    const observer = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting))
+    observer.observe(input)
+    return () => observer.disconnect()
+  }, [])
+  const placeholder = useTypedPlaceholder(SEARCH_EXAMPLES, onScreen && !focused && !q)
   return (
     <input
+      ref={field}
       id="tank-search-input"
       value={q}
       onChange={(event) => setQ(event.target.value)}
@@ -866,7 +897,7 @@ function RecentActivityAndAlerts() {
           <div className="home-heading mb-4 flex flex-wrap items-center gap-2">
             <span className="home-eyebrow">Across the network</span>
             <h2 data-split className="text-xl font-bold tracking-tight sm:text-2xl"><SplitWords text="Recent activity" /></h2>
-            <span className="home-live-pill" aria-hidden="true"><span />Live</span>
+            <span className="home-live-pill" aria-hidden="true" data-loop><span />Live</span>
             <Badge variant="outline" className="ml-auto bg-secondary/40 text-[10px]">
               {items ? `${items.length} recent` : 'loading…'}
             </Badge>

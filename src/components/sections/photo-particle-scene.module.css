@@ -24,4 +24,4 @@ button.particle:focus-visible { outline: 2px solid #b8d8cb; outline-offset: -14p
 .error { position: absolute; bottom: 12px; left: 12px; color: #b6c0bd; font-size: 12px; }
 @keyframes specimen-float { from { transform: translate3d(-3px, 4px, 0) rotate(-2deg); } to { transform: translate3d(4px, -6px, 0) rotate(2deg); } }
 @media (prefers-reduced-motion: reduce) { .scene:not([data-motion-override=true]) .float { animation: none; } .scene:not([data-motion-override=true]) .particle { translate: none; transition: none; } .scene:not([data-motion-override=true]) .particle img { transition: none; } }
-@media (max-width: 600px) { .scene[data-dense=true] .particle:nth-of-type(n+103) { display: none; } }
+@media (max-width: 600px) { .scene[data-dense=true] .particle:nth-of-type(n+73) { display: none; } }

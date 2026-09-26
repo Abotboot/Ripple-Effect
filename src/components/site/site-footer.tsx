@@ -29,7 +29,7 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5">
               <img
-                src="/logo.png"
+                src="/logo-96.webp"
                 alt="A Ripple Effect Initiative logo"
                 className="h-10 w-10 rounded-full object-cover ring-1 ring-primary/30"
               />

@@ -29,7 +29,9 @@
 @keyframes split-rise { from { translate: 0 110%; rotate: 4deg; } to { translate: none; rotate: none; } }
 
 /* Looping decoration pauses off screen ([data-loop] + data-inview). */
-.motion-ready [data-loop]:not([data-inview]), .motion-ready [data-loop]:not([data-inview]) * { animation-play-state: paused !important; }
+[data-loop]:not([data-inview]), [data-loop]:not([data-inview]) *,
+[data-loop]:not([data-inview])::before, [data-loop]:not([data-inview])::after,
+[data-loop]:not([data-inview]) *::before, [data-loop]:not([data-inview]) *::after { animation-play-state: paused !important; }
 
 /* -- Pointer spotlight on cards ------------------------------------------- */
 /* !important: card styles use the background shorthand, which resets images. */
@@ -55,6 +57,13 @@
 /* Home waits here while another section shows: skipped entirely by the
    browser, but its layout and decoded images are kept for an instant return. */
 .section-parked { content-visibility: hidden; }
+/* Safari before 18 has no content-visibility: hide Home outright instead. */
+@supports not (content-visibility: hidden) { .section-parked { display: none; } }
+/* Dashed "current" along small SVG rivers (e.g. the microplastics flow chart). */
+.flow-dash { animation: flow-dash 2s linear infinite; }
+@keyframes flow-dash { to { stroke-dashoffset: -32; } }
+@media (prefers-reduced-motion: reduce) { .flow-dash { animation-duration: 6s; } }
+
 /* A quick, quiet fade-up when switching sections (see page.tsx). */
 .section-stage { animation: section-rise .45s var(--ease-out-expo) both; }
 @keyframes section-rise { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: none; } }

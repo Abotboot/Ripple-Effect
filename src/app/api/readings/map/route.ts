@@ -14,7 +14,10 @@ import type { WaterReading } from '@/lib/api'
 
 const MAX_POINTS = 2000
 
-export async function GET() {
+export async function GET(request: Request) {
+  // ?limit=N returns only the newest N (the ticker shows a handful).
+  const requested = Number(new URL(request.url).searchParams.get('limit'))
+  const take = Number.isInteger(requested) && requested > 0 ? Math.min(requested, MAX_POINTS) : MAX_POINTS
   const select = {
     latitude: true,
     longitude: true,
@@ -35,7 +38,7 @@ export async function GET() {
       select,
       where: { sample: { verificationStatus: { not: 'REJECTED' } } },
       orderBy: { sample: { sampleDate: 'desc' } },
-      take: MAX_POINTS,
+      take,
     })
   } catch (error) {
     if (isMissingTable(error) || isMissingSampleMetadataColumn(error)) {

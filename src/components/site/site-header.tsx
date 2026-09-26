@@ -4,7 +4,7 @@ import { Droplets, Github, BarChart3, Megaphone, Lock, Map, Info, HandHeart, Dat
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import './site-chrome.css'
-import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { setScrollLocked } from '@/components/atmosphere/smooth-current'
 import { RollText } from '@/components/motion/roll-text'
@@ -62,29 +62,22 @@ export function SiteHeader({
   const menuButton = useRef<HTMLButtonElement>(null)
   const firstItem = useRef<HTMLButtonElement>(null)
 
-  // Scrolltide-style reading progress: a thin aqua bar along the header edge.
-  const { scrollYProgress } = useScroll()
-  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 25, mass: 0.3 })
-
-  // Tuck the header away while reading down the page; it returns on any upward scroll.
+  // Tuck the header away while reading down the page; it returns on any upward
+  // scroll. The position is read in the scroll event itself, where it is cheap
+  // (inside a later frame callback it can force a layout of the whole page).
   useEffect(() => {
     let last = window.scrollY
-    let frame = 0
+    let tuck = false
     const onScroll = () => {
-      if (frame) return
-      frame = requestAnimationFrame(() => {
-        frame = 0
-        const y = window.scrollY
-        const delta = y - last
-        if (Math.abs(delta) > 6) {
-          setTucked(delta > 0 && y > 140)
-          last = y
-        }
-        if (y < 140) setTucked(false)
-      })
+      const y = window.scrollY
+      const delta = y - last
+      let next = tuck
+      if (Math.abs(delta) > 6) { next = delta > 0 && y > 140; last = y }
+      if (y < 140) next = false
+      if (next !== tuck) { tuck = next; setTucked(next) }
     }
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(frame) }
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
@@ -113,10 +106,10 @@ export function SiteHeader({
       data-tucked={tucked && !open ? '' : undefined}
       onKeyDown={event => { if (event.key === 'Escape' && open) { setOpen(false); menuButton.current?.focus() } }}
     >
-      <motion.div
+      {/* Reading progress, driven by the scroll position in CSS (no script). */}
+      <div
         aria-hidden="true"
-        style={{ scaleX: progress }}
-        className="absolute inset-x-0 top-0 h-[3px] origin-left bg-gradient-to-r from-primary via-cyan-400 to-primary motion-reduce:hidden"
+        className="site-read-progress absolute inset-x-0 top-0 h-[3px] origin-left bg-gradient-to-r from-primary via-cyan-400 to-primary motion-reduce:hidden"
       />
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
         {/* Brand, logo zoomed in (bigger) */}
@@ -127,7 +120,7 @@ export function SiteHeader({
         >
           <div className="site-brand-seal">
             <img
-              src="/logo.png"
+              src="/logo-96.webp"
               alt="A Ripple Effect Initiative logo"
               className="h-full w-full object-cover"
             />

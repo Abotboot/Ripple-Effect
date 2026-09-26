@@ -300,7 +300,7 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
                 className={particle.m ? 'bs-particle bs-particle--wide' : particle.p ? 'bs-particle bs-particle--phone' : 'bs-particle'}
                 style={{ '--x': `${particle.x}%`, '--y': `${particle.y}%`, '--s': `${particle.s}px`, '--r': `${particle.r}deg`, '--d': `${particle.d}s` } as CSSProperties}
               >
-                <img src={`/media/ripple/photo-cutouts/${particle.src}.webp`} alt="" loading="lazy" decoding="async" draggable={false} />
+                <img src={`/media/ripple/photo-cutouts/md/${particle.src}.webp`} alt="" loading="lazy" decoding="async" draggable={false} />
               </span>
             ))}
           </div>

@@ -30,13 +30,11 @@ export function MotionSystem() {
     const finePointer = matchMedia('(hover: hover) and (pointer: fine)')
     const root = document.documentElement
     const cleanups: Array<() => void> = []
-
-    if (reduced.matches) {
-      root.classList.remove('motion-ready')
-      return
-    }
-    root.classList.add('motion-ready')
-    cleanups.push(() => root.classList.remove('motion-ready'))
+    // Off-screen pausing of loops is not motion, so it runs for everyone;
+    // reveals and pointer effects are skipped with Reduce Motion.
+    const motion = !reduced.matches
+    root.classList.toggle('motion-ready', motion)
+    if (motion) cleanups.push(() => root.classList.remove('motion-ready'))
 
     // -- Reveals ----------------------------------------------------------
     const observer = new IntersectionObserver(entries => {
@@ -56,7 +54,7 @@ export function MotionSystem() {
 
     const bound = new WeakSet<Element>()
     const scan = () => {
-      for (const el of document.querySelectorAll<HTMLElement>(AUTO_REVEAL)) {
+      if (motion) for (const el of document.querySelectorAll<HTMLElement>(AUTO_REVEAL)) {
         if (el.hasAttribute('data-reveal') || el.closest(AUTO_SKIP)) continue
         // Already choreographed by framer-motion (it drives inline opacity).
         if (el.closest('[style*="opacity"]')) continue
@@ -68,7 +66,7 @@ export function MotionSystem() {
           if (index > 0) el.style.setProperty('--reveal-delay', `${Math.min(index, 7) * 70}ms`)
         }
       }
-      for (const el of document.querySelectorAll('[data-reveal]:not([data-revealed]), [data-split]:not([data-revealed])')) {
+      if (motion) for (const el of document.querySelectorAll('[data-reveal]:not([data-revealed]), [data-split]:not([data-revealed])')) {
         if (bound.has(el)) continue
         bound.add(el)
         observer.observe(el)
@@ -85,11 +83,18 @@ export function MotionSystem() {
       scanTimer = window.setTimeout(() => { scanTimer = 0; requestAnimationFrame(scan) }, 120)
     }
     scan()
-    const mutations = new MutationObserver(scheduleScan)
+    // Rescan only when elements (not just text) arrive outside the maps;
+    // counters and Leaflet tiles change constantly and never need tagging.
+    const mutations = new MutationObserver(records => {
+      for (const record of records) {
+        if ((record.target as Element).closest?.('.leaflet-container')) continue
+        for (const node of record.addedNodes) if (node.nodeType === Node.ELEMENT_NODE) return scheduleScan()
+      }
+    })
     mutations.observe(document.body, { childList: true, subtree: true })
     cleanups.push(() => { observer.disconnect(); mutations.disconnect(); clearTimeout(scanTimer) })
 
-    if (!finePointer.matches) return () => cleanups.forEach(fn => fn())
+    if (!motion || !finePointer.matches) return () => cleanups.forEach(fn => fn())
 
     // -- Spotlight and magnetic pull (precise pointers only) --------------
     let magnet: HTMLElement | null = null

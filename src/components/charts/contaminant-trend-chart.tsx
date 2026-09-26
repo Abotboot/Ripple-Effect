@@ -99,6 +99,7 @@ export function ContaminantTrendChart({
               />
             )}
             <Line
+            isAnimationActive={false}
               type="linear"
               dataKey="Treated"
               stroke="#708d9b"
@@ -108,6 +109,7 @@ export function ContaminantTrendChart({
             />
             {hasUntreated && (
               <Line
+            isAnimationActive={false}
                 type="linear"
                 dataKey="Untreated"
                 stroke="#94a3b8"

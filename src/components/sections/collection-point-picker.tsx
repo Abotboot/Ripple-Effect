@@ -184,7 +184,7 @@ export default function CollectionPointPicker({ value, onChange, hint }: Props) 
       {searchError && <p className="collection-picker-note" role="status">{searchError}</p>}
       <div className="collection-picker-map water-map-night water-map-animate">
         <div ref={container} className="collection-picker-canvas" data-lenis-prevent tabIndex={0} role="application" aria-label="Map. Click or tap the water where the sample was collected." />
-        {!value && <div className="collection-picker-hint" aria-hidden="true"><span />Tap the water</div>}
+        {!value && <div className="collection-picker-hint" aria-hidden="true" data-loop><span />Tap the water</div>}
       </div>
       {value && (
         <label className="collection-picker-name">

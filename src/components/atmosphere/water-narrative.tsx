@@ -23,7 +23,6 @@ export function WaterNarrative({ contributeHref = '#submit', onMethodology, show
             height={1200}
             sizes="(max-width: 699px) 88vw, (max-width: 1199px) 36vw, 390px"
             loading="lazy"
-            unoptimized
           />
           <figcaption>Raman microscope.<br /><PhotographCredit photo={particlePhotographs.sample} /></figcaption>
         </figure>

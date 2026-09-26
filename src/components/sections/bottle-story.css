@@ -55,15 +55,17 @@
 .bs-particles { position: absolute; inset: 0; transform-origin: 70% 60%; scale: 1.5; will-change: scale, opacity; }
 .bs-particle { position: absolute; left: var(--x); top: var(--y); width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); rotate: var(--r); }
 .bs-particle--phone { display: none; }
-.bs-particle img { width: 100%; height: 100%; object-fit: contain; filter: saturate(.85) brightness(.95) drop-shadow(0 0 18px rgb(29 242 179 / .12)); animation: bs-drift 9s ease-in-out var(--d) infinite alternate; will-change: transform; }
+.bs-particle img { width: 100%; height: 100%; object-fit: contain; filter: saturate(.85) brightness(.95); animation: bs-drift 9s ease-in-out var(--d) infinite alternate; will-change: transform; }
 @keyframes bs-drift { from { transform: translate3d(-10px, 8px, 0) rotate(-6deg); } to { transform: translate3d(12px, -14px, 0) rotate(8deg); } }
 .bs-nano { position: absolute; inset: -10%; opacity: 0;
   background-image: radial-gradient(circle, rgb(190 255 235 / .55) 0 1px, transparent 1.5px), radial-gradient(circle, rgb(143 211 255 / .35) 0 .8px, transparent 1.2px);
   background-size: 23px 23px, 37px 37px; background-position: 0 0, 11px 17px;
-  animation: bs-nano-drift 24s linear infinite; will-change: transform; }
+  animation: bs-nano-drift 24s linear infinite; }
 @keyframes bs-nano-drift { to { transform: translate3d(-46px, -69px, 0); } }
 /* Drift only while it can be seen. */
 .bottle-stage[data-step="0"] .bs-particle img, .bottle-stage:not([data-step="3"]) .bs-nano { animation-play-state: paused; }
+/* The oversized dot field gets its own layer only while it is shown. */
+.bottle-stage[data-step="3"] .bs-nano { will-change: transform; }
 
 /* Desktop: particles thin out behind the copy column. */
 @media (min-width: 768px) {

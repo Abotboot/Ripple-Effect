@@ -1,19 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUp } from 'lucide-react'
 import { glideToTop } from '@/components/atmosphere/smooth-current'
 
-// Back-to-top control whose ring fills as the page is read.
+// Back-to-top control whose ring fills as the page is read. The ring follows
+// the scroll position in CSS (a scroll-driven animation), so scrolling runs no
+// script here beyond a cheap check of whether the button should show.
 export function ScrollToTop() {
   const [visible, setVisible] = useState(false)
-  const { scrollYProgress } = useScroll()
-  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 26, mass: 0.3 })
 
   useEffect(() => {
+    let shown = false
     const onScroll = () => {
-      setVisible(window.scrollY > 400)
+      const next = window.scrollY > 400
+      if (next !== shown) { shown = next; setVisible(next) }
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
@@ -34,10 +36,10 @@ export function ScrollToTop() {
           aria-label="Scroll to top"
         >
           {/* Site buttons are square by design; the disc lives on a span so the ring stays round. */}
-          <span className="absolute inset-0 rounded-full bg-[#05080ae6] backdrop-blur-md" aria-hidden="true" />
+          <span className="absolute inset-0 rounded-full bg-[#05080af2]" aria-hidden="true" />
           <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 48 48" aria-hidden="true">
             <circle cx="24" cy="24" r="22" fill="none" stroke="#1f3530" strokeWidth="1.5" />
-            <motion.circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" style={{ pathLength: progress }} />
+            <circle className="scroll-top-ring" cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" pathLength={1} />
           </svg>
           <ArrowUp className="relative h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5" />
         </motion.button>

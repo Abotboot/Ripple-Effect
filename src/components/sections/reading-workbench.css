@@ -48,7 +48,7 @@
 .collection-picker-canvas .leaflet-control-zoom a { width: 40px; height: 40px; line-height: 40px; }
 .collection-picker-canvas .leaflet-control-attribution { font-size: 10px; background: #07100ee6; color: #8fb4a6; }
 .collection-picker-canvas .leaflet-control-attribution a { color: #a9e5cf; }
-.collection-picker-hint { position: absolute; z-index: 500; left: 50%; top: 50%; display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 10px; transform: translate(-50%, -50%); background: #05080ad9; border: 1px solid #1df2b366; color: #dcebe5; font: 11px/1 var(--font-geist-mono), monospace; letter-spacing: .08em; text-transform: uppercase; pointer-events: none; backdrop-filter: blur(6px); }
+.collection-picker-hint { position: absolute; z-index: 500; left: 50%; top: 50%; display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 10px; transform: translate(-50%, -50%); background: #05080ad9; border: 1px solid #1df2b366; color: #dcebe5; font: 11px/1 var(--font-geist-mono), monospace; letter-spacing: .08em; text-transform: uppercase; pointer-events: none; }
 .collection-picker-hint span { position: relative; width: 10px; height: 10px; border-radius: 50%; background: #1df2b3; }
 .collection-picker-hint span::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1px solid #1df2b3; animation: picker-hint-ripple 2s ease-out infinite; }
 @keyframes picker-hint-ripple { from { transform: scale(1); opacity: 1; } to { transform: scale(3.4); opacity: 0; } }

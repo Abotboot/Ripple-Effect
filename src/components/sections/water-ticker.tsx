@@ -18,7 +18,7 @@ export function WaterTicker({ onNavigate }: { onNavigate?: (s: Section) => void 
 
   useEffect(() => {
     const controller = new AbortController()
-    api.getWaterReadings(controller.signal)
+    api.getWaterReadings(controller.signal, 16)
       .then(result => setReadings(Array.isArray(result.items) ? result.items.slice(0, 16) : []))
       .catch(() => setReadings([]))
     return () => controller.abort()

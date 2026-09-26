@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { memo, useEffect, useRef, useState, type CSSProperties } from 'react'
 import styles from './photo-particle-scene.module.css'
 
 type Form = 'fibers' | 'fragments' | 'granules'
@@ -34,7 +34,9 @@ const scatter = Array.from({ length: 160 }, (_, index) => {
     opacity: .3 + seed(251) * .65, blur: index % 4 === 0 ? 1.1 : 0 }
 })
 
-export function PhotoParticleScene({ subject = 'all', selected = 'all', paused = false, allowReducedMotion = false, onSelect, hero = false }: {
+// Memoized: the hero re-renders as the search box is typed in, and 160
+// sprites should not re-render with it.
+export const PhotoParticleScene = memo(function PhotoParticleScene({ subject = 'all', selected = 'all', paused = false, allowReducedMotion = false, onSelect, hero = false }: {
   subject?: Form | 'all'; selected?: Form | 'all'; paused?: boolean; allowReducedMotion?: boolean; onSelect?: (form: Form) => void; hero?: boolean
 }) {
   const root = useRef<HTMLSpanElement>(null)
@@ -247,7 +249,7 @@ export function PhotoParticleScene({ subject = 'all', selected = 'all', paused =
     >
     <span className={styles.light} aria-hidden="true" />
     {displayed.map((particle, index) => {
-      const content = <span className={styles.reaction}><span className={styles.float}><Image src={`/media/ripple/photo-cutouts/${particle.file}.webp`} alt={hero ? '' : particle.alt} width={960} height={960} sizes={hero ? '64px' : '(max-width: 699px) 28vw, 360px'} loading={hero ? 'eager' : 'lazy'} draggable={false} unoptimized data-testid={hero && index === 1 ? 'hero-artwork' : undefined} onError={() => setFailed(true)} /></span></span>
+      const content = <span className={styles.reaction}><span className={styles.float}><Image src={hero ? `/media/ripple/photo-cutouts/sm/${particle.file}.webp` : `/media/ripple/photo-cutouts/${particle.file}.webp`} alt={hero ? '' : particle.alt} width={hero ? 192 : 960} height={hero ? 192 : 960} sizes={hero ? '64px' : '(max-width: 699px) 28vw, 360px'} loading={hero ? 'eager' : 'lazy'} draggable={false} unoptimized data-testid={hero && index === 1 ? 'hero-artwork' : undefined} onError={() => setFailed(true)} /></span></span>
       const placement = { '--x': `${particle.x}%`, '--y': `${particle.y}%`, '--size': `${particle.size}%`, '--angle': `${particle.angle}deg`, '--duration': `${9 + index % 5}s`, '--delay': `${-index * 1.7}s`, '--opacity': 'opacity' in particle ? particle.opacity : 1, '--blur': `${'blur' in particle ? particle.blur : 0}px` } as CSSProperties
       const properties = { className: styles.particle, style: placement, 'data-particle': particle.file, 'data-form': particle.id, 'data-primary': index === 0, 'data-dimmed': selected !== 'all' && selected !== particle.id, 'data-highlighted': selected === particle.id }
       return onSelect && !hero
@@ -256,4 +258,4 @@ export function PhotoParticleScene({ subject = 'all', selected = 'all', paused =
     })}
     {failed && <span className={styles.error}>Particle image unavailable.</span>}
   </span>
-}
+})

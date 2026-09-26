@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import {
   Waves, AlertTriangle, ShieldCheck, Filter,
   ArrowRight, Info, Droplets, CheckCircle2,
@@ -180,7 +179,7 @@ export function MicroplasticsFlowChart() {
             </div>
 
             {/* River flow graphic SVG */}
-            <div className="my-6 relative flex flex-col items-center justify-center py-4">
+            <div className="my-6 relative flex flex-col items-center justify-center py-4" data-loop>
               <svg className="w-full h-24" viewBox="0 0 300 80" fill="none">
                 <path
                   d="M10 40 C 90 10, 150 70, 290 40"
@@ -189,15 +188,14 @@ export function MicroplasticsFlowChart() {
                   strokeLinecap="round"
                   className="text-cyan-500/30"
                 />
-                <motion.path
+                {/* CSS, not a script loop: it pauses off screen ([data-loop]). */}
+                <path
                   d="M10 40 C 90 10, 150 70, 290 40"
                   stroke="currentColor"
                   strokeWidth="3"
                   strokeLinecap="round"
                   strokeDasharray="8 8"
-                  className="text-cyan-500"
-                  animate={{ strokeDashoffset: [0, -32] }}
-                  transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
+                  className="text-cyan-500 flow-dash"
                 />
               </svg>
               <span className="text-[11px] font-medium text-cyan-800 dark:text-cyan-300">

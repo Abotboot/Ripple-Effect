@@ -467,7 +467,7 @@ export function MapSection() {
         </div>}
         {!loading && locations && assessmentLoading && <p role="status" className="mb-3 text-sm text-muted-foreground">Locations loaded. Checking available sample comparisons…</p>}
 
-        <div className="map-layers" role="group" aria-label="Map layers">
+        <div className="map-layers" role="group" aria-label="Map layers" data-loop>
           <button type="button" aria-pressed={showReadings} onClick={() => setShowReadings(value => !value)} data-testid="layer-readings">
             <span className="map-layer-swatch map-layer-swatch--ripple" aria-hidden="true" />
             Readings on the water

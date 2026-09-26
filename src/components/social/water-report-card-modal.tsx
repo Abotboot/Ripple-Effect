@@ -329,7 +329,7 @@ export function WaterReportCardModal({
       <div data-lenis-prevent className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6">
         {/* Backdrop */}
         <motion.div
-          className="fixed inset-0 bg-black/80 backdrop-blur-md"
+          className="fixed inset-0 bg-black/85"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

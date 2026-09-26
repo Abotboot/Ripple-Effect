@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import type { UtilityWithStats } from '@/lib/types'
-import { ContaminantTrendChart } from '@/components/charts/contaminant-trend-chart'
+import dynamic from 'next/dynamic'
 import { ContaminantBarChart } from '@/components/charts/contaminant-bar-chart'
 import { QualityBadge } from '@/components/quality-badge'
 import { SourceBadge } from '@/components/source-badge'
@@ -22,6 +22,12 @@ import { normalizeToBenchmarkUnit } from '@/lib/provenance'
 import { hasPublishedScore, summaryPresentation, utilityComparisons } from '@/lib/assessment-presentation'
 import { OfficialMonitoringPanel } from './official-monitoring-panel'
 import { officialResultText, officialResultStatus } from '@/lib/official-monitoring'
+
+// Recharts is large; load the trend chart only when a dialog shows one.
+const ContaminantTrendChart = dynamic(
+  () => import('@/components/charts/contaminant-trend-chart').then(module => module.ContaminantTrendChart),
+  { ssr: false, loading: () => <div className="h-[200px] w-full" aria-hidden="true" /> },
+)
 
 function escapeHtml(str: unknown): string {
   if (str == null) return ''
@@ -97,7 +103,7 @@ export function UtilityDetailDialog({
         {utility && (
           <motion.div
             data-lenis-prevent
-            className="fixed inset-0 z-[110] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
+            className="fixed inset-0 z-[110] flex items-end justify-center bg-black/75 sm:items-center sm:p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

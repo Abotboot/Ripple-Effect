@@ -98,7 +98,7 @@ export function ParticleAtlas({ onMethodology }: { onMethodology?: () => void } 
               <span>{description}</span>
             </div>
             <div className={styles.detail}>
-              <Image src={particlePhotographs[id].src} alt={particlePhotographs[id].alt} width={particlePhotographs[id].width} height={particlePhotographs[id].height} sizes="(max-width: 699px) 80vw, 480px" loading="lazy" unoptimized />
+              <Image src={particlePhotographs[id].src} alt={particlePhotographs[id].alt} width={particlePhotographs[id].width} height={particlePhotographs[id].height} sizes="(max-width: 699px) 80vw, 480px" loading="lazy" />
               <div><p className={styles.features}>{particlePhotographs[id].caption}</p><p className={styles.note}><PhotographCredit photo={particlePhotographs[id]} /></p></div>
             </div>
           </div>

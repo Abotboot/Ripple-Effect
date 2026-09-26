@@ -1,5 +1,7 @@
 .site-header, .site-footer { --chrome-ink: #dcebe5; --chrome-muted: #a3bcb3; color: var(--chrome-ink); background: rgba(5, 8, 10, .96); border-color: #29433c; }
-.site-header { border-bottom: 1px solid #29433c; backdrop-filter: blur(16px); transition: translate .5s cubic-bezier(.16,1,.3,1), background-color .3s ease; }
+/* No backdrop blur: at 96% opacity it was invisible, but it re-blurred the
+   content underneath on every scroll and animation frame. */
+.site-header { border-bottom: 1px solid #29433c; transition: translate .5s cubic-bezier(.16,1,.3,1), background-color .3s ease; }
 .site-header[data-tucked] { translate: 0 -100%; }
 .site-menu-open .site-header { background: #05080a; }
 .site-header .site-brand-seal { height: 40px; width: 40px; flex-shrink: 0; border: 1px solid #52796b; border-radius: 50%; overflow: hidden; }
@@ -92,3 +94,19 @@
 @media (max-width: 540px) { .site-footer .site-footer-grid { grid-template-columns: minmax(0, 1fr); } .site-footer-prologue { padding-bottom: 36px; } }
 @media (prefers-reduced-motion: reduce) { .site-footer-rings { display: none; } }
 @media (prefers-reduced-motion: reduce) { .site-header, .site-header *, .site-footer *, .site-nav-menu * { transition: none !important; scroll-behavior: auto !important; } .site-header[data-tucked] { translate: none; } }
+
+/* Reading progress along the header edge, tied to the page's scroll position.
+   Browsers without scroll-driven animations simply do not show it. */
+.site-read-progress { display: none; }
+@supports (animation-timeline: scroll()) {
+  .site-read-progress { display: block; transform: scaleX(0); animation: site-read linear both; animation-timeline: scroll(root); }
+  @keyframes site-read { to { transform: scaleX(1); } }
+}
+
+/* Back-to-top ring: fills with the page's scroll position; full ring where
+   scroll-driven animations are unsupported. */
+.scroll-top-ring { stroke-dasharray: 1; stroke-dashoffset: 0; }
+@supports (animation-timeline: scroll()) {
+  .scroll-top-ring { animation: scroll-top-ring linear both; animation-timeline: scroll(root); }
+  @keyframes scroll-top-ring { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+}

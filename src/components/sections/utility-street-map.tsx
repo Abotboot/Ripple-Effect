@@ -67,6 +67,7 @@ export default function UtilityStreetMap({
   const map = useRef<L.Map | null>(null)
   const tiles = useRef<L.TileLayer | null>(null)
   const readingMarkers = useRef(new Map<string, L.Marker>())
+  const utilityPins = useRef(new Map<string, HTMLElement>())
   const select = useRef(onSelect)
   const [tileError, setTileError] = useState(false)
   useEffect(() => { select.current = onSelect }, [onSelect])
@@ -98,6 +99,8 @@ export default function UtilityStreetMap({
     const instance = map.current
     if (!instance || !showUtilities) return
     const markers = L.layerGroup().addTo(instance)
+    const pins = utilityPins.current
+    pins.clear()
     for (const utility of utilities) {
       const kind = assessmentKind(utility.assessment), tier = utilityMapTier(utility)
       const label = `${utility.name}: ${tier.label}`
@@ -119,14 +122,23 @@ export default function UtilityStreetMap({
         element.dataset.testid = 'utility-map-marker'
         element.dataset.assessment = kind
         element.setAttribute('aria-label', label)
-        element.setAttribute('aria-busy', String(loadingId === utility.id))
+        element.setAttribute('aria-busy', 'false')
         element.addEventListener('keydown', event => {
           if (event.key === ' ') { event.preventDefault(); select.current(utility.id) }
         })
+        pins.set(utility.id, element)
       }
     }
-    return () => { markers.remove() }
-  }, [utilities, loadingId, showUtilities])
+    return () => { markers.remove(); pins.clear() }
+  }, [utilities, showUtilities])
+
+  // Loading a utility only flags its own pin; the markers are not rebuilt.
+  useEffect(() => {
+    if (!loadingId) return
+    const pin = utilityPins.current.get(loadingId)
+    pin?.setAttribute('aria-busy', 'true')
+    return () => pin?.setAttribute('aria-busy', 'false')
+  }, [loadingId, utilities, showUtilities])
 
   // Readings sit at their collection point on the water, above utility pins.
   useEffect(() => {
@@ -185,7 +197,7 @@ export default function UtilityStreetMap({
     return () => { circle.remove() }
   }, [center, radiusMiles])
 
-  return <div className="utility-street-map water-map-night">
+  return <div className="utility-street-map water-map-night" data-loop>
     <div ref={container} className="utility-street-canvas" data-testid="street-map" data-lenis-prevent tabIndex={0} role="region" aria-label="Interactive street map of water utilities and readings on the water. Use arrow keys to pan and plus or minus to zoom." />
     <button className="utility-map-reset" type="button" onClick={() => map.current?.setView([39, -98], 4, { animate: false })}>US overview</button>
     {tileError && <div className="utility-map-error" role="alert">

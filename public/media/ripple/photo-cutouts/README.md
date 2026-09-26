@@ -8,7 +8,7 @@ The nine independent sprites are cream, ring, green, turquoise, clear, foam, bla
 
 ## Prompts
 
-The hero scatters 160 decorative instances of 11 textures (101 visible on narrow screens). These are compositional repetitions, not a photographed particle count. Lighting stays fixed while transparent objects float and respond to the pointer. Cards retain larger details. The microscope-detail edit derives from Jamie Velkoverh / USGS's public-domain Raman microscope photograph; it is an AI-cropped and relit interpretation.
+The hero scatters 160 decorative instances of 11 textures (72 visible on narrow screens), using the 192 px copies in `sm/`; the bottle story uses the 384 px copies in `md/`. Both are plain resizes of the files here. These are compositional repetitions, not a photographed particle count. Lighting stays fixed while transparent objects float and respond to the pointer. Cards retain larger details. The microscope-detail edit derives from Jamie Velkoverh / USGS's public-domain Raman microscope photograph; it is an AI-cropped and relit interpretation.
 
 ### microscope-detail
 

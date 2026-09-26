@@ -8,7 +8,9 @@
 .water-reading-ripple { position: relative; display: block; width: 100%; height: 100%; }
 .water-reading-ripple > * { position: absolute; inset: 0; margin: auto; border-radius: 50%; }
 .water-reading-ripple > b { width: 14px; height: 14px; background: var(--pin); border: 2px solid #04110d; box-shadow: 0 0 0 1px var(--pin), 0 0 18px var(--pin); transition: transform .25s cubic-bezier(.2,.9,.3,1.4); }
-.water-reading-ripple > i { width: 14px; height: 14px; border: 1.5px solid var(--pin); opacity: 0; transform: scale(.6); will-change: transform, opacity; }
+/* No will-change here: with many readings it would promote every ring to its
+   own layer even when the rings are not animating. */
+.water-reading-ripple > i { width: 14px; height: 14px; border: 1.5px solid var(--pin); opacity: 0; transform: scale(.6); }
 .water-map-animate .water-reading-ripple > i { animation: water-pin-ripple 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
 .water-map-animate .water-reading-ripple > i + i { animation-delay: 1.4s; }
 .water-reading-pin:hover .water-reading-ripple > b, .water-reading-pin:focus-visible .water-reading-ripple > b, .water-reading-ripple.is-selected > b { transform: scale(1.35); }

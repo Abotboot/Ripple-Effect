@@ -1,10 +1,15 @@
 .ripple-hero { --tank-cyan: #b8d8cb; min-height: 0; background: #05080a; margin-top: calc(-1 * var(--ripple-header-offset, 72px)); }
 .ripple-photograph { position: absolute; inset: 0; margin: 0; }
-.ripple-photograph [data-testid=hero-cutout-scene] { height: 100%; aspect-ratio: auto; mask-image: linear-gradient(90deg, #0002, #0004 35%, #000 66%); }
+.ripple-photograph [data-testid=hero-cutout-scene] { height: 100%; aspect-ratio: auto; }
+/* The particles fade toward the copy under a colour overlay rather than a
+   mask: a mask made the browser redraw every drifting sprite into one
+   offscreen image each frame. */
+.ripple-photograph::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgb(7 19 21 / .87), rgb(7 19 21 / .73) 35%, rgb(7 19 21 / 0) 66%); }
+.ripple-photograph figcaption { z-index: 1; }
 .ripple-photograph figcaption { position: absolute; bottom: 72px; right: 6vw; max-width: 70%; color: #b6c0bd; font-size: 11px; line-height: 1.6; }
 .photograph-credit a { text-decoration: underline; text-underline-offset: 3px; }
 .photograph-credit a:focus-visible { outline: 2px solid #eeeae1; outline-offset: 3px; }
-.ripple-media { position: relative; width: 100%; height: 100dvh; background: #071315; overflow: hidden; container-type: size; }
+.ripple-media { position: relative; width: 100%; height: 100vh; height: 100svh; background: #071315; overflow: hidden; container-type: size; }
 .ripple-editorial { position: absolute; z-index: 2; top: 0; left: 0; width: 58%; padding: max(110px, 9vw) 0 20px 7vw; transition: opacity .4s ease; pointer-events: none; }
 .ripple-editorial :is(input, button, a) { pointer-events: auto; }
 .ripple-editorial h1 { font-size: clamp(52px, 6.4vw, 96px); text-shadow: 0 2px 20px #05080a; }
@@ -42,9 +47,9 @@
   .ripple-editorial .tank-search { margin-top: 16px; }
 }
 @media (max-width: 860px) {
-  .ripple-photograph [data-testid=hero-cutout-scene] { mask-image: linear-gradient(#0007, #0004 35%, #000 75%); }
+  .ripple-photograph::after { background: linear-gradient(rgb(7 19 21 / .53), rgb(7 19 21 / .73) 35%, rgb(7 19 21 / 0) 75%); }
   .ripple-photograph figcaption { left: 24px; right: auto; max-width: 70%; font-size: 9px; }
-  .ripple-editorial { position: absolute; top: max(145px, 40dvh); width: 100%; padding: 32px 6vw 8px; background: transparent; isolation: isolate; }
+  .ripple-editorial { position: absolute; top: max(145px, 40svh); width: 100%; padding: 32px 6vw 8px; background: transparent; isolation: isolate; }
   .ripple-editorial::before { content: ''; position: absolute; inset: -28px 0 -110px; z-index: -1; pointer-events: none; background: linear-gradient(transparent, #05080ae8 25%, #05080ae8 68%, transparent); }
   .ripple-artwork-fallback { inset: 45% 6% auto; max-width: none; text-align: center; }
   .ripple-editorial h1 { font-size: clamp(46px, 9vw, 74px); }

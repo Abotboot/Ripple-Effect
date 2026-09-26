@@ -54,10 +54,12 @@ export type WaterReading = {
 }
 
 // -- Utilities --
+let statsRequest: { at: number; promise: Promise<Stats> } | null = null
+
 export const api = {
   // Readings placed at their collection point on the water.
-  getWaterReadings: (signal?: AbortSignal) =>
-    req<{ items: WaterReading[]; available: boolean }>(`/api/readings/map`, { signal }),
+  getWaterReadings: (signal?: AbortSignal, limit?: number) =>
+    req<{ items: WaterReading[]; available: boolean }>(`/api/readings/map${limit ? `?limit=${limit}` : ''}`, { signal }),
 
   searchUtilities: (q: string) =>
     req<Utility[]>(`/api/utilities?q=${encodeURIComponent(q)}`),
@@ -94,7 +96,15 @@ export const api = {
       body: JSON.stringify({ status }),
     }),
 
-  getStats: () => req<Stats>(`/api/stats`),
+  // Several parts of a page read the national summary at once; they share
+  // one request, reused for 30 seconds (a failed request is not reused).
+  getStats: (): Promise<Stats> => {
+    if (statsRequest && Date.now() - statsRequest.at < 30_000) return statsRequest.promise
+    const promise = req<Stats>(`/api/stats`)
+    statsRequest = { at: Date.now(), promise }
+    promise.catch(() => { if (statsRequest?.promise === promise) statsRequest = null })
+    return promise
+  },
 
   getMapLocations: (signal?: AbortSignal) => req<{
     mapUtilities: Array<Pick<Utility, 'id' | 'name' | 'city' | 'state' | 'pwsid' | 'population'> & {

@@ -182,7 +182,7 @@ export function CommandPalette({
           scroll-to-top button so the two never overlap) */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-2 text-xs font-medium text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:border-primary hover:text-primary sm:bottom-6 sm:right-6"
+        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-2 text-xs font-medium text-muted-foreground shadow-lg transition-all hover:border-primary hover:text-primary sm:bottom-6 sm:right-6"
         aria-label="Open search (Cmd+K)"
       >
         <Search className="h-3.5 w-3.5" />

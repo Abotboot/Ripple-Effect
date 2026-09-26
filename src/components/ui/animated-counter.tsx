@@ -26,12 +26,14 @@ export function AnimatedCounter({
   useEffect(() => {
     const el = elementRef.current
     if (!el) return
+    let frame = 0
 
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries
         if (entry.isIntersecting && !hasAnimated.current) {
           hasAnimated.current = true
+          observer.disconnect()
 
           let startTime: number | null = null
           const startVal = 0
@@ -48,13 +50,13 @@ export function AnimatedCounter({
             setDisplayValue(current)
 
             if (progress < 1) {
-              requestAnimationFrame(step)
+              frame = requestAnimationFrame(step)
             } else {
               setDisplayValue(endVal)
             }
           }
 
-          requestAnimationFrame(step)
+          frame = requestAnimationFrame(step)
         }
       },
       { threshold: 0.15 }
@@ -64,6 +66,7 @@ export function AnimatedCounter({
 
     return () => {
       observer.disconnect()
+      cancelAnimationFrame(frame)
     }
   }, [value, duration])
 
@@ -81,13 +84,14 @@ export function AnimatedCounter({
         setDisplayValue(startVal + (endVal - startVal) * easeProgress)
 
         if (progress < 1) {
-          requestAnimationFrame(step)
+          frame = requestAnimationFrame(step)
         } else {
           setDisplayValue(endVal)
         }
       }
 
-      requestAnimationFrame(step)
+      let frame = requestAnimationFrame(step)
+      return () => cancelAnimationFrame(frame)
     }
   }, [value])
 
