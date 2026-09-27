@@ -11,10 +11,13 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import {
-  Accordion, AccordionContent, AccordionItem, AccordionTrigger,
+  AccordionContent, AccordionItem, AccordionTrigger,
 } from '@/components/ui/accordion'
 import { cn } from '@/lib/utils'
+import { useGlide } from '@/components/motion/glide'
+import { useFlipList } from '@/components/motion/flip-list'
 
 type FAQItem = {
   id: string
@@ -65,6 +68,7 @@ const CATEGORY_CONFIG: Record<FAQItem['category'], { icon: React.ElementType; co
 export function FaqSection() {
   const [q, setQ] = useState('')
   const [filter, setFilter] = useState<'all' | FAQItem['category']>('all')
+  const filterRow = useGlide<HTMLDivElement>()
 
   const filtered = useMemo(() => {
     return FAQS.filter((f) => {
@@ -87,6 +91,7 @@ export function FaqSection() {
     }
     return Array.from(map.entries())
   }, [filtered])
+  const groupList = useFlipList<HTMLDivElement>(grouped.map(([category, items]) => `${category}:${items.length}`).join('|'))
 
   const categories: Array<{ id: 'all' | FAQItem['category']; label: string }> = [
     { id: 'all', label: 'All' },
@@ -134,15 +139,17 @@ export function FaqSection() {
               className="pl-9"
             />
           </div>
-          <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-card p-1">
+          <div ref={filterRow} data-glide className="flex flex-wrap gap-1 rounded-lg border border-border bg-card p-1">
             {categories.map((c) => (
               <button
                 key={c.id}
+                type="button"
                 onClick={() => setFilter(c.id)}
+                aria-pressed={filter === c.id}
                 className={cn(
-                  'rounded-md px-3 py-1 text-xs font-medium transition-colors',
+                  'rounded-md px-3 py-1 text-xs font-medium transition-colors duration-300',
                   filter === c.id
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'text-primary-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -170,7 +177,7 @@ export function FaqSection() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-8">
+          <div ref={groupList} className="space-y-8">
             {grouped.map(([category, items]) => {
               const cat = CATEGORY_CONFIG[category]
               const Icon = cat.icon
@@ -183,7 +190,7 @@ export function FaqSection() {
                     <h2 className="text-lg font-bold text-foreground">{category}</h2>
                     <span className="text-xs text-muted-foreground">({items.length})</span>
                   </div>
-                  <Accordion type="single" collapsible className="space-y-2">
+                  <AnimatedAccordion items={items}>
                     {items.map((f) => (
                       <AccordionItem key={f.id} value={f.id} className="overflow-hidden rounded-lg border border-border bg-card px-4">
                         <AccordionTrigger className="text-left text-sm font-medium text-foreground hover:no-underline">
@@ -194,7 +201,7 @@ export function FaqSection() {
                         </AccordionContent>
                       </AccordionItem>
                     ))}
-                  </Accordion>
+                  </AnimatedAccordion>
                 </div>
               )
             })}
@@ -225,5 +232,15 @@ export function FaqSection() {
         </Card>
       </section>
     </div>
+  )
+}
+
+// One category's questions; they slide into place as a search narrows them.
+function AnimatedAccordion({ items, children }: { items: FAQItem[]; children: React.ReactNode }) {
+  const list = useFlipList<HTMLDivElement>(items.map(f => f.id).join('|'))
+  return (
+    <AccordionPrimitive.Root ref={list} type="single" collapsible data-slot="accordion" className="space-y-2">
+      {children}
+    </AccordionPrimitive.Root>
   )
 }

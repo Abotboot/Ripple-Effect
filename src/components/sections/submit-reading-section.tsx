@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import {
@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
 import { api } from '@/lib/api'
+import { celebrate } from '@/lib/celebrate'
 import type { Contaminant, Utility } from '@/lib/types'
 import { QualityBadge } from '@/components/quality-badge'
 import './reading-workbench.css'
@@ -47,6 +48,9 @@ export function SubmitReadingSection() {
   const [point, setPoint] = useState<CollectionPoint | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const celebrateFrom = useRef<HTMLDivElement>(null)
+  // Droplets burst from the check mark once the reading is recorded.
+  useEffect(() => { if (submitted) void celebrate(celebrateFrom.current) }, [submitted])
   const { toast } = useToast()
 
   useEffect(() => {
@@ -191,8 +195,8 @@ export function SubmitReadingSection() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="flex flex-col items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 p-8 text-center dark:border-emerald-800 dark:bg-emerald-950/30"
                   >
-                    <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900">
-                      <CheckCircle2 className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+                    <div ref={celebrateFrom} className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900">
+                      <CheckCircle2 className="success-check h-7 w-7 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-emerald-900 dark:text-emerald-200">
                       Reading recorded! 🧪
@@ -397,7 +401,7 @@ export function SubmitReadingSection() {
 
                     <Button type="submit" className="w-full" disabled={submitting}>
                       {submitting ? (
-                        <><Loader2 className="h-4 w-4 animate-spin" /> Submitting...</>
+                        <><Loader2 className="h-4 w-4 animate-spin" /> <span className="text-shimmer">Submitting…</span></>
                       ) : (
                         <><Send className="h-4 w-4" /> Submit reading</>
                       )}

@@ -13,6 +13,8 @@ import {
   Card, CardContent, CardHeader, CardTitle,
 } from '@/components/ui/card'
 import { EvidenceLabelCard } from '@/components/sections/evidence-label-card'
+import { SourceBeams } from '@/components/hero-art/source-beams'
+import { Annotate } from '@/components/motion/annotate'
 
 type DataSource = {
   name: string
@@ -101,28 +103,31 @@ export function DataSourcesSection() {
   return (
     <div className="editorial-page">
       {/* Header */}
-      <section className="border-b border-border/60 bg-background/60 backdrop-blur-sm">
+      <section className="border-b border-border/60 bg-background/60">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="mx-auto max-w-3xl text-center"
-          >
-            <Badge variant="secondary" className="mb-4 gap-1.5">
-              <Database className="h-3.5 w-3.5" />
-              Database
-            </Badge>
-            <h1 className="text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              Integrated data sources
-            </h1>
-            <p className="mt-4 text-pretty text-base text-muted-foreground sm:text-lg">
-              We cross-reference these public databases, run by the EPA, USGS,
-                            WHO, CDC, and the EWG, and supplement them with our own
-              community-collected microplastics measurements. Every source here
-              is free, public, and open.
-            </p>
-          </motion.div>
+          <div className="hero-with-art">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="mx-auto max-w-3xl text-center"
+            >
+              <Badge variant="secondary" className="mb-4 gap-1.5">
+                <Database className="h-3.5 w-3.5" />
+                Database
+              </Badge>
+              <h1 className="text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+                Integrated data sources
+              </h1>
+              <p className="mt-4 text-pretty text-base text-muted-foreground sm:text-lg">
+                We cross-reference these public databases, run by the EPA, USGS,
+                              WHO, CDC, and the EWG, and supplement them with our own
+                community-collected microplastics measurements. Every source here
+                is free, public, and open.
+              </p>
+            </motion.div>
+            <SourceBeams />
+          </div>
         </div>
       </section>
 
@@ -138,8 +143,8 @@ export function DataSourcesSection() {
                 Microplastics remain sparse in major public drinking-water datasets.
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                These sources have different scopes, and there is no routine federal
-                drinking-water monitoring requirement for microplastics. Community and
+                These sources have different scopes, and there is{' '}
+                <Annotate color="#f59e0b" delay={400}>no routine federal drinking-water monitoring requirement for microplastics</Annotate>. Community and
                 project observations are labeled separately and do not substitute for
                 reviewed institutional measurements.
               </p>

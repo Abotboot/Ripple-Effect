@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import type { Section } from '@/components/site/site-header'
+import { PartnerOrbits } from '@/components/hero-art/partner-orbits'
 
 const container = {
   hidden: { opacity: 0 },
@@ -79,18 +80,21 @@ export function PartnershipsSection({ onNavigate }: { onNavigate?: (s: Section) 
           <div className="absolute bottom-0 left-[20%] h-60 w-60 rounded-full bg-white/10 blur-3xl" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="mx-auto max-w-3xl text-center">
-            <Badge className="mb-4 border-white/30 bg-white/15 text-white hover:bg-white/15">
-              <Handshake className="mr-1 h-3 w-3" />
-              Partnerships
-            </Badge>
-            <h1 className="text-balance text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-              Partners & sponsors
-            </h1>
-            <p className="mt-4 text-pretty text-lg text-white/90 sm:text-xl">
-              A Ripple Effect Initiative works with sponsors and nonprofits who
-              believe clean, open water data belongs to everyone.
-            </p>
+          <div className="hero-with-art">
+            <div className="mx-auto max-w-3xl text-center">
+              <Badge className="mb-4 border-white/30 bg-white/15 text-white hover:bg-white/15">
+                <Handshake className="mr-1 h-3 w-3" />
+                Partnerships
+              </Badge>
+              <h1 className="text-balance text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+                Partners & sponsors
+              </h1>
+              <p className="mt-4 text-pretty text-lg text-white/90 sm:text-xl">
+                A Ripple Effect Initiative works with sponsors and nonprofits who
+                believe clean, open water data belongs to everyone.
+              </p>
+            </div>
+            <PartnerOrbits />
           </div>
         </div>
       </section>

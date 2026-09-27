@@ -84,10 +84,17 @@ const ParkedHome = memo(HomeSection)
 const Footer = memo(SiteFooter)
 const Palette = memo(CommandPalette)
 
+// Menu order, for the direction a new section drifts in from.
+const SECTION_ORDER: Section[] = ['home', 'about', 'partners', 'map', 'microplastics', 'submit', 'sources', 'reports', 'faq', 'donate', 'admin', 'privacy', 'terms']
+
 export default function Home() {
   const [section, setSectionState] = useState<Section>('home')
-  // Each section change fades the new section up gently (not on first load).
+  // Each section change fades the new section up gently (not on first load),
+  // drifting in from the side it sits on in the menu: sections further along
+  // come in from the right, earlier ones from the left (after TransitionPanel
+  // in motion-primitives, github.com/ibelick/motion-primitives, MIT).
   const [stageMotion, setStageMotion] = useState(false)
+  const [stageDir, setStageDir] = useState(0)
   // Home is heavy to build (hero particles, the bottle story, the atlas), so it
   // stays mounted and is parked, not destroyed, while another section shows.
   const homeStage = useRef<HTMLDivElement>(null)
@@ -140,6 +147,7 @@ export default function Home() {
     }
     flushSync(() => {
       setStageMotion(!matchMedia('(prefers-reduced-motion: reduce)').matches)
+      setStageDir(Math.sign(SECTION_ORDER.indexOf(next) - SECTION_ORDER.indexOf(currentSection.current)))
       setSectionState(next)
     })
     syncHash()
@@ -157,7 +165,7 @@ export default function Home() {
         <div ref={homeStage} className={section !== 'home' ? 'section-parked' : undefined} aria-hidden={section !== 'home' || undefined}>
           <ParkedHome onNavigate={setSection} />
         </div>
-        {section !== 'home' && <div key={section} className={stageMotion ? 'section-stage' : undefined}>
+        {section !== 'home' && <div key={section} className={stageMotion ? 'section-stage' : undefined} data-stage-dir={stageDir}>
         {section === 'map' && <MapSection />}
         {section === 'microplastics' && <MicroplasticsSection onNavigate={setSection} />}
         {section === 'submit' && <SubmitReadingSection />}

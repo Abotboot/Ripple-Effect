@@ -52,7 +52,9 @@ export function MotionSystem() {
     })
     cleanups.push(() => loops.disconnect())
 
+    // Separate bookkeeping: an element can both reveal and loop (the ticker).
     const bound = new WeakSet<Element>()
+    const looping = new WeakSet<Element>()
     const scan = () => {
       if (motion) for (const el of document.querySelectorAll<HTMLElement>(AUTO_REVEAL)) {
         if (el.hasAttribute('data-reveal') || el.closest(AUTO_SKIP)) continue
@@ -72,8 +74,8 @@ export function MotionSystem() {
         observer.observe(el)
       }
       for (const el of document.querySelectorAll('[data-loop]')) {
-        if (bound.has(el)) continue
-        bound.add(el)
+        if (looping.has(el)) continue
+        looping.add(el)
         loops.observe(el)
       }
     }

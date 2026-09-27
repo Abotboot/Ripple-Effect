@@ -110,3 +110,12 @@
   .scroll-top-ring { animation: scroll-top-ring linear both; animation-timeline: scroll(root); }
   @keyframes scroll-top-ring { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 }
+
+/* -- Toasts (Sonner) --------------------------------------------------------- */
+.site-toast { font-family: var(--font-geist-sans), sans-serif; box-shadow: 0 18px 40px -18px rgb(0 0 0 / .8) !important; }
+.site-toast [data-title] { font-size: 14px; font-weight: 500; line-height: 1.4; }
+.site-toast [data-description] { color: #a4bdb3 !important; font-size: 13px; line-height: 1.5; }
+.site-toast[data-type=success] { border-left: 2px solid #1df2b3 !important; }
+.site-toast[data-type=success] [data-icon] { color: #1df2b3; }
+.site-toast[data-type=error] { border-left: 2px solid #ff8a9a !important; }
+.site-toast[data-type=error] [data-icon] { color: #ff8a9a; }

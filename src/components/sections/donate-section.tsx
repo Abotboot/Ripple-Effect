@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { ArrowUpRight, Database, FlaskConical, HandHeart, Microscope, Wrench } from 'lucide-react'
 import './editorial-pages.css'
 import './donation.css'
+import { RollingNumber } from '@/components/motion/rolling-number'
+import { Annotate } from '@/components/motion/annotate'
 
 const GOAL = 25_000
 const HCB_DONATE_URL = 'https://hcb.hackclub.com/donations/start/a-ripple-effect-initiative-arei'
@@ -65,7 +67,7 @@ export function DonateSection() {
       <div className="donation-layout">
         <div className="donation-intro">
           <p className="donation-kicker"><HandHeart size={18} aria-hidden="true" /> Community-funded research</p>
-          <h1>Better tools.<br /><em>Better water data.</em></h1>
+          <h1>Better tools.<br /><em><Annotate strokeWidth={3} padding={4} delay={700} duration={1100}>Better water data.</Annotate></em></h1>
           <p className="donation-lede">Help build and validate a low-cost microplastics identifier, then publish the observations it supports in an open data system.</p>
           <a className="donation-primary" href={HCB_DONATE_URL} target="_blank" rel="noopener noreferrer" data-testid="donation-primary">
             Donate to the project <ArrowUpRight size={20} aria-hidden="true" />
@@ -77,7 +79,9 @@ export function DonateSection() {
           <div className="donation-funding-heading"><span>Build & validation fund</span><span>01 / Fieldwork</span></div>
           <p className="donation-total-label">Raised through HCB</p>
           <div className="donation-total" aria-live="polite" data-testid="donation-total">
-            {funding.status === 'available' ? currency(funding.raised) : funding.status === 'loading' ? 'Loading total…' : 'Total unavailable'}
+            {funding.status === 'available'
+              ? <RollingNumber value={funding.raised} locales="en-US" format={{ style: 'currency', currency: 'USD', minimumFractionDigits: Number.isInteger(funding.raised) ? 0 : 2, maximumFractionDigits: 2 }} />
+              : funding.status === 'loading' ? <span className="text-shimmer">Loading total…</span> : 'Total unavailable'}
           </div>
           <div className="donation-goal"><span>Project goal</span><strong>{currency(GOAL)}</strong></div>
           {funding.status === 'available' && <>
@@ -103,7 +107,7 @@ export function DonateSection() {
       <div className="donation-allocation" aria-label="Planned project allocation">
         <div className="donation-allocation-heading"><span>Planned allocation</span><span>Share of program budget</span></div>
         {ALLOCATIONS.map(({ icon: Icon, title, pct }) => <div className="donation-allocation-row" key={title}>
-          <Icon size={20} aria-hidden="true" /><span>{title}</span><strong>{pct}%</strong>
+          <Icon size={20} aria-hidden="true" /><span>{title}</span><strong><RollingNumber value={pct} suffix="%" /></strong>
         </div>)}
         <p>Planning targets, not a record of money already spent. Fiscal-sponsorship and payment fees are separate.</p>
       </div>

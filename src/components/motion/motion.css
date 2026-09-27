@@ -64,9 +64,66 @@
 @keyframes flow-dash { to { stroke-dashoffset: -32; } }
 @media (prefers-reduced-motion: reduce) { .flow-dash { animation-duration: 6s; } }
 
-/* A quick, quiet fade-up when switching sections (see page.tsx). */
-.section-stage { animation: section-rise .45s var(--ease-out-expo) both; }
+/* A quick, quiet fade-up when switching sections, drifting in from the side
+   the section sits on in the menu (data-stage-dir; see page.tsx). Separate
+   keyframes rather than a variable, so the fade stays on the GPU. */
+.section-stage { animation: section-rise .55s var(--ease-out-expo) both; }
+.section-stage[data-stage-dir="1"] { animation-name: section-rise-right; }
+.section-stage[data-stage-dir="-1"] { animation-name: section-rise-left; }
 @keyframes section-rise { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: none; } }
+@keyframes section-rise-right { from { opacity: 0; translate: 28px 8px; } to { opacity: 1; translate: none; } }
+@keyframes section-rise-left { from { opacity: 0; translate: -28px 8px; } to { opacity: 1; translate: none; } }
+
+/* -- Gliding highlight (useGlide in glide.ts) ----------------------------- */
+/* The row's active option is marked by a pseudo-element that slides to it. */
+[data-glide] { position: relative; isolation: isolate; }
+[data-glide]::before {
+  content: ''; position: absolute; left: 0; top: 0; z-index: -1; pointer-events: none;
+  width: var(--glide-w, 0px); height: var(--glide-h, 0px);
+  translate: var(--glide-x, 0px) var(--glide-y, 0px);
+  opacity: var(--glide-o, 0);
+  background: var(--glide-bg, var(--primary));
+  box-shadow: var(--glide-shadow, none);
+}
+[data-glide][data-glide-ready]::before { transition: translate .5s var(--ease-out-expo), width .5s var(--ease-out-expo), height .5s var(--ease-out-expo), opacity .2s ease; }
+[data-slot=tabs-list][data-glide] { --glide-bg: var(--background); --glide-shadow: 0 1px 2px rgb(0 0 0 / .06); }
+.dark [data-slot=tabs-list][data-glide] { --glide-bg: color-mix(in srgb, var(--input) 30%, transparent); --glide-shadow: inset 0 0 0 1px var(--input); }
+
+/* -- Rolling numbers (RollingNumber) -------------------------------------- */
+/* Each digit column is clipped (and softened at the edges) by its mask; the
+   hidden digit gives it the right width, height and baseline. */
+.odo-digit { position: relative; display: inline-block; -webkit-mask: linear-gradient(transparent, #000 16%, #000 84%, transparent) no-repeat; mask: linear-gradient(transparent, #000 16%, #000 84%, transparent) no-repeat; }
+.odo-hold { visibility: hidden; }
+.odo-strip { position: absolute; left: 0; top: 0; width: 100%; }
+.odo-strip > span { display: block; text-align: center; }
+
+/* -- Hand-drawn marks (Annotate) ----------------------------------------- */
+.annotate { position: relative; }
+.annotate > .rough-annotation { z-index: 1; }
+
+/* -- Words that light up on scroll (ScrollWords) -------------------------- */
+@supports (animation-timeline: view()) {
+  .scroll-words { view-timeline: --scroll-words block; }
+  .scroll-words .sw { opacity: .2; animation: sw-light linear both; animation-timeline: --scroll-words; animation-range: cover calc(8% + var(--sw) * 36%) cover calc(16% + var(--sw) * 36%); }
+}
+@keyframes sw-light { to { opacity: 1; } }
+
+/* -- Loading text shimmer ------------------------------------------------- */
+/* A band of light sweeps across text while something loads. After TextShimmer
+   in motion-primitives (github.com/ibelick/motion-primitives, MIT), done in CSS:
+   only the fill is transparent, so currentColor still names the text colour. */
+.text-shimmer {
+  --shimmer-spread: 2.2em;
+  background-image:
+    linear-gradient(90deg, #0000 calc(50% - var(--shimmer-spread)), #f4fffa, #0000 calc(50% + var(--shimmer-spread))),
+    linear-gradient(color-mix(in srgb, currentColor 62%, transparent), color-mix(in srgb, currentColor 62%, transparent));
+  background-size: 250% 100%, auto;
+  background-repeat: no-repeat, padding-box;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 2.2s linear infinite;
+}
+@keyframes text-shimmer { from { background-position: 100% center; } to { background-position: 0% center; } }
 
 @media print {
   .motion-ready [data-reveal], .motion-ready [data-split] .split-inner { opacity: 1 !important; translate: none !important; clip-path: none !important; animation: none !important; }
@@ -74,6 +131,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .section-stage { animation: none; }
+  .text-shimmer { animation: none; background: none; -webkit-text-fill-color: currentColor; }
+  [data-glide][data-glide-ready]::before { transition: opacity .2s ease; }
+  .scroll-words .sw { opacity: 1; animation: none; }
   [data-magnetic] { translate: none; transition: none; }
   .roll-row--copy { display: none; }
   .roll-row > span, [data-roll]:hover .roll-row > span, [data-roll]:focus-visible .roll-row > span { translate: none; transition: none; }

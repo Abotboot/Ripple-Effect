@@ -202,7 +202,7 @@ export default function CollectionPointPicker({ value, onChange, hint }: Props) 
         </label>
       )}
       <div className="collection-picker-readout" aria-live="polite">
-        <span>{status}</span>
+        <span className={lookupState === 'looking' ? 'text-shimmer' : undefined}>{status}</span>
         {value && (
           <>
             <code>{value.latitude.toFixed(5)}, {value.longitude.toFixed(5)}</code>

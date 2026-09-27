@@ -5,6 +5,7 @@ import type { ArtworkCategory } from '@/lib/artwork-journey'
 import { useParticleMotion } from '@/hooks/use-particle-motion'
 import { PhotoParticleScene } from '../sections/photo-particle-scene'
 import { SplitWords } from '@/components/motion/split-words'
+import { useGlide } from '@/components/motion/glide'
 import './tank.css'
 import './photo-hero.css'
 import './hero-motion.css'
@@ -22,6 +23,7 @@ export function TankHero({ children, onPhotoSources }: { children: ReactNode; on
   const [category, setCategory] = useState<ArtworkCategory>('all')
   const motion = useParticleMotion()
   const root = useRef<HTMLElement>(null)
+  const formRow = useGlide<HTMLDivElement>()
   useLayoutEffect(() => {
     const updateOffset = () => {
       const header = document.querySelector<HTMLElement>('.site-header')
@@ -49,7 +51,7 @@ export function TankHero({ children, onPhotoSources }: { children: ReactNode; on
     </div>
     <div className="ripple-workbench" aria-label="Photograph controls" data-reveal="fade" style={{ '--reveal-delay': '700ms' } as React.CSSProperties}>
       <div className="ripple-form-selector"><span className="ripple-control-label">Highlight a form</span>
-        <div className="ripple-category-buttons" role="group" aria-label="Choose particle form">{forms.map(form => <button type="button" key={form.id} data-testid={`field-${form.id}`} aria-pressed={category === form.id} onClick={() => setCategory(form.id)}>{form.label}</button>)}</div>
+        <div ref={formRow} data-glide className="ripple-category-buttons" role="group" aria-label="Choose particle form">{forms.map(form => <button type="button" key={form.id} data-testid={`field-${form.id}`} aria-pressed={category === form.id} onClick={() => setCategory(form.id)}>{form.label}</button>)}</div>
       </div>
       <button type="button" className="ripple-motion-button" data-testid="field-pause" aria-pressed={motion.paused} onClick={motion.toggle}>{motion.label}</button>
       <p className="ripple-field-description" data-testid="field-description" aria-live="polite">{forms.find(form => form.id === category)!.description}</p>

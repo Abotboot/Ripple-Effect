@@ -25,6 +25,7 @@ import { SplitWords } from '@/components/motion/split-words'
 import type { Stats, UtilityWithStats, Utility } from '@/lib/types'
 import { UtilityDetailDialog } from '@/components/sections/utility-detail-dialog'
 import { cn } from '@/lib/utils'
+import { useGlide } from '@/components/motion/glide'
 import { assessmentKind, hasFiniteCoordinates, unavailableAssessment } from '@/lib/sample-read-model'
 import { utilityMapTier as tierFor } from '@/lib/map-presentation'
 
@@ -55,6 +56,8 @@ export function MapSection() {
   const [selected, setSelected] = useState<UtilityWithStats | null>(null)
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null)
   const [filterTier, setFilterTier] = useState<'all' | 'legal' | 'health' | 'unassessed' | 'compared'>('all')
+  const tierRow = useGlide<HTMLDivElement>()
+  const contaminantRow = useGlide<HTMLDivElement>()
   // Contaminant filter chips (separate from tier filter; ANDed together)
   const [contaminantFilter, setContaminantFilter] = useState<'all' | 'microplastics' | 'pfas' | 'lead' | 'dbp'>('all')
   // Radius search state
@@ -274,7 +277,7 @@ export function MapSection() {
         </div>}
 
         {/* Tier filter chips + clear-filters button */}
-        <div className="map-chip-row mb-3 flex flex-wrap items-center justify-center gap-2">
+        <div ref={tierRow} data-glide className="map-chip-row mb-3 flex flex-wrap items-center justify-center gap-2">
           <span className="sr-only">Filter utilities by recorded comparisons</span>
           {([
             { id: 'all', label: 'All locations', count: locations ? mapUtilities.length : null, color: '#64748b' },
@@ -291,7 +294,7 @@ export function MapSection() {
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all',
                 filterTier === t.id
-                  ? 'border-primary bg-primary text-primary-foreground shadow-sm dark:border-primary dark:bg-primary dark:text-primary-foreground'
+                  ? 'border-primary text-primary-foreground dark:border-primary dark:text-primary-foreground'
                   : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
               )}
             >
@@ -322,7 +325,7 @@ export function MapSection() {
         </div>
 
         {/* Contaminant filter chips (ANDed with tier filter) */}
-        <div className="map-chip-row mb-5 flex flex-wrap items-center justify-center gap-2">
+        <div ref={contaminantRow} data-glide className="map-chip-row mb-5 flex flex-wrap items-center justify-center gap-2">
           <span className="mr-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             <FlaskConical className="h-3 w-3" />
             By contaminant
@@ -344,7 +347,7 @@ export function MapSection() {
                 className={cn(
                   'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all',
                   selected
-                    ? 'border-primary bg-primary text-primary-foreground shadow-sm dark:border-primary dark:bg-primary dark:text-primary-foreground'
+                    ? 'border-primary text-primary-foreground dark:border-primary dark:text-primary-foreground'
                     : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
                 )}
               >
@@ -439,11 +442,11 @@ export function MapSection() {
               <span>Nearby search failed. Showing all loaded locations until it can be retried.</span>
               <Button variant="outline" size="sm" onClick={() => radiusCenter && runRadiusSearch(radiusCenter.lat, radiusCenter.lng, radiusMiles)}>Retry nearby search</Button>
             </div>}
-            {radiusMode && radiusLoading && <p role="status" className="mt-3 text-sm text-muted-foreground">Searching nearby utilities…</p>}
+            {radiusMode && radiusLoading && <p role="status" className="mt-3 text-sm text-muted-foreground"><span className="text-shimmer">Searching nearby utilities…</span></p>}
             {radiusMode && nearby && (
               <div className="mt-3 flex items-center gap-2 rounded-md bg-primary/5 px-3 py-2 text-sm">
                 {radiusLoading ? (
-                  <><Loader2 className="h-3.5 w-3.5 animate-spin text-primary" /> Searching...</>
+                  <><Loader2 className="h-3.5 w-3.5 animate-spin text-primary" /> <span className="text-shimmer">Searching…</span></>
                 ) : (
                   <>
                     <Search className="h-3.5 w-3.5 text-primary" />
@@ -465,7 +468,7 @@ export function MapSection() {
           <span>No locations match the current filters. Unreviewed records do not qualify as benchmark findings.</span>
           {anyFilterActive && <Button variant="outline" onClick={clearFilters}>Clear filters</Button>}
         </div>}
-        {!loading && locations && assessmentLoading && <p role="status" className="mb-3 text-sm text-muted-foreground">Locations loaded. Checking available sample comparisons…</p>}
+        {!loading && locations && assessmentLoading && <p role="status" className="mb-3 text-sm text-muted-foreground"><span className="text-shimmer">Locations loaded. Checking available sample comparisons…</span></p>}
 
         <div className="map-layers" role="group" aria-label="Map layers" data-loop>
           <button type="button" aria-pressed={showReadings} onClick={() => setShowReadings(value => !value)} data-testid="layer-readings">

@@ -3,7 +3,6 @@
 import './editorial-pages.css'
 
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
 import {
   Megaphone, MapPin, Loader2, Send, AlertTriangle, Info, CheckCircle2,
   Clock, Eye, MessageSquare, Droplets, Filter,
@@ -22,6 +21,9 @@ import { useToast } from '@/hooks/use-toast'
 import { api } from '@/lib/api'
 import type { Report } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { useGlide } from '@/components/motion/glide'
+import { useFlipList } from '@/components/motion/flip-list'
+import { celebrate } from '@/lib/celebrate'
 
 type ReportWithUtility = Report & {
   utility?: { name: string; city: string; state: string } | null
@@ -50,6 +52,7 @@ const STATUS_META: Record<string, { label: string; icon: React.ElementType; cls:
 export function CommunityReportsSection() {
   const [reports, setReports] = useState<ReportWithUtility[] | null>(null)
   const [filter, setFilter] = useState<'all' | 'pending' | 'reviewed' | 'resolved'>('all')
+  const filterRow = useGlide<HTMLDivElement>()
   const [submitting, setSubmitting] = useState(false)
   const { toast } = useToast()
 
@@ -72,8 +75,9 @@ export function CommunityReportsSection() {
   }
   useEffect(() => { load() }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const submitButton = e.currentTarget.querySelector('button[type=submit]')
     if (!form.zipCode.trim() || !form.title.trim() || !form.description.trim()) {
       toast({
         title: 'Missing fields',
@@ -89,6 +93,7 @@ export function CommunityReportsSection() {
         title: 'Report submitted',
         description: 'Thank you! Your report is now pending review by the crew.',
       })
+      void celebrate(submitButton)
       setForm({
         zipCode: '', city: '', state: '', title: '', description: '',
         contaminant: '', appearance: 'normal', severity: 'info',
@@ -119,7 +124,7 @@ export function CommunityReportsSection() {
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Report what you see in your water
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+          <p className="mt-3 max-w-2xl text-muted-foreground">
             Noticed cloudy water, a strange taste, or a contamination event?
             Share it with your community. Reports are public and reviewed by our crew.
           </p>
@@ -283,15 +288,17 @@ export function CommunityReportsSection() {
               </h2>
               <div className="flex items-center gap-1.5">
                 <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-                <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-card p-1">
+                <div ref={filterRow} data-glide className="flex flex-wrap gap-1 rounded-lg border border-border bg-card p-1">
                   {(['all', 'pending', 'reviewed', 'resolved'] as const).map((f) => (
                     <button
                       key={f}
+                      type="button"
                       onClick={() => setFilter(f)}
+                      aria-pressed={filter === f}
                       className={cn(
-                        'rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors',
+                        'rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors duration-300',
                         filter === f
-                          ? 'bg-primary text-primary-foreground'
+                          ? 'text-primary-foreground'
                           : 'text-muted-foreground hover:text-foreground'
                       )}
                     >
@@ -322,25 +329,21 @@ export function CommunityReportsSection() {
                 </CardContent>
               </Card>
             ) : (
-              <motion.div
-                className="space-y-3"
-                initial="hidden"
-                animate="show"
-                variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}
-              >
-                {filtered.map((r) => (
-                  <motion.div
-                    key={r.id}
-                    variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
-                  >
-                    <ReportCard report={r} />
-                  </motion.div>
-                ))}
-              </motion.div>
+              <ReportList reports={filtered} />
             )}
           </div>
         </div>
       </section>
+    </div>
+  )
+}
+
+// Reports fade up when they arrive and slide into place when the filter changes.
+function ReportList({ reports }: { reports: ReportWithUtility[] }) {
+  const list = useFlipList<HTMLDivElement>(reports.map(r => r.id).join('|'), { appear: true })
+  return (
+    <div ref={list} className="space-y-3" data-no-reveal>
+      {reports.map(r => <ReportCard key={r.id} report={r} />)}
     </div>
   )
 }

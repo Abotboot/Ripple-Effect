@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { FlaskConical, Info, ShieldCheck, Users } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { api } from '@/lib/api'
+import { RollingNumber } from '@/components/motion/rolling-number'
 import type { Stats } from '@/lib/types'
 
 // How many records carry each evidence label, and what the labels mean.
@@ -59,7 +60,7 @@ function QualityRow({ icon: Icon, label, count, total, color, colorLight, textCo
           <Icon className={`h-3.5 w-3.5 ${textColor}`} />
           <span className="text-xs font-semibold text-foreground">{label}</span>
         </div>
-        <span className={`text-xs font-bold tabular-nums ${textColor}`}>{count}</span>
+        <RollingNumber value={count} className={`text-xs font-bold tabular-nums ${textColor}`} />
       </div>
       <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-background/50">
         <motion.div

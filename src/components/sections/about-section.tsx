@@ -17,6 +17,10 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { api } from '@/lib/api'
 import type { Stats } from '@/lib/types'
+import { RollingNumber } from '@/components/motion/rolling-number'
+import { RippleRings } from '@/components/hero-art/ripple-rings'
+import { Annotate } from '@/components/motion/annotate'
+import { ScrollWords } from '@/components/motion/scroll-words'
 import type { Section } from '@/components/site/site-header'
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
@@ -149,11 +153,11 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
       .finally(() => setLoading(false))
   }, [])
 
-  const statItems: Array<{ label: string; value: string | undefined; icon: React.ElementType }> = [
-    { label: 'Utilities', value: stats?.utilitiesCount?.toLocaleString(), icon: Building2 },
-    { label: 'Contaminants', value: stats?.contaminantsCount?.toLocaleString(), icon: FlaskConical },
-    { label: 'Samples', value: stats?.samplesCount?.toLocaleString(), icon: Droplets },
-    { label: 'Chapters', value: stats?.chaptersCount?.toLocaleString(), icon: Users },
+  const statItems: Array<{ label: string; value: number | undefined; icon: React.ElementType }> = [
+    { label: 'Utilities', value: stats?.utilitiesCount, icon: Building2 },
+    { label: 'Contaminants', value: stats?.contaminantsCount, icon: FlaskConical },
+    { label: 'Samples', value: stats?.samplesCount, icon: Droplets },
+    { label: 'Chapters', value: stats?.chaptersCount, icon: Users },
   ]
 
   return (
@@ -165,17 +169,20 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
           <div className="absolute bottom-0 left-[20%] h-60 w-60 rounded-full bg-accent/20 blur-3xl" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="mx-auto max-w-3xl text-center">
-            <Badge className="mb-4 border-primary/20 bg-primary/10 text-primary hover:bg-primary/15">
-              <Info className="mr-1 h-3 w-3" />
-              About us
-            </Badge>
-            <h1 className="text-balance text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-              A Ripple Effect Initiative
-            </h1>
-            <p className="mt-4 text-pretty text-lg text-muted-foreground sm:text-xl">
-              One act. Endless impact.
-            </p>
+          <div className="hero-with-art">
+            <div className="mx-auto max-w-3xl text-center">
+              <Badge className="mb-4 border-primary/20 bg-primary/10 text-primary hover:bg-primary/15">
+                <Info className="mr-1 h-3 w-3" />
+                About us
+              </Badge>
+              <h1 className="text-balance text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+                A Ripple Effect Initiative
+              </h1>
+              <p className="mt-4 text-pretty text-lg text-muted-foreground sm:text-xl">
+                One act. Endless impact.
+              </p>
+            </div>
+            <RippleRings />
           </div>
         </div>
       </section>
@@ -195,11 +202,11 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
             <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
               Our mission
             </h2>
-            <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <ScrollWords className="about-mission mt-5 text-pretty">
               We are a volunteer crew building a community water database. We make
-              local water data open, searchable, and actionable, and we track
-              microplastics that almost no one else does.
-            </p>
+              local water data open, searchable, and actionable, and we track{' '}
+              <Annotate delay={200} rootMargin="0px 0px -45% 0px">microplastics that almost no one else does.</Annotate>
+            </ScrollWords>
           </motion.div>
         </div>
       </section>
@@ -306,9 +313,9 @@ export function AboutSection({ onNavigate }: { onNavigate?: (s: Section) => void
               {loading ? (
                 <Skeleton className="h-7 w-16" />
               ) : (
-                <span className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-                  {value ?? 'N/A'}
-                </span>
+                typeof value === 'number' && Number.isFinite(value)
+                  ? <RollingNumber value={value} className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl" />
+                  : <span className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">N/A</span>
               )}
               <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {label}

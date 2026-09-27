@@ -24,7 +24,7 @@ import { Bell, Activity as ActivityIcon, Beaker, Heart, HandHeart as DonationIco
 import { QualityBadge } from '@/components/quality-badge'
 import { SourceBadge } from '@/components/source-badge'
 import { Share2 } from 'lucide-react'
-import { AnimatedCounter as BaseAnimatedCounter } from '@/components/ui/animated-counter'
+import { RollingNumber } from '@/components/motion/rolling-number'
 import { WaterReportCardModal } from '@/components/social/water-report-card-modal'
 import { CinematicPanel } from '@/components/ui/cinematic-panel'
 import { useTypedPlaceholder } from '@/hooks/use-typed-placeholder'
@@ -613,7 +613,7 @@ function StatsBar({ stats }: { stats: Stats | null }) {
               <span className="home-stat-label">{label}</span>
             </div>
             {typeof value === 'number' && Number.isFinite(value)
-              ? <AnimatedCounter value={value} className="home-stat-value" />
+              ? <RollingNumber value={value} className="home-stat-value" />
               : <p className="home-stat-value" aria-label="Not assessed">N/A</p>}
             <div className="home-stat-hint">{hint}</div>
           </div>
@@ -621,10 +621,6 @@ function StatsBar({ stats }: { stats: Stats | null }) {
       </div>
     </div>
   )
-}
-
-function AnimatedCounter({ value, className }: { value: number; className?: string }) {
-  return <BaseAnimatedCounter value={value} className={className} />
 }
 
 function UtilityCard({
