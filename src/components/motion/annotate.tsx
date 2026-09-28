@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, type ReactNode } from 'react'
+import { reducedMotion } from '@/lib/motion-choice'
 
 // A hand-drawn mark (underline, circle, box, highlight) that draws itself the
 // first time a phrase is read. Rough Notation (github.com/rough-stuff/
@@ -42,7 +43,7 @@ export function Annotate({
       observer.disconnect()
       const { annotate } = await import('rough-notation')
       if (gone) return
-      const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+      const calm = reducedMotion()
       mark = annotate(el, { type, color, strokeWidth, padding, multiline: true, animate: !calm, animationDuration: duration })
       timer = window.setTimeout(() => mark?.show(), calm ? 0 : delay)
     }, { threshold: 0.8, rootMargin })

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { reducedMotion } from '@/lib/motion-choice'
 
 // A number whose digits roll into place like an odometer the first time it is
 // seen. The look follows NumberFlow (github.com/barvian/number-flow, MIT):
@@ -43,7 +44,7 @@ export function RollingNumber({
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return
       observer.disconnect()
-      const calm = matchMedia('(prefers-reduced-motion: reduce)').matches || document.visibilityState !== 'visible'
+      const calm = reducedMotion() || document.visibilityState !== 'visible'
       setPhase(calm ? 'still' : 'rolling')
     }, { threshold: 0.3 })
     observer.observe(el)

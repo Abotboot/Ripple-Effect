@@ -7,6 +7,7 @@ import { OSM_ATTRIBUTION, OSM_TILES, rippleIcon } from '@/lib/leaflet-water'
 import { searchWaterBodies, waterBodyAt, type WaterMatch } from '@/lib/water-lookup'
 import 'leaflet/dist/leaflet.css'
 import './water-map.css'
+import { reducedMotion } from '@/lib/motion-choice'
 
 export type CollectionPoint = { latitude: number; longitude: number; waterBody: string }
 
@@ -56,7 +57,7 @@ export default function CollectionPointPicker({ value, onChange, hint }: Props) 
 
   useEffect(() => {
     if (!container.current) return
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduced = reducedMotion()
     const start = latest.current.value ?? hint
     const instance = L.map(container.current, {
       center: start ? [start.latitude, start.longitude] : [39, -98],
@@ -103,7 +104,7 @@ export default function CollectionPointPicker({ value, onChange, hint }: Props) 
   }, [hint?.latitude, hint?.longitude])
 
   const fly = (latitude: number, longitude: number) => {
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduced = reducedMotion()
     if (reduced) map.current?.setView([latitude, longitude], 14, { animate: false })
     else map.current?.flyTo([latitude, longitude], 14, { duration: 1.2 })
   }

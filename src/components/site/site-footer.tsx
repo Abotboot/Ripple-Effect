@@ -6,6 +6,7 @@ import './site-chrome.css'
 import { SplitWords } from '@/components/motion/split-words'
 import { ScrollLog } from '@/components/site/scroll-log'
 import { TideLine } from '@/components/motion/tide-line'
+import { MotionToggle } from '@/components/site/motion-choice-control'
 
 const REPO_URL = 'https://github.com/Abotboot/Ripple-Effect'
 
@@ -198,6 +199,7 @@ export function SiteFooter({ onNavigate }: { onNavigate?: (s: Section) => void }
             <button onClick={() => go('terms' as Section)} className="hover:text-primary transition-colors underline-offset-2 hover:underline">
               Terms of Service
             </button>
+            <MotionToggle />
           </div>
           <p className="max-w-xs sm:max-w-md text-center sm:text-right">
             Research and education. For local guidance, check your utility&apos;s annual water report.

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { reducedMotion } from '@/lib/motion-choice'
 
 /**
  * Animated count-up hook. Animates a number from 0 to `end` when the element
@@ -23,9 +24,7 @@ export function useCountUp(end: number, opts?: { duration?: number; startOnView?
     }
 
     // Check reduced-motion preference.
-    const prefersReduced =
-      typeof window !== 'undefined' &&
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    const prefersReduced = reducedMotion()
 
     const startAnimation = () => {
       if (startedRef.current) return

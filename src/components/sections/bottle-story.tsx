@@ -5,6 +5,7 @@ import type { Section } from '@/components/site/site-header'
 import { glideTo } from '@/components/atmosphere/smooth-current'
 import { RollText } from '@/components/motion/roll-text'
 import './bottle-story.css'
+import { reducedMotion } from '@/lib/motion-choice'
 
 // A pinned, scroll-driven look inside one bottle of water: the bottle, a lens
 // that magnifies it, the study count, and the nanoplastics too small to see.
@@ -92,7 +93,7 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
     if (!section || !view || !image || !digits) return
     // With Reduce Motion the story still pins and steps through its chapters,
     // but layers only fade (see the CSS); nothing zooms, grows or slides.
-    const gentle = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const gentle = reducedMotion()
 
     const figure = image.parentElement as HTMLElement
     const pick = (selector: string) => view.querySelector(selector) as HTMLElement
@@ -183,8 +184,9 @@ export function BottleStory({ onNavigate }: { onNavigate?: (s: Section) => void 
         lastStep = step
       }
 
-      // The count climbs with the scroll through the "Count" chapter.
-      const value = Math.round(STUDY_AVERAGE * smooth(0.5, 0.72, p) / 100) * 100
+      // The count climbs with the scroll through the "Count" chapter. It starts
+      // just before the chapter shows, so it never sits at zero on arrival.
+      const value = Math.round(STUDY_AVERAGE * smooth(0.42, 0.7, p) / 100) * 100
       if (value !== lastCount) { digits.textContent = `≈${format.format(value)}`; lastCount = value }
     }
 

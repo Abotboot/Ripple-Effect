@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { reducedMotion } from '@/lib/motion-choice'
 
 /**
  * Types example queries into a placeholder, one after another, while `active`.
@@ -10,7 +11,7 @@ export function useTypedPlaceholder(phrases: readonly string[], active: boolean)
   const [text, setText] = useState(phrases[0] ?? '')
 
   useEffect(() => {
-    if (!active || phrases.length < 2 || matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!active || phrases.length < 2 || reducedMotion()) return
     // Restart from the first phrase each time typing resumes.
     const reset = window.setTimeout(() => setText(phrases[0]), 0)
     let phrase = 0

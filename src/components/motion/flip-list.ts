@@ -1,6 +1,7 @@
 'use client'
 
 import { useLayoutEffect, useRef } from 'react'
+import { reducedMotion } from '@/lib/motion-choice'
 
 // Items in a list slide to their new places when the list changes (a filter,
 // a search, fresh data), and new items fade up instead of popping in.
@@ -24,7 +25,7 @@ export function useFlipList<T extends HTMLElement>(key: unknown, { appear = fals
   useLayoutEffect(() => {
     const list = ref.current
     if (!list) return
-    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const calm = reducedMotion()
     let entering = 0
     for (const child of list.children) {
       if (!(child instanceof HTMLElement)) continue

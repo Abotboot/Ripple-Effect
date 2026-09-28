@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils'
 import { useGlide } from '@/components/motion/glide'
 import { assessmentKind, hasFiniteCoordinates, unavailableAssessment } from '@/lib/sample-read-model'
 import { utilityMapTier as tierFor } from '@/lib/map-presentation'
+import { reducedMotion } from '@/lib/motion-choice'
 
 type MapUtility = Pick<Stats['mapUtilities'][number], 'id' | 'name' | 'city' | 'state' | 'pwsid' | 'latitude' | 'longitude' | 'population' | 'assessment'> &
   Partial<Pick<Stats['mapUtilities'][number], 'contaminantExceedances'>>
@@ -111,7 +112,7 @@ export function MapSection() {
           setFocusReading({ id: pending, nonce: Date.now() })
           // Bring the map on screen so the flight to the water is visible.
           window.setTimeout(() => {
-            const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+            const reduced = reducedMotion()
             mapAnchor.current?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' })
           }, 350)
         }
@@ -141,7 +142,7 @@ export function MapSection() {
   const showOnWater = (reading: WaterReading) => {
     setShowReadings(true)
     setFocusReading({ id: reading.id, nonce: Date.now() })
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduced = reducedMotion()
     mapAnchor.current?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' })
   }
 

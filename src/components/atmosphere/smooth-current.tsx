@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import Lenis from '@studio-freight/lenis'
+import { reducedMotion, REDUCE_QUERY } from '@/lib/motion-choice'
 
 // Smooth wheel scrolling for mice and trackpads. Touch screens keep native
 // scrolling (Lenis never smoothed touch, and its scroll bookkeeping forced a
@@ -19,13 +20,13 @@ export function jumpToTop() {
 
 /** Smoothly scroll to an absolute page offset (instant for reduced motion). */
 export function glideTo(top: number) {
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const reduced = reducedMotion()
   if (activeLenis && !reduced) { activeLenis.scrollTo(top, { duration: 1.2 }); wakeLoop?.() }
   else window.scrollTo({ top, behavior: reduced ? 'auto' : 'smooth' })
 }
 
 export function glideToTop() {
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const reduced = reducedMotion()
   if (activeLenis && !reduced) { activeLenis.scrollTo(0, { duration: 1.1 }); wakeLoop?.() }
   else window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' })
 }
@@ -38,7 +39,7 @@ export function setScrollLocked(locked: boolean) {
 
 export function SmoothCurrent() {
   useEffect(() => {
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+    const reduced = matchMedia(REDUCE_QUERY)
     const touch = matchMedia('(hover: none), (pointer: coarse)')
     let lenis: Lenis | undefined
     let frame = 0
@@ -60,7 +61,7 @@ export function SmoothCurrent() {
       frame = 0
       lenis?.destroy()
       lenis = activeLenis = wakeLoop = undefined
-      if (reduced.matches || touch.matches) return
+      if (reducedMotion() || touch.matches) return
       lenis = new Lenis({ duration: 1.15, smoothWheel: true, syncTouch: false })
       activeLenis = lenis
       wakeLoop = wake

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { reducedMotion } from '@/lib/motion-choice'
 import './motion.css'
 
 // One place for page-wide motion so every section feels like the same water:
@@ -9,7 +10,7 @@ import './motion.css'
 //  - looping decoration ([data-loop]) that pauses while off screen
 //  - a pointer spotlight on cards and a magnetic pull on primary actions
 // Everything is transform/opacity only, pauses when idle, and switches off
-// entirely for prefers-reduced-motion.
+// entirely when motion is reduced (lib/motion-choice.ts).
 
 // Content tagged automatically, so new sections get motion without extra markup.
 const AUTO_REVEAL = [
@@ -26,13 +27,12 @@ const AUTO_SKIP = '[data-no-reveal], .tank-hero, .ripple-hero, [role=dialog], .l
 
 export function MotionSystem() {
   useEffect(() => {
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)')
     const finePointer = matchMedia('(hover: hover) and (pointer: fine)')
     const root = document.documentElement
     const cleanups: Array<() => void> = []
     // Off-screen pausing of loops is not motion, so it runs for everyone;
     // reveals and pointer effects are skipped with Reduce Motion.
-    const motion = !reduced.matches
+    const motion = !reducedMotion()
     root.classList.toggle('motion-ready', motion)
     if (motion) cleanups.push(() => root.classList.remove('motion-ready'))
 

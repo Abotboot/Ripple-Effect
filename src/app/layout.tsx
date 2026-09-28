@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/site/theme-provider";
+import { MOTION_CHOICE_SCRIPT } from "@/lib/motion-choice";
 
 const tankDisplay = Cormorant_Garamond({
   variable: "--font-tank-display", subsets: ["latin"], weight: ["400"], style: ["normal", "italic"],
@@ -58,6 +59,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        {/* Applies a visitor's "turn animations on" choice before first paint. */}
+        <script dangerouslySetInnerHTML={{ __html: MOTION_CHOICE_SCRIPT }} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${tankDisplay.variable} antialiased bg-background text-foreground`}
       >

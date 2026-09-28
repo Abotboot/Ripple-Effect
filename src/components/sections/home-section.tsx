@@ -36,6 +36,7 @@ import { MicroplasticsTeaser } from '@/components/sections/microplastics-teaser'
 import { requestSectionFocus } from '@/lib/section-focus'
 import { TideLine } from '@/components/motion/tide-line'
 import './home-motion.css'
+import { reducedMotion } from '@/lib/motion-choice'
 
 const SEARCH_EXAMPLES = ['ZIP, city or utility', '60614', 'Seattle, WA', 'Philadelphia Water', '90026', 'Miami-Dade'] as const
 
@@ -115,7 +116,7 @@ export function HomeSection({ onNavigate }: { onNavigate?: (s: Section) => void 
       setSearchFailed(false)
       setResults(null)
 
-      const isReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const isReduced = reducedMotion()
       setTimeout(() => {
         const el = document.getElementById('search')
         if (el) {

@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { memo, useEffect, useRef, useState, type CSSProperties } from 'react'
 import styles from './photo-particle-scene.module.css'
+import { reducedMotion, REDUCE_QUERY } from '@/lib/motion-choice'
 
 type Form = 'fibers' | 'fragments' | 'granules'
 const particles = [
@@ -55,8 +56,8 @@ export const PhotoParticleScene = memo(function PhotoParticleScene({ subject = '
     const scene = root.current
     const surface = hero ? scene?.closest<HTMLElement>('.ripple-hero') : scene?.closest<HTMLElement>('[role="tab"]') ?? scene
     if (!scene || !surface) return
-    const preference = matchMedia('(prefers-reduced-motion: reduce)')
-    const enabled = () => !paused && visible && (!preference.matches || allowReducedMotion)
+    const preference = matchMedia(REDUCE_QUERY)
+    const enabled = () => !paused && visible && (!reducedMotion() || allowReducedMotion)
     const nodes = Array.from(scene.querySelectorAll<HTMLElement>('[data-particle]'))
     const count = nodes.length
 

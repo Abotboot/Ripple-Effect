@@ -29,6 +29,7 @@ import type { Section } from '@/components/site/site-header'
 import { MicroplasticsTrendSection } from '@/components/sections/microplastics-trend-section'
 import { ContaminantSpectrumChart } from '@/components/d3/contaminant-spectrum-chart'
 import { MicroplasticsFlowChart } from '@/components/d3/microplastics-flow-chart'
+import { ChartReveal } from '@/components/charts/chart-reveal'
 import { ScaleZoom } from '@/components/sections/scale-zoom'
 import { PlasticPath } from '@/components/sections/plastic-path'
 import { ParticleAtlas } from '@/components/sections/particle-atlas'
@@ -520,7 +521,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                       Both compatible reviewed cohorts are not available. Missing averages are not zero measurements.
                     </div>
                   ) : (
-                    <div className="h-[260px]">
+                    <ChartReveal className="h-[260px]">{animate => (
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={treatmentComparison} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke={GRID_LINE} vertical={false} />
@@ -540,14 +541,14 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                             contentStyle={tooltipStyle}
                             formatter={(v: number) => [`${v} particles/L`, 'Avg level']}
                           />
-                          <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={80}>
+                          <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={80} isAnimationActive={animate} animationDuration={900}>
                             {treatmentComparison.map((d, i) => (
                               <Cell key={i} fill={d.color} />
                             ))}
                           </Bar>
                         </BarChart>
                       </ResponsiveContainer>
-                    </div>
+                    )}</ChartReveal>
                   )}
                 </CardContent>
               </Card>
@@ -570,7 +571,7 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                       No reported observations with compatible concentration units are available.
                     </div>
                   ) : (
-                    <div className="h-[300px]">
+                    <ChartReveal className="h-[300px]">{animate => (
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           data={cityObservations}
@@ -596,10 +597,10 @@ export function MicroplasticsSection({ onNavigate }: { onNavigate?: (s: Section)
                             formatter={(v: number, _name: string, item: { payload?: { review?: string; source?: string } }) =>
                               [`${v} particles/L`, `${item.payload?.review ?? 'Unreviewed'} · ${item.payload?.source ?? 'Unknown source'}`]}
                           />
-                          <Bar dataKey="level" radius={[0, 4, 4, 0]} barSize={16} fill="var(--chart-1)" />
+                          <Bar dataKey="level" radius={[0, 4, 4, 0]} barSize={16} fill="var(--chart-1)" isAnimationActive={animate} animationDuration={900} />
                         </BarChart>
                       </ResponsiveContainer>
-                    </div>
+                    )}</ChartReveal>
                   )}
                   <p className="mt-2 text-xs text-muted-foreground">
                     Units: particles per liter (p/L). No EPA legal limit exists; the

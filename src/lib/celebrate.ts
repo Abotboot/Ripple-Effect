@@ -4,11 +4,13 @@
 // fires, draws on one temporary canvas that is removed when the drops settle,
 // and does nothing for Reduce Motion.
 
+import { reducedMotion } from '@/lib/motion-choice'
+
 const DROP = 'M5 0C5 0 0 6.2 0 9.5A5 5 0 0 0 10 9.5C10 6.2 5 0 5 0Z'
 const COLOURS = ['#1df2b3', '#8fd3ff', '#b7f5dc', '#e9fff7', '#4fd1c5']
 
 export async function celebrate(from?: Element | null) {
-  if (typeof window === 'undefined' || matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  if (typeof window === 'undefined' || reducedMotion()) return
   const { default: confetti } = await import('canvas-confetti')
   const rect = from?.getBoundingClientRect()
   const origin = rect

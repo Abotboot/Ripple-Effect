@@ -11,6 +11,8 @@ import { ScrollToTop } from '@/components/site/scroll-to-top'
 import { HomeSection } from '@/components/sections/home-section'
 import { CommandPalette } from '@/components/site/command-palette'
 import dynamic from 'next/dynamic'
+import { reducedMotion } from '@/lib/motion-choice'
+import { MotionNotice } from '@/components/site/motion-choice-control'
 
 // Heavy sections load on demand (map tiles, chart libs) instead of shipping
 // with the home route. ssr:false keeps them client-only; sections here are
@@ -146,7 +148,7 @@ export default function Home() {
       return
     }
     flushSync(() => {
-      setStageMotion(!matchMedia('(prefers-reduced-motion: reduce)').matches)
+      setStageMotion(!reducedMotion())
       setStageDir(Math.sign(SECTION_ORDER.indexOf(next) - SECTION_ORDER.indexOf(currentSection.current)))
       setSectionState(next)
     })
@@ -183,6 +185,7 @@ export default function Home() {
       <Footer onNavigate={setSection} />
       <ScrollToTop />
       <Palette onNavigate={setSection} />
+      <MotionNotice />
     </div>
   )
 }

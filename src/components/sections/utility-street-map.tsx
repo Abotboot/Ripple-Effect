@@ -10,6 +10,7 @@ import { OSM_ATTRIBUTION, OSM_TILES, READING_STATUS, rippleIcon } from '@/lib/le
 import 'leaflet/dist/leaflet.css'
 import './utility-street-map.css'
 import './water-map.css'
+import { reducedMotion } from '@/lib/motion-choice'
 
 type Location = Pick<Stats['mapUtilities'][number], 'id' | 'name' | 'city' | 'state' | 'latitude' | 'longitude' | 'assessment'>
 type Center = { lat: number; lng: number; name?: string }
@@ -74,7 +75,7 @@ export default function UtilityStreetMap({
 
   useEffect(() => {
     if (!container.current) return
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduced = reducedMotion()
     const instance = L.map(container.current, {
       center: [39, -98], zoom: 4, minZoom: 2, maxZoom: 19,
       scrollWheelZoom: true, worldCopyJump: true,
@@ -174,7 +175,7 @@ export default function UtilityStreetMap({
     if (!focusReading || !map.current) return
     const marker = readingMarkers.current.get(focusReading.id)
     if (!marker) return
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduced = reducedMotion()
     const target = marker.getLatLng()
     const open = () => marker.openPopup()
     if (reduced) { map.current.setView(target, 13, { animate: false }); open(); return }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import './particle-study-counter.css'
+import { reducedMotion, REDUCE_QUERY } from '@/lib/motion-choice'
 
 const TOTAL = 240_000
 const DURATION = 2400
@@ -20,7 +21,7 @@ export function ParticleStudyCounter() {
   useEffect(() => {
     const element = root.current, digits = number.current
     if (!element || !digits) return
-    const preference = matchMedia('(prefers-reduced-motion: reduce)')
+    const preference = matchMedia(REDUCE_QUERY)
     let disposed = false, visible = false, started = false, manuallyPaused = false
     let elapsed = 0, previous = 0, raf: number | null = null
     const paint = (fraction: number) => {
@@ -36,7 +37,7 @@ export function ParticleStudyCounter() {
       element.dataset.running = 'false'
     }
     const complete = () => { stop(); started = true; elapsed = DURATION; paint(1); setPhase('complete') }
-    const canRun = () => !disposed && visible && !document.hidden && !manuallyPaused && !preference.matches && elapsed < DURATION
+    const canRun = () => !disposed && visible && !document.hidden && !manuallyPaused && !reducedMotion() && elapsed < DURATION
     const tick = (now: number) => {
       raf = null
       if (!canRun()) { stop(); return }
@@ -48,18 +49,18 @@ export function ParticleStudyCounter() {
     }
     const sync = () => {
       if (disposed) return
-      if (preference.matches) { setReduced(true); complete(); return }
+      if (reducedMotion()) { setReduced(true); complete(); return }
       setReduced(false)
       if (!canRun()) { stop(); return }
       if (!started) { started = true; paint(0) }
       if (raf === null) { setPhase('counting'); element.dataset.running = 'true'; raf = requestAnimationFrame(tick) }
     }
     replay.current = () => {
-      if (preference.matches) { complete(); return }
+      if (reducedMotion()) { complete(); return }
       stop(); elapsed = 0; started = true; manuallyPaused = false; paint(0); sync()
     }
     togglePause.current = () => {
-      if (elapsed >= DURATION || preference.matches) return
+      if (elapsed >= DURATION || reducedMotion()) return
       manuallyPaused = !manuallyPaused
       if (manuallyPaused) { stop(); setPhase('paused') } else sync()
     }
@@ -67,7 +68,7 @@ export function ParticleStudyCounter() {
     observer.observe(element)
     preference.addEventListener('change', sync)
     document.addEventListener('visibilitychange', sync)
-    if (preference.matches) sync()
+    if (reducedMotion()) sync()
     return () => {
       disposed = true; stop(); observer.disconnect()
       preference.removeEventListener('change', sync); document.removeEventListener('visibilitychange', sync)

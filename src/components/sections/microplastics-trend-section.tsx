@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import type { DataReadStatus } from '@/lib/types'
+import { ChartReveal } from '@/components/charts/chart-reveal'
 
 type TrendPoint = {
   quarter: string
@@ -107,7 +108,7 @@ export function MicroplasticsTrendSection() {
             </div>
           ) : (
             <>
-              <div className="h-[320px]">
+              <ChartReveal className="h-[320px]">{animate => (
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={data.trend}
@@ -145,6 +146,8 @@ export function MicroplasticsTrendSection() {
                       strokeWidth={2.5}
                       dot={{ r: 3, fill: 'var(--chart-5)' }}
                       activeDot={{ r: 5 }}
+                      isAnimationActive={animate}
+                      animationDuration={1100}
                       name="untreatedAvg"
                     />
                     <Line
@@ -154,11 +157,14 @@ export function MicroplasticsTrendSection() {
                       strokeWidth={2.5}
                       dot={{ r: 3, fill: 'var(--chart-1)' }}
                       activeDot={{ r: 5 }}
+                      isAnimationActive={animate}
+                      animationDuration={1100}
+                      animationBegin={200}
                       name="treatedAvg"
                     />
                   </LineChart>
                 </ResponsiveContainer>
-              </div>
+              )}</ChartReveal>
 
               {/* Stats strip */}
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">

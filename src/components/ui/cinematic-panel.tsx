@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useCallback, useEffect } from 'react'
 import { cn } from '@/lib/utils'
+import { reducedMotion, REDUCE_QUERY } from '@/lib/motion-choice'
 
 interface CinematicPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
@@ -31,10 +32,10 @@ export function CinematicPanel({
   const disabledRef = useRef(false)
 
   useEffect(() => {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const reduced = window.matchMedia(REDUCE_QUERY)
     const coarse = window.matchMedia('(pointer: coarse)')
     const update = () => {
-      disabledRef.current = reduced.matches || coarse.matches
+      disabledRef.current = reducedMotion() || coarse.matches
     }
     update()
     reduced.addEventListener('change', update)

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { SplitWords } from '@/components/motion/split-words'
 import './scale-zoom.css'
+import { reducedMotion } from '@/lib/motion-choice'
 
 // "How small is small?" A single SVG world drawn to true relative scale in
 // micrometres (a plastic fragment, a hair lying beside it, a red blood cell,
@@ -80,7 +81,7 @@ export function ScaleZoom() {
     const from = { ...state.current }
     cancelAnimationFrame(from.frame)
     // Reduce Motion: no zoom, just a quick dip to dark between levels.
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (reducedMotion()) {
       const svg = drawing.current
       if (!svg || from.scale === target.scale) { Object.assign(state.current, target); paint(); return }
       svg.style.opacity = '0'
