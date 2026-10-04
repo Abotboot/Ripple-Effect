@@ -96,6 +96,7 @@ const median = (xs: number[]) => { const s = sorted(xs); const m = s.length >> 1
 const percentile = (xs: number[], p: number) => { const s = sorted(xs); return s[Math.min(s.length - 1, Math.floor(p * (s.length - 1)))] }
 const fmt = (n: number) => n.toLocaleString('en-US', { maximumSignificantDigits: 3 })
 const times = (ratio: number) => `${fmt(ratio)}×`
+const earlier = (hours: number) => hours < 1 / 60 ? 'moments earlier' : hours < 2 ? `${Math.round(hours * 60)} minutes earlier` : `${fmt(hours)} hours earlier`
 
 function distanceKm(a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }): number {
   const rad = Math.PI / 180
@@ -273,9 +274,9 @@ async function runChecks(sample: Loaded, point: CollectionPoint | null, contribu
 
   // 9. Duplicates.
   if (device) {
-    if (deviceRepeat) add('duplicate', 'Duplicate', 'warn', `The device sent an identical reading ${fmt((sample.createdAt.getTime() - deviceRepeat.getTime()) / 60e3)} minutes earlier.`)
+    if (deviceRepeat) add('duplicate', 'Duplicate', 'warn', `The device sent an identical reading ${earlier((sample.createdAt.getTime() - deviceRepeat.getTime()) / 3600e3)}.`)
     else add('duplicate', 'Duplicate', 'pass', 'No identical device reading in the last hour.')
-  } else if (reporter?.duplicateHoursAgo != null) add('duplicate', 'Duplicate', 'fail', `The same value for the same contaminant was sent by this reporter ${fmt(reporter.duplicateHoursAgo)} hours earlier.`)
+  } else if (reporter?.duplicateHoursAgo != null) add('duplicate', 'Duplicate', 'fail', `The same value for the same contaminant was sent by this reporter ${earlier(reporter.duplicateHoursAgo)}.`)
   else if (reporter) add('duplicate', 'Duplicate', 'pass', 'No duplicate from this reporter in the last two days.')
   else add('duplicate', 'Duplicate', 'info', 'Reporter history is not available to check for duplicates.')
 
