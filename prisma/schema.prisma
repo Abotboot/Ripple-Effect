@@ -108,6 +108,7 @@ model Sample {
   // on databases where the collection-point migration has not been applied yet.
   collectionPoint SampleCollectionPoint?
   contributor     SampleContributor?
+  review          SampleReview?
 
   @@index([utilityId])
   @@index([contaminantId])
@@ -140,6 +141,25 @@ model SampleContributor {
   sample    Sample   @relation(fields: [sampleId], references: [id], onDelete: Cascade)
 
   @@index([email, createdAt])
+}
+
+// The decision that published, held or rejected a submitted reading: Jev's
+// (TypeSafe AI's decision model) or an admin's. One row per reading, replaced
+// on re-review. The checklist Jev saw is kept so the queue can show its work.
+model SampleReview {
+  sampleId   String   @id
+  decision   String   // publish / hold / reject
+  decidedBy  String   // "jev" or the admin's email
+  confidence Float?   // Jev's confidence in its decision, 0..1
+  model      String?  // the Jev model that answered
+  summary    String   // one line for the queue
+  checks     Json     // [{ id, label, status, detail }]
+  answers    Json?    // Jev's raw answers
+  createdAt  DateTime @default(now())
+
+  sample     Sample   @relation(fields: [sampleId], references: [id], onDelete: Cascade)
+
+  @@index([decision, createdAt])
 }
 
 // Fixed-window request counters shared by every server instance. Keys are

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { readSamples, SAMPLE_READ_FIELDS, sampleReadHeaders } from '@/lib/sample-read'
 import { buildContaminantSummary } from '@/lib/aggregate'
+import { published } from '@/lib/published-samples'
 
 // GET /api/utilities/compare?ids=id1,id2,id3
 // Returns full contaminant summaries for up to 3 utilities, formatted for
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
   const [utilities, { samples, dataStatus }] = await Promise.all([
     db.utility.findMany({ where: { id: { in: ids } } }),
     readSamples({ ...SAMPLE_READ_FIELDS, contaminant: true }, {
-      where: { utilityId: { in: ids } }, orderBy: { sampleDate: 'desc' },
+      where: published({ utilityId: { in: ids } }), orderBy: { sampleDate: 'desc' },
     }),
   ])
 

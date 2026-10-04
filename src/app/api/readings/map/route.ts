@@ -5,12 +5,14 @@ import { sampleBenchmarkStatus } from '@/lib/sample-read-model'
 import { getProvenancePresentation } from '@/lib/provenance'
 import { isMissingSampleMetadataColumn } from '@/lib/sample-read'
 import type { WaterReading } from '@/lib/api'
+import { PUBLISHED_GATE } from '@/lib/published-samples'
 
 // GET /api/readings/map
 // Public: readings that carry a collection point, so the map can draw each
 // one on the water body where it was taken. Contact details are never read.
-// Rejected records are excluded; unreviewed and illustrative records keep
-// their labels and never count as benchmark findings.
+// Submitted readings appear only once reviewed and published (see
+// lib/reading-review.ts); illustrative records keep their labels and never
+// count as benchmark findings.
 
 const MAX_POINTS = 2000
 
@@ -36,7 +38,7 @@ export async function GET(request: Request) {
   try {
     rows = await db.sampleCollectionPoint.findMany({
       select,
-      where: { sample: { verificationStatus: { not: 'REJECTED' } } },
+      where: { sample: PUBLISHED_GATE },
       orderBy: { sample: { sampleDate: 'desc' } },
       take,
     })

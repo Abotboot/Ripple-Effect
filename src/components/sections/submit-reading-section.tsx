@@ -19,6 +19,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { api } from '@/lib/api'
 import { celebrate } from '@/lib/celebrate'
+import type { ReviewDecision } from '@/lib/reading-review'
 import type { Contaminant, Utility } from '@/lib/types'
 import { QualityBadge } from '@/components/quality-badge'
 import './reading-workbench.css'
@@ -47,7 +48,8 @@ export function SubmitReadingSection() {
   })
   const [point, setPoint] = useState<CollectionPoint | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  // What the review decided, once a reading is in (see lib/reading-review.ts).
+  const [submitted, setSubmitted] = useState<ReviewDecision | null>(null)
   const celebrateFrom = useRef<HTMLDivElement>(null)
   // Droplets burst from the check mark once the reading is recorded.
   useEffect(() => { if (submitted) void celebrate(celebrateFrom.current) }, [submitted])
@@ -89,7 +91,7 @@ export function SubmitReadingSection() {
     }
     setSubmitting(true)
     try {
-      await api.submitReading({
+      const result = await api.submitReading({
         contaminantId: form.contaminantId,
         utilityId: form.utilityId || undefined,
         level: Number(form.level),
@@ -103,10 +105,10 @@ export function SubmitReadingSection() {
         ...(point ? { latitude: point.latitude, longitude: point.longitude, waterBody: point.waterBody.trim() || undefined } : {}),
       })
       toast({
-        title: 'Reading submitted! 🧪',
-        description: 'Your citizen reading has been recorded and will appear in the database.',
+        title: result.status === 'publish' ? 'Reading published! 🧪' : 'Reading received 🧪',
+        description: result.message,
       })
-      setSubmitted(true)
+      setSubmitted(result.status ?? 'hold')
       setForm({
         contaminantId: '', utilityId: '', level: '', unit: '',
         treatmentStatus: 'Treated', location: '',
@@ -199,17 +201,22 @@ export function SubmitReadingSection() {
                       <CheckCircle2 className="success-check h-7 w-7 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-emerald-900 dark:text-emerald-200">
-                      Reading recorded! 🧪
+                      {submitted === 'publish' ? 'Reading published! 🧪' : 'Reading received 🧪'}
                     </h3>
                     <p className="mt-1 max-w-sm text-sm text-emerald-800 dark:text-emerald-300">
-                      Thank you for contributing to the database. Your citizen
-                      reading is now visible with the{' '}
-                      <QualityBadge quality="citizen" size="xs" /> tag.
+                      {submitted === 'publish' ? (
+                        <>Thank you. Your reading passed review and is on the map now, with the{' '}
+                        <QualityBadge quality="citizen" size="xs" /> tag.</>
+                      ) : submitted === 'reject' ? (
+                        <>Thank you. It did not pass the automatic review, so the crew will look at it before it can appear on the map.</>
+                      ) : (
+                        <>Thank you. Your reading is in the review queue and appears on the map once a reviewer publishes it.</>
+                      )}
                     </p>
                     <Button
                       variant="outline"
                       className="mt-4 border-emerald-300 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-950/50"
-                      onClick={() => setSubmitted(false)}
+                      onClick={() => setSubmitted(null)}
                     >
                       Submit another reading
                     </Button>

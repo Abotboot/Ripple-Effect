@@ -13,6 +13,7 @@ import type {
   SampleAssessment,
   DataReadStatus,
 } from './types'
+import type { ReadingReview, ReviewDecision } from '@/lib/reading-review'
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
@@ -214,7 +215,7 @@ export const api = {
     latitude?: number
     longitude?: number
     waterBody?: string
-  }) => req<{ ok: true; id: string; message: string }>(`/api/readings`, {
+  }) => req<{ ok: true; id: string; message: string; status?: ReviewDecision }>(`/api/readings`, {
     method: 'POST',
     body: JSON.stringify(data),
   }),
@@ -240,7 +241,9 @@ export const api = {
     count: number
   }>(`/api/readings/recent`),
 
-  getPendingReadings: (status: 'pending' | 'approved' | 'all' = 'pending') => req<{
+  // The review queue (admin). Every submitted reading with the review that
+  // decided it; see lib/reading-review.ts.
+  getPendingReadings: (status: 'pending' | 'published' | 'rejected' | 'all' = 'pending') => req<{
     items: Array<{
       id: string
       level: number
@@ -252,20 +255,34 @@ export const api = {
       sampleDate: string
       createdAt: string
       quality: string
+      verificationStatus: 'UNREVIEWED' | 'VERIFIED' | 'REJECTED'
+      verifiedAt: string | null
       reporterEmail: string
       reporterName: string
       userNotes: string
+      collectionPoint: { latitude: number; longitude: number; waterBody: string | null } | null
+      review: ReadingReview | null
       contaminant: { id: string; name: string; slug: string; healthGuideline: number | null; legalLimit: number | null }
       utility: { id: string; name: string; city: string; state: string } | null
     }>
     count: number
+    jev: { configured: boolean; model: string }
   }>(`/api/readings/pending?status=${status}`),
 
-  updateReadingQuality: (id: string, quality: 'citizen' | 'provisional' | 'verified') =>
-    req<{ id: string; quality: string }>(`/api/readings/${id}`, {
+  /** An admin's call on a reading, overruling Jev when they differ. */
+  decideReading: (id: string, decision: ReviewDecision) =>
+    req<{ id: string; review: ReadingReview }>(`/api/readings/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ quality }),
+      body: JSON.stringify({ decision }),
     }),
+
+  /** Ask Jev again about one reading. */
+  rereviewReading: (id: string) =>
+    req<{ id: string; review: ReadingReview }>(`/api/readings/${id}/review`, { method: 'POST' }),
+
+  /** Ask Jev about everything still waiting. */
+  reviewPendingReadings: () =>
+    req<{ reviewed: number; publish: number; hold: number; reject: number }>(`/api/readings/review`, { method: 'POST' }),
 
   deleteReading: (id: string) =>
     req<{ ok: true }>(`/api/readings/${id}`, { method: 'DELETE' }),

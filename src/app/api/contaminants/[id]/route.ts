@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { readSamples, SAMPLE_READ_FIELDS, sampleReadHeaders } from '@/lib/sample-read'
 import { buildContaminantSummary } from '@/lib/aggregate'
 import { summarizeReviewedConcentrations } from '@/lib/sample-read-cohort'
+import { published } from '@/lib/published-samples'
 
 // GET /api/contaminants/[id] - single contaminant with aggregated stats across all utilities
 export async function GET(
@@ -25,7 +26,7 @@ async function getContaminantDetail(id: string) {
   }
 
   const { samples, dataStatus } = await readSamples({ ...SAMPLE_READ_FIELDS, utility: true }, {
-    where: { contaminantId: id },
+    where: published({ contaminantId: id }),
     orderBy: { sampleDate: 'asc' },
   })
 

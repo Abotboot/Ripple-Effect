@@ -272,11 +272,28 @@ export function getProvenancePresentation(record: {
     }
   }
 
+  // The initiative's own identifier device. Reviewed before it is shown.
+  if ((record.source ?? '').toLowerCase().includes('ripple robot')) {
+    return {
+      badgeLabel: v === 'VERIFIED' ? 'Device reading · reviewed' : 'Device reading',
+      badgeVariant: 'provisional',
+      description: v === 'VERIFIED'
+        ? 'Measured by the initiative\'s identifier device and reviewed before publication. Not an official compliance measurement.'
+        : 'Measured by the initiative\'s identifier device; awaiting review.',
+      isVerified: false,
+      isIllustrative: false,
+      isCitizen: false,
+      historicalSourceLabel: record.source || 'Ripple Robot',
+    }
+  }
+
   if (p === 'CITIZEN_CONTRIBUTED' || record.quality === 'citizen') {
     return {
-      badgeLabel: 'Citizen science',
+      badgeLabel: v === 'VERIFIED' ? 'Citizen science · reviewed' : 'Citizen science',
       badgeVariant: 'citizen',
-      description: 'Community-submitted field test. Unreviewed for official compliance.',
+      description: v === 'VERIFIED'
+        ? 'Community-submitted field test, reviewed before publication. Not an official compliance measurement.'
+        : 'Community-submitted field test. Awaiting review; not an official compliance measurement.',
       isVerified: false,
       isIllustrative: false,
       isCitizen: true,

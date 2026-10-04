@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 import { readSamples, SAMPLE_READ_FIELDS, sampleReadHeaders } from '@/lib/sample-read'
 import { publicSampleNotes } from '@/lib/reading-notes'
+import { published } from '@/lib/published-samples'
 
 // GET /api/samples?utilityId=&contaminantId=&treatmentStatus=&limit=
 export async function GET(req: NextRequest) {
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
   if (treatmentStatus) where.treatmentStatus = treatmentStatus
 
   const { samples, dataStatus } = await readSamples({ ...SAMPLE_READ_FIELDS, contaminant: true, utility: true }, {
-    where,
+    where: published(where),
     orderBy: { sampleDate: 'desc' },
     take: limit,
   })

@@ -18,6 +18,7 @@ Runtime environment:
 
 - `DATABASE_URL` and `DIRECT_URL`: current PostgreSQL connection settings, transferred through the selected host's secret settings. Never include these values in Git, browser bundles, or a public archive.
 - `ROBOT_API_KEY`: preserve if robot submissions are enabled.
+- `TYPESAFE_API_KEY`: the Jev (TypeSafe AI) key that reviews submitted readings; without it every submission waits for an admin. Optional `TYPESAFE_DEFAULT_MODEL` (default `jev-latest`).
 - `DISCORD_WEBHOOK_REPORTS` and `DISCORD_WEBHOOK_ALERTS`: preserve if those integrations are enabled.
 - Keep `SEED_DEMO_DATA` unset or false. Do not run `db:push`, `db:reset`, `db:seed`, or migrations as part of this hosting move.
 

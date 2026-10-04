@@ -83,6 +83,8 @@ export async function sendDiscordReadingWebhook(reading: {
   utilityName?: string | null
   notes?: string | null
   reviewState?: 'unreviewed' | 'provisional-device'
+  /** What the review decided, once it has run. */
+  review?: { decision: 'publish' | 'hold' | 'reject'; summary: string } | null
 }) {
   if (!REPORTS_WEBHOOK_URL) return
   try {
@@ -116,6 +118,13 @@ export async function sendDiscordReadingWebhook(reading: {
             },
             ...(reading.notes
               ? [{ name: '📝 Notes', value: reading.notes, inline: false }]
+              : []),
+            ...(reading.review
+              ? [{
+                  name: reading.review.decision === 'publish' ? '✅ Review: published' : reading.review.decision === 'reject' ? '⛔ Review: rejected' : '⏸️ Review: waiting for a person',
+                  value: reading.review.summary.slice(0, 1000),
+                  inline: false,
+                }]
               : []),
           ],
           footer: {

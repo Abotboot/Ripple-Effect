@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { recordAdminDecision, type ReviewDecision } from '@/lib/reading-review'
 
-// PATCH /api/readings/[id]
-// Admin moderation: update a citizen reading's quality (promote to
-// 'provisional' or 'verified') or delete it. Body: { quality?: 'citizen'|'provisional'|'verified' }
+const DECISIONS = new Set<ReviewDecision>(['publish', 'hold', 'reject'])
+
+// PATCH /api/readings/[id] - admin only.
+// An admin's call on a submitted reading, overruling Jev when they differ.
+// Body: { decision: 'publish' | 'hold' | 'reject' }
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -15,17 +18,15 @@ export async function PATCH(
   }
   const { id } = await params
   const body = await req.json().catch(() => ({}))
-
-  const data: { quality?: string } = {}
-  if (body.quality && ['citizen', 'provisional', 'verified'].includes(String(body.quality))) {
-    data.quality = String(body.quality)
+  const decision = String(body.decision ?? '') as ReviewDecision
+  if (!DECISIONS.has(decision)) {
+    return NextResponse.json({ error: 'decision must be publish, hold or reject.' }, { status: 400 })
   }
-  if (Object.keys(data).length === 0) {
-    return NextResponse.json({ error: 'Nothing to update.' }, { status: 400 })
-  }
+  const exists = await db.sample.findUnique({ where: { id }, select: { id: true } })
+  if (!exists) return NextResponse.json({ error: 'Reading not found.' }, { status: 404 })
 
-  const updated = await db.sample.update({ where: { id }, data })
-  return NextResponse.json(updated)
+  const review = await recordAdminDecision(id, decision, admin)
+  return NextResponse.json({ id, review })
 }
 
 // DELETE /api/readings/[id] - admin only, remove a reading

@@ -105,3 +105,14 @@ Because all column additions are strictly additive, nullable, or carry safe back
 1. **Zero-downtime application rollback**: Revert application deployment to previous release tag.
 2. **Database stability**: Retain additive columns in the database. Older code continues to read `source` and `quality` normally and ignores additive columns. No destructive `DROP COLUMN` operations during routine rollback.
 3. If schema contraction is ever desired in the future, it must be planned as a separate, independently tested migration cycle after verified deprecation.
+
+---
+
+## 5. Review table (October 2026)
+
+`prisma/migrations/20261004_sample_review/migration.sql` adds `SampleReview`:
+the decision (Jev's or an admin's) that published, held or rejected each
+submitted reading, with the checklist it was based on. It is additive and
+safe to re-run by hand in the Neon SQL editor. Until it is applied, decisions
+still take effect (they live on `Sample.verificationStatus`); only the
+checklist detail shown in the admin review queue is missing.

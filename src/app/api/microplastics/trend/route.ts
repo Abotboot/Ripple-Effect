@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
 import { reviewedConcentration } from '@/lib/sample-read-cohort'
+import { published } from '@/lib/published-samples'
 
 // GET /api/microplastics/trend
 // Returns microplastics levels over time (avg per quarter) for treated
@@ -21,7 +22,7 @@ export async function GET() {
       treatmentStatus: true,
       utility: { select: { city: true, state: true } },
   }, {
-    where: { contaminantId: mp.id },
+    where: published({ contaminantId: mp.id }),
     orderBy: { sampleDate: 'asc' },
   })
 

@@ -3,11 +3,12 @@ import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
 import { sampleBenchmarkStatus } from '@/lib/sample-read-model'
 import { getProvenancePresentation } from '@/lib/provenance'
 import { loadCollectionPoints, loadContributorNames } from '@/lib/reading-contributors'
+import { published } from '@/lib/published-samples'
 
 // GET /api/readings/recent
 // Returns recent citizen-submitted readings for the public home feed.
-// Only returns quality='citizen' samples (not lab/utility data - those are
-// already shown in other feeds). Includes the contaminant + utility info
+// Only quality='citizen' samples that a review has published (lab/utility
+// data is already shown in other feeds). Includes the contaminant + utility info
 // for display, the contributor display name, and the collection point.
 export async function GET() {
 
@@ -26,7 +27,7 @@ export async function GET() {
       contaminant: { select: { id: true, name: true, slug: true, healthGuideline: true, legalLimit: true,
         healthGuidelineUnit: true, legalLimitUnit: true } },
       utility: { select: { id: true, name: true, city: true, state: true } },
-  }, { where: { quality: 'citizen' }, take: 12, orderBy: { createdAt: 'desc' } })
+  }, { where: published({ quality: 'citizen' }), take: 12, orderBy: { createdAt: 'desc' } })
 
   // Display names come from SampleContributor, or legacy "name:" notes.
   const [names, points] = await Promise.all([

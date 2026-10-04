@@ -7,7 +7,7 @@ import {
   ShieldCheck, Database, FileJson, FileSpreadsheet, CheckCircle2,
   AlertCircle, Building2, Megaphone, Heart, Mail, Calendar, HandHeart,
   MapPin, Droplets, Users, Beaker, FlaskConical, ArrowUpCircle,
-  Clock, CheckCheck, XCircle, ListFilter,
+  Clock, CheckCheck, XCircle, ListFilter, Bot,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,6 +29,7 @@ import type { Utility, Contaminant, Report, AdminUser, Volunteer, Chapter, Donat
 import { QualityBadge } from '@/components/quality-badge'
 import { SourceBadge } from '@/components/source-badge'
 import { cn } from '@/lib/utils'
+import type { ReadingReview, ReviewCheck, ReviewDecision } from '@/lib/reading-review'
 
 export function AdminSection() {
   const [user, setUser] = useState<AdminUser | null | undefined>(undefined)
@@ -79,7 +80,7 @@ export function AdminSection() {
           </Button>
         </div>
 
-        <Tabs defaultValue="reports" className="w-full">
+        <Tabs defaultValue="readings" className="w-full">
           <TabsList className="grid h-auto w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8">
             <TabsTrigger value="reports" className="gap-1.5">
               <Megaphone className="h-3.5 w-3.5" />
@@ -95,7 +96,7 @@ export function AdminSection() {
             </TabsTrigger>
             <TabsTrigger value="readings" className="gap-1.5">
               <Beaker className="h-3.5 w-3.5" />
-              Readings
+              Review queue
             </TabsTrigger>
             <TabsTrigger value="chapters" className="gap-1.5">
               <Heart className="h-3.5 w-3.5" />
@@ -125,7 +126,7 @@ export function AdminSection() {
             <ContaminantsAdmin />
           </TabsContent>
           <TabsContent value="readings" className="mt-4">
-            <CitizenReadingsAdmin />
+            <ReviewQueueAdmin />
           </TabsContent>
           <TabsContent value="chapters" className="mt-4">
             <ChaptersAdmin />
@@ -1213,73 +1214,141 @@ function DonationsAdmin() {
 }
 
 // -- Citizen Readings Admin (moderation) --
-type AdminReading = {
-  id: string
-  level: number
-  unit: string
-  source: string
-  robot: boolean
-  location: string | null
-  treatmentStatus: string
-  sampleDate: string
-  createdAt: string
-  quality: string
-  reporterEmail: string
-  reporterName: string
-  userNotes: string
-  contaminant: { id: string; name: string; slug: string; healthGuideline: number | null; legalLimit: number | null }
-  utility: { id: string; name: string; city: string; state: string } | null
+// -- Review queue ------------------------------------------------------------
+// Every submitted reading (public form or device) and the review that decided
+// it. Jev (TypeSafe AI's decision model) decides first; an admin can overrule.
+// See lib/reading-review.ts for the checklist and thresholds.
+
+type AdminReading = Awaited<ReturnType<typeof api.getPendingReadings>>['items'][number]
+type QueueTab = 'pending' | 'published' | 'rejected' | 'all'
+type QueueStatus = Exclude<QueueTab, 'all'>
+
+const CHECK_TONE: Record<ReviewCheck['status'], string> = {
+  pass: 'bg-emerald-500',
+  warn: 'bg-amber-500',
+  fail: 'bg-rose-500',
+  info: 'bg-sky-500',
+  skip: 'bg-muted-foreground/40',
+}
+const STATUS_PILL: Record<QueueStatus, string> = {
+  pending: 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300',
+  published: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300',
+  rejected: 'bg-rose-100 text-rose-800 dark:bg-rose-950/50 dark:text-rose-300',
+}
+const STATUS_LABEL: Record<QueueStatus, string> = { pending: 'Waiting', published: 'Published', rejected: 'Rejected' }
+
+function queueStatus(r: AdminReading): QueueStatus {
+  return r.verificationStatus === 'VERIFIED' ? 'published' : r.verificationStatus === 'REJECTED' ? 'rejected' : 'pending'
+}
+const pct = (n: number) => `${Math.round(n * 100)}%`
+
+function ReviewVerdict({ review }: { review: ReadingReview }) {
+  const byJev = review.decidedBy === 'jev'
+  const byChecks = review.decidedBy === 'checks'
+  const Icon = byJev ? Bot : byChecks ? Clock : ShieldCheck
+  const answers = review.answers
+  const evidence = answers ? (answers.evidence.legend as Record<string, unknown>)[String(Math.round(answers.evidence.score))] : null
+  return (
+    <div className="mt-2 rounded-md border border-border/60 bg-background/60 p-2.5 text-xs">
+      <div className="flex items-start gap-2">
+        <Icon className={cn('mt-0.5 h-3.5 w-3.5 shrink-0', byJev ? 'text-primary' : 'text-muted-foreground')} aria-hidden="true" />
+        <div className="min-w-0 flex-1">
+          <p className="text-foreground">{review.summary}</p>
+          {answers && (
+            <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+              <span>publish {pct(answers.decision.probabilities.publish)}</span>
+              <span>hold {pct(answers.decision.probabilities.hold)}</span>
+              <span>reject {pct(answers.decision.probabilities.reject)}</span>
+              <span>believable {pct(answers.plausible.noul)}</span>
+              {evidence != null && <span>evidence: {String(evidence)}</span>}
+            </p>
+          )}
+          <p className="mt-0.5 text-[10px] text-muted-foreground">
+            {new Date(review.createdAt).toLocaleString()}
+            {review.model ? ` · ${review.model}` : ''}
+            {!byJev && !byChecks ? ` · ${review.decidedBy}` : ''}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
 }
 
-function CitizenReadingsAdmin() {
-  const [readings, setReadings] = useState<AdminReading[] | null>(null)
-  // Approval visibility: which slice of the queue the admin is looking at.
-  const [tab, setTab] = useState<'pending' | 'approved' | 'all'>('pending')
+function Checklist({ checks }: { checks: ReviewCheck[] }) {
+  return (
+    <ul className="mt-2 grid gap-1 sm:grid-cols-2">
+      {checks.map((c) => (
+        <li key={c.id} className="flex items-start gap-2 text-xs">
+          <span className={cn('mt-1.5 h-2 w-2 shrink-0 rounded-full', CHECK_TONE[c.status])} aria-label={c.status} />
+          <span>
+            <span className="font-medium text-foreground">{c.label}:</span>{' '}
+            <span className="text-muted-foreground">{c.detail}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function ReviewQueueAdmin() {
+  const [data, setData] = useState<{ items: AdminReading[]; jev: { configured: boolean; model: string } } | null>(null)
+  const [tab, setTab] = useState<QueueTab>('pending')
+  const [busy, setBusy] = useState<string | null>(null) // a reading id, or 'all'
+  const [open, setOpen] = useState<string | null>(null) // whose checklist is expanded
   const { toast } = useToast()
 
   // One fetch of everything (capped at 200 by the API), filtered client-side
   // so tab counts are always live without extra round trips.
-  const load = () => api.getPendingReadings('all').then((r) => setReadings(r.items)).catch(() => setReadings([]))
+  const load = () => api.getPendingReadings('all').then(setData).catch(() => setData({ items: [], jev: { configured: false, model: '' } }))
   useEffect(() => { load() }, [])
 
-  const updateQuality = async (id: string, quality: 'citizen' | 'provisional' | 'verified') => {
+  const failed = (title: string, e: unknown) =>
+    toast({ title, description: e instanceof Error ? e.message : 'Unknown error', variant: 'destructive' })
+
+  const decide = async (id: string, decision: ReviewDecision) => {
+    setBusy(id)
     try {
-      await api.updateReadingQuality(id, quality)
-      toast({ title: `Marked as ${quality}` })
-      load()
-    } catch (e) {
-      toast({
-        title: 'Update failed',
-        description: e instanceof Error ? e.message : 'Unknown error',
-        variant: 'destructive',
-      })
-    }
+      await api.decideReading(id, decision)
+      toast({ title: decision === 'publish' ? 'Published' : decision === 'reject' ? 'Rejected' : 'Back in the queue' })
+      await load()
+    } catch (e) { failed('Could not save the decision', e) } finally { setBusy(null) }
+  }
+
+  const askJev = async (id: string) => {
+    setBusy(id)
+    try {
+      const { review } = await api.rereviewReading(id)
+      toast({ title: review.decidedBy === 'jev' ? `Jev: ${review.decision}` : 'Jev did not answer', description: review.summary })
+      await load()
+    } catch (e) { failed('Jev could not review this reading', e) } finally { setBusy(null) }
+  }
+
+  const askJevAboutAll = async () => {
+    setBusy('all')
+    try {
+      const r = await api.reviewPendingReadings()
+      toast({ title: `Jev reviewed ${r.reviewed} reading${r.reviewed === 1 ? '' : 's'}`, description: `${r.publish} published · ${r.hold} held · ${r.reject} rejected` })
+      await load()
+    } catch (e) { failed('Jev could not review the queue', e) } finally { setBusy(null) }
   }
 
   const remove = async (id: string) => {
+    setBusy(id)
     try {
       await api.deleteReading(id)
       toast({ title: 'Reading deleted' })
-      load()
-    } catch (e) {
-      toast({
-        title: 'Delete failed',
-        description: e instanceof Error ? e.message : 'Unknown error',
-        variant: 'destructive',
-      })
-    }
+      await load()
+    } catch (e) { failed('Delete failed', e) } finally { setBusy(null) }
   }
 
-  if (!readings) {
+  if (!data) {
     return <Skeleton className="h-64 w-full" />
   }
 
-  const isPending = (r: AdminReading) => r.quality === 'citizen'
-  const counts = {
-    pending: readings.filter(isPending).length,
-    approved: readings.filter((r) => !isPending(r)).length,
-  }
-  const visible = tab === 'all' ? readings : tab === 'approved' ? readings.filter((r) => !isPending(r)) : readings.filter(isPending)
+  const { items, jev } = data
+  const counts: Record<QueueStatus, number> = { pending: 0, published: 0, rejected: 0 }
+  for (const r of items) counts[queueStatus(r)]++
+  const visible = tab === 'all' ? items : items.filter((r) => queueStatus(r) === tab)
 
   return (
     <Card>
@@ -1288,18 +1357,16 @@ function CitizenReadingsAdmin() {
           <div>
             <CardTitle className="flex items-center gap-2 text-base">
               <Beaker className="h-4 w-4 text-primary" />
-              Data queue ({readings.length})
+              Review queue ({items.length})
             </CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              Review citizen readings and robot measurements together. The
-              badge on each row tells you whether the data came from our own
-              robot or from an external source.
+              Nothing submitted reaches the public map until it is published here.
+              Jev decides first from the checklist; you can overrule it.
             </p>
-            {/* Approval queue tabs — pending first so nothing gets lost */}
             <div className="mt-2 flex flex-wrap gap-1.5">
-              {(['pending', 'approved', 'all'] as const).map((f) => {
+              {(['pending', 'published', 'rejected', 'all'] as const).map((f) => {
                 const active = tab === f
-                const label = f === 'pending' ? `Needs review (${counts.pending})` : f === 'approved' ? `Approved (${counts.approved})` : `All (${readings.length})`
+                const label = f === 'all' ? `All (${items.length})` : `${STATUS_LABEL[f]} (${counts[f]})`
                 return (
                   <button
                     key={f}
@@ -1318,33 +1385,48 @@ function CitizenReadingsAdmin() {
               })}
             </div>
           </div>
-          {readings.length > 0 && (
+          <div className="flex shrink-0 flex-col items-end gap-1.5">
             <Button
-              variant="outline"
               size="sm"
-              className="shrink-0 gap-1.5"
-              onClick={() => {
-                window.open('/api/readings/export?format=csv', '_blank')
-              }}
+              className="gap-1.5"
+              disabled={!jev.configured || counts.pending === 0 || busy !== null}
+              onClick={askJevAboutAll}
             >
-              <Download className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Export CSV</span>
+              {busy === 'all' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bot className="h-3.5 w-3.5" />}
+              Ask Jev about all waiting
             </Button>
-          )}
+            {items.length > 0 && (
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={() => { window.open('/api/readings/export?format=csv', '_blank') }}>
+                <Download className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Export CSV</span>
+              </Button>
+            )}
+          </div>
+        </div>
+        <div className={cn('mt-3 flex items-start gap-2 rounded-md border p-2.5 text-xs', jev.configured ? 'border-primary/30 bg-primary/5 text-foreground' : 'border-amber-500/40 bg-amber-50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200')}>
+          {jev.configured ? <Bot className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" /> : <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
+          <p>
+            {jev.configured
+              ? <>Jev ({jev.model}) reviews every new submission as it arrives. Confident calls are applied on the spot; the rest wait here.</>
+              : <>Jev is not set up: add <code>TYPESAFE_API_KEY</code> to the server&apos;s environment. Until then every submission waits here for you.</>}
+          </p>
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
         {visible.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {tab === 'pending'
-              ? 'Nothing waiting for review. The queue is clear.'
-              : 'No readings in this view.'}
+            {tab === 'pending' ? 'Nothing waiting for review. The queue is clear.' : 'No readings in this view.'}
           </p>
         ) : visible.map((r) => {
+          const status = queueStatus(r)
+          const checks = r.review?.checks ?? []
+          const warns = checks.filter((c) => c.status === 'warn').length
+          const fails = checks.filter((c) => c.status === 'fail').length
+          const working = busy === r.id || busy === 'all'
           const exceedsHealth = r.contaminant.healthGuideline != null && r.contaminant.healthGuideline > 0 && r.level > r.contaminant.healthGuideline
           const exceedsLegal = r.contaminant.legalLimit != null && r.contaminant.legalLimit > 0 && r.level > r.contaminant.legalLimit
           return (
-            <div key={r.id} className="rounded-lg border border-border/60 bg-card p-3">
+            <div key={r.id} className="rounded-lg border border-border/60 bg-card p-3" aria-busy={working || undefined}>
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-1.5">
@@ -1354,6 +1436,7 @@ function CitizenReadingsAdmin() {
                     <span className="text-sm font-medium text-foreground">{r.contaminant.name}</span>
                     <SourceBadge source={r.source} robot={r.robot} size="xs" />
                     <QualityBadge quality={r.quality} size="xs" />
+                    <span className={cn('rounded-md px-1.5 py-0.5 text-[10px] font-medium', STATUS_PILL[status])}>{STATUS_LABEL[status]}</span>
                     {(exceedsHealth || exceedsLegal) && (
                       <span className="inline-flex items-center gap-0.5 rounded-md bg-rose-100 px-1.5 py-0.5 text-[10px] font-medium text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
                         <AlertCircle className="h-2.5 w-2.5" />
@@ -1368,10 +1451,11 @@ function CitizenReadingsAdmin() {
                         {r.utility.name} ({r.utility.city}, {r.utility.state})
                       </span>
                     )}
-                    {r.location && (
+                    {(r.collectionPoint?.waterBody || r.location) && (
                       <span className="inline-flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
-                        {r.location}
+                        {r.collectionPoint?.waterBody || r.location}
+                        {r.collectionPoint && <span className="tabular-nums"> ({r.collectionPoint.latitude.toFixed(4)}, {r.collectionPoint.longitude.toFixed(4)})</span>}
                       </span>
                     )}
                     <span className="inline-flex items-center gap-1">
@@ -1380,55 +1464,64 @@ function CitizenReadingsAdmin() {
                     </span>
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      <Mail className="h-3 w-3" />
-                      {r.reporterName} ({r.reporterEmail})
-                    </span>
+                    {r.robot ? (
+                      <span className="inline-flex items-center gap-1"><Bot className="h-3 w-3" /> Identifier device{r.userNotes ? ` · ${r.userNotes}` : ''}</span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        {r.reporterName || 'Unknown'}{r.reporterEmail ? ` (${r.reporterEmail})` : ''}
+                      </span>
+                    )}
                   </div>
-                  {r.userNotes && (
+                  {!r.robot && r.userNotes && (
                     <p className="mt-1.5 text-xs italic text-muted-foreground line-clamp-2">
                       &ldquo;{r.userNotes}&rdquo;
                     </p>
                   )}
+                  {r.review ? <ReviewVerdict review={r.review} /> : (
+                    <p className="mt-2 text-xs text-muted-foreground">Not reviewed yet.</p>
+                  )}
+                  {checks.length > 0 && (
+                    <button
+                      type="button"
+                      className="mt-1.5 text-[11px] font-medium text-primary hover:underline"
+                      onClick={() => setOpen(open === r.id ? null : r.id)}
+                      aria-expanded={open === r.id}
+                    >
+                      {open === r.id ? 'Hide checks' : `Show checks`}
+                      {fails ? ` · ${fails} failed` : ''}{warns ? ` · ${warns} warned` : ''}
+                    </button>
+                  )}
+                  {open === r.id && <Checklist checks={checks} />}
                 </div>
                 <div className="flex flex-col items-end gap-1.5">
-                  <div className="flex gap-1">
-                    {tab === 'pending' && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 gap-1 px-2 text-[11px] text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40"
-                          onClick={() => updateQuality(r.id, 'provisional')}
-                        >
-                          <FlaskConical className="h-3 w-3" />
-                          Provisional
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 gap-1 px-2 text-[11px] text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
-                          onClick={() => updateQuality(r.id, 'verified')}
-                        >
-                          <ArrowUpCircle className="h-3 w-3" />
-                          Verify
-                        </Button>
-                      </>
+                  <div className="flex flex-wrap justify-end gap-1">
+                    {status !== 'published' && (
+                      <Button size="sm" variant="outline" disabled={working} className="h-7 gap-1 px-2 text-[11px] text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40" onClick={() => decide(r.id, 'publish')}>
+                        <CheckCircle2 className="h-3 w-3" />
+                        Publish
+                      </Button>
                     )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 gap-1 px-2 text-[11px] text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40"
-                      onClick={() => remove(r.id)}
-                    >
+                    {status !== 'rejected' && (
+                      <Button size="sm" variant="outline" disabled={working} className="h-7 gap-1 px-2 text-[11px] text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40" onClick={() => decide(r.id, 'reject')}>
+                        <XCircle className="h-3 w-3" />
+                        Reject
+                      </Button>
+                    )}
+                    {status !== 'pending' && (
+                      <Button size="sm" variant="outline" disabled={working} className="h-7 gap-1 px-2 text-[11px] text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40" onClick={() => decide(r.id, 'hold')}>
+                        <Clock className="h-3 w-3" />
+                        {status === 'published' ? 'Unpublish' : 'Back to queue'}
+                      </Button>
+                    )}
+                    <Button size="sm" variant="outline" disabled={working || !jev.configured} title={jev.configured ? 'Ask Jev again' : 'Jev is not set up'} className="h-7 gap-1 px-2 text-[11px]" onClick={() => askJev(r.id)}>
+                      {busy === r.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Bot className="h-3 w-3" />}
+                      Ask Jev
+                    </Button>
+                    <Button size="sm" variant="outline" disabled={working} className="h-7 gap-1 px-2 text-[11px] text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40" onClick={() => remove(r.id)} aria-label="Delete reading">
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
-                  {tab !== 'pending' && (
-                    <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
-                      approved
-                    </span>
-                  )}
                   <span className="text-[10px] text-muted-foreground">
                     submitted {new Date(r.createdAt).toLocaleDateString()}
                   </span>

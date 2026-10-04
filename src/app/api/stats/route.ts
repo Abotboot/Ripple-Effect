@@ -10,6 +10,7 @@ import {
   getProvenancePresentation,
   normalizeToBenchmarkUnit,
 } from '@/lib/provenance'
+import { LEGACY_PUBLISHED_GATE, PUBLISHED_GATE, published } from '@/lib/published-samples'
 
 // GET /api/stats - returns high-level platform impact numbers
 export async function GET(req?: NextRequest) {
@@ -43,7 +44,8 @@ export async function GET(req?: NextRequest) {
   ] = await Promise.all([
     db.utility.count(),
     db.contaminant.count(),
-    db.sample.count(),
+    // Submitted readings count once a review has published them.
+    db.sample.count({ where: PUBLISHED_GATE }).catch(() => db.sample.count({ where: LEGACY_PUBLISHED_GATE })),
     db.report.count(),
     db.volunteer.count(),
     db.chapter.count(),
@@ -73,7 +75,7 @@ export async function GET(req?: NextRequest) {
             legalLimitUnit: true,
           },
         },
-    }),
+    }, { where: published() }),
   ])
   const { samples, dataStatus } = sampleRead
 

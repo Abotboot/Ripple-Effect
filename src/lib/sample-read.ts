@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
+import { LEGACY_PUBLISHED_GATE, PUBLISHED_GATE } from '@/lib/published-samples'
 
 /** Read compatibility only. These defaults must never promote historical quality labels. */
 const LEGACY_METADATA = {
@@ -48,6 +49,12 @@ function dependsOnMetadata(value: unknown): boolean {
   return Object.entries(value).some(([key, nested]) => Object.hasOwn(LEGACY_METADATA, key) || dependsOnMetadata(nested))
 }
 
+function withLegacyGate(options: ReadOptions): ReadOptions {
+  const where = options.where
+  if (!where || !Array.isArray(where.AND) || where.AND[0] !== PUBLISHED_GATE) return options
+  return { ...options, where: { ...where, AND: [LEGACY_PUBLISHED_GATE, ...where.AND.slice(1)] } }
+}
+
 /**
  * Retry exactly once, and only after Prisma confirms an absent Sample metadata column.
  * No cache: a later request can see a repaired schema immediately. No writes or raw SQL.
@@ -62,7 +69,11 @@ export async function readSamples<const Select extends Prisma.SampleSelect>(
     return { samples: samples as Prisma.SampleGetPayload<{ select: Select }>[],
       dataStatus: { status: 'available', code: null, provenanceAvailable: true } }
   } catch (error) {
-    if (!isMissingSampleMetadataColumn(error) || dependsOnMetadata(options)) throw error
+    if (!isMissingSampleMetadataColumn(error)) throw error
+    // The publication gate has a legacy form (hide everything submitted);
+    // any other metadata-dependent filter cannot be honoured, so fail.
+    options = withLegacyGate(options)
+    if (dependsOnMetadata(options)) throw error
     const legacySelect = Object.fromEntries(Object.entries(select)
       .filter(([key]) => !Object.hasOwn(LEGACY_METADATA, key))) as Prisma.SampleSelect
     const rows = await db.sample.findMany({ ...options, select: legacySelect })

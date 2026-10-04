@@ -5,6 +5,7 @@ import { sendDiscordReadingWebhook } from '@/lib/discord-webhook'
 import { normalizeContactEmail } from '@/lib/reading-notes'
 import { isMissingTable, parseCollectionPoint } from '@/lib/reading-contributors'
 import { clientAddress, consumeThrottles, HOUR, MINUTE } from '@/lib/durable-throttle'
+import { reviewReading, type ReadingReview } from '@/lib/reading-review'
 
 // Constant-time comparison so a wrong key leaks no timing information.
 function robotKeyMatches(presented: string | null, expected: string | undefined): boolean {
@@ -49,6 +50,24 @@ function unitFrom(value: unknown, fallback: string): string | null {
   if (typeof value !== 'string') return null
   const unit = value.trim()
   return unit && unit.length <= 24 ? unit : null
+}
+
+// Jev (or, failing that, a person) decides whether a reading is published; see
+// lib/reading-review.ts. A review failure never loses a submission: the
+// reading is kept and waits for a person.
+async function reviewSubmission(id: string): Promise<ReadingReview | null> {
+  try {
+    return await reviewReading(id)
+  } catch (error) {
+    console.error('[readings] review failed:', error instanceof Error ? error.message : error)
+    return null
+  }
+}
+
+function submissionMessage(review: ReadingReview | null): string {
+  if (review?.decision === 'publish') return 'Your reading passed review and is now on the map.'
+  if (review?.decision === 'reject') return 'Your reading was received but did not pass automatic review. The crew will take a look.'
+  return 'Your reading was received and is waiting for review.'
 }
 
 function textFrom(value: unknown, max: number): string | null {
@@ -136,6 +155,7 @@ export async function POST(req: NextRequest) {
       if (!place.point || !isMissingTable(error)) throw error
       return db.sample.create({ data: robotData })
     })
+    const robotReview = await reviewSubmission(robotCreated.id)
     await sendDiscordReadingWebhook({
       contaminantName: robotContaminant.name,
       level: robotLevel,
@@ -145,9 +165,10 @@ export async function POST(req: NextRequest) {
       utilityName: robotUtilityName || body.utilityName || null,
       notes: body.notes,
       reviewState: 'provisional-device',
+      review: robotReview,
     })
     return NextResponse.json(
-      { ok: true, id: robotCreated.id, message: 'Robot reading recorded.', robot: true },
+      { ok: true, id: robotCreated.id, message: submissionMessage(robotReview), status: robotReview?.decision ?? 'hold', robot: true },
       { status: 201 }
     )
   }
@@ -247,6 +268,8 @@ export async function POST(req: NextRequest) {
     return db.sample.create({ data: { ...base, notes: legacy.join(' | ') } })
   })
 
+  const review = await reviewSubmission(created.id)
+
   // Queue/receipt notification only. A public citizen submission is unreviewed
   // evidence and cannot trigger a threshold/safety alert from its raw value.
   await sendDiscordReadingWebhook({
@@ -258,10 +281,11 @@ export async function POST(req: NextRequest) {
     utilityName: utilityName || (utilityId ? 'Mapped Utility' : null),
     notes: userNotes,
     reviewState: 'unreviewed',
+    review,
   })
 
   return NextResponse.json(
-    { ok: true, id: created.id, message: 'Citizen reading recorded. Thank you!' },
+    { ok: true, id: created.id, message: submissionMessage(review), status: review?.decision ?? 'hold' },
     { status: 201 }
   )
 }

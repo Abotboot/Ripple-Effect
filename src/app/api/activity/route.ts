@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
 import { sampleBenchmarkStatus } from '@/lib/sample-read-model'
 import { getProvenancePresentation } from '@/lib/provenance'
+import { published } from '@/lib/published-samples'
 
 // GET /api/activity - recent activity across the platform.
 // Returns a unified feed of the latest samples, reports, chapter signups,
@@ -24,7 +25,7 @@ export async function GET() {
           healthGuidelineUnit: true, legalLimitUnit: true } },
     // Unreviewed citizen readings stay out of the public feed until moderated,
     // and future-dated rows can never pin themselves to the top.
-    }, { where: { quality: { not: 'citizen' }, sampleDate: { lte: new Date() } }, take: 5, orderBy: { sampleDate: 'desc' } }),
+    }, { where: published({ quality: { not: 'citizen' }, sampleDate: { lte: new Date() } }), take: 5, orderBy: { sampleDate: 'desc' } }),
     db.report.findMany({
       take: 4,
       orderBy: { createdAt: 'desc' },

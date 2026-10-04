@@ -4,6 +4,7 @@ import { computeSafetyScore } from '@/lib/safety-score'
 import { isEligibleForScoring, normalizeProvenance } from '@/lib/provenance'
 import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
 import { sampleBenchmarkStatus } from '@/lib/sample-read-model'
+import { published } from '@/lib/published-samples'
 
 // GET /api/utilities/scores
 // Returns a lightweight safety score for every utility, for at-a-glance
@@ -30,7 +31,7 @@ export async function GET() {
               legalLimitUnit: true,
             },
           },
-    }),
+    }, { where: published() }),
   ])
   const byUtility = new Map<string, typeof samples>()
   for (const sample of samples) {

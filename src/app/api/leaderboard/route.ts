@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { LEGACY_PUBLISHED_GATE, PUBLISHED_GATE } from '@/lib/published-samples'
 
 // GET /api/leaderboard
 // Returns a chapter leaderboard: which chapters have submitted the most
@@ -7,6 +8,16 @@ import { db } from '@/lib/db'
 // Since chapters don't directly own samples yet (the identifier app is TBD),
 // we rank by a blended score: reports filed from their region + their
 // onboarding status + donations attributed. This is a starting point.
+// Only published readings count (see lib/published-samples.ts); a database
+// without the verificationStatus column counts no submitted readings at all.
+async function publishedSamplesPerUtility() {
+  try {
+    return await db.sample.groupBy({ by: ['utilityId'], _count: { id: true }, where: PUBLISHED_GATE })
+  } catch {
+    return db.sample.groupBy({ by: ['utilityId'], _count: { id: true }, where: LEGACY_PUBLISHED_GATE })
+  }
+}
+
 export async function GET() {
 
   // Only chapters the crew has onboarded are public, and only by chapter name:
@@ -35,7 +46,7 @@ export async function GET() {
   // Count samples by utility state (proxy for data coverage), aggregated in
   // the database instead of loading every sample row.
   const [perUtility, utilities] = await Promise.all([
-    db.sample.groupBy({ by: ['utilityId'], _count: { id: true } }),
+    publishedSamplesPerUtility(),
     db.utility.findMany({ select: { id: true, state: true } }),
   ])
   const stateOf = new Map(utilities.map((u) => [u.id, u.state]))

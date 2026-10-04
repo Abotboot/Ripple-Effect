@@ -4,6 +4,7 @@ import { computeSafetyScore } from '@/lib/safety-score'
 import { getProvenancePresentation, isEligibleForScoring, normalizeProvenance } from '@/lib/provenance'
 import { readSamples, sampleReadHeaders } from '@/lib/sample-read'
 import { sampleBenchmarkStatus } from '@/lib/sample-read-model'
+import { published } from '@/lib/published-samples'
 
 // GET /api/dashboard
 // Returns aggregated national water quality statistics for the public
@@ -23,7 +24,7 @@ export async function GET() {
         provenance: true, verificationStatus: true,
         contaminant: { select: { id: true, name: true, slug: true, healthGuideline: true, legalLimit: true,
           healthGuidelineUnit: true, legalLimitUnit: true, category: true } },
-    }),
+    }, { where: published() }),
     db.contaminant.findMany({ select: { id: true, name: true, slug: true, category: true, regulated: true, trackedByUs: true } }),
   ])
   const { samples, dataStatus } = sampleRead

@@ -95,9 +95,11 @@ const TEAM_GROUPS: TeamGroup[] = [
     accent: 'border-cyan-400/40 bg-cyan-500/5',
     members: [
       { name: 'Abod', title: 'Engineering' },
-      { name: 'Diwash', title: 'Engineering' },
-      { name: 'Aryan', title: 'Programming' },
-      { name: 'Akshat', title: 'Programming' },
+      { name: 'Diwash Dhakal', title: 'Engineering' },
+      { name: 'Aryan Pant', title: 'Programming' },
+      { name: 'Akshat Sharma', title: 'Programming' },
+      { name: 'Ayaz', title: 'Programming' },
+      { name: 'Brian Vo', title: 'Engineering / Programming' },
     ],
   },
   {
@@ -105,7 +107,7 @@ const TEAM_GROUPS: TeamGroup[] = [
     group: 'Public Relations / Social Media',
     accent: 'border-rose-400/40 bg-rose-500/5',
     members: [
-      { name: 'Abby', title: 'PR / Social Media' },
+      { name: 'Abby Allen', title: 'PR / Social Media' },
       { name: 'Zahra', title: 'PR / Social Media' },
       { name: 'Giamy', title: 'PR / Social Media' },
     ],
@@ -115,8 +117,8 @@ const TEAM_GROUPS: TeamGroup[] = [
     group: 'Finance Team',
     accent: 'border-amber-400/40 bg-amber-500/5',
     members: [
-      { name: 'Sujhav', title: 'Finance' },
-      { name: 'Kenny', title: 'Finance' },
+      { name: 'Sujhav Poudel', title: 'Finance' },
+      { name: 'Kenny Tran', title: 'Finance' },
     ],
   },
 ]

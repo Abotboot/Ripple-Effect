@@ -8,6 +8,7 @@ import type { UtilityWithStats } from '@/lib/types'
 import type { Sample, Contaminant } from '@prisma/client'
 import { readSamples, SAMPLE_READ_FIELDS, sampleReadHeaders } from '@/lib/sample-read'
 import { getOfficialMonitoring, withOfficialIdentity } from '@/lib/epa-data'
+import { published } from '@/lib/published-samples'
 
 // GET /api/utilities/[id] - returns the utility with contaminant summaries
 export async function GET(
@@ -27,7 +28,7 @@ export async function GET(
   }
 
   const { samples, dataStatus } = await readSamples({ ...SAMPLE_READ_FIELDS, contaminant: true }, {
-    where: { utilityId: id },
+    where: published({ utilityId: id }),
   })
 
   // Group samples by contaminant
