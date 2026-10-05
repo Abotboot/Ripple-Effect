@@ -108,7 +108,7 @@ export function MicroplasticsTrendSection() {
             </div>
           ) : (
             <>
-              <ChartReveal className="h-[320px]">{animate => (
+              <ChartReveal className="h-[320px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={data.trend}
@@ -146,8 +146,7 @@ export function MicroplasticsTrendSection() {
                       strokeWidth={2.5}
                       dot={{ r: 3, fill: 'var(--chart-5)' }}
                       activeDot={{ r: 5 }}
-                      isAnimationActive={animate}
-                      animationDuration={1100}
+                      isAnimationActive={false}
                       name="untreatedAvg"
                     />
                     <Line
@@ -157,14 +156,12 @@ export function MicroplasticsTrendSection() {
                       strokeWidth={2.5}
                       dot={{ r: 3, fill: 'var(--chart-1)' }}
                       activeDot={{ r: 5 }}
-                      isAnimationActive={animate}
-                      animationDuration={1100}
-                      animationBegin={200}
+                      isAnimationActive={false}
                       name="treatedAvg"
                     />
                   </LineChart>
                 </ResponsiveContainer>
-              )}</ChartReveal>
+              </ChartReveal>
 
               {/* Stats strip */}
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">

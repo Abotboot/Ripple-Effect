@@ -26,14 +26,34 @@ export function motionChoice(): MotionChoice | null {
   } catch { return null }
 }
 
+// Animation loops ask on every frame (the hero's particle physics, counters),
+// so the answer is worked out once and kept: one media query for the life of
+// the page, re-read only when the device setting or the visitor's choice
+// changes (also from another tab).
+let query: MediaQueryList | null = null
+let reduced = false
+
+function watch(): MediaQueryList {
+  if (query) return query
+  query = matchMedia(REDUCE_QUERY)
+  const refresh = () => { reduced = query!.matches && motionChoice() !== 'full' }
+  query.addEventListener('change', refresh)
+  window.addEventListener(CHANGE_EVENT, refresh)
+  window.addEventListener('storage', event => { if (event.key === KEY || event.key === null) refresh() })
+  refresh()
+  return query
+}
+
 /** The device (operating system or browser) asks for less motion. */
 export function deviceReducesMotion() {
-  return typeof window !== 'undefined' && matchMedia(REDUCE_QUERY).matches
+  return typeof window !== 'undefined' && watch().matches
 }
 
 /** Keep motion to a minimum: the device asks for it and the visitor has not turned animations on. */
 export function reducedMotion() {
-  return deviceReducesMotion() && motionChoice() !== 'full'
+  if (typeof window === 'undefined') return false
+  watch()
+  return reduced
 }
 
 /** Remember the choice; the page reloads so every animation starts in step with it. */

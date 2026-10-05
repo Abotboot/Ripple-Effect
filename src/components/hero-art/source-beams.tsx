@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useLayoutEffect, useRef, useState, type CSSProperties, type ElementType } from 'react'
+import { memo, useId, useLayoutEffect, useRef, useState, type ElementType } from 'react'
 import { Database, Globe, HeartPulse, Landmark, MapPin, Users, Waves } from 'lucide-react'
 import './hero-art.css'
 
@@ -9,8 +9,10 @@ import './hero-art.css'
 // (github.com/magicuidesign/magicui, MIT): the beams are measured from the
 // real positions of the nodes, so the same drawing works as a row on wide
 // screens and as a column on phones. Magic UI slides a gradient along each
-// beam frame by frame; here a short dash travels along it in CSS, and the
-// drawing is only re-measured when its size changes.
+// beam frame by frame; here a short light rides each beam on CSS keyframes
+// that bake in the curve as positions (transform and opacity only, so the GPU
+// runs them; a travelling SVG dash repaints on the main thread every frame).
+// The drawing is only re-measured when its size changes.
 
 const SOURCES: Array<{ label: string; icon: ElementType; citizen?: boolean }> = [
   { label: 'EPA', icon: Landmark },
@@ -21,14 +23,58 @@ const SOURCES: Array<{ label: string; icon: ElementType; citizen?: boolean }> = 
   { label: 'Volunteers', icon: Users, citizen: true },
 ]
 
+type P = { x: number; y: number }
+type Curve = [P, P, P, P]
 type Beam = { d: string; citizen?: boolean }
+
+const fixed = (n: number) => n.toFixed(1)
+const pathOf = ([a, c1, c2, b]: Curve) =>
+  `M${fixed(a.x)} ${fixed(a.y)} C${fixed(c1.x)} ${fixed(c1.y)} ${fixed(c2.x)} ${fixed(c2.y)} ${fixed(b.x)} ${fixed(b.y)}`
+const pointOf = ([a, c1, c2, b]: Curve, t: number): P => {
+  const u = 1 - t
+  return {
+    x: u * u * u * a.x + 3 * u * u * t * c1.x + 3 * u * t * t * c2.x + t * t * t * b.x,
+    y: u * u * u * a.y + 3 * u * u * t * c1.y + 3 * u * t * t * c2.y + t * t * t * b.y,
+  }
+}
+const easeInOut = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - (2 - 2 * t) ** 3 / 2
+
+/**
+ * Keyframes that carry a light along a curve, facing the way it travels:
+ * steady along the length (like a dash on a path), easing in and out, fading
+ * at both ends. The easing is baked into the steps, which run linearly.
+ */
+function ride(name: string, curve: Curve): string {
+  const SAMPLES = 64
+  const STEPS = 32
+  const points = Array.from({ length: SAMPLES + 1 }, (_, i) => pointOf(curve, i / SAMPLES))
+  const lengths = [0]
+  for (let i = 1; i <= SAMPLES; i++) lengths.push(lengths[i - 1] + Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y))
+  const total = lengths[SAMPLES] || 1
+  const frames: string[] = []
+  let previous: number | null = null
+  for (let step = 0; step <= STEPS; step++) {
+    const along = easeInOut(step / STEPS)
+    let i = 1
+    while (i < SAMPLES && lengths[i] < along * total) i++
+    const from = points[i - 1], to = points[i]
+    const r = Math.min(1, Math.max(0, (along * total - lengths[i - 1]) / ((lengths[i] - lengths[i - 1]) || 1)))
+    let angle = Math.atan2(to.y - from.y, to.x - from.x) * 180 / Math.PI
+    if (previous !== null) angle += Math.round((previous - angle) / 360) * 360
+    previous = angle
+    const opacity = Math.min(1, along / 0.08, (1 - along) / 0.08)
+    frames.push(`${(step / STEPS * 100).toFixed(2)}%{transform:translate(${fixed(from.x + (to.x - from.x) * r)}px,${fixed(from.y + (to.y - from.y) * r)}px) rotate(${angle.toFixed(1)}deg);opacity:${opacity.toFixed(2)}}`)
+  }
+  return `@keyframes ${name}{${frames.join('')}}`
+}
 
 export const SourceBeams = memo(function SourceBeams() {
   const root = useRef<HTMLDivElement>(null)
   const hub = useRef<HTMLDivElement>(null)
   const out = useRef<HTMLDivElement>(null)
   const nodes = useRef<Array<HTMLLIElement | null>>([])
-  const [drawing, setDrawing] = useState<{ w: number; h: number; beams: Beam[]; exit: string } | null>(null)
+  const [drawing, setDrawing] = useState<{ w: number; h: number; beams: Beam[]; exit: string; rides: string } | null>(null)
+  const prefix = `sb-ride-${useId().replace(/[^a-zA-Z0-9]/g, '')}-`
 
   useLayoutEffect(() => {
     const box = root.current
@@ -43,33 +89,34 @@ export const SourceBeams = memo(function SourceBeams() {
         y: (side === 'top' ? r.top : side === 'bottom' ? r.bottom : r.top + r.height / 2) - frame.top,
       })
       // A smooth S-curve that leaves and arrives square to the nodes.
-      const curve = (a: { x: number; y: number }, b: { x: number; y: number }, vertical: boolean) => {
+      const curve = (a: P, b: P, vertical: boolean): Curve => {
         const k = vertical ? (b.y - a.y) / 2 : (b.x - a.x) / 2
         return vertical
-          ? `M${a.x.toFixed(1)} ${a.y.toFixed(1)} C${a.x.toFixed(1)} ${(a.y + k).toFixed(1)} ${b.x.toFixed(1)} ${(b.y - k).toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`
-          : `M${a.x.toFixed(1)} ${a.y.toFixed(1)} C${(a.x + k).toFixed(1)} ${a.y.toFixed(1)} ${(b.x - k).toFixed(1)} ${b.y.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`
+          ? [a, { x: a.x, y: a.y + k }, { x: b.x, y: b.y - k }, b]
+          : [a, { x: a.x + k, y: a.y }, { x: b.x - k, y: b.y }, b]
       }
       // Sources above the hub (phones) flow down; beside it (wide) flow across.
       const list = nodes.current[0]?.parentElement?.getBoundingClientRect()
       const vertical = !!list && list.bottom <= hubRect.top
       const beams: Beam[] = []
+      const rides: string[] = []
       nodes.current.forEach((node, index) => {
         if (!node) return
         const r = node.getBoundingClientRect()
-        beams.push({
-          d: curve(at(r, vertical ? 'bottom' : 'right'), at(hubRect, vertical ? 'top' : 'left'), vertical),
-          citizen: SOURCES[index].citizen,
-        })
+        const c = curve(at(r, vertical ? 'bottom' : 'right'), at(hubRect, vertical ? 'top' : 'left'), vertical)
+        rides.push(ride(`${prefix}${beams.length}`, c))
+        beams.push({ d: pathOf(c), citizen: SOURCES[index].citizen })
       })
       const down = outRect.top >= hubRect.bottom
       const exit = curve(at(hubRect, down ? 'bottom' : 'right'), at(outRect, down ? 'top' : 'left'), down)
-      setDrawing({ w: frame.width, h: frame.height, beams, exit })
+      rides.push(ride(`${prefix}exit`, exit))
+      setDrawing({ w: frame.width, h: frame.height, beams, exit: pathOf(exit), rides: rides.join('') })
     }
     measure()
     const sizes = new ResizeObserver(measure)
     sizes.observe(box)
     return () => sizes.disconnect()
-  }, [])
+  }, [prefix])
 
   return (
     <div
@@ -80,20 +127,23 @@ export const SourceBeams = memo(function SourceBeams() {
       aria-label="Data flows from the EPA, USGS, WHO, CDC, EWG and volunteer readings into the Ripple database, and from there onto the map."
     >
       {drawing && (
-        <svg className="sb-lines" width={drawing.w} height={drawing.h} viewBox={`0 0 ${drawing.w} ${drawing.h}`} aria-hidden="true">
-          {drawing.beams.map((beam, i) => <path key={`b${i}`} className="sb-track" d={beam.d} />)}
-          <path className="sb-track" d={drawing.exit} />
-          {drawing.beams.map((beam, i) => (
-            <path
-              key={`p${i}`}
-              className={beam.citizen ? 'sb-pulse sb-pulse--citizen' : 'sb-pulse'}
-              d={beam.d}
-              pathLength={1}
-              style={{ '--d': `${(i * 0.47) % 2.8}s` } as CSSProperties}
-            />
-          ))}
-          <path className="sb-pulse sb-pulse--exit" d={drawing.exit} pathLength={1} />
-        </svg>
+        <>
+          <style>{drawing.rides}</style>
+          <svg className="sb-lines" width={drawing.w} height={drawing.h} viewBox={`0 0 ${drawing.w} ${drawing.h}`} aria-hidden="true">
+            {drawing.beams.map((beam, i) => <path key={i} className="sb-track" d={beam.d} />)}
+            <path className="sb-track" d={drawing.exit} />
+          </svg>
+          <div className="sb-lights" aria-hidden="true">
+            {drawing.beams.map((beam, i) => (
+              <span
+                key={i}
+                className={beam.citizen ? 'sb-light sb-light--citizen' : 'sb-light'}
+                style={{ animationName: `${prefix}${i}`, animationDelay: `${(i * 0.47) % 2.8}s` }}
+              />
+            ))}
+            <span className="sb-light sb-light--exit" style={{ animationName: `${prefix}exit` }} />
+          </div>
+        </>
       )}
       <ul className="sb-sources" aria-hidden="true">
         {SOURCES.map(({ label, icon: Icon, citizen }, i) => (

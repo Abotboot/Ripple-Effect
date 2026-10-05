@@ -1,0 +1,11 @@
+/* The curtain over a freshly built chart (chart-reveal.tsx). It slides off
+   when the chart is seen; only its transform animates, so the GPU moves it.
+   Its soft leading edge waits outside the chart, clipped, until it moves. */
+.chart-reveal { position: relative; }
+.chart-curtain { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.chart-curtain::after { content: ''; position: absolute; top: 0; bottom: 0; left: -40%; width: 140%; background: linear-gradient(90deg, transparent, var(--curtain) 28.6%); }
+.chart-curtain[data-axis=y]::after { inset: 0 0 auto; width: auto; height: 140%; background: linear-gradient(var(--curtain) 71.4%, transparent); }
+.chart-curtain[data-drawing]::after { animation: chart-curtain-x .95s cubic-bezier(.45, 0, .2, 1) forwards; }
+.chart-curtain[data-drawing][data-axis=y]::after { animation-name: chart-curtain-y; }
+@keyframes chart-curtain-x { to { transform: translateX(100%); } }
+@keyframes chart-curtain-y { to { transform: translateY(-100%); } }

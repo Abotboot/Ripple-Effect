@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { after, NextRequest, NextResponse } from 'next/server'
 import { timingSafeEqual } from 'crypto'
 import { db } from '@/lib/db'
 import { sendDiscordReadingWebhook } from '@/lib/discord-webhook'
@@ -64,7 +64,22 @@ async function reviewSubmission(id: string): Promise<ReadingReview | null> {
   }
 }
 
-function submissionMessage(review: ReadingReview | null): string {
+// The submitter waits at most this long for the review. A slow map lookup or
+// a slow answer from Jev finishes after the response instead (the review
+// still applies; the reading just says "being reviewed" for now).
+const REVIEW_WAIT_MS = 2500
+
+/** Starts the review; resolves with it, or with undefined if it is still running at the deadline. */
+function reviewWithin(id: string): { pending: Promise<ReadingReview | null>; settled: Promise<ReadingReview | null | undefined> } {
+  const pending = reviewSubmission(id)
+  let timer: NodeJS.Timeout | undefined
+  const deadline = new Promise<undefined>(resolve => { timer = setTimeout(() => resolve(undefined), REVIEW_WAIT_MS) })
+  const settled = Promise.race([pending, deadline]).finally(() => clearTimeout(timer))
+  return { pending, settled }
+}
+
+function submissionMessage(review: ReadingReview | null | undefined): string {
+  if (review === undefined) return 'Your reading was received and is being reviewed. It appears on the map once it is published.'
   if (review?.decision === 'publish') return 'Your reading passed review and is now on the map.'
   if (review?.decision === 'reject') return 'Your reading was received but did not pass automatic review. The crew will take a look.'
   return 'Your reading was received and is waiting for review.'
@@ -155,8 +170,9 @@ export async function POST(req: NextRequest) {
       if (!place.point || !isMissingTable(error)) throw error
       return db.sample.create({ data: robotData })
     })
-    const robotReview = await reviewSubmission(robotCreated.id)
-    await sendDiscordReadingWebhook({
+    const robotReview = reviewWithin(robotCreated.id)
+    // The notice goes out once the review is done, after the response.
+    after(async () => sendDiscordReadingWebhook({
       contaminantName: robotContaminant.name,
       level: robotLevel,
       unit: robotUnit,
@@ -165,10 +181,11 @@ export async function POST(req: NextRequest) {
       utilityName: robotUtilityName || body.utilityName || null,
       notes: body.notes,
       reviewState: 'provisional-device',
-      review: robotReview,
-    })
+      review: await robotReview.pending,
+    }))
+    const robotSettled = await robotReview.settled
     return NextResponse.json(
-      { ok: true, id: robotCreated.id, message: submissionMessage(robotReview), status: robotReview?.decision ?? 'hold', robot: true },
+      { ok: true, id: robotCreated.id, message: submissionMessage(robotSettled), status: robotSettled?.decision ?? 'hold', robot: true },
       { status: 201 }
     )
   }
@@ -268,11 +285,12 @@ export async function POST(req: NextRequest) {
     return db.sample.create({ data: { ...base, notes: legacy.join(' | ') } })
   })
 
-  const review = await reviewSubmission(created.id)
+  const review = reviewWithin(created.id)
 
-  // Queue/receipt notification only. A public citizen submission is unreviewed
-  // evidence and cannot trigger a threshold/safety alert from its raw value.
-  await sendDiscordReadingWebhook({
+  // Queue/receipt notification only, sent once the review is done (after the
+  // response). A public citizen submission cannot trigger a threshold/safety
+  // alert from its raw value.
+  after(async () => sendDiscordReadingWebhook({
     contaminantName: contaminant.name,
     level,
     unit,
@@ -281,11 +299,12 @@ export async function POST(req: NextRequest) {
     utilityName: utilityName || (utilityId ? 'Mapped Utility' : null),
     notes: userNotes,
     reviewState: 'unreviewed',
-    review,
-  })
+    review: await review.pending,
+  }))
 
+  const settled = await review.settled
   return NextResponse.json(
-    { ok: true, id: created.id, message: submissionMessage(review), status: review?.decision ?? 'hold' },
+    { ok: true, id: created.id, message: submissionMessage(settled), status: settled?.decision ?? 'hold' },
     { status: 201 }
   )
 }
